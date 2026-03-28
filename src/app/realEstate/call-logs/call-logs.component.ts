@@ -16,7 +16,6 @@ export class CallLogsComponent implements OnInit {
     fromDate: '',
     toDate: '',
   };
-  htype: '';
   callStatus = 'missed';
   isAdmin = false;
   execid = '';
@@ -44,7 +43,6 @@ export class CallLogsComponent implements OnInit {
         localStorage.getItem('Role') == '50009' ||
         localStorage.getItem('Role') == '50010';
       this.execid = params['executid'];
-      this.htype = params['htype'];
       this.isOnCallDetailsPage = params['isOnCallDetailsPage'] === 'true';
       this.getallCallsData(false);
     });
@@ -161,8 +159,8 @@ export class CallLogsComponent implements OnInit {
         callto: cleanedNumber,
         leadid: this.lead.leadid,
         starttime: this.getCurrentDateTime(),
-        modeofcall: 'mobile-' + this.htype,
-        leadtype: this.htype,
+        modeofcall: 'mobile-mandate',
+        leadtype: 'mandate',
         assignee: this.lead.Exec_IDFK,
       };
 
@@ -178,7 +176,7 @@ export class CallLogsComponent implements OnInit {
           leadTabData: 'status',
           callStatus: 'Call Connected',
           direction: 'outboundCall',
-          headerType: this.htype,
+          headerType: 'mandate',
         },
         queryParamsHandling: 'merge',
       });

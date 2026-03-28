@@ -16,10 +16,12 @@ import { DropdownModule } from 'primeng/dropdown';
 import { HighlightPipe } from './highlight.pipe';
 import { LongPressDirective } from './long-press.directive';
 import { LineBreaksPipe } from './lineBreaks.pipe';
+import { MenubarComponent } from '../constructer/menubar/menubar.component';
 @NgModule({
   declarations: [
     CenterActiveButtonDirective,
     MenuComponent,
+    MenubarComponent,
     CommonFooterComponent,
     CheckInOutPhotoCaptureComponent,
     HeaderComponent,
@@ -49,6 +51,7 @@ import { LineBreaksPipe } from './lineBreaks.pipe';
     MandateSharedModule,
     HighlightPipe,
     LineBreaksPipe,
+    MenubarComponent,
   ],
 })
 export class SharedModule {}

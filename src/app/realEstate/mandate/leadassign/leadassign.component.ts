@@ -75,7 +75,6 @@ export class LeadassignComponent {
       localStorage.getItem('RoleType') === '1'
         ? localStorage.getItem('UserId')
         : '',
-    htype: '',
     type: '',
     toTime: '',
     limit: 0,
@@ -459,7 +458,6 @@ export class LeadassignComponent {
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
             : null,
-        htype: this.filteredParams.htype,
       },
     });
   }
@@ -507,7 +505,6 @@ export class LeadassignComponent {
       visitedtodate: '',
       assignedfromdate: '',
       assignedtodate: '',
-      htype: this.filteredParams.htype,
       fromTime: '',
       type: '',
       toTime: '',
@@ -579,7 +576,8 @@ export class LeadassignComponent {
     });
 
     this.filteredParams.executid =
-      localStorage.getItem('Role') === '1'
+      localStorage.getItem('Role') === '1' ||
+      this.localStorage.getItem('RoleType') == '1'
         ? this.filteredParams.executid
         : localStorage.getItem('UserId');
   }
@@ -1121,34 +1119,38 @@ export class LeadassignComponent {
     }`;
   }
 
-  onHtype(htype) {
-    const queryParams = {};
-    for (const key in this.filteredParams) {
-      if (
-        this.filteredParams.hasOwnProperty(key) &&
-        this.filteredParams[key] !== ''
-      ) {
-        if (key == 'propid') {
-          queryParams[key] = '';
-        } else {
-          queryParams[key] = this.filteredParams[key];
-        }
-      } else {
-        queryParams[key] = null;
-      }
-    }
-    if (htype == 'mandate') {
-      this.router.navigate(['leadassign'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.router.navigate(['retail-leadassign'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    }
-  }
+  // onHtype(htype) {
+  //   const queryParams = {};
+  //   for (const key in this.filteredParams) {
+  //     if (
+  //       this.filteredParams.hasOwnProperty(key) &&
+  //       this.filteredParams[key] !== ''
+  //     ) {
+  //       if (key == 'propid') {
+  //         queryParams[key] = '';
+  //       } else {
+  //         queryParams[key] = this.filteredParams[key];
+  //       }
+  //     } else {
+  //       queryParams[key] = null;
+  //     }
+  //   }
+  //   this.router.navigate(['leadassign'], {
+  //     queryParams,
+  //     queryParamsHandling: 'merge',
+  //   });
+  //   // if (htype == 'mandate') {
+  //   //   this.router.navigate(['leadassign'], {
+  //   //     queryParams,
+  //   //     queryParamsHandling: 'merge',
+  //   //   });
+  //   // } else {
+  //   //   this.router.navigate(['retail-leadassign'], {
+  //   //     queryParams,
+  //   //     queryParamsHandling: 'merge',
+  //   //   });
+  //   // }
+  // }
 
   openEndMenu() {
     this._sharedservice.isMenuOpen = true;
@@ -1270,8 +1272,8 @@ export class LeadassignComponent {
         callto: cleanedNumber,
         leadid: this.lead.LeadID,
         starttime: this.getCurrentDateTime(),
-        modeofcall: 'mobile-' + this.filteredParams.htype,
-        leadtype: this.filteredParams.htype,
+        modeofcall: 'mobile-mandate',
+        leadtype: 'mandate',
         assignee: this.lead.ExecId,
       };
       this._sharedservice.outboundCall(param).subscribe(() => {
@@ -1286,7 +1288,6 @@ export class LeadassignComponent {
           leadTabData: 'status',
           callStatus: 'Call Connected',
           direction: 'outboundCall',
-          headerType: this.filteredParams.htype,
         },
         queryParamsHandling: 'merge',
       });
@@ -1340,7 +1341,6 @@ export class LeadassignComponent {
       queryParams: {
         chatListSearch: number,
         selectedChat: 'all',
-        htype: this.filteredParams.htype,
       },
     });
   }

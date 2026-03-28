@@ -34,7 +34,6 @@ export class SearchComponent implements OnInit {
   filteredLeads: any[] = [];
   filteredData;
   crmtype = '';
-  htype;
   isCP = false;
   lead: any;
   isOnCallDetailsPage: boolean;
@@ -80,9 +79,6 @@ export class SearchComponent implements OnInit {
         this.localStorage.getItem('Role') == '50009' ||
         this.localStorage.getItem('Role') == '50010';
       this.isCP = this.localStorage.getItem('cpId') === '1';
-      if (params['htype']) {
-        this.htype = params['htype'];
-      }
 
       if (params['isOnCallDetailsPage'] == 'true') {
         this.isOnCallDetailsPage = true;
@@ -145,50 +141,52 @@ export class SearchComponent implements OnInit {
             this.filteredLeads = response['Searchlist'];
             const groupedMap = new Map();
 
-            response['Searchlist'].forEach((lead: any) => {
-              const number = lead.customer_number ?? '';
-              const name = lead.customer_name ?? '';
-              const execname = lead.execname ?? '';
-              const leadStage = lead.Lead_stage ?? '';
-              const idpk = lead.customer_IDPK ?? '';
-              const crmType = lead.crm_type ?? '';
-              const propid = lead.propid ?? '';
+            // response['Searchlist'].forEach((lead: any) => {
+            //   const number = lead.customer_number ?? '';
+            //   const name = lead.customer_name ?? '';
+            //   const execname = lead.execname ?? '';
+            //   const leadStage = lead.Lead_stage ?? '';
+            //   const idpk = lead.customer_IDPK ?? '';
+            //   const crmType = lead.crm_type ?? '';
+            //   const propid = lead.propid ?? '';
 
-              const key = number + '_' + leadStage + '_' + crmType;
+            //   const key = number + '_' + leadStage + '_' + crmType;
 
-              if (!groupedMap.has(key)) {
-                groupedMap.set(key, {
-                  customer_number: number,
-                  customer_name: name,
-                  Lead_stage: leadStage,
-                  customer_IDPK: idpk,
-                  crm_type: crmType,
-                  propid: propid,
+            //   if (!groupedMap.has(key)) {
+            //     groupedMap.set(key, {
+            //       customer_number: number,
+            //       customer_name: name,
+            //       Lead_stage: leadStage,
+            //       customer_IDPK: idpk,
+            //       crm_type: crmType,
+            //       propid: propid,
 
-                  execnames: new Set(execname ? [execname] : []),
-                  originalLeads: [lead],
-                });
-              } else {
-                const existing = groupedMap.get(key);
-                if (execname) {
-                  existing.execnames.add(execname);
-                }
-                existing.originalLeads.push(lead);
-              }
-            });
+            //       execnames: new Set(execname ? [execname] : []),
+            //       originalLeads: [lead],
+            //     });
+            //   } else {
+            //     const existing = groupedMap.get(key);
+            //     if (execname) {
+            //       existing.execnames.add(execname);
+            //     }
+            //     existing.originalLeads.push(lead);
+            //   }
+            // });
 
-            this.filteredLeads = Array.from(groupedMap.values()).map(
-              (item) => ({
-                ...item,
-                execnames: Array.from(item.execnames),
-              })
-            );
+            // this.filteredLeads = Array.from(groupedMap.values()).map(
+            //   (item) => ({
+            //     ...item,
+            //     execnames: Array.from(item.execnames),
+            //   })
+            // );
 
             this.showSpinner = false;
           } else {
             this.filteredLeads = [];
             this.showSpinner = false;
           }
+
+          console.log(this.filteredLeads);
         },
         error: (error) => {
           this.filteredLeads = [];
@@ -294,9 +292,10 @@ export class SearchComponent implements OnInit {
       queryParams: {
         allVisits: null,
         leadId: leadsId,
-        htype: 'mandate',
-        execid: execid['originalLeads'][0].execid,
-        propid: execid['originalLeads'][0].propid,
+        // execid: execid['originalLeads'][0].execid,
+        // propid: execid['originalLeads'][0].propid,
+        execid: execid.execid,
+        propid: execid.propid,
       },
       queryParamsHandling: 'merge',
     });
@@ -413,9 +412,10 @@ export class SearchComponent implements OnInit {
         callto: cleanedNumber,
         leadid: this.lead.customer_IDPK,
         starttime: this.getCurrentDateTime(),
-        modeofcall: 'mobile-' + this.htype,
-        leadtype: this.htype,
-        assignee: this.lead.originalLeads[0].execid,
+        modeofcall: 'mobile-mandate',
+        leadtype: 'mandate',
+        // assignee: this.lead.originalLeads[0].execid,
+        assignee: this.lead.execid,
       };
 
       this.callConfirmationModal.dismiss();
@@ -428,11 +428,11 @@ export class SearchComponent implements OnInit {
         queryParams: {
           isOnCallDetailsPage: this.isOnCallDetailsPage,
           leadId: this.lead.customer_IDPK,
-          execid: this.lead.originalLeads[0].execid,
+          // execid: this.lead.originalLeads[0].execid,
+          execid: this.lead.execid,
           leadTabData: 'status',
           callStatus: 'Call Connected',
           direction: 'outboundCall',
-          headerType: this.htype,
         },
         queryParamsHandling: 'merge',
       });

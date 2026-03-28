@@ -1,7 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CommonserviceService } from './commonservice.service';
-
 describe('CommonserviceService', () => {
   let service: CommonserviceService;
 

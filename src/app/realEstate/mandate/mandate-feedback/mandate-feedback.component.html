@@ -4,19 +4,7 @@
 
 <app-header *ngIf="!isOnCallDetailsPage && !isCheckbox"></app-header>
 <ion-header *ngIf="!isOnCallDetailsPage && isCheckbox">
-  <!-- <ion-row class="selectOption" style="height: 45px;" *ngIf="!isCheckbox">
-    <ion-col size="2" class="ion-text-left content_center" (click)="onBackButton()">
-      <ion-icon name="arrow-back">back</ion-icon>
-    </ion-col>
-    <ion-col size="8" class="content_center font-size14-familyPoppins" style="line-height:normal;">
-      <span class="font-size16-familyPoppins">
-        Feedback calls
-      </span>
-    </ion-col>
-    <ion-col size="2" (click)="openEndMenu()" class="content_center">
-      <ion-icon name="menu" class="menu_icon"></ion-icon>
-    </ion-col>
-  </ion-row> -->
+  
   <ion-row style="margin-top: 5px;border-bottom: 1px solid rgba(32, 34, 36, 0.7);">
     <ion-col size="2" class="content_center" (click)="showSpinner=true; onBackicon()">
       <ion-icon name="arrow-back-outline"></ion-icon>
@@ -386,7 +374,8 @@
             </ng-template>
           </ion-popover>
 
-          <ion-col size="1.5" class="d-flex align-item-center justify-content-center">
+          <ion-col *ngIf="_sharedservice.hasCallFeature" size="1.5"
+            class="d-flex align-item-center justify-content-center">
             <a (click)="this.outboundCall(lead)" class="ion-text-start call-icon">
               <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
             </a>
@@ -396,7 +385,8 @@
               <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
             </a>
           </ion-col>
-          <ion-col size="1.5" class="d-flex align-item-center justify-content-center">
+          <ion-col *ngIf="_sharedservice.hasCallFeature" size="1.5"
+            class="d-flex align-item-center justify-content-center">
             <a (click)="onplayButton(lead)" class="play_icon">
               <ion-img src="../../assets/CRMimages/play-icon.svg"></ion-img>
             </a>
@@ -567,7 +557,8 @@
     </ion-item>
 
     <span *ngIf="localStorage.getItem('Name') !== 'demo'">
-      <ion-item-options side="end" *ngIf="(!isAdmin && filteredParams.status != 'junkvisits') || isAdmin">
+      <ion-item-options side="end"
+        *ngIf="((!isAdmin && filteredParams.status != 'junkvisits') || isAdmin) && _sharedservice.hasCallFeature">
         <ion-img src="../../assets/CRMimages/phone-call.svg" style="width:45px;padding: 10px;"
           class="call-icon"></ion-img>
       </ion-item-options>

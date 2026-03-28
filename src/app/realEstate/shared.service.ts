@@ -45,6 +45,7 @@ export class SharedService {
   isMenuOpen = localStorage.getItem('isLoggedIn') === 'true';
   hoverSubscription: Subscription;
   loginUrl;
+  callStatus;
   loginMethodname = 'login';
   private unReadTrigger$ = new Subject<void>();
 
@@ -66,6 +67,35 @@ export class SharedService {
   private mySubject = new Subject<string>();
   unReadChatCountObservable$ = this.mySubject.asObservable();
 
+  private chatFeatureSubject = new BehaviorSubject<boolean>(
+    localStorage.getItem('hasChatFeature') === '0'
+  );
+
+  private callFeatureSubject = new BehaviorSubject<boolean>(
+    localStorage.getItem('hasCallFeature') === '0'
+  );
+
+  // ✅ getters (no subscribe needed)
+  get hasChatFeature() {
+    return this.chatFeatureSubject.value;
+  }
+
+  get hasCallFeature() {
+    return this.callFeatureSubject.value;
+  }
+
+  // ✅ call only at login
+  setChatFeature(value) {
+    localStorage.setItem('hasChatFeature', String(value));
+    const changedValue = value == '0';
+    this.chatFeatureSubject.next(changedValue);
+  }
+
+  setCallFeature(value) {
+    localStorage.setItem('hasCallFeature', String(value));
+    const changedValue = value == '0';
+    this.callFeatureSubject.next(changedValue);
+  }
   // Call this method to emit values
   emitunReadChatCountValue(value: string) {
     this.mySubject.next(value);
@@ -128,7 +158,7 @@ export class SharedService {
     if (login == 'crm_cpclient_login') {
       this.loginMethodname = 'crm_cpclient_login';
     } else {
-      this.loginMethodname = 'login';
+      this.loginMethodname = 'login_mbapp';
     }
     this.loginUrl =
       'https://superadmin-azure.right2shout.in/admincrm/' +
@@ -518,7 +548,8 @@ export class SharedService {
     let params = new HttpParams()
       .set('primarylead', param.leadId)
       .set('mergedlead', param.mergeLeadId)
-      .set('relationship', param.relation);
+      .set('relationship', param.relation)
+      .set('LeadP', param.LeadP);
     return this.http.post(this.sharedcontroller + '/mergeleads', params);
 
     // let urlSearchParams = new URLSearchParams();
@@ -1171,12 +1202,12 @@ export class SharedService {
 
   //INVENTORY API
   inventoryurl =
-    '//192.168.0.116/noncdnsuperadmin-live/admincrm_test/count_propertyinventory';
+    '//192.168.0.121/noncdnsuperadmin-live/admincrm_test/count_propertyinventory';
 
   getPropInventoryCount(propid) {
     let params = new HttpParams().set('propid', propid);
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/count_propertyinventory',
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/count_propertyinventory',
       {
         params,
       }
@@ -1186,7 +1217,7 @@ export class SharedService {
   getTowerDetails(propid) {
     let params = new HttpParams().set('propid', propid);
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/get_towerdetails',
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/get_towerdetails',
       {
         params,
       }
@@ -1200,7 +1231,7 @@ export class SharedService {
       .set('size', param.size ?? '')
       .set('status', param.status ?? '');
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/get_bhkdetails',
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/get_bhkdetails',
       {
         params,
       }
@@ -1215,7 +1246,7 @@ export class SharedService {
       .set('status', param.status ?? '')
       .set('bhk', param.bhk ?? '');
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/get_sizedetails',
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/get_sizedetails',
       {
         params,
       }
@@ -1230,7 +1261,7 @@ export class SharedService {
       .set('status', param.status ?? '')
       .set('bhk', param.bhk ?? '');
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/get_statusdetails',
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/get_statusdetails',
       {
         params,
       }
@@ -1239,7 +1270,7 @@ export class SharedService {
 
   getStatusListing() {
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/status_listing'
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/status_listing'
     );
   }
 
@@ -1251,7 +1282,7 @@ export class SharedService {
       .set('status', param.status ?? '')
       .set('bhk', param.bhk ?? '');
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/get_unitlisting',
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/get_unitlisting',
       {
         params,
       }
@@ -1260,13 +1291,13 @@ export class SharedService {
 
   getBHKListing() {
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/bhk_listing'
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/bhk_listing'
     );
   }
 
   getDoreFacingDetails() {
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/get_doorfacingdetails'
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/get_doorfacingdetails'
     );
   }
 
@@ -1279,35 +1310,42 @@ export class SharedService {
       .set('status', param.status ?? '')
       .set('bhk', param.bhk ?? '');
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/getpropertyinventory',
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/getpropertyinventory',
       {
         params,
       }
     );
   }
 
+  // saveUnit(param) {
+  //   const urlSearchParams = new URLSearchParams();
+  //   for (const key in param) {
+  //     const value = param[key];
+  //     if (value !== undefined && value !== null && value !== '') {
+  //       urlSearchParams.append(key, value);
+  //     }
+  //   }
+
+  //   const body = urlSearchParams.toString();
+  //   const headers = new HttpHeaders().set(
+  //     'Content-Type',
+  //     'application/x-www-form-urlencoded'
+  //   );
+
+  //   return this.http
+  //     .post<any>(
+  //       'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/addunithistory',
+  //       body,
+  //       { headers }
+  //     )
+  //     .pipe(map((response) => response));
+  // }
+
   saveUnit(param) {
-    const urlSearchParams = new URLSearchParams();
-    for (const key in param) {
-      const value = param[key];
-      if (value !== undefined && value !== null && value !== '') {
-        urlSearchParams.append(key, value);
-      }
-    }
-
-    const body = urlSearchParams.toString();
-    const headers = new HttpHeaders().set(
-      'Content-Type',
-      'application/x-www-form-urlencoded'
+    return this.http.post(
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/addunithistory',
+      param
     );
-
-    return this.http
-      .post<any>(
-        'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/addunithistory',
-        body,
-        { headers }
-      )
-      .pipe(map((response) => response));
   }
 
   updateUnit(param) {
@@ -1322,7 +1360,7 @@ export class SharedService {
     );
     return this.http
       .post<any>(
-        'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/updatepropertyunit',
+        'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/updatepropertyunit',
         body,
         { headers: headers }
       )
@@ -1332,10 +1370,10 @@ export class SharedService {
   getunithistory(param) {
     let params = new HttpParams()
       .set('unitid', param.unitid)
-      .set('leadid', param.leadid)
-      .set('execid', param.execid);
+      .set('leadid', param.leadid ?? '')
+      .set('execid', param.execid ?? '');
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/getunithistory',
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/getunithistory',
       {
         params,
       }
@@ -1347,7 +1385,7 @@ export class SharedService {
       .set('execid', param.execid)
       .set('content', param.content);
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/leads_basedexec',
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/leads_basedexec',
       {
         params,
       }
@@ -1356,8 +1394,14 @@ export class SharedService {
 
   getSingleUnit(unitNumber) {
     return this.http.get(
-      'http://192.168.0.116/noncdnsuperadmin-live/admincrm_test/get_singleunit/' +
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/get_singleunit/' +
         unitNumber
+    );
+  }
+
+  getBankNames() {
+    return this.http.get(
+      'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/get_bankinfo'
     );
   }
 
@@ -1385,7 +1429,8 @@ export class SharedService {
     let params = new HttpParams()
       .set('fromdate', param.fromDate)
       .set('todate', param.toDate)
-      .set('source', param.source);
+      .set('source', param.source)
+      .set('departId', localStorage.getItem('Department') ?? '');
     return this.http.get(this.sharedcontroller + '/sourcebasedleadscounts', {
       params,
     });
@@ -1395,6 +1440,7 @@ export class SharedService {
     let params = new HttpParams()
       .set('fromdate', param.fromDate)
       .set('todate', param.toDate)
+      .set('departId', localStorage.getItem('Department') ?? '')
       .set('source', param.source);
     return this.http.get(this.sharedcontroller + '/sourcebasedleadscounts2', {
       params,
@@ -1409,6 +1455,7 @@ export class SharedService {
       .set('todate', param.toDate)
       .set('source', param.source)
       .set('leads', param.leads)
+      .set('departId', localStorage.getItem('Department') ?? '')
       .set('status', param.status);
 
     return this.http.get(this.sharedcontroller + '/sourcebasedleadslisting', {
@@ -1456,10 +1503,34 @@ export class SharedService {
   }
 
   getEmployeeLoginVersionCode(id) {
-    let params = new HttpParams().set('ExecId', '');
+    let params = new HttpParams().set('ExecId', id);
     return this.http.get(
       'https://superadmin-azure.right2shout.in/admincrm/get_homes247_ionic_version',
       { params }
     );
+  }
+
+  ads_fcmToken(param) {
+    let urlSearchParams = new URLSearchParams();
+    urlSearchParams.append('user_id', param.user_id);
+    urlSearchParams.append('fcw_token', param.fcw_token);
+    let body = urlSearchParams.toString();
+    let headers = new HttpHeaders().set(
+      'Content-Type',
+      'application/x-www-form-urlencoded'
+    );
+    return this.http
+      .post(this.chatUrl + '/update-fcw-token', body, {
+        headers: headers,
+      })
+      .pipe(map((resp) => resp));
+  }
+  data;
+  private subjectbehaviour = new BehaviorSubject(0);
+  message$ = this.subjectbehaviour.asObservable();
+
+  senmessage(msg) {
+    console.log('Emitting:', msg);
+    this.subjectbehaviour.next(msg);
   }
 }

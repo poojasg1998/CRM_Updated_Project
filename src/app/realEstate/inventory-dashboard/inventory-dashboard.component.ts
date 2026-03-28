@@ -1,10 +1,19 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { SharedService } from '../shared.service';
-import { MenuController } from '@ionic/angular';
+import {
+  AlertController,
+  AnimationController,
+  IonContent,
+  IonPopover,
+  MenuController,
+  ToastController,
+} from '@ionic/angular';
 import { MandateService } from '../mandate-service.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toLower } from 'ionicons/dist/types/components/icon/utils';
 import { forkJoin } from 'rxjs';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-inventory-dashboard',
@@ -12,6 +21,9 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./inventory-dashboard.component.scss'],
 })
 export class InventoryDashboardComponent implements OnInit {
+  @ViewChild('content', { static: false }) content!: IonContent;
+
+  showSpinner = false;
   filteredParams = {
     propid: '',
     towerid: '',
@@ -40,22 +52,123 @@ export class InventoryDashboardComponent implements OnInit {
   doreFacingData: any;
   selectedExec: any;
   leadsBasedexecData: any;
-
+  bookingForm!: FormGroup;
+  saleAgreementForm!: FormGroup;
+  paymentForm!: FormGroup;
+  soldForm!: FormGroup;
+  unitEditForm!: FormGroup;
+  bankNames;
+  registrationForm;
   constructor(
     private sharedService: SharedService,
     private menuCtrl: MenuController,
     private mandateService: MandateService,
     private router: Router,
-    private activeRoute: ActivatedRoute
+    private fb: FormBuilder,
+    private activeRoute: ActivatedRoute,
+    private messageService: MessageService,
+    private toastController: ToastController,
+    private animationCtrl: AnimationController,
+    private alertController: AlertController
   ) {}
 
   ngOnInit() {
+    this.bookingForm = this.fb.group({
+      bhk: ['', Validators.required],
+      unitNumber: ['', Validators.required],
+      exename: ['', Validators.required],
+      leadname: ['', Validators.required],
+      dimension: [
+        '',
+        [Validators.required, Validators.pattern(/^(?=.*[0-9])[0-9 ]+$/)],
+      ],
+      rateSquareFeet: [
+        '',
+        [Validators.required, Validators.pattern(/^(?=.*[0-9])[0-9 ]+$/)],
+      ],
+      remark: [''],
+      documents: [null, Validators.required],
+    });
+
+    this.saleAgreementForm = this.fb.group({
+      status: ['', Validators.required],
+      documents: [''],
+      remark: [''],
+    });
+
+    this.saleAgreementForm.get('status')?.valueChanges.subscribe((value) => {
+      const documentsControl = this.saleAgreementForm.get('documents');
+
+      if (value == '1') {
+        documentsControl?.clearValidators(); // NOT required
+      } else {
+        documentsControl?.setValidators([Validators.required]); // required
+      }
+
+      documentsControl?.updateValueAndValidity();
+    });
+    this.paymentForm = this.fb.group({
+      paymentMode: ['1'],
+      // toggle control
+      addBank: [false],
+      // Self payment
+      transactionMode: [''],
+      transactionId: [''],
+      amountReceived: [''],
+      receivedDate: [''],
+      remark: [''],
+
+      // Loan
+      bankName: [''],
+      loanStatus: [''],
+      ifscCode: ['', [Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)]],
+    });
+
+    this.paymentForm.get('paymentMode')?.valueChanges.subscribe((value) => {
+      this.applyValidation();
+    });
+
+    this.registrationForm = this.fb.group({
+      date: ['', Validators.required],
+      status: ['', Validators.required],
+      documents: [''],
+      remark: [''],
+    });
+    this.registrationForm.get('status')?.valueChanges.subscribe((value) => {
+      const documentsControl = this.registrationForm.get('documents');
+
+      if (value == '1') {
+        documentsControl?.clearValidators(); // NOT required
+      } else {
+        documentsControl?.setValidators([Validators.required]); // required
+      }
+      documentsControl?.updateValueAndValidity();
+    });
+
+    this.soldForm = this.fb.group({
+      remark: [''],
+    });
+
+    this.unitEditForm = this.fb.group({
+      unitName: [null, Validators.required],
+      bhk: [null, Validators.required],
+      unitSize: ['', [Validators.required, Validators.pattern(/^[0-9 ]+$/)]],
+      builtupArea: ['', [Validators.required, Validators.pattern(/^[0-9 ]+$/)]],
+      carpetarea: ['', [Validators.pattern(/^[0-9 ]+$/)]],
+      unitSBA: ['', [Validators.required, Validators.pattern(/^[0-9 ]+$/)]],
+      unitUDS: ['', [Validators.required, Validators.pattern(/^[0-9 ]+$/)]],
+      doreFacing: [null, Validators.required],
+      status: [null, Validators.required],
+      balcony: [false],
+      garden: [false],
+    });
+
     this.activeRoute.queryParams.subscribe(() => {
+      this.showSpinner = true;
       this.getQueryParams();
       this.getExecutivedata();
       this.getmandateprojects();
       this.getAllCountsOfInventory();
-      this.getInventoryDetails();
 
       setTimeout(() => {
         this.getTowerDetails();
@@ -65,10 +178,58 @@ export class InventoryDashboardComponent implements OnInit {
       }, 1000);
 
       this.getDoreFacingDetails();
-
       this.getBHKListing();
-      this.getStatusListing();
+      // this.getStatusListing();
       this.getUnitListing();
+    });
+  }
+  applyValidation() {
+    const form = this.paymentForm;
+    const paymentMode = form.value.paymentMode;
+    const addBank = form.value.addBank;
+    const loanStatus = form.value.loanStatus;
+    const transactionMode = form.value.transactionMode;
+
+    if (paymentMode == '2') {
+      form.get('transactionMode')?.setValidators([Validators.required]);
+      form.get('bankName')?.clearValidators();
+      form.get('ifscCode')?.clearValidators();
+      form.get('loanStatus')?.clearValidators();
+    } else {
+      form.get('loanStatus')?.setValidators([Validators.required]);
+      form.get('bankName')?.clearValidators();
+      if (loanStatus == '2') {
+        form.get('bankName')?.setValidators([Validators.required]);
+        if (addBank) {
+          form
+            .get('ifscCode')
+            ?.setValidators([
+              Validators.required,
+              Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/),
+            ]);
+          form.get('bankName')?.setValidators([Validators.required]);
+        } else {
+          form.get('ifscCode')?.clearValidators();
+        }
+      }
+    }
+    // Clear
+    form.get('transactionId')?.clearValidators();
+    form.get('amountReceived')?.clearValidators();
+    form.get('receivedDate')?.clearValidators();
+
+    if (
+      (paymentMode == '1' && loanStatus == '2') ||
+      (paymentMode == '2' && transactionMode != '1' && transactionMode != '')
+    ) {
+      form.get('transactionId')?.setValidators([Validators.required]);
+      form.get('amountReceived')?.setValidators([Validators.required]);
+      form.get('receivedDate')?.setValidators([Validators.required]);
+    }
+
+    // 🔥 MUST UPDATE
+    Object.keys(form.controls).forEach((key) => {
+      form.get(key)?.updateValueAndValidity({ emitEvent: false });
     });
   }
 
@@ -168,6 +329,7 @@ export class InventoryDashboardComponent implements OnInit {
       .getPropInventoryCount(this.filteredParams.propid)
       .subscribe((resp) => {
         this.inventoryDashboardCounts = resp['counts'];
+        this.getInventoryDetails();
       });
   }
 
@@ -264,24 +426,37 @@ export class InventoryDashboardComponent implements OnInit {
       status: this.filteredParams.status,
     };
 
-    forkJoin({
-      withoutTower: this.sharedService.getInventoryDetails(baseParams),
-      withTower: this.sharedService.getInventoryDetails({
-        ...baseParams,
-        towerid: this.filteredParams.towerid,
-      }),
-    }).subscribe(({ withoutTower, withTower }) => {
-      this.fullInventoryData = withoutTower['data'];
-      this.inventoryData = withTower['data'];
-
+    this.sharedService.getInventoryDetails(baseParams).subscribe((resp) => {
+      this.inventoryData = resp['data'];
       if (
         this.filteredParams.towerid == '' &&
         this.filteredParams.viewtype == '2'
       ) {
-        this.filteredParams.towerid = this.inventoryData?.[0].towerid; // initialy first block to highlight
+        this.filteredParams.towerid = this.inventoryData?.[0].towerid;
       }
       this.selectedFloors = this.inventoryData?.[0]?.floors;
+      this.showSpinner = false;
     });
+
+    // forkJoin({
+    //   withoutTower: this.sharedService.getInventoryDetails(baseParams),
+    //   withTower: this.sharedService.getInventoryDetails({
+    //     ...baseParams,
+    //     towerid: this.filteredParams.towerid,
+    //   }),
+    // }).subscribe(({ withoutTower, withTower }) => {
+    //   this.fullInventoryData = withoutTower['data'];
+    //   this.inventoryData = withTower['data'];
+
+    //   if (
+    //     this.filteredParams.towerid == '' &&
+    //     this.filteredParams.viewtype == '2'
+    //   ) {
+    //     this.filteredParams.towerid = this.inventoryData?.[0].towerid;
+    //   }
+    //   this.selectedFloors = this.inventoryData?.[0]?.floors;
+    //   this.showSpinner = false;
+    // });
   }
 
   selectedFloors = [];
@@ -294,99 +469,438 @@ export class InventoryDashboardComponent implements OnInit {
   editToSelectedUnit;
   @ViewChild('editUnitDetailsModal') editUnitDetailsModal;
   onEditInventoryUintDetails(data) {
-    this.editToSelectedUnit = data;
+    console.log(data);
 
-    this.showesTheData();
-    setTimeout(() => {
-      this.getLeadsBasedexec();
-      const param = {
-        unitid: this.editToSelectedUnit.unit_IDPK,
-        leadid: this.editToSelectedUnit.Lead_IDFK,
-        execid: this.editToSelectedUnit.Exec_IDFK,
-      };
+    const unitid = data.unit_IDPK || data;
+    this.sharedService.getSingleUnit(unitid).subscribe((res) => {
+      console.log(res);
+      this.editToSelectedUnit = res['data'][0];
+      if (this.editToSelectedUnit?.unitstatus_IDFK == '4') {
+        this.sharedService.getBankNames().subscribe((resp) => {
+          this.bankNames = resp['data'];
+        });
+      }
+      if (
+        this.editToSelectedUnit?.unitstatus_IDFK == '1' ||
+        this.editToSelectedUnit?.unitstatus_IDFK == '2' ||
+        this.editToSelectedUnit?.unitstatus_IDFK == '8'
+      ) {
+        this.bookingForm.patchValue({
+          bhk: data.bhk,
+          unitNumber: data.unit_name,
+          dimension: data.unit_sba,
+          exename: data.Exec_IDFK,
+        });
+      } else if (this.editToSelectedUnit?.unitstatus_IDFK == '4') {
+        // if (this.editToSelectedUnit?.saleagreement_files?.length) {
+        const saleDocs =
+          this.editToSelectedUnit.saleagreement_files?.map((file: any) => {
+            return {
+              name: file.salefile_name,
+              type: file.salefile_name.toLowerCase().endsWith('.pdf')
+                ? 'application/pdf'
+                : 'image/jpeg',
+              preview: `http://192.168.0.121/noncdnsuperadmin-live/images/crm/saleagreement/${file.salefile_name}`,
+            };
+          }) || [];
+        this.saleAgreementForm.patchValue({
+          documents: [...saleDocs],
+          status: this.editToSelectedUnit.saleagreement_stage || '',
+          remark: this.editToSelectedUnit.remarks_4 || '',
+        });
+        // }
+      } else if (this.editToSelectedUnit?.unitstatus_IDFK == '5') {
+        this.sharedService.getBankNames().subscribe((resp) => {
+          this.bankNames = resp['data'];
+        });
+        this.paymentForm.patchValue({
+          paymentMode: this.editToSelectedUnit.payment_mode || '',
+          transactionMode: this.editToSelectedUnit.transacmode_status || '',
+          transactionId: this.editToSelectedUnit.transacid_chequeno || '',
+          amountReceived: this.editToSelectedUnit.payreceive_amount || '',
+          receivedDate: this.editToSelectedUnit.payreceive_date || '',
+          remark: this.editToSelectedUnit.remarks_5 || '',
+          bankName: this.editToSelectedUnit.ifsc_code
+            ? this.editToSelectedUnit.bank_name
+            : this.editToSelectedUnit.bankinfo_IDFK || '',
+          loanStatus: this.editToSelectedUnit.loan_status || '',
+          ifscCode: this.editToSelectedUnit.ifsc_code || '',
+          addBank: this.editToSelectedUnit.ifsc_code != null ? true : false,
+        });
+      } else if (this.editToSelectedUnit?.unitstatus_IDFK == '6') {
+        const regDocs =
+          this.editToSelectedUnit.registration_files?.map((file: any) => {
+            return {
+              name: file.regfiles_name,
+              type: file.regfiles_name.toLowerCase().endsWith('.pdf')
+                ? 'application/pdf'
+                : 'image/jpeg',
+              preview: `http://192.168.0.121/noncdnsuperadmin-live/images/crm/saleagreement/${file.regfiles_name}`,
+            };
+          }) || [];
 
-      this.getunithistory(param);
-    }, 1000);
+        this.registrationForm.patchValue({
+          date: this.editToSelectedUnit.registration_date || '',
+          status: this.editToSelectedUnit.registration_status || '',
+          documents: [...regDocs],
+          remark: this.editToSelectedUnit.remarks_6 || '',
+        });
+      }
+      this.showSpinner = false;
+    });
 
+    // setTimeout(() => {
+    //   // this.getLeadsBasedexec();
+    //   const param = {
+    //     unitid: this.editToSelectedUnit.unit_IDPK,
+    //     leadid: this.editToSelectedUnit.Lead_IDFK,
+    //     execid: this.editToSelectedUnit.Exec_IDFK,
+    //   };
+    //   this.getunithistory(param);
+    // }, 1000);
     this.editUnitDetailsModal.present();
   }
+  onBooking() {
+    if (this.bookingForm.invalid) {
+      this.bookingForm.markAllAsTouched(); // 🔥 important
+      return;
+    }
+    this.showSpinner = true;
+    const now = new Date();
+    // Date → YYYY-MM-DD
+    const actiondate = now.toISOString().split('T')[0];
+    // Time → 12 hour format with AM/PM
+    const actiontime = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
 
-  showesTheData() {
-    this.selectedUnitForEdit = this.unitListingData.filter(
-      (element) => element.unit_IDPK == this.editToSelectedUnit.unit_IDPK
+    const formData = new FormData();
+    formData.append('unitstatus', '3');
+    formData.append('leadid', this.bookingForm.get('leadname').value.Lead_IDFK);
+    formData.append('propid', this.editToSelectedUnit.property_idfk);
+    formData.append('unitid', this.editToSelectedUnit.unit_IDPK);
+    formData.append('userid', localStorage.getItem('UserId'));
+    formData.append('assignid', this.bookingForm.get('exename').value);
+    formData.append('remarks', this.bookingForm.get('remark').value);
+    formData.append('actiondate', actiondate);
+    formData.append('actiontime', actiontime);
+    formData.append('dimension', this.bookingForm.get('dimension').value);
+    formData.append(
+      'rate_persqft',
+      this.bookingForm.get('rateSquareFeet').value
     );
-    this.selectedUnitForEdit = this.selectedUnitForEdit[0];
-
-    this.selectedBHKForEdit = this.bhkData.filter(
-      (element) => element.bhk_IDFK == this.editToSelectedUnit.bhk_IDFK
-    );
-    this.selectedBHKForEdit = this.selectedBHKForEdit[0];
-
-    this.selectedDoreFacing = this.doreFacingData.filter(
-      (element) =>
-        element.doorfacing_IDPK === this.editToSelectedUnit.doorfacing_IDFK
-    );
-    this.selectedDoreFacing = this.selectedDoreFacing[0];
-
-    this.selectedstatus = this.statusData.filter(
-      (element) =>
-        element.unitstatus_IDFK == this.editToSelectedUnit.unitstatus_IDFK
-    );
-    this.selectedstatus = this.selectedstatus[0];
-
-    this.selectedExec = this.executiveList.filter(
-      (element) => element.name == this.editToSelectedUnit.updated_by
+    formData.append(
+      'prevstatus',
+      this.editToSelectedUnit.unitstatus == 'Available'
+        ? '1'
+        : this.editToSelectedUnit.unitstatus == 'Hold'
+        ? '2'
+        : ''
     );
 
-    this.selectedExec = this.selectedExec[0];
-  }
+    const documentsArray = this.bookingForm.get('documents')?.value;
 
-  selectedBHKForEdit;
-  selectedUnitForEdit;
-  selectedDoreFacing;
-  isEditUnitStatus = false;
-  selectedLeadsBasedexec;
-  getLeadsBasedexec() {
-    const params = {
-      execid: this.selectedExec.id,
-      content: '',
-    };
-    this.sharedService.getLeadsBasedexec(params).subscribe((resp) => {
-      this.leadsBasedexecData = resp['leads'];
-      this.selectedLeadsBasedexec = this.leadsBasedexecData.filter(
-        (element) => element.Lead_IDFK == this.editToSelectedUnit.Lead_IDFK
-      );
+    if (documentsArray && documentsArray.length > 0) {
+      documentsArray.forEach((doc: any) => {
+        formData.append('closure_files', doc.file);
+      });
+    }
+    formData.forEach((value, key) => {
+      console.log(key, value);
+    });
 
-      this.selectedLeadsBasedexec = this.selectedLeadsBasedexec[0];
+    this.sharedService.saveUnit(formData).subscribe((res) => {
+      if (res['status'] == 'true') {
+        this.onEditInventoryUintDetails(this.editToSelectedUnit);
+        this.showSuccess();
+      }
     });
   }
 
-  onExecutiveSelect(event) {
-    this.getLeadsBasedexec();
+  saleAgreementformSubmit() {
+    if (this.saleAgreementForm.invalid) {
+      this.saleAgreementForm.markAllAsTouched();
+      return;
+    }
+    this.showSpinner = true;
+    console.log(this.saleAgreementForm.value);
+
+    const now = new Date();
+    // Date → YYYY-MM-DD
+    const actiondate = now.toISOString().split('T')[0];
+    // Time → 12 hour format with AM/PM
+    const actiontime = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    const formData = new FormData();
+    formData.append('unitstatus', '4');
+    formData.append('leadid', this.editToSelectedUnit.Lead_IDFK);
+    formData.append('propid', this.editToSelectedUnit.property_idfk);
+    formData.append('unitid', this.editToSelectedUnit.unit_IDPK);
+    formData.append('assignid', this.editToSelectedUnit.Exec_IDFK);
+    formData.append('userid', localStorage.getItem('UserId'));
+    formData.append('remarks', this.saleAgreementForm.get('remark').value);
+    formData.append('actiondate', actiondate);
+    formData.append('actiontime', actiontime);
+    formData.append('sale_stage', this.saleAgreementForm.get('status').value);
+
+    const documentsArray = this.saleAgreementForm.get('documents')?.value;
+
+    if (documentsArray && documentsArray.length > 0) {
+      documentsArray.forEach((doc: any) => {
+        formData.append('sale_file', doc.file);
+      });
+    }
+    formData.forEach((value, key) => {
+      console.log(key, value);
+    });
+
+    this.sharedService.saveUnit(formData).subscribe((res) => {
+      if (res['status'] == 'true') {
+        this.onEditInventoryUintDetails(this.editToSelectedUnit);
+        this.showSuccess();
+      }
+    });
+  }
+  paymentformSubmit() {
+    console.log(this.paymentForm.value);
+    this.applyValidation();
+    if (this.paymentForm.invalid) {
+      this.paymentForm.markAllAsTouched();
+      return;
+    }
+    this.showSpinner = true;
+    console.log(this.paymentForm.value);
+
+    const now = new Date();
+    // Date → YYYY-MM-DD
+    const actiondate = now.toISOString().split('T')[0];
+    // Time → 12 hour format with AM/PM
+    const actiontime = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    const formData = new FormData();
+    formData.append('unitstatus', '5');
+    formData.append('leadid', this.editToSelectedUnit.Lead_IDFK);
+    formData.append('propid', this.editToSelectedUnit.property_idfk);
+    formData.append('unitid', this.editToSelectedUnit.unit_IDPK);
+    formData.append('assignid', this.editToSelectedUnit.Exec_IDFK);
+    formData.append('userid', localStorage.getItem('UserId'));
+    formData.append('remarks', this.paymentForm.get('remark').value);
+    formData.append('actiondate', actiondate);
+    formData.append('actiontime', actiontime);
+    formData.append('pay_mode', this.paymentForm.get('paymentMode').value);
+    formData.append(
+      'transacid_chequeno',
+      this.paymentForm.get('transactionId').value
+    );
+    formData.append(
+      'payreceive_date',
+      this.paymentForm.get('receivedDate').value
+    );
+    formData.append(
+      'payreceive_amount',
+      this.paymentForm.get('amountReceived').value
+    );
+
+    if (this.paymentForm.get('paymentMode').value == 1) {
+      formData.append('bankid', this.paymentForm.get('bankName').value);
+      formData.append('loan_status', this.paymentForm.get('loanStatus').value);
+      formData.append('ifsc_code', this.paymentForm.get('ifscCode').value);
+    } else {
+      formData.append(
+        'transacmode_status',
+        this.paymentForm.get('transactionMode').value
+      );
+    }
+
+    formData.forEach((value, key) => {
+      console.log(key, value);
+    });
+
+    this.sharedService.saveUnit(formData).subscribe((res) => {
+      if (res['status'] == 'true') {
+        this.onEditInventoryUintDetails(this.editToSelectedUnit);
+        this.showSuccess();
+      }
+    });
+  }
+
+  registrationformSubmit() {
+    if (this.registrationForm.invalid) {
+      this.registrationForm.markAllAsTouched();
+      return;
+    }
+    this.showSpinner = true;
+    this.showSpinner = true;
+    console.log(this.registrationForm.value);
+
+    const now = new Date();
+    // Date → YYYY-MM-DD
+    const actiondate = now.toISOString().split('T')[0];
+    // Time → 12 hour format with AM/PM
+    const actiontime = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    const formData = new FormData();
+    formData.append('unitstatus', '6');
+    formData.append('leadid', this.editToSelectedUnit.Lead_IDFK);
+    formData.append('propid', this.editToSelectedUnit.property_idfk);
+    formData.append('unitid', this.editToSelectedUnit.unit_IDPK);
+    formData.append('assignid', this.editToSelectedUnit.Exec_IDFK);
+    formData.append('userid', localStorage.getItem('UserId'));
+    formData.append('remarks', this.registrationForm.get('remark').value);
+    formData.append('actiondate', actiondate);
+    formData.append('actiontime', actiontime);
+    formData.append('regist_status', this.registrationForm.get('status').value);
+    formData.append(
+      'regist_date',
+      new Date(this.registrationForm.get('date').value).toLocaleDateString(
+        'en-CA'
+      )
+    );
+    const documentsArray = this.registrationForm.get('documents')?.value;
+
+    if (documentsArray && documentsArray.length > 0) {
+      documentsArray.forEach((doc: any) => {
+        formData.append('regist_file', doc.file);
+      });
+    }
+
+    formData.forEach((value, key) => {
+      console.log(key, value);
+    });
+
+    this.sharedService.saveUnit(formData).subscribe(async (res) => {
+      if (res['status'] == 'true') {
+        await this.showSuccess();
+        this.editUnitDetailsModal.dismiss();
+        setTimeout(() => {
+          this.content.scrollToTop(500);
+        }, 300);
+      }
+    });
+  }
+
+  soldformSubmit() {
+    const formData = new FormData();
+    formData.append('unitstatus', '9');
+    formData.append('leadid', this.editToSelectedUnit.Lead_IDFK);
+    formData.append('propid', this.editToSelectedUnit.property_idfk);
+    formData.append('unitid', this.editToSelectedUnit.unit_IDPK);
+    formData.append('assignid', this.editToSelectedUnit.Exec_IDFK);
+    formData.append('userid', localStorage.getItem('UserId'));
+    formData.append('remarks', this.soldForm.get('remark').value);
+
+    console.log(this.soldForm.value);
+    this.sharedService.saveUnit(formData).subscribe((res) => {
+      if (res['status'] == 'true') {
+        this.onEditInventoryUintDetails(this.editToSelectedUnit);
+      }
+    });
   }
   updateUnit() {
-    const updateVlues = {
-      unitno: this.selectedUnitForEdit.unit_name,
-      bhk: this.selectedbhk.bhk_IDFK,
-      size: this.editToSelectedUnit.unit_size,
-      builtuparea: this.editToSelectedUnit.unit_builtuparea,
-      carpetarea: this.editToSelectedUnit.unit_carpetarea,
-      sbs: this.editToSelectedUnit.unit_sba,
-      uds: this.editToSelectedUnit.unit_uds,
-      facing: this.selectedDoreFacing.doorfacing_IDFK,
-      status: this.selectedstatus.unitstatus_IDFK,
-      balcony: this.editToSelectedUnit.unit_balcony,
-      garden: this.editToSelectedUnit.unit_garden,
-    };
+    if (this.unitEditForm.invalid) {
+      this.unitEditForm.markAllAsTouched();
+      return;
+    }
+    this.showSpinner = true;
+    const formValue = this.unitEditForm.value;
+    // Convert if the values are in other datatype to string
+    const updateValues = Object.fromEntries(
+      Object.entries({
+        unitno: formValue.unitName,
+        bhk: formValue.bhk,
+        size: formValue.unitSize,
+        builtuparea: formValue.builtupArea,
+        carpetarea: formValue.carpetarea,
+        sba: formValue.unitSBA,
+        uds: formValue.unitUDS,
+        facing: formValue.doreFacing,
+        status: formValue.status,
+        balcony: formValue.balcony ? '1' : '0',
+        garden: formValue.garden ? '1' : '0',
+      }).map(([key, val]) => [key, val != null ? String(val) : ''])
+    );
 
-    const param = {
+    const params = {
       propid: this.editToSelectedUnit.property_idfk,
       unitid: this.editToSelectedUnit.unit_IDPK,
-      unitdetails: JSON.stringify(updateVlues),
+      unitdetails: JSON.stringify(updateValues),
     };
+    console.log(params);
+    this.sharedService.updateUnit(params).subscribe(async (resp) => {
+      await this.showSuccess();
+      this.editUnitDetailsModal.dismiss();
+    });
+  }
 
-    this.sharedService.updateUnit(param).subscribe((resp) => {
-      console.log(resp);
+  showesTheData() {
+    this.bookingForm.patchValue({
+      bhk: this.editToSelectedUnit.bhk,
+      unitNumber: this.editToSelectedUnit.unit_name,
+    });
+
+    // this.selectedUnitForEdit = this.unitListingData.filter(
+    //   (element) => element.unit_IDPK == this.editToSelectedUnit.unit_IDPK
+    // );
+    // this.selectedUnitForEdit = this.selectedUnitForEdit[0];
+
+    // this.selectedBHKForEdit = this.bhkData.filter(
+    //   (element) => element.bhk_IDFK == this.editToSelectedUnit.bhk_IDFK
+    // );
+    // this.selectedBHKForEdit = this.selectedBHKForEdit[0];
+
+    // this.selectedDoreFacing = this.doreFacingData.filter(
+    //   (element) =>
+    //     element.doorfacing_IDPK === this.editToSelectedUnit.doorfacing_IDFK
+    // );
+    // this.selectedDoreFacing = this.selectedDoreFacing[0];
+
+    // this.selectedstatus = this.statusData.filter(
+    //   (element) =>
+    //     element.unitstatus_IDFK == this.editToSelectedUnit.unitstatus_IDFK
+    // );
+    // this.selectedstatus = this.selectedstatus[0];
+
+    // this.selectedExec = this.executiveList.filter(
+    //   (element) => element.name == this.editToSelectedUnit.updated_by
+    // );
+
+    // this.selectedExec = this.selectedExec[0];
+  }
+
+  isEditUnitStatus = false;
+  selectedLeadsBasedexec;
+  getLeadsBasedexec(event) {
+    const params = {
+      execid: this.bookingForm.get('exename')?.value,
+      content: event.query,
+    };
+    this.sharedService.getLeadsBasedexec(params).subscribe({
+      next: (resp) => {
+        this.leadsBasedexecData = resp['leads'] || [];
+        this.selectedLeadsBasedexec = this.leadsBasedexecData.filter(
+          (element) => element.Lead_IDFK == this.editToSelectedUnit.Lead_IDFK
+        );
+
+        this.selectedLeadsBasedexec = this.selectedLeadsBasedexec[0];
+      },
+      error: () => {
+        this.leadsBasedexecData = [];
+      },
+      complete: () => {},
     });
   }
 
@@ -456,55 +970,346 @@ export class InventoryDashboardComponent implements OnInit {
       input.setCustomValidity('');
     }
   }
-  selectedFileName = '';
-  uploads = [];
-  closurefiles = [];
+
   onFileSelected(event: any) {
-    const files = event.target.files;
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const fileName = file.name;
-      this.selectedFileName = fileName;
-      $('#customFile' + i)
-        .siblings('.file-label-' + i)
-        .addClass('selected')
-        .html(fileName);
-      // Push the file to closurefiles and read the file
-      this.closurefiles.push(file);
-      const reader = new FileReader();
-      reader.onload = (event: any) => {
-        this.uploads.push(event.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const files: File[] = Array.from(input.files);
+
+    const filesWithPreview = files.map((file) => ({
+      name: file.name,
+      file: file,
+      preview: URL.createObjectURL(file),
+    }));
+
+    this.bookingForm.patchValue({
+      documents: filesWithPreview,
+    });
+    this.bookingForm.get('documents')?.updateValueAndValidity();
   }
 
-  removeImage(i) {
-    this.uploads.splice(i, 1);
-    this.closurefiles.splice(i, 1);
-    if (this.uploads.length == 0) {
-      $('#customFile' + i).val('');
-      $('.file-label-' + i).html('Choose file ');
-      this.selectedFileName = '';
-    } else {
-    }
-  }
+  onAgreementFileSelected(event: any) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
 
-  onUnitStatusEdit() {
-    this.editToSelectedUnit = this.inventoryData.filter(
-      (item) => item.unit_IDPK == this.selectedUnitForEdit.unitstatus_IDFK
-    );
+    const files: File[] = Array.from(input.files);
 
-    this.editToSelectedUnit = this.editToSelectedUnit[0];
+    const filesWithPreview = files.map((file) => ({
+      name: file.name,
+      file: file,
+      preview: URL.createObjectURL(file),
+      type: file.type,
+    }));
 
-    setTimeout(() => {
-      this.showesTheData();
+    // Get existing files
+    const existingFiles = this.saleAgreementForm.get('documents')?.value || [];
+
+    // Merge old + new files
+    const updatedFiles = [...existingFiles, ...filesWithPreview];
+
+    this.saleAgreementForm.patchValue({
+      documents: updatedFiles,
     });
 
-    this.sharedService
-      .getSingleUnit(this.selectedUnitForEdit.unitstatus_IDFK)
-      .subscribe((resp) => {
-        console.log(resp);
+    this.saleAgreementForm.get('documents')?.updateValueAndValidity();
+
+    // Reset input so same file can be uploaded again if needed
+    input.value = '';
+  }
+
+  onRegistrationFileSelected(event: any) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const files: File[] = Array.from(input.files);
+
+    const filesWithPreview = files.map((file) => ({
+      name: file.name,
+      file: file,
+      preview: URL.createObjectURL(file),
+      type: file.type,
+    }));
+
+    // Get existing files
+    const existingFiles = this.registrationForm.get('documents')?.value || [];
+
+    // Merge old + new files
+    const updatedFiles = [...existingFiles, ...filesWithPreview];
+
+    this.registrationForm.patchValue({
+      documents: updatedFiles,
+    });
+
+    this.registrationForm.get('documents')?.updateValueAndValidity();
+
+    // Reset input so same file can be uploaded again if needed
+    input.value = '';
+  }
+  removeImage(index: number) {
+    const files = this.bookingForm.get('documents')?.value || [];
+
+    files.splice(index, 1);
+    if (files.length === 0) {
+      this.bookingForm.patchValue({
+        documents: null,
       });
+    } else {
+      this.bookingForm.patchValue({
+        documents: files,
+      });
+    }
+  }
+
+  removeSaleAgeementDocument(index: number) {
+    const files = this.saleAgreementForm.get('documents')?.value || [];
+
+    files.splice(index, 1);
+    if (files.length === 0) {
+      this.saleAgreementForm.patchValue({
+        documents: null,
+      });
+    } else {
+      this.saleAgreementForm.patchValue({
+        documents: files,
+      });
+    }
+  }
+
+  removeregistrationDocument(index: number) {
+    const files = this.registrationForm.get('documents')?.value || [];
+
+    files.splice(index, 1);
+    if (files.length === 0) {
+      this.registrationForm.patchValue({
+        documents: null,
+      });
+    } else {
+      this.registrationForm.patchValue({
+        documents: files,
+      });
+    }
+  }
+
+  isStageCompleted() {
+    return ['4', '5', '6'].includes(
+      this.editToSelectedUnit?.unitstatus_IDFK + ''
+    );
+  }
+  previewFile(i) {}
+  @ViewChild('popover') popover: IonPopover;
+  closePopover() {
+    if (this.popover) {
+      this.popover.dismiss();
+    }
+  }
+
+  onDateChange(event: any) {
+    const value = event.detail.value;
+
+    // optional formatting
+    const date = new Date(value);
+    const formatted = date.toLocaleDateString('en-CA');
+
+    // ✅ SET VALUE
+    this.paymentForm.get('receivedDate')?.setValue(formatted);
+
+    // close popover
+    this.popover.dismiss();
+  }
+
+  backstage = 0;
+  onBack() {
+    if (
+      this.editToSelectedUnit.saleagreement_stage == '1' &&
+      this.backstage == 0
+    ) {
+      this.backstage = 3;
+    } else if (
+      (this.editToSelectedUnit.loan_status == '1' ||
+        this.editToSelectedUnit.transacmode_status == '1') &&
+      this.backstage == 0
+    ) {
+      this.backstage = 4;
+    } else if (
+      this.editToSelectedUnit.registration_status == '1' &&
+      this.backstage == 0
+    ) {
+      this.backstage = 5;
+    }
+    {
+      this.backstage =
+        this.backstage == 0
+          ? Number(this.editToSelectedUnit.unitstatus_IDFK) - 1
+          : this.backstage - 1;
+    }
+    this.getTheformDate(0);
+  }
+  getTheformDate(backstage) {
+    this.showSpinner = true;
+    this.backstage = backstage != 0 ? backstage : this.backstage;
+    let saleDocs =
+      this.editToSelectedUnit.saleagreement_files?.map((file: any) => {
+        return {
+          name: file.salefile_name,
+          type: file.salefile_name.toLowerCase().endsWith('.pdf')
+            ? 'application/pdf'
+            : 'image/jpeg',
+          preview: `http://192.168.0.121/noncdnsuperadmin-live/images/crm/closurefiles/${file.salefile_name}`,
+        };
+      }) || [];
+
+    let closureDocs =
+      this.editToSelectedUnit.closure_img?.map((file: any) => {
+        return {
+          name: file.file_name,
+          type: file.file_name.toLowerCase().endsWith('.pdf')
+            ? 'application/pdf'
+            : 'image/jpeg',
+          preview: `http://192.168.0.121/noncdnsuperadmin-live/images/crm/closurefiles/${file.file_name}`,
+        };
+      }) || [];
+
+    if (this.backstage == 4) {
+      this.paymentForm.patchValue({
+        paymentMode: this.editToSelectedUnit.payment_mode || '',
+        transactionMode: this.editToSelectedUnit.transacmode_status || '',
+        transactionId: this.editToSelectedUnit.transacid_chequeno || '',
+        amountReceived: this.editToSelectedUnit.payreceive_amount || '',
+        receivedDate: this.editToSelectedUnit.payreceive_date || '',
+        remark: this.editToSelectedUnit.remarks_5 || '',
+        bankName: this.editToSelectedUnit.ifsc_code
+          ? this.editToSelectedUnit.bank_name
+          : this.editToSelectedUnit.bankinfo_IDFK || '',
+        loanStatus: this.editToSelectedUnit.loan_status || '',
+        ifscCode: this.editToSelectedUnit.ifsc_code || '',
+        addBank: this.editToSelectedUnit.ifsc_code != null ? true : false,
+      });
+    } else if (this.backstage == 3) {
+      this.saleAgreementForm.patchValue({
+        documents: [...saleDocs],
+        status: this.editToSelectedUnit.saleagreement_stage || '',
+        remark: this.editToSelectedUnit.remarks_4 || '',
+      });
+    } else if (this.backstage == 2) {
+      this.bookingForm.patchValue({
+        bhk: this.editToSelectedUnit.bhk,
+        unitNumber: this.editToSelectedUnit.unit_name,
+        dimension: this.editToSelectedUnit.unit_sba,
+        exename: this.editToSelectedUnit.Exec_IDFK,
+        rateSquareFeet: this.editToSelectedUnit.rate_per_sqft,
+        remark: this.editToSelectedUnit.remarks_3,
+        documents: [...closureDocs],
+        leadname: this.editToSelectedUnit.customer_name,
+      });
+    }
+    setTimeout(() => {
+      this.showSpinner = false;
+    }, 200);
+  }
+  onModalClose() {
+    this.backstage = 0;
+    this.isEditUnitStatus = false;
+    this.bookingForm.reset();
+    this.saleAgreementForm.reset();
+    this.paymentForm.reset();
+    this.registrationForm.reset();
+  }
+
+  toggleAddBank() {
+    const currentValue = this.paymentForm.get('addBank')?.value;
+    const newValue = !currentValue;
+
+    this.paymentForm.patchValue({
+      addBank: newValue,
+      bankName: null,
+      ifscCode: null,
+    });
+
+    // Optional: reset validation state
+    this.paymentForm.get('bankName')?.markAsPristine();
+    this.paymentForm.get('ifscCode')?.markAsPristine();
+    this.applyValidation();
+  }
+
+  async showSuccess() {
+    const toast = await this.toastController.create({
+      message: 'Unit Updated successfully!',
+      duration: 1000,
+      position: 'bottom',
+      cssClass: 'slide-toast',
+      icon: 'checkmark',
+      buttons: [
+        {
+          icon: 'close',
+          role: 'cancel',
+        },
+      ],
+    });
+
+    await toast.present();
+
+    // ✅ Wait until toast disappears
+    await toast.onDidDismiss();
+
+    // Now call method
+    this.getAllCountsOfInventory();
+  }
+
+  async onCheckboxChange(event: any) {
+    if (event.detail.checked) {
+      const alert = await this.alertController.create({
+        header: 'Move to Available?',
+        message: 'Do you want to move this unit to Available?',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            handler: () => {
+              event.target.checked = false; // uncheck if cancel
+            },
+          },
+          {
+            text: 'Yes',
+            handler: () => {
+              this.showSpinner = true;
+              const formData = new FormData();
+              formData.append('unitstatus', '7');
+              formData.append('leadid', this.editToSelectedUnit.Lead_IDFK);
+              formData.append('propid', this.editToSelectedUnit.property_idfk);
+              formData.append('unitid', this.editToSelectedUnit.unit_IDPK);
+              formData.append('assignid', this.editToSelectedUnit.Exec_IDFK);
+              formData.append('userid', localStorage.getItem('UserId'));
+
+              console.log(this.soldForm.value);
+              this.sharedService.saveUnit(formData).subscribe((res) => {
+                if (res['status'] == 'true') {
+                  this.onEditInventoryUintDetails(this.editToSelectedUnit);
+                  this.showSuccess();
+                }
+              });
+            },
+          },
+        ],
+      });
+      await alert.present();
+    }
+  }
+  onUpdateUnit() {
+    // selectedUnitForEdit;selectedBHKForEdit;selectedDoreFacing;selectedstatus
+    this.isEditUnitStatus = !this.isEditUnitStatus;
+    this.unitEditForm.patchValue({
+      unitName: this.editToSelectedUnit.unit_name,
+      bhk: this.editToSelectedUnit.bhk_IDFK,
+      unitSize: this.editToSelectedUnit.unit_size,
+      builtupArea: this.editToSelectedUnit.unit_builtuparea,
+      carpetarea: this.editToSelectedUnit.unit_carpetarea,
+      unitSBA: this.editToSelectedUnit.unit_sba,
+      unitUDS: this.editToSelectedUnit.unit_uds,
+      doreFacing: this.editToSelectedUnit.doorfacing_IDFK,
+      status: this.editToSelectedUnit.unitstatus_IDFK,
+      balcony: this.editToSelectedUnit.unit_balcony == '1',
+      garden: this.editToSelectedUnit.unit_garden == '1',
+    });
   }
 }

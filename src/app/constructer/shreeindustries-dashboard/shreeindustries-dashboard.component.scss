@@ -1,0 +1,427 @@
+.datefilter-div ion-col {
+  font-size: 0.75rem;
+}
+.datefilter-div {
+  .active_btn,
+  .normal_btn {
+    border-radius: 30px;
+  }
+  ion-icon {
+    font-size: 1.39rem;
+  }
+}
+
+.total_card {
+  background: linear-gradient(84.03deg, #ffffff 32.95%, #e5f6fe 104.6%);
+  border: 2px solid #ffffff;
+
+  ion-img {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+  }
+}
+.total_card.active-card {
+  border: 2px solid #02abff;
+}
+.interested_card {
+  background: linear-gradient(84.03deg, #ffffff 32.95%, #eeffda 104.6%);
+  border: 2px solid #ffffff;
+
+  ion-img {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+  }
+}
+.card_heading {
+  border-left: none !important;
+  border-right: none !important;
+}
+.interested_card.active-card {
+  border: 2px solid #559d00;
+}
+.notInterested_card {
+  background: linear-gradient(84.03deg, #ffffff 32.95%, #fff3eb 104.6%);
+  border: 2px solid #ffffff;
+
+  ion-img {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+  }
+}
+.notInterested_card.active-card {
+  border: 2px solid #e0772c;
+}
+.notConnected_card {
+  background: linear-gradient(84.03deg, #ffffff 32.95%, #ffe4e5 104.6%);
+  border: 2px solid #ffffff;
+}
+.notConnected_card.active-card {
+  border: 2px solid #be383b;
+}
+
+.notConnected_card,
+.notInterested_card,
+.interested_card,
+.total_card {
+  ion-img {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+  }
+  p {
+    font-size: 0.68rem;
+  }
+  h2 {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+}
+.opacity50 {
+  opacity: 50%;
+}
+
+ion-modal.custDate_modal::part(content) {
+  border-radius: 20px 20px 0 0 !important;
+  overflow: hidden;
+}
+.date-range-wrapper {
+  padding: 20px 10px;
+}
+
+.date-box {
+  flex: 1;
+  background: none;
+  border: 1px solid #dde4ee;
+  border-radius: 4px;
+  padding: 6px;
+}
+
+.date-box label {
+  font-size: 12px;
+  color: #8a8a8a !important;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.date-box span {
+  font-size: 14px;
+  color: #000;
+}
+
+.error-text {
+  font-size: 0.875rem;
+  font-family: "Poppins";
+  color: red;
+}
+.confirm-btn {
+  --border-radius: 24px;
+  --background: #0b7ab2;
+  min-height: 5px !important;
+  width: 100%;
+  padding: 0 10px;
+}
+.date-inputs {
+  display: flex;
+  gap: 12px;
+}
+.custom-datefilterIcon.active_btn {
+  ion-icon {
+    color: white;
+  }
+}
+.label {
+  margin-bottom: 0;
+  color: #8a8a8a !important;
+  font-size: 0.68rem;
+}
+.value {
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 0.68rem;
+}
+ion-item::part(native) {
+  --inner-padding-end: 0 !important;
+  --padding-start: 0 !important;
+}
+.card-count {
+  position: absolute;
+  right: 0px;
+  background: #9d9d9d;
+  padding: 0px 4px;
+  color: white;
+  font-size: 0.68rem;
+}
+.contact_icons {
+  border-top: 0.8px solid #ebebeb;
+  box-shadow: 1px 7px 24px 2px rgba(149, 157, 165, 0.2);
+  gap: 4px;
+}
+
+.card_heading ion-col {
+  font-size: 0.9rem;
+}
+
+.total_card.total_card.card_heading ion-col:first-child {
+  color: #02abff;
+}
+.interested_card.card_heading ion-col:first-child {
+  color: #559d00;
+}
+.notInterested_card.card_heading ion-col:first-child {
+  color: #e0772c;
+}
+.notConnected_card.card_heading ion-col:first-child {
+  color: #be383b;
+}
+.addLead div {
+  background: linear-gradient(180deg, #00a9ff 0%, #0b7ab2 100%);
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.latest_remark_col {
+  background: #546d7e;
+  border-radius: 0 4px 4px 4px;
+  span {
+    color: white;
+    font-size: 0.9rem;
+  }
+}
+.latest-remark-popover::part(content) {
+  width: auto;
+}
+.call-icon,
+.whatsapp-icon,
+.play_icon,
+.info-icon {
+  ion-img {
+    width: 20px;
+  }
+}
+.filterButtons {
+  font-family: "Poppins";
+  font-weight: 400;
+  font-size: 12px;
+  color: #0b7ab2;
+  border: 1px solid #0b7ab2;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.addLead,
+.addJob {
+  ion-header {
+    ion-icon {
+      font-size: 1.6rem;
+    }
+    background: linear-gradient(180deg, #00a9ff 0%, #0b7ab2 100%);
+    color: white;
+  }
+  ion-input {
+    min-height: 28px;
+    border: 1px solid rgba(149, 157, 165, 0.2);
+    border-radius: 4px;
+  }
+  .label {
+    font-size: 0.9rem;
+  }
+  .value {
+    font-size: 0.8rem;
+  }
+  ion-text {
+    font-size: 0.68rem;
+  }
+  ion-textarea {
+    border: 1px solid rgba(149, 157, 165, 0.2);
+    --padding-bottom: 0;
+    --padding-top: 0;
+    --padding-start: 4px;
+  }
+}
+::ng-deep p-multiselect .p-inputwrapper {
+  width: 100% !important;
+}
+
+::ng-deep p-multiselect .p-multiselect.p-multiselect-chip {
+  border: 1px solid rgba(149, 157, 165, 0.2);
+}
+::ng-deep .p-multiselect-header {
+  padding: 4px;
+}
+::ng-deep .p-multiselect-item {
+  padding: 4px;
+  font-size: 0.8rem;
+}
+::ng-deep .p-multiselect-token {
+  padding: 4px;
+  font-size: 0.68rem;
+  margin-right: 2px;
+  border-radius: 4px;
+  background: #039cea;
+  color: white;
+}
+::ng-deep .p-multiselect-label {
+  padding: 4px;
+  font-size: 14px;
+}
+ion-modal {
+  --backdrop-opacity: 2.5;
+}
+
+ion-modal.addLead,
+ion-modal.addJob {
+  --height: fit-content;
+  --border-radius: 4px;
+  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  padding: 10px;
+  --backdrop-opacity: 0.8;
+}
+ion-modal.callConfirmationModal {
+  padding: 10px;
+  --height: 38%;
+  --border-radius: 5px;
+  --backdrop-opacity: 0.8;
+  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.callConfirmationModal ion-header {
+  font-family: "Poppins";
+  box-shadow: none;
+  ion-row {
+    padding: 4px;
+  }
+  h3,
+  ion-icon {
+    font-size: 18px;
+    color: #ffffff !important;
+  }
+  ion-icon {
+    font-size: 30px;
+  }
+}
+.callConfirmationModal ion-button {
+  width: 100%;
+  border-radius: 4px;
+  font-family: "Poppins";
+  font-size: 18px;
+  text-transform: none;
+}
+.callConfirmationModal ion-footer {
+  box-shadow: none;
+}
+.callTimer {
+  font-size: 24px;
+  font-family: "Poppins";
+  font-weight: 400;
+  color: rgba(11, 122, 178, 1);
+}
+.pointer-event-none {
+  pointer-events: none !important;
+}
+
+.opacity4 {
+  opacity: 0.4 !important;
+}
+.call_icon {
+  span {
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    font-family: "Poppins";
+  }
+}
+.callRingingBg_color {
+  background: linear-gradient(180deg, #fec855 -75.85%, #da8600 100%);
+  color: white;
+}
+.interested {
+  border: 1px solid;
+  border-radius: 4px;
+  color: #559d00;
+  padding: 4px;
+}
+.not_interested {
+  border: 1px solid;
+  border-radius: 4px;
+  color: #b33737;
+  padding: 4px;
+}
+.interested_notInterested {
+  gap: 6px;
+  margin: 4px;
+}
+.updateStatus {
+  ion-textarea {
+    border: 1px solid rgba(149, 157, 165, 0.2);
+    border-radius: 4px;
+    --padding-bottom: 0;
+    --padding-top: 0;
+    --padding-start: 4px;
+  }
+  .interestedactive {
+    background: #ebffd3;
+  }
+  .notInterestedActive {
+    background: #ffdddd;
+  }
+}
+audio::-webkit-media-controls-panel {
+  background: rgba(183, 216, 233, 1);
+}
+
+audio::-webkit-media-controls-play-button {
+  background-color: #fff;
+  border-radius: 50%;
+}
+audio::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display {
+  color: rgba(114, 114, 114, 1);
+}
+
+::ng-deep .jobrole_dropdown .p-dropdown {
+  width: 100% !important;
+  border-radius: 4px;
+  border: 1px solid rgba(149, 157, 165, 0.2) !important;
+  span {
+    padding: 4px !important;
+  }
+}
+
+::ng-deep .jobrole_dropdown .p-ripple {
+  padding: 4px !important;
+  font-size: 0.8rem !important;
+}
+
+::ng-deep .jobrole_dropdown .p-dropdown-label {
+  font-size: 0.8rem !important;
+  color: #0b7ab2 !important;
+}
+.email_row {
+  ion-input {
+    min-height: 28px;
+    border: 1px solid rgba(149, 157, 165, 0.2);
+    border-radius: 4px;
+    --padding-start: 4px;
+    font-size: 0.8rem !important;
+    color: #8e8e8e !important;
+  }
+}
+
+::ng-deep .updateStatus .jobrole_dropdown .p-dropdown-label {
+  font-size: 0.8rem !important;
+  color: #8e8e8e !important;
+}
+
+::ng-deep .addJob .jobrole_dropdown .p-dropdown-label {
+  font-size: 0.8rem !important;
+  color: #8e8e8e !important;
+}
+ion-datetime {
+  max-width: 100%;
+  --background: #ffffff;
+}

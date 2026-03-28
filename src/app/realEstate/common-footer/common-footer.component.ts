@@ -14,7 +14,6 @@ import { RetailServiceService } from '../retail-service.service';
   styleUrls: ['./common-footer.component.scss'],
 })
 export class CommonFooterComponent implements OnInit {
-  htype = '';
   isActiveRoute;
   isCP;
   unReadChatCount;
@@ -116,8 +115,6 @@ export class CommonFooterComponent implements OnInit {
         this.popoverController.dismiss();
         this.isRanavLogin = localStorage.getItem('PropertyId') === '28773';
         this.sharedService.triggerUnreadCheck();
-
-        this.htype = params['htype'];
       });
     // this.getLiveCall();
   }
@@ -185,7 +182,6 @@ export class CommonFooterComponent implements OnInit {
                 leadTabData: 'status',
                 callStatus: 'Call Connected',
                 direction: 'outboundCall',
-                headerType: this.htype,
               },
               queryParamsHandling: 'merge',
             });
@@ -300,50 +296,32 @@ export class CommonFooterComponent implements OnInit {
 
   footerNavigation(value) {
     if (value == 'home') {
-      if (this.htype == 'mandate') {
-        const queryParams: any = {
-          htype: this.htype,
-          propid:
-            !localStorage.getItem('ranavPropId') &&
-            localStorage.getItem('Role') === '1'
-              ? '16793'
-              : 'ranavPropId' in localStorage
-              ? '28773'
-              : '',
-        };
+      const queryParams: any = {
+        propid:
+          !localStorage.getItem('ranavPropId') &&
+          localStorage.getItem('Role') === '1'
+            ? '16793'
+            : 'ranavPropId' in localStorage
+            ? '28773'
+            : '',
+      };
 
-        const userId = localStorage.getItem('UserId');
-        if (userId !== '1') {
-          queryParams.executid = userId;
-        }
-
-        this.router.navigate(['/home'], {
-          queryParams: queryParams,
-        });
-      } else {
-        this.router.navigate(['/retail-dashboard'], {
-          queryParams: {
-            htype: this.htype,
-          },
-        });
+      const userId = localStorage.getItem('UserId');
+      if (userId !== '1') {
+        queryParams.executid = userId;
       }
+
+      this.router.navigate(['/home'], {
+        queryParams: queryParams,
+      });
     } else if (value == 'search') {
-      this.router.navigate(['/search'], {
-        queryParams: {
-          htype: this.htype,
-        },
-      });
+      this.router.navigate(['/search']);
     } else if (value == 'chats') {
-      this.router.navigate(['/chats'], {
-        queryParams: {
-          htype: this.htype,
-        },
-      });
+      this.router.navigate(['/chats']);
     } else if (value == 'notifications') {
       this.router.navigate(['/notifications'], {
         queryParams: {
           chatCallAssign: 'chat',
-          htype: 'mandate',
         },
       });
     } else if (value == 'activity') {
@@ -351,7 +329,6 @@ export class CommonFooterComponent implements OnInit {
         queryParams: {
           status: 'generalfollowups',
           selecteddaterange: 'today',
-          htype: 'mandate',
         },
       });
     }
@@ -515,49 +492,51 @@ export class CommonFooterComponent implements OnInit {
   selectedSuggestedProp;
   requestedunits;
   getcustomerview() {
-    if (this.htype == 'mandate') {
-      this._mandateService
-        .getassignedrm(
-          this.onCallLeadData.Lead_IDFK,
-          localStorage.getItem('UserId'),
-          this.onCallLeadData.Exec_IDFK,
-          0
-        )
-        .subscribe((cust) => {
-          this.assignedrm = cust['RMname'].filter(
-            (item) => item.RMID == this.onCallLeadData.Exec_IDFK
-          );
-          this.selectedSuggestedProp =
-            this.assignedrm?.[0]?.['suggestedprop']?.length == 1
-              ? this.assignedrm?.[0]?.['suggestedprop']?.[0]
-              : '';
+    // if (this.htype == 'mandate') {
+    this._mandateService
+      .getassignedrm(
+        this.onCallLeadData.Lead_IDFK,
+        localStorage.getItem('UserId'),
+        this.onCallLeadData.Exec_IDFK,
+        0
+      )
+      .subscribe((cust) => {
+        this.assignedrm = cust['RMname'].filter(
+          (item) => item.RMID == this.onCallLeadData.Exec_IDFK
+        );
+        this.selectedSuggestedProp =
+          this.assignedrm?.[0]?.['suggestedprop']?.length == 1
+            ? this.assignedrm?.[0]?.['suggestedprop']?.[0]
+            : '';
 
-          this.verifyrequest(
-            this.assignedrm[0].customer_IDPK,
-            this.selectedSuggestedProp['propid'],
-            this.assignedrm[0].RMID,
-            this.selectedSuggestedProp['name']
-          );
-        });
-    } else {
-      this._retailservice
-        .getassignedrmretail(
-          this.onCallLeadData.Lead_IDFK,
-          this.onCallLeadData.Exec_IDFK,
-          0
-        )
-        .subscribe((cust) => {
-          this.assignedrm = cust['RMname']?.filter(
-            (item) => item.RMID == this.onCallLeadData.Exec_IDFK
-          );
-          this.verifyrequest(
-            this.assignedrm?.[0]?.customer_IDPK,
-            this.assignedrm?.[0]?.suggestedprop?.[0]?.propid,
-            this.onCallLeadData.Exec_IDFK,
-            this.assignedrm?.[0]?.suggestedprop?.[0]?.name
-          );
-        });
-    }
+        this.verifyrequest(
+          this.assignedrm[0].customer_IDPK,
+          this.selectedSuggestedProp['propid'],
+          this.assignedrm[0].RMID,
+          this.selectedSuggestedProp['name']
+        );
+      });
+    // }
+
+    // else {
+    //   this._retailservice
+    //     .getassignedrmretail(
+    //       this.onCallLeadData.Lead_IDFK,
+    //       this.onCallLeadData.Exec_IDFK,
+    //       0
+    //     )
+    //     .subscribe((cust) => {
+    //       this.assignedrm = cust['RMname']?.filter(
+    //         (item) => item.RMID == this.onCallLeadData.Exec_IDFK
+    //       );
+    //       this.verifyrequest(
+    //         this.assignedrm?.[0]?.customer_IDPK,
+    //         this.assignedrm?.[0]?.suggestedprop?.[0]?.propid,
+    //         this.onCallLeadData.Exec_IDFK,
+    //         this.assignedrm?.[0]?.suggestedprop?.[0]?.name
+    //       );
+    //     });
+    // }
   }
 
   verifyrequest(leadid, propid, execid, propname) {
@@ -566,22 +545,21 @@ export class CommonFooterComponent implements OnInit {
       propid: propid,
       execid: execid,
     };
-    if (this.htype == 'mandate') {
-      this._mandateService
-        .fetchrequestedvalues(param)
-        .subscribe((requested) => {
-          this.requestedunits = requested?.['requestedvals']?.map(
-            (request: any) => {
-              request.bhk = request.bhk.trim();
-              return request;
-            }
-          );
-        });
-    } else {
-      this._retailservice.fetchrequestedvalues(param).subscribe((requested) => {
-        this.requestedunits = requested['requestedvals'];
-      });
-    }
+    // if (this.htype == 'mandate') {
+    this._mandateService.fetchrequestedvalues(param).subscribe((requested) => {
+      this.requestedunits = requested?.['requestedvals']?.map(
+        (request: any) => {
+          request.bhk = request.bhk.trim();
+          return request;
+        }
+      );
+    });
+    // }
+    // else {
+    //   this._retailservice.fetchrequestedvalues(param).subscribe((requested) => {
+    //     this.requestedunits = requested['requestedvals'];
+    //   });
+    // }
   }
 
   updateStatus() {
@@ -697,7 +675,6 @@ export class CommonFooterComponent implements OnInit {
       queryParams: {
         chatCallAssign: 'call',
         callStatus: 'dialed',
-        htype: this.htype,
       },
     });
   }

@@ -32,16 +32,8 @@
 
   <ion-item-sliding *ngFor="let lead of filteredLeads" (ionSwipe)="onSwipe($event,lead)" #sliding>
     <ion-item style="padding:0px !important;--border-style:none">
-      <div class="todayAndAllVisitsData">
-        <ion-row class="info-row-heading" *ngIf="localStorage.getItem('Role') == '1' && !isCP && lead.crm_type">
-          <ion-col size="9"></ion-col>
-          <ion-col size="3">
-            <!-- <div class="backgroundLightColor content_center crmType">
-              <span class="font-size14-familyPoppins" *ngIf="lead.crm_type == '1'">Mandate</span>
-              <span class="font-size14-familyPoppins" *ngIf="lead.crm_type == '2'">Retail</span>
-            </div> -->
-          </ion-col>
-        </ion-row>
+
+      <!-- <div class="todayAndAllVisitsData">
         <span (click)="navigateToMandateCustomerPage(lead.crm_type,lead.customer_IDPK,lead)">
           <ion-row>
             <ion-col size="6">
@@ -68,7 +60,7 @@
                 <ion-col *ngIf="lead.customer_number && !isRM" class="p-0">
                   <ion-row class="custom-column-heading margin-top-5">Number</ion-row>
                   <ion-row class="custom-column-data">
-                    <span [ngClass]="lead.originalLeads[0].merged_lead_IDFK != null?'font-colorBlue':''">
+                    <span [ngClass]="lead.merged_lead_IDFK != null?'font-colorBlue':''">
                       {{lead.customer_number}}
                     </span>
                   </ion-row>
@@ -91,15 +83,15 @@
               </ion-row>
             </ion-col>
 
-
-            <!-- <ion-col size="6">
-              <ion-row class="custom-column-heading margin-top-5">Next Action Date</ion-row>
-              <ion-row class="custom-column-data">
-                <span>
-                  {{lead.originalLeads[0].nextaction_date|date:'d MMM y' }}
-                </span>
-              </ion-row>
-            </ion-col> -->
+          </ion-row>
+          <ion-row class="access_removed"
+            *ngIf="lead.originalLeads[0].reassign_visibility && lead.originalLeads[0].reassign_visibility != 0">
+            <ion-col size="6">
+              <span>
+                Access Removed
+              </span>
+              <ion-img src="../../../assets/CRMimages/access_removed_icon.svg"></ion-img>
+            </ion-col>
           </ion-row>
         </span>
 
@@ -127,9 +119,7 @@
 
 
         <ion-row class="custom-row-style" style="padding: 5px;">
-          <ion-col size="7" style="padding: 0;     display: flex;
-    align-content: center;
-    flex-direction: column;">
+          <ion-col size="7" style="padding: 0; display: flex;   align-content: center;    flex-direction: column;">
             <span *ngIf=" lead.execnames.length == 1">
               <span *ngIf="lead.execnames" class="font-size10-familyPoppins" style="color:white">Assigned to: </span>
               <span *ngFor="let exename of lead.execnames" class="font-size12-familyPoppins" style="color:white">
@@ -148,14 +138,126 @@
           </ion-col>
 
 
-          <!-- <ion-col class="content_center ion-text-end" size="4" style="padding-right: 0;justify-content:flex-end !important">
-          <a href="tel:{{lead.customer_number}}" style="padding: 0 5px;">
-            <ion-img src="../../assets/CRMimages/phone-icon.png" class="call-icon"></ion-img>
-          </a>
-          <a href="https://wa.me/+91{{lead.customer_number}}" style="padding: 0 5px;">
-            <ion-img src="../../assets/CRMimages/what's-app-icon.png" style="height: 25px;"></ion-img>
-          </a>
-          </ion-col> -->
+          <ion-col size="5" class="d-flex justify-content-end">
+            <div style="display: flex;" *ngIf="localStorage.getItem('Name') !== 'demo'">
+              <a (click)="outboundCall(lead)" class="ion-text-start" style="padding-right: 8px;">
+                <ion-img src="../../assets/CRMimages/call-icon.svg" class="call-icon"></ion-img>
+              </a>
+              <a href="https://wa.me/+91{{lead.customer_number}}">
+                <ion-img src="../../assets/CRMimages/what'sapp-icon.svg" class="whatsapp-icon"></ion-img>
+              </a>
+            </div>
+            <div style="display: flex;" *ngIf="localStorage.getItem('Name') == 'demo'">
+              <a class="ion-text-start" style="padding-right: 8px;">
+                <ion-img src="../../assets/CRMimages/call-icon.svg" class="call-icon"></ion-img>
+              </a>
+              <a>
+                <ion-img src="../../assets/CRMimages/what'sapp-icon.svg" class="whatsapp-icon"></ion-img>
+              </a>
+              <a class="ion-text-start" style="padding-left: 8px;">
+                <ion-img src="../../assets/CRMimages/info_icon.svg" class="call-icon"></ion-img>
+              </a>
+              <a class="ion-text-start" style="padding-left: 8px;">
+                <ion-img src="../../assets/CRMimages/location_icon.svg" class="call-icon"></ion-img>
+              </a>
+              <a class="ion-text-start" style="padding-left: 8px;">
+                <ion-img src="../../assets/CRMimages/brochureIcon.svg" class="call-icon"></ion-img>
+              </a>
+            </div>
+          </ion-col>
+        </ion-row>
+      </div> -->
+
+      <div class="todayAndAllVisitsData">
+        <span (click)="navigateToMandateCustomerPage(lead.crm_type,lead.customer_IDPK,lead)">
+          <ion-row>
+            <ion-col size="6">
+              <ion-row class="custom-column-heading margin-top-5">Lead
+                Name</ion-row>
+              <ion-row class="custom-column-data">
+                <span>
+                  {{lead.customer_name}}
+                </span>
+              </ion-row>
+            </ion-col>
+            <ion-col *ngIf="lead.Lead_stage" size="6">
+              <ion-row
+                class="custom-column-heading margin-top-5  d-flex ion-justify-content-end align-items-end">Stage</ion-row>
+              <ion-row class="custom-column-data  d-flex ion-justify-content-end align-items-end">
+                <span>
+                  {{lead.Lead_stage}}
+                </span>
+              </ion-row>
+            </ion-col>
+
+            <ion-col>
+              <ion-row>
+                <ion-col *ngIf="lead.customer_number && !isRM" class="p-0">
+                  <ion-row class="custom-column-heading margin-top-5">Number</ion-row>
+                  <ion-row class="custom-column-data">
+                    <span [ngClass]="lead.merged_lead_IDFK != null?'font-colorBlue':''">
+                      {{lead.customer_number}}
+                    </span>
+                  </ion-row>
+                </ion-col>
+                <ion-col size="2" *ngIf="lead.merged_lead_IDFK != null"
+                  class="d-flex ion-justify-content-center align-items-center">
+                  <div style="background: #CDEDFE; padding: 7px; border-radius: 4px;">
+                    <ion-img style="width: 20px;" src="../../assets/CRMimages/merge_icon.svg"></ion-img>
+                  </div>
+                </ion-col>
+                <ion-col *ngIf="lead.merged_lead_IDFK != null" class="p-0 ">
+                  <ion-row
+                    class="custom-column-data margin-top-5 d-flex ion-justify-content-end align-items-end font-colorBlue">{{lead.merged_lead_name}}</ion-row>
+                  <ion-row class="custom-column-data d-flex ion-justify-content-end align-items-end font-colorBlue">
+                    <span>
+                      {{lead.merged_lead_number}}
+                    </span>
+                  </ion-row>
+                </ion-col>
+              </ion-row>
+            </ion-col>
+
+          </ion-row>
+          <ion-row class="access_removed" *ngIf="lead.reassign_visibility && lead.reassign_visibility != 0">
+            <ion-col size="6">
+              <span>
+                Access Removed
+              </span>
+              <ion-img src="../../../assets/CRMimages/access_removed_icon.svg"></ion-img>
+            </ion-col>
+          </ion-row>
+        </span>
+
+        <span *ngIf="lead.propid === '16793' ">
+          <p [innerHTML]="grSitaraPropertyInfo" #propInfo class="ptopinfo" [hidden]="true"></p>
+        </span>
+        <span *ngIf="lead.propid === '1830' ">
+          <p [innerHTML]="grSamskruthiProperyInfo" #propInfo class="ptopinfo" [hidden]="true"></p>
+        </span>
+
+
+        <ion-row class="custom-row-style" style="padding: 5px;">
+          <ion-col size="7" style="padding: 0; display: flex;   align-content: center;    flex-direction: column;">
+            <span class="d-flex">
+              <span class="font-size12-familyPoppins" style="color:white">
+                {{lead.execname}}
+              </span>
+              <ion-img *ngIf="lead.visitassignedby" style="width: 25px;" class="px-1"
+                src="../../../assets/CRMimages/assigned_visit_icon.svg"></ion-img>
+              <span *ngIf="lead.visitassignedby" class="font-size12-familyPoppins" style="color:white">
+                {{lead.visitassignedby}}
+              </span>
+            </span>
+
+            <span *ngIf="lead.nextaction_date" class="font-size10-familyPoppins fst-italic" style="color:white">
+              Next Action - {{lead.nextaction_date|date:'d MMM y'}}</span>
+
+            <span *ngIf="lead.Lead_stage == 'Junk' && lead.lastupdated" class="font-size10-familyPoppins fst-italic"
+              style="color:white">
+              last updated - {{lead.lastupdated|date:'d MMM y'}}</span>
+          </ion-col>
+
 
           <ion-col size="5" class="d-flex justify-content-end">
             <div style="display: flex;" *ngIf="localStorage.getItem('Name') !== 'demo'">
@@ -165,15 +267,6 @@
               <a href="https://wa.me/+91{{lead.customer_number}}">
                 <ion-img src="../../assets/CRMimages/what'sapp-icon.svg" class="whatsapp-icon"></ion-img>
               </a>
-              <!-- <a [ngClass]="(lead.propid !== '1830') && (lead.propid !== '16793' )?'pointer_eventsNone':''" class="ion-text-start" style="padding-left: 8px;"  (click)="sharePropDetailsViaWhatsApp(lead,'info')">
-                <ion-img src="../../assets/CRMimages/info_icon.svg" class="call-icon"></ion-img>
-              </a>
-              <a class="ion-text-start" [ngClass]="(lead.propid !== '1830') && (lead.propid !== '16793' )?'pointer_eventsNone':''" style="padding-left: 8px;" (click)="sharePropDetailsViaWhatsApp(lead,'location')">
-                <ion-img src="../../assets/CRMimages/location_icon.svg" class="call-icon"></ion-img>
-              </a>
-              <a class="ion-text-start" [ngClass]="(lead.propid !== '1830') && (lead.propid !== '16793' )?'pointer_eventsNone':''" style="padding-left: 8px;" (click)="sharePropDetailsViaWhatsApp(lead,'brochure')">
-                <ion-img src="../../assets/CRMimages/brochureIcon.svg" class="call-icon"></ion-img>
-              </a> -->
             </div>
             <div style="display: flex;" *ngIf="localStorage.getItem('Name') == 'demo'">
               <a class="ion-text-start" style="padding-right: 8px;">

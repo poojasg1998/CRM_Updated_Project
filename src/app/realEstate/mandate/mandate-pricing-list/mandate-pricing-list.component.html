@@ -10,7 +10,7 @@
             Activities
           </ion-col>
         </ion-row>
-        <ion-row class="retailMandate" *ngIf="localStorage.getItem('Role') == '1'">
+        <!-- <ion-row class="retailMandate" *ngIf="localStorage.getItem('Role') == '1'">
           <ion-col (click)="filteredParams.htype = 'retail';reset_filter(); onHtype('retail')" class="content_center"
             [ngClass]="filteredParams.htype=='retail'?'activeHtype':''">
             <div>
@@ -23,7 +23,7 @@
               <span class="font-size16-familyPoppins">Mandate</span>
             </div>
           </ion-col>
-        </ion-row>
+        </ion-row> -->
       </ion-col>
       <ion-col size="2" (click)="openEndMenu()" class="content_center">
         <ion-icon name="menu" class="menu_icon"></ion-icon>

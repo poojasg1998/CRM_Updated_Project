@@ -15,12 +15,12 @@ platformBrowserDynamic()
 // import { initializeApp } from 'firebase/app';
 
 // const firebaseConfig = {
-//   apiKey: 'AIzaSyBAKy7vnEmTGKCk1rFnMgYYJNmctL2UGY0',
-//   authDomain: 'lead247-87071.firebaseapp.com',
-//   projectId: 'lead247-87071',
-//   storageBucket: 'lead247-87071.appspot.com',
-//   messagingSenderId: 'Y828642492545',
-//   appId: '1:828642492545:android:23e7b1757d39d3a13e8d80',
+//   apiKey: 'AIzaSyAQUvkNj-j3HcoOQNeoTiEWtFKXM4RdLLk',
+//   authDomain: 'sitecrm-357c7.firebaseapp.com',
+//   projectId: 'sitecrm-357c7',
+//   storageBucket: 'sitecrm-357c7.firebasestorage.app',
+//   messagingSenderId: '638624651088',
+//   appId: '1:638624651088:web:947f45203e13f619393e55',
 // };
 
 // initializeApp(firebaseConfig);

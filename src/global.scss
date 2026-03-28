@@ -481,3 +481,21 @@ div:where(.swal2-container) div:where(.swal2-actions) {
   border: 1px solid red;
   border-radius: 3px;
 }
+/* Target the toast using the custom class you defined */
+ion-toast.slide-toast::part(container) {
+  animation: slide-in-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes slide-in-top {
+  0% {
+    transform: translateY(-1000px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+ion-toast.slide-toast {
+  --top: 60px; /* Adjust this value to push it below your header */
+}

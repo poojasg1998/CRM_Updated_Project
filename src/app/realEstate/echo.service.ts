@@ -23,13 +23,13 @@ export class EchoService {
   private initEcho() {
     this.echo = new Echo({
       broadcaster: 'socket.io',
-      // host: 'https://chat.right2shout.in:6001',
-      host: 'https://test-chat.right2shout.in:6002',
+      host: 'https://chat.right2shout.in:6001',
+      // host: 'https://test-chat.right2shout.in:6002',
       transports: ['websocket'],
       forceTLS: true,
       // reconnectionAttempts: 5,
       // reconnectionDelay: 1000,
-      wssPort: 6002,
+      wssPort: 6001,
     });
     this.socket = this.echo.connector.socket;
 
@@ -54,11 +54,11 @@ export class EchoService {
     });
 
     this.socket.on('reconnect_error', (error: any) => {
-      console.log('%c[Socket.IO] Reconnect error:', 'color: red', error);
+      // console.log('%c[Socket.IO] Reconnect error:', 'color: red', error);
     });
 
     this.socket.on('reconnect_failed', () => {
-      console.log('%c[Socket.IO] Reconnect failed', 'color: darkred');
+      // console.log('%c[Socket.IO] Reconnect failed', 'color: darkred');
     });
   }
 
@@ -78,6 +78,7 @@ export class EchoService {
       console.log(data);
       if (
         userid == data.Executive &&
+        data.categoryid == localStorage.getItem('crmcategory_IDFK') &&
         (data.Call_status_new == 'Executive Busy' ||
           data.Call_status_new == 'BUSY' ||
           data.Call_status == 'Call Disconnected' ||
@@ -101,13 +102,6 @@ export class EchoService {
         ) {
           localStorage.setItem('isOnCall', 'true');
         }
-        // if (
-        //   data.Call_status_new == 'Call Disconnected' &&
-        //   data.direction == 'inbound'
-        // ) {
-        //   location.reload();
-        // }
-
         callback(data);
         return;
       }

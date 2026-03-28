@@ -51,7 +51,6 @@ export class HourlyReportListingComponent implements OnInit {
     status: '',
     source: '',
     isStage: '',
-    htype: '',
     isDateFilter: 'today',
     pageid: 1,
   };
@@ -230,7 +229,6 @@ export class HourlyReportListingComponent implements OnInit {
       status: this.filteredParams.status,
       pageid: 1,
       isDateFilter: 'today',
-      htype: this.filteredParams.htype,
     };
     this.dateRange = {
       fromdate: null as Date | null,
@@ -420,7 +418,6 @@ export class HourlyReportListingComponent implements OnInit {
       queryParams: {
         chatListSearch: number,
         selectedChat: 'all',
-        htype: this.filteredParams.htype,
       },
     });
   }

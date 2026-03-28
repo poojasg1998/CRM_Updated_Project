@@ -73,7 +73,6 @@ export class EnquiryComponent {
     private activeRoute: ActivatedRoute,
     private router: Router
   ) {}
-  htype;
   ngOnInit() {
     this.activeRoute.queryParams.subscribe((params) => {
       this.isChecked = false;
@@ -84,7 +83,6 @@ export class EnquiryComponent {
       this.isRetail = false;
       this.checkedLeadsDetail = [];
       this.temporaryLeadIds = [];
-      this.htype = params['htype'];
 
       const paramValue = params['isFresh'];
       if (params['isFresh'] == 'true') {

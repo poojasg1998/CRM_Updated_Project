@@ -5,7 +5,7 @@
 .datefilter-div ion-col {
   border-radius: 50px;
   background-color: white;
-  font-size: 0.75rem !important;
+  font-size: 0.73rem !important;
 }
 .datefilter-div ion-icon {
   border-radius: 20px;
@@ -596,4 +596,9 @@ ion-modal.addPriorityModal ion-toolbar {
   padding: 3px;
   font-size: 10px;
   margin-left: 4px;
+}
+.total_lead_details_heading {
+  position: sticky;
+  top: 2px;
+  z-index: 9999;
 }

@@ -60,7 +60,6 @@ export class MandatePlansComponent implements OnInit {
     visits: '',
     stage: '',
     source: '',
-    htype: '',
     stagestatus: '',
     loginuser: '',
     team: '',
@@ -75,7 +74,7 @@ export class MandatePlansComponent implements OnInit {
 
   constructor(
     private mandateService: MandateService,
-    private _sharedservice: SharedService,
+    public _sharedservice: SharedService,
     private menuCtrl: MenuController,
     private router: Router,
     private activeRoute: ActivatedRoute,
@@ -213,7 +212,8 @@ export class MandatePlansComponent implements OnInit {
     }
 
     (this.filteredParams.executid =
-      localStorage.getItem('Role') === '1'
+      localStorage.getItem('Role') === '1' ||
+      this.localStorage.getItem('RoleType') == '1'
         ? this.filteredParams.executid
         : localStorage.getItem('UserId')),
       (this.tempFilteredValues = { ...this.filteredParams });
@@ -720,7 +720,6 @@ export class MandatePlansComponent implements OnInit {
       loginuser: '',
       active: '1',
       team: '',
-      htype: this.filteredParams.htype,
       plan: this.filteredParams.plan,
       limit: 0,
       limitrows: 5,
@@ -766,7 +765,6 @@ export class MandatePlansComponent implements OnInit {
         allVisits: null,
         leadId: leadId,
         execid: execid,
-        htype: this.filteredParams.htype,
         propid: propid,
         status: 'info',
         teamlead:
@@ -891,30 +889,30 @@ export class MandatePlansComponent implements OnInit {
     // Tomorrows Date
   }
 
-  onHtype(htype) {
-    const queryParams = {};
-    for (const key in this.filteredParams) {
-      if (
-        this.filteredParams.hasOwnProperty(key) &&
-        this.filteredParams[key] !== ''
-      ) {
-        queryParams[key] = this.filteredParams[key];
-      } else {
-        queryParams[key] = null;
-      }
-    }
-    if (htype == 'mandate') {
-      this.router.navigate(['mandate-plans'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.router.navigate(['retail-plans'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    }
-  }
+  // onHtype(htype) {
+  //   const queryParams = {};
+  //   for (const key in this.filteredParams) {
+  //     if (
+  //       this.filteredParams.hasOwnProperty(key) &&
+  //       this.filteredParams[key] !== ''
+  //     ) {
+  //       queryParams[key] = this.filteredParams[key];
+  //     } else {
+  //       queryParams[key] = null;
+  //     }
+  //   }
+  //   if (htype == 'mandate') {
+  //     this.router.navigate(['mandate-plans'], {
+  //       queryParams,
+  //       queryParamsHandling: 'merge',
+  //     });
+  //   } else {
+  //     this.router.navigate(['retail-plans'], {
+  //       queryParams,
+  //       queryParamsHandling: 'merge',
+  //     });
+  //   }
+  // }
   openEndMenu() {
     this._sharedservice.isMenuOpen = true;
     this.menuCtrl.open('end');
@@ -1033,8 +1031,8 @@ export class MandatePlansComponent implements OnInit {
         callto: cleanedNumber,
         leadid: this.lead.LeadID,
         starttime: this.getCurrentDateTime(),
-        modeofcall: 'mobile-' + this.filteredParams.htype,
-        leadtype: this.filteredParams.htype,
+        modeofcall: 'mobile-mandate',
+        leadtype: 'mandate',
         assignee: this.lead.ExecId,
       };
       this._sharedservice.outboundCall(param).subscribe(() => {
@@ -1049,7 +1047,6 @@ export class MandatePlansComponent implements OnInit {
           leadTabData: 'status',
           callStatus: 'Call Connected',
           direction: 'outboundCall',
-          headerType: this.filteredParams.htype,
         },
         queryParamsHandling: 'merge',
       });
@@ -1101,7 +1098,6 @@ export class MandatePlansComponent implements OnInit {
       queryParams: {
         chatListSearch: number,
         selectedChat: 'all',
-        htype: this.filteredParams.htype,
       },
     });
   }

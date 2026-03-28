@@ -31,9 +31,44 @@
     </ion-row>
   </ion-header>
 
+  <div *ngIf="!isOnCallDetailsPage && filteredParams.stage != 'Deal Closing Pending' && 
+    filteredParams.stage != 'Deal Closing Requested' && filteredParams.stage != 'Deal Closed' && 
+    filteredParams.stage != 'Closing Request Rejected' && !isCheckbox">
+    <ion-row style="margin: 0 10px;">
+      <ion-col size="2.5" class="content_center padding-left-zero">
+        <!-- {{this.filteredParams.visittype}} -->
+        <div class="content_center visits_btn"
+          [ngClass]="this.filteredParams.visittype=='3'?'active_text_borederColor':isHeader && localStorage.getItem('Role')!='1' && (localStorage.getItem('Role')=='50004' || localStorage.getItem('Role')=='50003')?'pointer_eventsNone': ''"
+          (click)="onVisits('3')">
+          <ion-img
+            [src]="this.filteredParams.visittype=='3'? '../../assets/CRMimages/active_all_visits_icon.svg':'../../assets/CRMimages/all_visits_icon.svg'"
+            style="height:16px"></ion-img>
+          <span class="font-size12-familyPoppins">All</span>
+        </div>
+      </ion-col>
+      <ion-col size="4" class="content_center padding-leftright-zero">
+        <div class="content_center visits_btn"
+          [ngClass]="this.filteredParams.visittype=='2'?'active_text_borederColor':isHeader && localStorage.getItem('Role')!='1' && (localStorage.getItem('Role')=='50004' || localStorage.getItem('Role')=='50003')?'pointer_eventsNone': ''"
+          (click)="onVisits('2')">
+          <ion-img
+            [src]="this.filteredParams.visittype=='2'?'../../assets/CRMimages/active_self_visits_icon.svg':'../../assets/CRMimages/self_visits_icon.svg'"></ion-img>
+          <span class="font-size12-familyPoppins">Self Visits</span>
+        </div>
+      </ion-col>
+      <ion-col (click)="onVisits('1')" size="5.5" class="content_center">
+        <div class="content_center visits_btn"
+          [ngClass]="this.filteredParams.visittype=='1'?'active_text_borederColor':''">
+          <ion-img
+            [src]="this.filteredParams.visittype=='1'?'../../assets/CRMimages/active_assigned_visits_icon.svg':'../../assets/CRMimages/assigned_visits_icon.svg'"></ion-img><span
+            class="font-size12-familyPoppins">Assigned Visits</span>
+        </div>
+      </ion-col>
+    </ion-row>
+  </div>
+
   <div *ngIf="!isCheckbox && !isOnCallDetailsPage"
     [appCenterActiveButton]="filteredParams.stage && filteredParams.status != 'junkvisits' ? formatId(filteredParams.stage) :     filteredParams.visitsuntouched == '1'?filteredParams.visitsuntouched:  formatId(filteredParams.status)"
-    style="display: flex; overflow-x: scroll; padding:10px;box-shadow: 1px 2px 10px 0 rgba(99, 99, 99, 0.2);align-items: center;margin-bottom: 10px;">
+    style="display: flex; overflow-x: scroll; padding:2px;box-shadow: 1px 2px 10px 0 rgba(99, 99, 99, 0.2);align-items: center;scrollbar-width: none;">
     <div (click)="onstage('1','UnTouched')" class="custom-col center-text font-weight500" [id]="'id-1'">
       UnTouched
     </div>
@@ -69,6 +104,15 @@
       Booked
     </div>
   </div>
+  <ion-row *ngIf="!isAdmin && filteredParams.stage != 'Deal Closing Pending' && 
+  filteredParams.stage != 'Deal Closing Requested' && filteredParams.stage != 'Closing Request Rejected' && 
+  filteredParams.stage != 'Deal Closed'" class="accessRemovedCount">
+    <ion-col class="d-flex align-items-center justify-content-center">
+      <ion-img style="width:18px" src="../../../../assets/CRMimages/access_removed_icon1.svg" class="pr-1"></ion-img>
+      <span>{{mandateLeadsCount.accessRemoved + ' Visit'}}</span> Access Removed Due To Overdue
+    </ion-col>
+  </ion-row>
+
 
   <div *ngIf="filteredParams.isDropDown=='true' && !isOnCallDetailsPage" class="blurBaground"
     (click)="onBackgroundClick()">
@@ -104,40 +148,21 @@
     </div>
   </div>
 
-  <div *ngIf="!isOnCallDetailsPage && filteredParams.stage != 'Deal Closing Pending' && 
-  filteredParams.stage != 'Deal Closing Requested' && filteredParams.stage != 'Deal Closed' && 
-  filteredParams.stage != 'Closing Request Rejected' && !isCheckbox">
-    <ion-row style="margin: 0 10px;">
-      <ion-col size="2.5" class="content_center padding-left-zero">
-        <!-- {{this.filteredParams.visittype}} -->
-        <div class="content_center visits_btn"
-          [ngClass]="this.filteredParams.visittype=='3'?'active_text_borederColor':isHeader && localStorage.getItem('Role')!='1' && (localStorage.getItem('Role')=='50004' || localStorage.getItem('Role')=='50003')?'pointer_eventsNone': ''"
-          (click)="onVisits('3')">
-          <ion-img
-            [src]="this.filteredParams.visittype=='3'? '../../assets/CRMimages/active_all_visits_icon.svg':'../../assets/CRMimages/all_visits_icon.svg'"
-            style="height:16px"></ion-img>
-          <span class="font-size12-familyPoppins">All</span>
-        </div>
-      </ion-col>
-      <ion-col size="4" class="content_center padding-leftright-zero">
-        <div class="content_center visits_btn"
-          [ngClass]="this.filteredParams.visittype=='2'?'active_text_borederColor':isHeader && localStorage.getItem('Role')!='1' && (localStorage.getItem('Role')=='50004' || localStorage.getItem('Role')=='50003')?'pointer_eventsNone': ''"
-          (click)="onVisits('2')">
-          <ion-img
-            [src]="this.filteredParams.visittype=='2'?'../../assets/CRMimages/active_self_visits_icon.svg':'../../assets/CRMimages/self_visits_icon.svg'"></ion-img>
-          <span class="font-size12-familyPoppins">Self Visits</span>
-        </div>
-      </ion-col>
-      <ion-col (click)="onVisits('1')" size="5.5" class="content_center">
-        <div class="content_center visits_btn"
-          [ngClass]="this.filteredParams.visittype=='1'?'active_text_borederColor':''">
-          <ion-img
-            [src]="this.filteredParams.visittype=='1'?'../../assets/CRMimages/active_assigned_visits_icon.svg':'../../assets/CRMimages/assigned_visits_icon.svg'"></ion-img><span
-            class="font-size12-familyPoppins">Assigned Visits</span>
-        </div>
-      </ion-col>
-    </ion-row>
-  </div>
+
+  <!-- CONFIRMED AND ACCESS REMOVED BUTTON -->
+  <ion-row class="confirmed_AccessRemoved d-flex align-item-center justify-content-center " *ngIf="((filteredParams.stage == 'USV'||filteredParams.stage == 'RSV' || 
+    filteredParams.stage == 'Final Negotiation') && filteredParams.status != 'junkvisits') && isAdmin">
+    <ion-col size="6" class="confirmed_btn" *ngIf="filteredParams.stagestatus == '1'"
+      [ngClass]="filteredParams.stagestatus == '1' && filteredParams.stage != 'USV'?'border-right':''">
+      <span>Confirmed Plans</span> <ion-checkbox [checked]="filteredParams.confirmedplan == '1'"
+        (ionChange)="onAccessRemoved_ConfirmedBtn($event,'confirmedplan')"></ion-checkbox></ion-col>
+    <ion-col size="6" class="accessRemoved_btn"
+      *ngIf="(filteredParams.stagestatus == '3' || filteredParams.stagestatus == '1') && (filteredParams.stagestatus == '3' && filteredParams.stage == 'USV') || filteredParams.stage != 'USV'">
+      <span>Access Removed</span>
+      <ion-checkbox (ionChange)="onAccessRemoved_ConfirmedBtn($event,'accessremoved')"
+        [checked]="filteredParams.accessremoved == '3'"></ion-checkbox>
+    </ion-col>
+  </ion-row>
 
   <!-- FILTERED CHIPS -->
   <ion-row class="filteredChips" *ngIf="!isOnCallDetailsPage">
@@ -419,7 +444,7 @@
                   </div>
                 </ion-col>
 
-                <ion-col size="6" *ngIf="filteredParams.status == 'generalfollowups' || filteredParams.stage == 'NC'">
+                <ion-col size="6" *ngIf="(filteredParams.status == 'generalfollowups' || filteredParams.stage == 'NC')">
                   <div>{{filteredParams.status == 'generalfollowups' ? 'Next Followup':'Next Action'}}</div>
                   <div>
                     <span class="info-row-value">{{lead.nextactiondate + " , "+ lead.nextactiontime }}</span>
@@ -501,8 +526,9 @@
 
                     <span class="info-row-value"
                       [ngClass]="(lead.reassign_visibility == '2' || lead.reassign_visibility == '3')?'access-removed':''"
-                      *ngIf="lead.nextactiondate && toDate(lead.nextactiondate) < todaysDate">
-                      {{calculateDiff(lead?.nextactiondate)}} days {{lead.nextactiondate +","+lead.nextactiontime }}
+                      *ngIf="lead.nextactiondate && toDate(lead.nextactiondate) <= todaysDate">
+                      {{calculateDiff(lead?.nextactiondate) == 0?'':(calculateDiff(lead?.nextactiondate)+' days')}}
+                      {{lead.nextactiondate +","+lead.nextactiontime }}
                     </span>
                     <span class="info-row-value"
                       *ngIf="(lead.nextactiondate == '' || lead.nextactiondate == undefined || lead.nextactiondate == null) || (lead.nextactiontime == '' || lead.nextactiontime == undefined || lead.nextactiontime == null)">
@@ -511,7 +537,7 @@
                   </div>
                 </ion-col>
 
-                <ion-col size="6" class="priority d-flex align-item-center"
+                <ion-col size="6" class="priority d-flex "
                   (click)="lead.lead_priority == '0'?onSetPriority(lead,false):priority_id = lead.lead_priority;onSetPriority(lead,true) ">
                   <span class="label pr-1" style="color:rgba(0, 0, 0, 0.6)">Priority</span>
                   <div style="margin-bottom:2px" class="d-flex align-items-center">
@@ -692,7 +718,8 @@
               </ng-template>
             </ion-popover>
 
-            <ion-col size="1.5" class="d-flex align-item-center justify-content-center">
+            <ion-col size="1.5" *ngIf="_sharedservice.hasCallFeature"
+              class="d-flex align-item-center justify-content-center">
               <a (click)="this.outboundCall(lead)" class="ion-text-start call-icon">
                 <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
               </a>
@@ -702,7 +729,8 @@
                 <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
               </a>
             </ion-col>
-            <ion-col size="1.5" class="d-flex align-item-center justify-content-center">
+            <ion-col size="1.5" *ngIf="_sharedservice.hasCallFeature"
+              class="d-flex align-item-center justify-content-center">
               <a (click)="onplayButton(lead)" class="play_icon">
                 <ion-img src="../../assets/CRMimages/play-icon.svg"></ion-img>
               </a>
@@ -870,7 +898,7 @@
 
       <span *ngIf="localStorage.getItem('Name') != 'demo'">
         <span
-          *ngIf="!((localStorage.getItem('Role')!=='1' && filteredParams.loginid && (filteredParams.status == 'inactive' || filteredParams.status == 'junkleads' || filteredParams.status == 'junkvisits')) && (lead.rnr_counts >= '3'))">
+          *ngIf="!((localStorage.getItem('Role')!=='1' && filteredParams.loginid && (filteredParams.status == 'inactive' || filteredParams.status == 'junkleads' || filteredParams.status == 'junkvisits')) && (lead.rnr_counts >= '3')) && _sharedservice.hasCallFeature">
           <ion-item-options side="end" *ngIf="(!isAdmin && filteredParams.status != 'junkvisits') || isAdmin">
             <ion-img src="../../assets/CRMimages/phone-call.svg" style="width:45px;padding: 10px;"
               class="call-icon"></ion-img>
@@ -950,7 +978,7 @@
   <div *ngIf="!isOnCallDetailsPage" style="box-shadow: 0px -4px 6.6px 0px #0000002E;margin-top:10px">
     <ion-row class="ion-justify-content-end">
       <ion-col size="10" class="paddingZero"
-        *ngIf="['USV','RSV','Final Negotiation','Junk Visits'].includes(filteredParams.type)">
+        *ngIf="['USV','RSV','Final Negotiation','Junk Visits','UnTouched'].includes(filteredParams.type)">
         <ion-row class="content_center" *ngIf="!isCheckbox">
 
           <div
@@ -1032,8 +1060,21 @@
                 </div>
               </div>
             </span>
+            <!-- Untoched  SUB SECTION -->
+            <div style="display: flex;min-width: 100%;" *ngIf="filteredParams.type == 'UnTouched'">
+              <div class="substage"><span>Untouched</span></div>
 
-            <!-- USV STGE SUB SECTION -->
+              <div style="display: flex; overflow-x: scroll; padding: 3px;">
+                <div fill="clear" (click)="onutouchedstage('1');"
+                  [ngClass]=" (filteredParams.visitsuntouched === '1' && filteredParams.stagestatus === '1' ) ?'textBorderColor':''"
+                  class="custom-col center-text font-weight500"> Fix- {{' '+mandateLeadsCount.usv_fix}}</div>
+                <div fill="clear" (click)="onutouchedstage('3');"
+                  [ngClass]="(filteredParams.visitsuntouched === '1' && filteredParams.stagestatus === '3')?'textBorderColor':''"
+                  class="custom-col center-text font-weight500"> Done- {{' '+mandateLeadsCount.usv_done}}</div>
+              </div>
+            </div>
+
+            <!-- USV STAGE SUB SECTION -->
             <div style="display: flex;min-width: 100%;" *ngIf="filteredParams.type === 'USV'">
               <div class="substage"><span>USV</span></div>
 

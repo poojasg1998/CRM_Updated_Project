@@ -592,7 +592,8 @@ export class MandateService {
       counter: 'counter',
       teamlead: 'teamlead',
       visitsuntouched: 'visitsuntouched',
-
+      accessremoved: 'accessremoved',
+      confirmedplan: 'confirmedplan',
       remarks_search: 'remarks_search',
     };
 
@@ -642,6 +643,25 @@ export class MandateService {
     });
   }
 
+  getScheduledPlans(param) {
+    let params = new HttpParams()
+      .set('fromdate', param.fromDate ?? '')
+      .set('todate', param.toDate ?? '')
+      .set('lead_stage', param.lead_stage ?? '')
+      .set('team', param.team ?? '')
+      .set('status', param.status ?? '')
+      .set('execid', param.executid ?? '')
+      .set('propid', param.propid ?? '')
+      .set('loginid', param.loginid ?? '')
+      .set('plan', param.plan ?? '')
+      .set('limit', param.limit ?? '')
+      .set('limitrows', param.limitrows ?? '');
+    let body = params.toString();
+    var headers = new Headers();
+    return this.http.get<any>(this.mandate + '/scheduledplans_leads?', {
+      params,
+    });
+  }
   getActivityLeadsCounts(param) {
     let params = new HttpParams()
       .set('fromdate', param.fromDate ?? '')
@@ -741,25 +761,26 @@ export class MandateService {
 
   getAssignedLeadsDetail(param) {
     let params = new HttpParams()
-      .set('FromDate', param.fromDate)
-      .set('ToDate', param.toDate)
-      .set('stage', param.stage)
-      .set('team', param.team)
-      .set('status', param.status)
-      .set('stagestatus', param.stagestatus)
-      .set('rmid', param.executid)
-      .set('propid', param.propid)
-      .set('loginid', param.loginid)
-      .set('priority', param.priority)
-      .set('followup', param.followup)
-      .set('source', param.source)
-      .set('visits', param.visits)
-      .set('receivedfromdate', param.receivedFromDate)
-      .set('receivedtodate', param.receivedToDate)
-      .set('visitedfromdate', param.visitedfromdate)
-      .set('visitedtodate', param.visitedtodate)
-      .set('assignedfromdate', param.assignedfromdate)
-      .set('assignedtodate', param.assignedtodate)
+      .set('FromDate', param.fromDate ?? '')
+      .set('ToDate', param.toDate ?? '')
+      .set('stage', param.stage ?? '')
+      .set('team', param.team ?? '')
+      .set('status', param.status ?? '')
+      .set('stagestatus', param.stagestatus ?? '')
+      .set('rmid', param.executid ?? '')
+      .set('propid', param.propid ?? '')
+      .set('loginid', param.loginid ?? '')
+      .set('priority', param.priority ?? '')
+      .set('followup', param.followup ?? '')
+      .set('source', param.source ?? '')
+      .set('visits', param.visits ?? '')
+      .set('roleId', param.roleId ?? '')
+      .set('receivedfromdate', param.receivedFromDate ?? '')
+      .set('receivedtodate', param.receivedToDate ?? '')
+      .set('visitedfromdate', param.visitedfromdate ?? '')
+      .set('visitedtodate', param.visitedtodate ?? '')
+      .set('assignedfromdate', param.assignedfromdate ?? '')
+      .set('assignedtodate', param.assignedtodate ?? '')
       .set('FromTime', param.fromTime ?? '')
       .set('ToTime', param.toTime ?? '')
       .set('visittype', param.visittype ?? '')
@@ -767,6 +788,8 @@ export class MandateService {
       .set('visitassignedto', param.visitassignedto ?? '')
       .set('counter', param.counter ?? '')
       .set('teamlead', param.teamlead ?? '')
+      .set('accessremoved', param.accessremoved ?? '')
+      .set('confirmedplan', param.confirmedplan ?? '')
       .set('visitsuntouched', param.visitsuntouched ?? '')
       .set('limit', param.limit)
       .set('limitrows', param.limitrows);
@@ -931,6 +954,16 @@ export class MandateService {
     return this.http.post(this.mandate + '/leadassign', params);
   }
 
+  lead_ReAssign(param) {
+    let params = new HttpParams()
+      .set('RMID', param.rmID)
+      .set('LeadID', param.LeadID)
+      .set('propID', param.propID)
+      .set('random', param.random)
+      .set('loginId', param.loginId);
+    return this.http.post(this.mandate + '/leadreassign_mandate', params);
+  }
+
   visitreassign(param) {
     let params = new HttpParams()
       .set('RMID', param.rmID)
@@ -1020,7 +1053,7 @@ export class MandateService {
       .set('loginid', param.loginid ?? '')
       .set('teamlead', param.teamlead ?? '')
       .set('leadvisit', param.leadvisit ?? '')
-      .set('plan', param.plan ?? '')
+      // .set('plan', param.plan ?? '')
       .set('limit', param.limit ?? '')
       .set('limitrows', param.limitrows ?? '');
 
@@ -1124,8 +1157,9 @@ export class MandateService {
       status: 'status',
       stage: 'stage',
       stagestatus: 'stagestatus',
-      rmid: 'rmid',
+      executid: 'rmid',
       tcid: 'tcid',
+      propid: 'propid',
       loginid: 'loginid',
       limit: 'limit',
       limitrows: 'limitrows',
@@ -1364,26 +1398,28 @@ export class MandateService {
       .set('LeadID', param.LeadID)
       .set('PropertyID', param.PropertyID)
       .set('Stage', param.Stage)
-      .set('Execid', param.Execid)
-      .set('assignID', param.assignID);
-    return this.http.post(
-      'https://superadmin-azure.right2shout.in/mandatecrm_cs' +
-        '/addsuggestproperties',
-      params
-    );
+      .set('Execid', param.assignID)
+      .set('assignID', param.Execid);
+    return this.http.post(this.mandate + '/addsuggestproperties', params);
   }
 
+  // LeadID;
+  // 247020;
+  // PropertyID;
+  // 16793;
+  // Stage;
+  // Fresh;
+  // Execid;
+  // 40115;
+  // assignID;
+  // 1;
   getPropertylist(param) {
     let params = new HttpParams()
       .set('leadid', param.leadid)
       .set('Execid', param.execid)
       .set('feedback', param.feedbackid ?? '');
     return this.http
-      .get<any>(
-        'https://superadmin-azure.right2shout.in/mandatecrm_cs' +
-          '/propertylist?',
-        { params }
-      )
+      .get<any>(this.mandate + '/propertylist?', { params })
       .pipe(map((response) => response));
   }
 
@@ -1407,17 +1443,17 @@ export class MandateService {
       .set('leadid', param.leadid)
       .set('propid', param.propid)
       .set('client', param.customer)
-      .set('clientnum', param.customernum)
-      .set('clientmail', param.customermail)
-      .set('rmname', param.rmname)
-      .set('rmid', param.rmid)
-      .set('rmmail', param.rmmail)
-      .set('assignID', param.execid)
-      .set('builder', param.builder)
-      .set('property', param.property)
-      .set('sendmail', param.sendto)
-      .set('ccmail', param.sendcc)
-      .set('sendnote', param.remarks);
+      .set('clientnum', param.customernum ?? '')
+      .set('clientmail', param.customermail ?? '')
+      .set('rmname', param.rmname ?? '')
+      .set('rmid', param.rmid ?? '')
+      .set('rmmail', param.rmmail ?? '')
+      .set('assignID', param.execid ?? '')
+      .set('builder', param.builder ?? '')
+      .set('property', param.property ?? '')
+      .set('sendmail', param.sendto ?? '')
+      .set('ccmail', param.sendcc ?? '')
+      .set('sendnote', param.remarks ?? '');
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -1471,7 +1507,9 @@ export class MandateService {
       .set('todate', param.weekendtodate)
       .set('execid', param.executid)
       .set('plan', param.plan)
-      .set('loginid', param.loginid ?? '');
+      .set('loginid', param.loginid ?? '')
+      .set('propid', param.propid);
+
     return this.http.get<any>(this.mandate + '/scheduledplans_counts?', {
       params,
     });

@@ -13,4 +13,7 @@ describe('CommonService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+  it('checkLiveCalls', () => {
+    expect(service).toBeTruthy();
+  });
 });

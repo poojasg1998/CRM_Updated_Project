@@ -31,7 +31,6 @@ export class WhatsappVisitsComponent implements OnInit {
     fromdate: '',
     todate: '',
     propname: '',
-    htype: '',
     limit: 0,
     limitrows: 5,
   };
@@ -299,7 +298,6 @@ export class WhatsappVisitsComponent implements OnInit {
       queryParams: {
         chatListSearch: number,
         selectedChat: 'all',
-        htype: this.filteredParams.htype,
       },
     });
   }

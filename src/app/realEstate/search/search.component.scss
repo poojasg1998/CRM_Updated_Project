@@ -237,3 +237,18 @@ ion-modal.callConfirmationModal {
 .callConfirmationModal ion-footer {
   box-shadow: none;
 }
+.access_removed {
+  ion-img {
+    width: 16px;
+    padding-left: 4px;
+  }
+  color: #c13939;
+  ion-col {
+    display: flex;
+    align-items: center;
+  }
+  span {
+    font-size: 0.68rem;
+    font-style: italic;
+  }
+}

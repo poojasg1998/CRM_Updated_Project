@@ -180,6 +180,11 @@ h2 {
     color: #7a4a4a;
   }
 }
+.left-right-sec {
+  border: 1px solid;
+  border-top: none !important;
+  border-bottom: none !important;
+}
 .left-bottom-sec {
   border-radius: 0 4px 0 4px;
   border: 1px solid;
@@ -564,4 +569,25 @@ ion-modal {
   padding: 0px 4px;
   color: white;
   font-size: 0.8rem;
+}
+
+.activeVisitsJunk_card {
+  background: linear-gradient(86.98deg, #ffffff 47.96%, #dbd8ff 113.29%);
+  .card_footer {
+    p,
+    h2 {
+      color: #0f0082;
+    }
+  }
+  .active-col {
+    border: 0.6px solid #8576ff;
+    background: #d8d3ff;
+  }
+}
+
+.activeVisitsJunk_card {
+  border: 1px solid #8576ff;
+  .text_color {
+    color: #8576ff;
+  }
 }

@@ -467,7 +467,8 @@
             </ng-template>
           </ion-popover>
 
-          <ion-col size="1.5" class="d-flex align-item-center justify-content-center">
+          <ion-col size="1.5" *ngIf="_sharedservice.hasCallFeature"
+            class="d-flex align-item-center justify-content-center">
             <a (click)="this.outboundCall(lead)" class="ion-text-start call-icon">
               <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
             </a>
@@ -478,7 +479,7 @@
             </a>
           </ion-col>
           <ion-col size="1.5" class="d-flex align-item-center justify-content-center"
-            *ngIf="filteredParams.status != 'pending'">
+            *ngIf="filteredParams.status != 'pending' && _sharedservice.hasCallFeature">
             <a (click)="onplayButton(lead)" class="play_icon">
               <ion-img src="../../assets/CRMimages/play-icon.svg"></ion-img>
             </a>
@@ -647,7 +648,7 @@
 
     <span *ngIf="localStorage.getItem('Name') != 'demo'">
       <span
-        *ngIf="!((localStorage.getItem('Role')!=='1' && filteredParams.loginid && (filteredParams.status == 'inactive' || filteredParams.status == 'junkleads' || filteredParams.status == 'junkvisits')) && (lead.rnr_counts >'3') )">
+        *ngIf="!((localStorage.getItem('Role')!=='1' && filteredParams.loginid && (filteredParams.status == 'inactive' || filteredParams.status == 'junkleads' || filteredParams.status == 'junkvisits')) && (lead.rnr_counts >'3') ) && _sharedservice.hasCallFeature">
         <ion-item-options side="end"
           *ngIf="(!isAdmin && filteredParams.status != 'junkleads' &&  filteredParams.status != 'inactive' && filteredParams.status != 'junkvisits' ) || isAdmin">
           <ion-img src="../../assets/CRMimages/phone-call.svg" style="width:45px;padding: 10px;"

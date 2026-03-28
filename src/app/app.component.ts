@@ -12,7 +12,8 @@ import { SharedService } from './realEstate/shared.service';
 import { MandateService } from './realEstate/mandate-service.service';
 import { AuthServiceService } from './realEstate/auth-service.service';
 import { RetailServiceService } from './realEstate/retail-service.service';
-
+import { FirebaseMessaging } from '@capacitor-firebase/messaging';
+import { ChatStateService } from './realEstate/chat-state.service';
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -25,33 +26,41 @@ export class AppComponent implements OnInit {
   showSpinner = false;
   isAdmin = false;
   isCP = false;
-  isRetail = false;
   unquieleadcounts;
   apiAlreadyCalled = false;
   isOnCallDetailsPage = false;
   callStatus: any;
+  routerOutletId: string = '';
   constructor(
     public commonService: CommonService,
     public sharedService: SharedService,
     private mandateService: MandateService,
     private toastController: ToastController,
     private platform: Platform,
-    private router: Router,
+    public router: Router,
     private authService: AuthServiceService,
     private activeRoute: ActivatedRoute,
-    public _retailservice: RetailServiceService
+    public _retailservice: RetailServiceService,
+    private chatState: ChatStateService
   ) {
+    // Network.addListener('networkStatusChange', async (status) => {
+    //   console.log('Network changed:', status);
+    // });
+    // this.initNetworkListener();
     // this.showOfflineToast();
     // this.checkInternet();
-    // App.addListener('resume', () => {
+    // this.platform.ready().then(() => {
     //   this.initNetworkListener();
     // });
+    const categoryId = localStorage.getItem('crmcategory_IDFK');
+    this.routerOutletId =
+      categoryId === '2' ? 'app-content' : 'shreeindustries-menu';
     this.platform.ready().then(async () => {
       await this.initializePrivacyScreen();
     });
-    if (localStorage.getItem('Department') == '10006') {
-      this.requestPermission();
-    }
+
+    this.requestNotificationPermission();
+
     this.initializeApp();
   }
 
@@ -95,14 +104,12 @@ export class AppComponent implements OnInit {
 
   async showOfflineToast() {
     if (this.offlineToast) return;
-
     this.offlineToast = await this.toastController.create({
       message: 'No Internet Connection',
       color: 'danger',
       position: 'top',
       duration: 0, // stays until dismissed
     });
-
     await this.offlineToast.present();
   }
 
@@ -124,7 +131,6 @@ export class AppComponent implements OnInit {
               if (localStorage.getItem('Role') == '1') {
                 this.router.navigate(['home'], {
                   queryParams: {
-                    htype: 'mandate',
                     propid: !localStorage.getItem('ranavPropId')
                       ? '16793'
                       : '28773',
@@ -137,28 +143,27 @@ export class AppComponent implements OnInit {
               ) {
                 this.router.navigate(['home'], {
                   queryParams: {
-                    htype: 'mandate',
                     propid: !localStorage.getItem('ranavPropId')
                       ? '16793'
                       : '28773',
                   },
                 });
-              } else if (
-                localStorage.getItem('Role') == '50009' ||
-                localStorage.getItem('Role') == '50010' ||
-                localStorage.getItem('Role') == '50003' ||
-                localStorage.getItem('Role') == '50004'
-              ) {
-                this.router.navigate(['retail-dashboard'], {
-                  queryParams: {
-                    htype: 'retail',
-                  },
-                });
               }
+              // else if (
+              //   localStorage.getItem('Role') == '50009' ||
+              //   localStorage.getItem('Role') == '50010' ||
+              //   localStorage.getItem('Role') == '50003' ||
+              //   localStorage.getItem('Role') == '50004'
+              // ) {
+              //   this.router.navigate(['retail-dashboard'], {
+              //     queryParams: {
+              //       htype: 'retail',
+              //     },
+              //   });
+              // }
             } else {
               this.router.navigate(['/'], {
                 queryParams: {
-                  htype: 'mandate',
                   propid: !localStorage.getItem('ranavPropId')
                     ? '16793'
                     : '28773',
@@ -196,57 +201,173 @@ export class AppComponent implements OnInit {
 
   private intervalId: any;
   backgroundTime: number | null = null;
-  async requestPermission() {
-    await LocalNotifications.requestPermissions();
-    await this.scheduleDailyBreakNotifications();
+  async requestNotificationPermission() {
+    try {
+      if (localStorage.getItem('Department') == '10006') {
+        this.scheduleDailyBreakNotifications();
+      }
+
+      this.initializeFCM();
+    } catch (e) {
+      console.error('App init error:', e);
+    }
+
+    // await LocalNotifications.requestPermissions();
+    // if (localStorage.getItem('Department') == '10006') {
+    //   await this.scheduleDailyBreakNotifications();
+    // }
   }
 
   async scheduleDailyBreakNotifications() {
-    await LocalNotifications.schedule({
-      notifications: [
-        {
-          id: 1,
-          title: 'Break Time ☕',
-          body: 'It’s 11:15 — take a break!',
-          schedule: {
-            on: {
-              hour: 11,
-              minute: 15,
-              second: 0,
+    try {
+      const perm = await LocalNotifications.requestPermissions();
+
+      if (perm.display !== 'granted') {
+        console.log('🔕 User denied notifications');
+        return;
+      }
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: 1,
+            title: 'Break Time ☕',
+            body: 'It’s 11:15 — take a break!',
+            schedule: {
+              on: {
+                hour: 11,
+                minute: 15,
+                second: 0,
+              },
+              repeats: true,
             },
-            repeats: true,
+            smallIcon: 'ic_notification',
           },
-        },
-        {
-          id: 2,
-          title: 'Lunch Time 🍽️',
-          body: 'It’s 1:00 — lunch break!',
-          schedule: {
-            on: {
-              hour: 13,
-              minute: 0,
-              second: 0,
+          {
+            id: 2,
+            title: 'Lunch Time 🍽️',
+            body: 'It’s 1:00 — lunch break!',
+            schedule: {
+              on: {
+                hour: 13,
+                minute: 0,
+                second: 0,
+              },
+              repeats: true,
             },
-            repeats: true,
+            smallIcon: 'ic_notification',
           },
-        },
-        {
-          id: 3,
-          title: 'Evening Break ☕',
-          body: 'It’s 3:45 — relax!',
-          schedule: {
-            on: {
-              hour: 15, // 3:45 PM
-              minute: 45,
-              second: 0,
+          {
+            id: 3,
+            title: 'Evening Break ☕',
+            body: 'It’s 3:45 — relax!',
+            schedule: {
+              on: {
+                hour: 15,
+                second: 0,
+              },
+              repeats: true,
             },
-            repeats: true,
+            smallIcon: 'ic_notification',
           },
-        },
-      ],
-    });
+        ],
+      });
+
+      console.log('✅ Notification channel created');
+    } catch (err) {
+      console.error('Notification init failed:', err);
+    }
   }
 
+  async initializeFCM() {
+    await this.platform.ready();
+    const perm = await LocalNotifications.requestPermissions();
+    if (perm.display !== 'granted') {
+      console.log('User denied notifications');
+      return;
+    }
+    await LocalNotifications.createChannel({
+      id: 'chat',
+      name: 'Chat Messages',
+      importance: 5,
+    });
+
+    FirebaseMessaging.addListener('notificationReceived', async (event) => {
+      setTimeout(async () => {
+        const isChatOpen = this.chatState.isChatOpen();
+        const activeChatId = this.chatState.getActiveChatId();
+        const payloadString = event.notification?.data;
+        if (isChatOpen && activeChatId == payloadString?.['chat_id']) {
+          return;
+        }
+        let bodyText = payloadString?.['body']; // this is string
+
+        let imagePath = '';
+
+        if (typeof bodyText === 'string') {
+          const match = bodyText.match(/Path:\s*(.*)/);
+          if (match && match[1]) {
+            imagePath = match[1].trim();
+          }
+        }
+
+        if (imagePath.startsWith('/')) {
+          imagePath = imagePath.substring(1);
+        }
+
+        const imageUrl = 'https://chat.right2shout.in/' + encodeURI(imagePath);
+
+        this.sharedService.triggerUnreadCheck();
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              id: Math.floor(Math.random() * 100000),
+              title: event.notification?.title,
+              body: event.notification?.body,
+              channelId: 'chat',
+              smallIcon: 'ic_notification',
+              largeIcon: imageUrl,
+              extra: {
+                payload: event.notification?.data,
+              },
+            },
+          ],
+        });
+      }, 0);
+    });
+    // Triggered when notification is tapped
+    FirebaseMessaging.addListener('notificationActionPerformed', (event) => {
+      this.localStorage.removeItem('individualChat');
+      localStorage.setItem(
+        'individualChat',
+        JSON.stringify(event.notification.data)
+      );
+      this.handleNotificationNavigation(event.notification.data);
+    });
+
+    LocalNotifications.addListener(
+      'localNotificationActionPerformed',
+      (notification) => {
+        this.localStorage.removeItem('individualChat');
+        localStorage.setItem(
+          'individualChat',
+          JSON.stringify(notification.notification.extra?.['payload'])
+        );
+        const payloadString = notification.notification.extra?.['payload'];
+        if (!payloadString) return;
+        this.handleNotificationNavigation(notification.notification.extra);
+      }
+    );
+  }
+
+  handleNotificationNavigation(data: any) {
+    if (!data) return;
+    this.router.navigate(['/notifications'], {
+      queryParams: {
+        chatCallAssign: 'chat',
+        fromNotification: new Date().getTime(),
+      },
+    });
+  }
   async ngOnInit() {
     StatusBar.setBackgroundColor({ color: '#0B7AB2' });
 
@@ -274,7 +395,6 @@ export class AppComponent implements OnInit {
     this.isCP = localStorage.getItem('cpId') === '1';
     this.sharedService.checkForUpdate(id);
     this.isLastOneHrReportOpen = false;
-
     this.getRetailMandateUntouchedCount();
 
     // App.addListener('appStateChange', (state) => {
@@ -337,12 +457,8 @@ export class AppComponent implements OnInit {
         this.sharedService.isMenuOpen = false;
       }
 
-      if (params['htype'] == 'retail') {
-        this.isRetail = true;
-      } else {
-        this.isRetail = false;
-      }
-      this.localStorage.getItem('Department') != '10006'
+      this.localStorage.getItem('Department') != '10006' &&
+      this.localStorage.getItem('crmcategory_IDFK') != '2'
         ? this.getCallCounts()
         : '';
     });
@@ -619,7 +735,6 @@ export class AppComponent implements OnInit {
     this.isLastOneHrReportOpen = false;
     this.router.navigate(['hourly-report'], {
       queryParams: {
-        htype: this.isRetail ? 'retail' : 'mandate',
         fromdate: this.getTodayDate(),
         todate: this.getTodayDate(),
       },

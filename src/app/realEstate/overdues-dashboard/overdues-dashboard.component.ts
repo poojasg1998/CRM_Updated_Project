@@ -75,7 +75,7 @@ export class OverduesDashboardComponent implements OnInit {
     private activeRoute: ActivatedRoute,
     public router: Router,
     private mandateService: MandateService,
-    private _sharedservice: SharedService
+    public _sharedservice: SharedService
   ) {}
 
   ngOnInit() {
@@ -266,6 +266,15 @@ export class OverduesDashboardComponent implements OnInit {
       this.filteredParams.toDate = ('' + this.dateRange.todate).split('T')[0];
       this.dashboard_toDate_modal?.dismiss();
       return;
+    } else if (dateType == 'allTime') {
+      this.filteredParams.isDateFilter = 'allTime';
+      this.filteredParams.fromDate = '';
+      this.filteredParams.toDate = '';
+    } else if (dateType == 'last3days') {
+      const from = new Date(today);
+      from.setDate(from.getDate() - 2);
+      this.filteredParams.fromDate = format(from);
+      this.filteredParams.toDate = format(today);
     }
     this.addQueryParams();
   }
@@ -513,7 +522,6 @@ export class OverduesDashboardComponent implements OnInit {
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
             : null,
-        htype: 'mandate',
       },
       queryParamsHandling: 'merge',
     });

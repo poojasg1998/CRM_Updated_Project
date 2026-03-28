@@ -24,7 +24,6 @@ export class AllCallsListingComponent implements OnInit {
     loginid: localStorage.getItem('UserId'),
     execid: '',
     isDateFilter: '',
-    htype: '',
   };
   tempFilteredValues;
   allCallsCount;
@@ -343,7 +342,6 @@ export class AllCallsListingComponent implements OnInit {
       loginid: localStorage.getItem('UserId'),
       execid: '',
       isDateFilter: 'today',
-      htype: this.filteredParams.htype,
     };
 
     this.addQueryParams();
@@ -373,8 +371,8 @@ export class AllCallsListingComponent implements OnInit {
         callto: cleanedNumber,
         leadid: this.lead.leadid,
         starttime: this.getCurrentDateTime(),
-        modeofcall: 'mobile-' + this.filteredParams.htype,
-        leadtype: this.filteredParams.htype,
+        modeofcall: 'mobile-mandate',
+        leadtype: 'mandate',
         assignee: this.lead.Exec_IDFK,
       };
       this.callConfirmationModal.dismiss();
@@ -394,7 +392,7 @@ export class AllCallsListingComponent implements OnInit {
           leadTabData: 'status',
           callStatus: 'Call Connected',
           direction: 'outboundCall',
-          headerType: this.filteredParams.htype,
+          headerType: 'mandate',
         },
         queryParamsHandling: 'merge',
       });

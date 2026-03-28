@@ -17,6 +17,7 @@ import { MandateService } from '../../mandate-service.service';
 import { EchoService } from '../../echo.service';
 import { SharedService } from '../../shared.service';
 import { RetailServiceService } from '../../retail-service.service';
+import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 @Component({
   selector: 'app-on-call-lead-update',
   templateUrl: 'on-call-lead-update.component.html',
@@ -29,7 +30,6 @@ export class OnCallLeadUpdateComponent implements OnInit {
     execid: '',
     headerType: '',
     feedbackId: '0',
-    htype: '',
     callStatus: '',
     isCallHistory: '',
   };
@@ -140,6 +140,8 @@ export class OnCallLeadUpdateComponent implements OnInit {
     // if (!this.echoListenerAdded) {
     this.showSpinner1 = true;
     this.echoListenerAdded = true;
+
+    // FirebaseMessaging.addListener('notificationReceived', async (data) => {});
 
     this._echoService.listenToChannel(
       'database-changes',
@@ -333,75 +335,96 @@ export class OnCallLeadUpdateComponent implements OnInit {
     formData.append('LeadID', leadid);
     formData.append('ExecID', localStorage.getItem('UserId'));
 
-    if (
-      this.filteredParams.headerType == 'mandate' ||
-      this.filteredParams.htype == 'mandate'
-    ) {
-      formData.append('assignID', execid);
-    }
-
+    formData.append('assignID', execid);
     for (var k = 0; k < this.closurefiles.length; k++) {
       formData.append('file[]', this.closurefiles[k]);
     }
 
-    if (
-      this.filteredParams.headerType == 'mandate' ||
-      this.filteredParams.htype == 'mandate'
-    ) {
-      this._mandateService.uploadFile(formData).subscribe((res) => {
-        if (res['status'] == 'True') {
-          this._mandateService
-            .getassignedrm(
-              leadid,
-              this.userid,
-              execid,
-              this.filteredParams.feedbackId
-            )
-            .subscribe((cust) => {
-              this.assignedrm = cust['RMname'];
+    this._mandateService.uploadFile(formData).subscribe((res) => {
+      if (res['status'] == 'True') {
+        this._mandateService
+          .getassignedrm(
+            leadid,
+            this.userid,
+            execid,
+            this.filteredParams.feedbackId
+          )
+          .subscribe((cust) => {
+            this.assignedrm = cust['RMname'];
 
-              this.assignedrm = this.assignedrm?.filter((exec) => {
-                return exec.RMID == this.filteredParams.execid;
-              });
-              this.verifyrequest(
-                this.assignedrm?.[0]?.customer_IDPK,
-                this.assignedrm?.[0]?.suggestedprop[0]?.propid,
-                this.assignedrm?.[0]?.RMID,
-                this.assignedrm?.[0]?.suggestedprop[0]?.name
-              );
+            this.assignedrm = this.assignedrm?.filter((exec) => {
+              return exec.RMID == this.filteredParams.execid;
             });
-          this.uploads = [];
-          this.closurefiles = [];
-        }
-      });
-    } else {
-      this._retailservice.uploadFile(formData).subscribe((res) => {
-        if (res['status'] == 'True') {
-          this._retailservice
-            .getassignedrmretail(
-              this.filteredParams.leadId,
-              this.filteredParams.execid,
-              this.filteredParams.feedbackId
-            )
-            .subscribe((cust) => {
-              this.assignedrm = cust['RMname'];
-              this.leadsDetailsInfo = cust['RMname'];
+            this.verifyrequest(
+              this.assignedrm?.[0]?.customer_IDPK,
+              this.assignedrm?.[0]?.suggestedprop[0]?.propid,
+              this.assignedrm?.[0]?.RMID,
+              this.assignedrm?.[0]?.suggestedprop[0]?.name
+            );
+          });
+        this.uploads = [];
+        this.closurefiles = [];
+      }
+    });
 
-              this.assignedrm = this.assignedrm.filter((exec) => {
-                return exec.RMID == this.filteredParams.execid;
-              });
-              this.verifyrequest(
-                this.assignedrm?.[0]?.customer_IDPK,
-                this.assignedrm?.[0]?.suggestedprop[0]?.propid,
-                this.filteredParams.execid,
-                this.assignedrm?.[0]?.suggestedprop[0]?.name
-              );
-            });
-          this.uploads = [];
-          this.closurefiles = [];
-        }
-      });
-    }
+    // if (
+    //   this.filteredParams.headerType == 'mandate' ||
+    //   this.filteredParams.htype == 'mandate'
+    // ) {
+    //   this._mandateService.uploadFile(formData).subscribe((res) => {
+    //     if (res['status'] == 'True') {
+    //       this._mandateService
+    //         .getassignedrm(
+    //           leadid,
+    //           this.userid,
+    //           execid,
+    //           this.filteredParams.feedbackId
+    //         )
+    //         .subscribe((cust) => {
+    //           this.assignedrm = cust['RMname'];
+
+    //           this.assignedrm = this.assignedrm?.filter((exec) => {
+    //             return exec.RMID == this.filteredParams.execid;
+    //           });
+    //           this.verifyrequest(
+    //             this.assignedrm?.[0]?.customer_IDPK,
+    //             this.assignedrm?.[0]?.suggestedprop[0]?.propid,
+    //             this.assignedrm?.[0]?.RMID,
+    //             this.assignedrm?.[0]?.suggestedprop[0]?.name
+    //           );
+    //         });
+    //       this.uploads = [];
+    //       this.closurefiles = [];
+    //     }
+    //   });
+    // } else {
+    //   this._retailservice.uploadFile(formData).subscribe((res) => {
+    //     if (res['status'] == 'True') {
+    //       this._retailservice
+    //         .getassignedrmretail(
+    //           this.filteredParams.leadId,
+    //           this.filteredParams.execid,
+    //           this.filteredParams.feedbackId
+    //         )
+    //         .subscribe((cust) => {
+    //           this.assignedrm = cust['RMname'];
+    //           this.leadsDetailsInfo = cust['RMname'];
+
+    //           this.assignedrm = this.assignedrm.filter((exec) => {
+    //             return exec.RMID == this.filteredParams.execid;
+    //           });
+    //           this.verifyrequest(
+    //             this.assignedrm?.[0]?.customer_IDPK,
+    //             this.assignedrm?.[0]?.suggestedprop[0]?.propid,
+    //             this.filteredParams.execid,
+    //             this.assignedrm?.[0]?.suggestedprop[0]?.name
+    //           );
+    //         });
+    //       this.uploads = [];
+    //       this.closurefiles = [];
+    //     }
+    //   });
+    // }
   }
 
   getStages() {
@@ -864,59 +887,59 @@ export class OnCallLeadUpdateComponent implements OnInit {
   }
 
   getcustomerview() {
-    if (
-      this.filteredParams.headerType == 'mandate' ||
-      this.filteredParams.htype == 'mandate'
-    ) {
-      this._mandateService
-        .getassignedrm(
-          this.filteredParams.leadId,
-          localStorage.getItem('UserId'),
-          this.filteredParams.execid,
-          this.filteredParams.feedbackId
-        )
-        .subscribe((cust) => {
-          this.showSpinner1 = false;
-          this.assignedrm = cust['RMname']?.filter(
-            (item) => item.RMID == this.filteredParams.execid
-          );
-          this.selectedSuggestedProp =
-            this.assignedrm?.[0]?.['suggestedprop']?.length == 1
-              ? this.assignedrm?.[0]?.['suggestedprop']?.[0]
-              : '';
+    // if (
+    //   this.filteredParams.headerType == 'mandate' ||
+    //   this.filteredParams.htype == 'mandate'
+    // ) {
+    this._mandateService
+      .getassignedrm(
+        this.filteredParams.leadId,
+        localStorage.getItem('UserId'),
+        this.filteredParams.execid,
+        this.filteredParams.feedbackId
+      )
+      .subscribe((cust) => {
+        this.showSpinner1 = false;
+        this.assignedrm = cust['RMname']?.filter(
+          (item) => item.RMID == this.filteredParams.execid
+        );
+        this.selectedSuggestedProp =
+          this.assignedrm?.[0]?.['suggestedprop']?.length == 1
+            ? this.assignedrm?.[0]?.['suggestedprop']?.[0]
+            : '';
 
-          this.verifyrequest(
-            this.assignedrm?.[0]?.customer_IDPK,
-            this.selectedSuggestedProp?.['propid'],
-            this.assignedrm?.[0]?.RMID,
-            this.selectedSuggestedProp?.['name']
-          );
-          this.getStages();
-          this.triggerhistory();
-        });
-    } else {
-      this._retailservice
-        .getassignedrmretail(
-          this.filteredParams.leadId,
-          this.filteredParams.execid,
-          this.filteredParams.feedbackId
-        )
-        .subscribe((cust) => {
-          this.assignedrm = cust['RMname']?.filter(
-            (item) => item.RMID == this.filteredParams.execid
-          );
-          this.leadsDetailsInfo = this.assignedrm;
-          this.leadsDetailsInfo = this.assignedrm;
-          this.verifyrequest(
-            this.assignedrm?.[0]?.customer_IDPK,
-            this.assignedrm?.[0]?.suggestedprop?.[0]?.propid,
-            this.filteredParams.execid,
-            this.assignedrm?.[0]?.suggestedprop?.[0]?.name
-          );
-          this.getStages();
-          this.triggerhistory();
-        });
-    }
+        this.verifyrequest(
+          this.assignedrm?.[0]?.customer_IDPK,
+          this.selectedSuggestedProp?.['propid'],
+          this.assignedrm?.[0]?.RMID,
+          this.selectedSuggestedProp?.['name']
+        );
+        this.getStages();
+        this.triggerhistory();
+      });
+    // } else {
+    //   this._retailservice
+    //     .getassignedrmretail(
+    //       this.filteredParams.leadId,
+    //       this.filteredParams.execid,
+    //       this.filteredParams.feedbackId
+    //     )
+    //     .subscribe((cust) => {
+    //       this.assignedrm = cust['RMname']?.filter(
+    //         (item) => item.RMID == this.filteredParams.execid
+    //       );
+    //       this.leadsDetailsInfo = this.assignedrm;
+    //       this.leadsDetailsInfo = this.assignedrm;
+    //       this.verifyrequest(
+    //         this.assignedrm?.[0]?.customer_IDPK,
+    //         this.assignedrm?.[0]?.suggestedprop?.[0]?.propid,
+    //         this.filteredParams.execid,
+    //         this.assignedrm?.[0]?.suggestedprop?.[0]?.name
+    //       );
+    //       this.getStages();
+    //       this.triggerhistory();
+    //     });
+    // }
   }
 
   verifyrequest(leadid, propid, execid, propname) {
@@ -925,25 +948,23 @@ export class OnCallLeadUpdateComponent implements OnInit {
       propid: propid,
       execid: execid,
     };
-    if (
-      this.filteredParams.headerType == 'mandate' ||
-      this.filteredParams.htype == 'mandate'
-    ) {
-      this._mandateService
-        .fetchrequestedvalues(param)
-        .subscribe((requested) => {
-          this.requestedunits = requested?.['requestedvals']?.map(
-            (request: any) => {
-              request.bhk = request.bhk.trim();
-              return request;
-            }
-          );
-        });
-    } else {
-      this._retailservice.fetchrequestedvalues(param).subscribe((requested) => {
-        this.requestedunits = requested['requestedvals'];
-      });
-    }
+    // if (
+    //   this.filteredParams.headerType == 'mandate' ||
+    //   this.filteredParams.htype == 'mandate'
+    // ) {
+    this._mandateService.fetchrequestedvalues(param).subscribe((requested) => {
+      this.requestedunits = requested?.['requestedvals']?.map(
+        (request: any) => {
+          request.bhk = request.bhk.trim();
+          return request;
+        }
+      );
+    });
+    // } else {
+    //   this._retailservice.fetchrequestedvalues(param).subscribe((requested) => {
+    //     this.requestedunits = requested['requestedvals'];
+    //   });
+    // }
   }
 
   onleadTabData(leadTabData) {
@@ -1107,11 +1128,7 @@ export class OnCallLeadUpdateComponent implements OnInit {
 
   // method to reject lead close request
   requestrejection(leadid, execid, propid) {
-    if (
-      this.requestedunits?.[0]?.images.length == 0 &&
-      (this.filteredParams.headerType == 'mandate' ||
-        this.filteredParams.htype == 'mandate')
-    ) {
+    if (this.requestedunits?.[0]?.images.length == 0) {
       Swal.fire({
         title: 'No Files Uploaded',
         text: 'Upload atleast one file',
@@ -1151,78 +1168,78 @@ export class OnCallLeadUpdateComponent implements OnInit {
           this.showSpinner = false;
         });
       } else {
-        if (
-          this.filteredParams.headerType == 'mandate' ||
-          this.filteredParams.htype == 'mandate'
-        ) {
-          this._mandateService
-            .closingrequestresponse(param)
-            .subscribe((requestresponse) => {
-              if (requestresponse['status'] == 'True-1') {
-                Swal.fire({
-                  title: 'Request Rejected',
-                  icon: 'success',
-                  heightAuto: false,
-                  confirmButtonText: 'OK!',
-                }).then((result) => {
-                  this.router
-                    .navigate([], {
-                      queryParams: {
-                        editRejectedLead: null,
-                      },
-                      queryParamsHandling: 'merge',
-                    })
-                    .then(() => {
-                      location.reload();
-                    });
-                });
-              } else {
-                Swal.fire({
-                  title: 'Some Error Occured',
-                  icon: 'error',
-                  heightAuto: false,
-                  confirmButtonText: 'OK!',
-                }).then((result) => {
-                  location.reload();
-                });
-              }
-            });
-        } else {
-          this._retailservice
-            .closingrequestresponse(param)
-            .subscribe((requestresponse) => {
-              if (requestresponse['status'] == 'True-1') {
-                Swal.fire({
-                  title: 'Request Rejected',
-                  icon: 'success',
-                  heightAuto: false,
-                  confirmButtonText: 'OK!',
-                }).then((result) => {
-                  this.router
-                    .navigate([], {
-                      queryParams: {
-                        editRejectedLead: null,
-                      },
-                      queryParamsHandling: 'merge',
-                    })
-                    .then(() => {
-                      setTimeout(() => {
-                        location.reload();
-                      }, 100);
-                    });
-                });
-              } else {
-                Swal.fire({
-                  title: 'Some Error Occured',
-                  icon: 'error',
-                  heightAuto: false,
-                  confirmButtonText: 'OK!',
-                }).then((result) => {
-                  location.reload();
-                });
-              }
-            });
-        }
+        // if (
+        //   this.filteredParams.headerType == 'mandate' ||
+        //   this.filteredParams.htype == 'mandate'
+        // ) {
+        this._mandateService
+          .closingrequestresponse(param)
+          .subscribe((requestresponse) => {
+            if (requestresponse['status'] == 'True-1') {
+              Swal.fire({
+                title: 'Request Rejected',
+                icon: 'success',
+                heightAuto: false,
+                confirmButtonText: 'OK!',
+              }).then((result) => {
+                this.router
+                  .navigate([], {
+                    queryParams: {
+                      editRejectedLead: null,
+                    },
+                    queryParamsHandling: 'merge',
+                  })
+                  .then(() => {
+                    location.reload();
+                  });
+              });
+            } else {
+              Swal.fire({
+                title: 'Some Error Occured',
+                icon: 'error',
+                heightAuto: false,
+                confirmButtonText: 'OK!',
+              }).then((result) => {
+                location.reload();
+              });
+            }
+          });
+        // } else {
+        //   this._retailservice
+        //     .closingrequestresponse(param)
+        //     .subscribe((requestresponse) => {
+        //       if (requestresponse['status'] == 'True-1') {
+        //         Swal.fire({
+        //           title: 'Request Rejected',
+        //           icon: 'success',
+        //           heightAuto: false,
+        //           confirmButtonText: 'OK!',
+        //         }).then((result) => {
+        //           this.router
+        //             .navigate([], {
+        //               queryParams: {
+        //                 editRejectedLead: null,
+        //               },
+        //               queryParamsHandling: 'merge',
+        //             })
+        //             .then(() => {
+        //               setTimeout(() => {
+        //                 location.reload();
+        //               }, 100);
+        //             });
+        //         });
+        //       } else {
+        //         Swal.fire({
+        //           title: 'Some Error Occured',
+        //           icon: 'error',
+        //           heightAuto: false,
+        //           confirmButtonText: 'OK!',
+        //         }).then((result) => {
+        //           location.reload();
+        //         });
+        //       }
+        //     });
+        // }
       }
     }
   }
@@ -1230,11 +1247,7 @@ export class OnCallLeadUpdateComponent implements OnInit {
   requestapproval(leadid, execid, propid) {
     // this.verifyrequest(leadid, propid, this.selectedExecId, this.selectedSuggestedProp.name);
 
-    if (
-      this.requestedunits?.[0]?.images.length == 0 &&
-      (this.filteredParams.headerType == 'mandate' ||
-        this.filteredParams.htype == 'mandate')
-    ) {
+    if (this.requestedunits?.[0]?.images.length == 0) {
       Swal.fire({
         title: 'No Files Uploaded',
         text: 'Upload atleast one file',
@@ -1263,200 +1276,199 @@ export class OnCallLeadUpdateComponent implements OnInit {
           this.showSpinner = false;
         });
       } else {
-        if (
-          this.filteredParams.headerType == 'mandate' ||
-          this.filteredParams.htype == 'mandate'
-        ) {
-          this._mandateService
-            .closingrequestresponse(param)
-            .subscribe((requestresponse) => {
-              if (requestresponse['status'] == 'True-0') {
-                this.autoremarks =
-                  ' Send the Deal Closing Request successfully.';
-                var leadhistparam = {
-                  leadid: leadid,
-                  closedate: this.requestedunits[0].closed_date,
-                  closetime: this.requestedunits[0].closed_time,
-                  textarearemarks: 'Deal closed Request Approved',
-                  leadstage: 'Lead Closed',
-                  stagestatus: '0',
-                  userid: this.userid,
-                  assignid: this.filteredParams.execid,
-                  property: propid,
-                  autoremarks: this.autoremarks,
-                  feedbackid: this.filteredParams.feedbackId,
-                };
-                this._mandateService.addleadhistory(leadhistparam).subscribe(
-                  (success) => {
-                    if (success['status'] == 'True') {
+        // if (
+        //   this.filteredParams.headerType == 'mandate' ||
+        //   this.filteredParams.htype == 'mandate'
+        // ) {
+        this._mandateService
+          .closingrequestresponse(param)
+          .subscribe((requestresponse) => {
+            if (requestresponse['status'] == 'True-0') {
+              this.autoremarks = ' Send the Deal Closing Request successfully.';
+              var leadhistparam = {
+                leadid: leadid,
+                closedate: this.requestedunits[0].closed_date,
+                closetime: this.requestedunits[0].closed_time,
+                textarearemarks: 'Deal closed Request Approved',
+                leadstage: 'Lead Closed',
+                stagestatus: '0',
+                userid: this.userid,
+                assignid: this.filteredParams.execid,
+                property: propid,
+                autoremarks: this.autoremarks,
+                feedbackid: this.filteredParams.feedbackId,
+              };
+              this._mandateService.addleadhistory(leadhistparam).subscribe(
+                (success) => {
+                  if (success['status'] == 'True') {
+                    this.showSpinner = false;
+                    Swal.fire({
+                      title: 'Request Approved Successfully',
+                      icon: 'success',
+                      heightAuto: false,
+                      timer: 2000,
+                      allowOutsideClick: false,
+                      showConfirmButton: false,
+                    }).then(() => {
+                      this.showRejectionForm = false;
                       this.showSpinner = false;
-                      Swal.fire({
-                        title: 'Request Approved Successfully',
-                        icon: 'success',
-                        heightAuto: false,
-                        timer: 2000,
-                        allowOutsideClick: false,
-                        showConfirmButton: false,
-                      }).then(() => {
-                        this.showRejectionForm = false;
-                        this.showSpinner = false;
-                        location.reload();
-                        // location.reload();
-                        // $('.modal-backdrop').closest('div').remove();
-                        // let currentUrl = this.router.url;
-                        // this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-                        //   this.router.navigate([currentUrl]);
-                        // });
-                      });
-                    } else if (success['status'] == 'Duplicate Request') {
-                      Swal.fire({
-                        title:
-                          'Already got the request for this same Unit number',
-                        icon: 'error',
-                        heightAuto: false,
-                        timer: 2000,
-                        allowOutsideClick: false,
-                        showConfirmButton: false,
-                      }).then(() => {
-                        location.reload();
-                      });
-                    }
-                  },
-                  (err) => {
-                    console.log('Failed to Update');
+                      location.reload();
+                      // location.reload();
+                      // $('.modal-backdrop').closest('div').remove();
+                      // let currentUrl = this.router.url;
+                      // this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                      //   this.router.navigate([currentUrl]);
+                      // });
+                    });
+                  } else if (success['status'] == 'Duplicate Request') {
+                    Swal.fire({
+                      title:
+                        'Already got the request for this same Unit number',
+                      icon: 'error',
+                      heightAuto: false,
+                      timer: 2000,
+                      allowOutsideClick: false,
+                      showConfirmButton: false,
+                    }).then(() => {
+                      location.reload();
+                    });
                   }
-                );
-              } else {
-                Swal.fire({
-                  title: 'Some Error Occured',
-                  icon: 'error',
-                  heightAuto: false,
-                  timer: 2000,
-                  allowOutsideClick: false,
-                  showConfirmButton: false,
-                }).then(() => {
-                  location.reload();
-                  // let currentUrl = this.router.url;
-                  // this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-                  //   this.router.navigate([currentUrl]);
-                  // });
-                });
-              }
-            });
-        } else {
-          this._retailservice
-            .closingrequestresponse(param)
-            .subscribe((requestresponse) => {
-              if (requestresponse['status'] == 'True-0') {
-                this.autoremarks =
-                  ' Send the Deal Closing Request successfully.';
-                var leadhistparam = {
-                  leadid: leadid,
-                  closedate: this.requestedunits?.[0]?.closed_date,
-                  closetime: this.requestedunits?.[0]?.closed_time,
-                  textarearemarks: 'Deal closed Request Approved',
-                  leadstage: 'Lead Closed',
-                  stagestatus: '0',
-                  userid: this.userid,
-                  assignid: this.filteredParams.execid,
-                  property: propid,
-                  autoremarks: this.autoremarks,
-                  feedback: this.filteredParams.feedbackId,
-                };
+                },
+                (err) => {
+                  console.log('Failed to Update');
+                }
+              );
+            } else {
+              Swal.fire({
+                title: 'Some Error Occured',
+                icon: 'error',
+                heightAuto: false,
+                timer: 2000,
+                allowOutsideClick: false,
+                showConfirmButton: false,
+              }).then(() => {
+                location.reload();
+                // let currentUrl = this.router.url;
+                // this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                //   this.router.navigate([currentUrl]);
+                // });
+              });
+            }
+          });
+        // } else {
+        //   this._retailservice
+        //     .closingrequestresponse(param)
+        //     .subscribe((requestresponse) => {
+        //       if (requestresponse['status'] == 'True-0') {
+        //         this.autoremarks =
+        //           ' Send the Deal Closing Request successfully.';
+        //         var leadhistparam = {
+        //           leadid: leadid,
+        //           closedate: this.requestedunits?.[0]?.closed_date,
+        //           closetime: this.requestedunits?.[0]?.closed_time,
+        //           textarearemarks: 'Deal closed Request Approved',
+        //           leadstage: 'Lead Closed',
+        //           stagestatus: '0',
+        //           userid: this.userid,
+        //           assignid: this.filteredParams.execid,
+        //           property: propid,
+        //           autoremarks: this.autoremarks,
+        //           feedback: this.filteredParams.feedbackId,
+        //         };
 
-                this._retailservice
-                  .addleadhistoryretail(leadhistparam)
-                  .subscribe(
-                    (success) => {
-                      if (success['status'] == 'True') {
-                        this.showSpinner = false;
-                        Swal.fire({
-                          title: 'Deal Closing Requested Successfully',
-                          icon: 'success',
-                          heightAuto: false,
-                          confirmButtonText: 'OK!',
-                        }).then((result) => {
-                          if (result.value) {
-                            location.reload();
-                          }
-                        });
-                        if (this.userid == '1') {
-                          var param = {
-                            leadid: leadid,
-                            propid: propid,
-                            execid: this.userid,
-                            assignid: this.filteredParams.execid,
-                            statusid: '1',
-                            remarks: 'No Comments',
-                          };
-                          this._retailservice
-                            .closingrequestresponse(param)
-                            .subscribe((requestresponse) => {
-                              if (requestresponse['status'] == 'True-0') {
-                                Swal.fire({
-                                  title: 'Request Approved Successfully',
-                                  icon: 'success',
-                                  heightAuto: false,
-                                  confirmButtonText: 'OK!',
-                                }).then((result) => {
-                                  $('.modal-backdrop').closest('div').remove();
-                                  if (result.value) {
-                                    location.reload();
-                                  }
-                                });
-                              } else {
-                                Swal.fire({
-                                  title: 'Some Error Occured',
-                                  icon: 'error',
-                                  heightAuto: false,
-                                  confirmButtonText: 'OK!',
-                                }).then((result) => {
-                                  if (result.value) {
-                                    location.reload();
-                                  }
-                                });
-                              }
-                            });
-                        }
-                      } else if (success['status'] == 'Duplicate Request') {
-                        Swal.fire({
-                          title:
-                            'Already got the request for this same Unit number',
-                          icon: 'error',
-                          heightAuto: false,
-                          confirmButtonText: 'OK!',
-                        });
-                      }
-                    },
-                    (err) => {
-                      console.log('Failed to Update');
-                    }
-                  );
-                Swal.fire({
-                  title: 'Request Approved Successfully',
-                  icon: 'success',
-                  heightAuto: false,
-                  confirmButtonText: 'OK!',
-                }).then((result) => {
-                  $('.modal-backdrop').closest('div').remove();
-                  if (result.value) {
-                    location.reload();
-                  }
-                });
-              } else {
-                Swal.fire({
-                  title: 'Some Error Occured',
-                  icon: 'error',
-                  heightAuto: false,
-                  confirmButtonText: 'OK!',
-                }).then((result) => {
-                  if (result.value) {
-                    location.reload();
-                  }
-                });
-              }
-            });
-        }
+        //         this._retailservice
+        //           .addleadhistoryretail(leadhistparam)
+        //           .subscribe(
+        //             (success) => {
+        //               if (success['status'] == 'True') {
+        //                 this.showSpinner = false;
+        //                 Swal.fire({
+        //                   title: 'Deal Closing Requested Successfully',
+        //                   icon: 'success',
+        //                   heightAuto: false,
+        //                   confirmButtonText: 'OK!',
+        //                 }).then((result) => {
+        //                   if (result.value) {
+        //                     location.reload();
+        //                   }
+        //                 });
+        //                 if (this.userid == '1') {
+        //                   var param = {
+        //                     leadid: leadid,
+        //                     propid: propid,
+        //                     execid: this.userid,
+        //                     assignid: this.filteredParams.execid,
+        //                     statusid: '1',
+        //                     remarks: 'No Comments',
+        //                   };
+        //                   this._retailservice
+        //                     .closingrequestresponse(param)
+        //                     .subscribe((requestresponse) => {
+        //                       if (requestresponse['status'] == 'True-0') {
+        //                         Swal.fire({
+        //                           title: 'Request Approved Successfully',
+        //                           icon: 'success',
+        //                           heightAuto: false,
+        //                           confirmButtonText: 'OK!',
+        //                         }).then((result) => {
+        //                           $('.modal-backdrop').closest('div').remove();
+        //                           if (result.value) {
+        //                             location.reload();
+        //                           }
+        //                         });
+        //                       } else {
+        //                         Swal.fire({
+        //                           title: 'Some Error Occured',
+        //                           icon: 'error',
+        //                           heightAuto: false,
+        //                           confirmButtonText: 'OK!',
+        //                         }).then((result) => {
+        //                           if (result.value) {
+        //                             location.reload();
+        //                           }
+        //                         });
+        //                       }
+        //                     });
+        //                 }
+        //               } else if (success['status'] == 'Duplicate Request') {
+        //                 Swal.fire({
+        //                   title:
+        //                     'Already got the request for this same Unit number',
+        //                   icon: 'error',
+        //                   heightAuto: false,
+        //                   confirmButtonText: 'OK!',
+        //                 });
+        //               }
+        //             },
+        //             (err) => {
+        //               console.log('Failed to Update');
+        //             }
+        //           );
+        //         Swal.fire({
+        //           title: 'Request Approved Successfully',
+        //           icon: 'success',
+        //           heightAuto: false,
+        //           confirmButtonText: 'OK!',
+        //         }).then((result) => {
+        //           $('.modal-backdrop').closest('div').remove();
+        //           if (result.value) {
+        //             location.reload();
+        //           }
+        //         });
+        //       } else {
+        //         Swal.fire({
+        //           title: 'Some Error Occured',
+        //           icon: 'error',
+        //           heightAuto: false,
+        //           confirmButtonText: 'OK!',
+        //         }).then((result) => {
+        //           if (result.value) {
+        //             location.reload();
+        //           }
+        //         });
+        //       }
+        //     });
+        // }
       }
     }
   }
@@ -1467,29 +1479,29 @@ export class OnCallLeadUpdateComponent implements OnInit {
   @ViewChild('processLeadClosure') processLeadClosure: any;
   // to trigger modal
   async openModal(modalId, closedleadid, propid, execid, propname) {
-    if (
-      this.filteredParams.headerType == 'mandate' ||
-      this.filteredParams.htype == 'mandate'
-    ) {
-      if (closedleadid) {
-        this.requestedunits = this.requestedunits?.filter((id) => {
-          return id.closedlead_id == closedleadid;
-        });
-      }
-      if (modalId == 'resubmit') {
-        this.reSubmitLead.present();
-      } else if (modalId == 'closeddeal') {
-        this.closeddeal.present();
-      }
-    } else {
-      if (modalId == 'processLeadClosure') {
-        this.processLeadClosure.present();
-      } else if (modalId == 'closeddeal') {
-        this.closeddeal.present();
-      }
-
-      this.verifyrequest(closedleadid, propid, execid, propname);
+    // if (
+    //   this.filteredParams.headerType == 'mandate' ||
+    //   this.filteredParams.htype == 'mandate'
+    // ) {
+    if (closedleadid) {
+      this.requestedunits = this.requestedunits?.filter((id) => {
+        return id.closedlead_id == closedleadid;
+      });
     }
+    if (modalId == 'resubmit') {
+      this.reSubmitLead.present();
+    } else if (modalId == 'closeddeal') {
+      this.closeddeal.present();
+    }
+    // } else {
+    //   if (modalId == 'processLeadClosure') {
+    //     this.processLeadClosure.present();
+    //   } else if (modalId == 'closeddeal') {
+    //     this.closeddeal.present();
+    //   }
+
+    //   this.verifyrequest(closedleadid, propid, execid, propname);
+    // }
   }
   // Modal animation
   enterAnimation = (baseEl: HTMLElement) => {
@@ -1580,61 +1592,61 @@ export class OnCallLeadUpdateComponent implements OnInit {
           this.showSpinner = false;
         });
       } else {
-        if (
-          this.filteredParams.headerType == 'mandate' ||
-          this.filteredParams.htype == 'mandate'
-        ) {
-          this._mandateService
-            .requestresubmition(param)
-            .subscribe((requestsubmition) => {
-              if (requestsubmition['status'] == 'True') {
-                Swal.fire({
-                  title: 'Resubmited Successfully',
-                  icon: 'success',
-                  heightAuto: false,
-                  confirmButtonText: 'OK!',
-                }).then((result) => {
-                  // window.location.reload();
-                  location.reload();
-                });
-              } else {
-                Swal.fire({
-                  title: 'Some Error Occured',
-                  icon: 'error',
-                  timer: 2000,
-                  heightAuto: false,
-                  showConfirmButton: false,
-                }).then(() => {
-                  // window.location.reload();
-                  location.reload();
-                });
-              }
-            });
-        } else {
-          this._retailservice
-            .requestresubmition(param)
-            .subscribe((requestsubmition) => {
-              if (requestsubmition['status'] == 'True') {
-                Swal.fire({
-                  title: 'Resubmited Successfully',
-                  icon: 'success',
-                  heightAuto: false,
-                  confirmButtonText: 'OK!',
-                }).then((result) => {
-                  location.reload();
-                });
-              } else {
-                Swal.fire({
-                  title: 'Some Error Occured',
-                  icon: 'error',
-                  heightAuto: false,
-                  confirmButtonText: 'OK!',
-                }).then((result) => {
-                  location.reload();
-                });
-              }
-            });
-        }
+        // if (
+        //   this.filteredParams.headerType == 'mandate' ||
+        //   this.filteredParams.htype == 'mandate'
+        // ) {
+        this._mandateService
+          .requestresubmition(param)
+          .subscribe((requestsubmition) => {
+            if (requestsubmition['status'] == 'True') {
+              Swal.fire({
+                title: 'Resubmited Successfully',
+                icon: 'success',
+                heightAuto: false,
+                confirmButtonText: 'OK!',
+              }).then((result) => {
+                // window.location.reload();
+                location.reload();
+              });
+            } else {
+              Swal.fire({
+                title: 'Some Error Occured',
+                icon: 'error',
+                timer: 2000,
+                heightAuto: false,
+                showConfirmButton: false,
+              }).then(() => {
+                // window.location.reload();
+                location.reload();
+              });
+            }
+          });
+        // } else {
+        //   this._retailservice
+        //     .requestresubmition(param)
+        //     .subscribe((requestsubmition) => {
+        //       if (requestsubmition['status'] == 'True') {
+        //         Swal.fire({
+        //           title: 'Resubmited Successfully',
+        //           icon: 'success',
+        //           heightAuto: false,
+        //           confirmButtonText: 'OK!',
+        //         }).then((result) => {
+        //           location.reload();
+        //         });
+        //       } else {
+        //         Swal.fire({
+        //           title: 'Some Error Occured',
+        //           icon: 'error',
+        //           heightAuto: false,
+        //           confirmButtonText: 'OK!',
+        //         }).then((result) => {
+        //           location.reload();
+        //         });
+        //       }
+        //     });
+        // }
       }
     }
   }
@@ -1649,54 +1661,52 @@ export class OnCallLeadUpdateComponent implements OnInit {
       execId = '';
     }
 
-    if (
-      this.filteredParams.headerType == 'mandate' ||
-      this.filteredParams.htype == 'mandate'
-    ) {
-      var param1 = {
-        leadid: this.assignedrm?.[0]?.customer_IDPK,
-        roleid: this.roleid,
-        userid: this.userid,
-        execid: execId,
-        feedbackid: this.filteredParams.feedbackId,
-      };
-      this._mandateService.gethistory(param1).subscribe((history) => {
-        this.showSpinner = false;
-        const uniquehistory = history?.['Leadhistory']?.filter(
-          (val, i, self) => {
-            return (
-              i ===
-              self.findIndex((t) => {
-                return t.autoremarks == val.autoremarks;
-              })
-            );
-          }
+    // if (
+    //   this.filteredParams.headerType == 'mandate' ||
+    //   this.filteredParams.htype == 'mandate'
+    // ) {
+    var param1 = {
+      leadid: this.assignedrm?.[0]?.customer_IDPK,
+      roleid: this.roleid,
+      userid: this.userid,
+      execid: execId,
+      feedbackid: this.filteredParams.feedbackId,
+    };
+    this._mandateService.gethistory(param1).subscribe((history) => {
+      this.showSpinner = false;
+      const uniquehistory = history?.['Leadhistory']?.filter((val, i, self) => {
+        return (
+          i ===
+          self.findIndex((t) => {
+            return t.autoremarks == val.autoremarks;
+          })
         );
-        this.leadtrack = uniquehistory;
       });
-    } else {
-      var param2 = {
-        leadid: this.assignedrm?.[0]?.customer_IDPK,
-        roleid: this.roleid,
-        userid: this.userid,
-        execid: this.filteredParams.execid,
-        feedback: '',
-      };
-      this._retailservice.getretailhistory(param2).subscribe((history) => {
-        this.showSpinner = false;
-        const uniquehistory = history?.['Leadhistory']?.filter(
-          (val, i, self) => {
-            return (
-              i ===
-              self.findIndex((t) => {
-                return t.autoremarks == val.autoremarks;
-              })
-            );
-          }
-        );
-        this.leadtrack = uniquehistory;
-      });
-    }
+      this.leadtrack = uniquehistory;
+    });
+    // } else {
+    //   var param2 = {
+    //     leadid: this.assignedrm?.[0]?.customer_IDPK,
+    //     roleid: this.roleid,
+    //     userid: this.userid,
+    //     execid: this.filteredParams.execid,
+    //     feedback: '',
+    //   };
+    //   this._retailservice.getretailhistory(param2).subscribe((history) => {
+    //     this.showSpinner = false;
+    //     const uniquehistory = history?.['Leadhistory']?.filter(
+    //       (val, i, self) => {
+    //         return (
+    //           i ===
+    //           self.findIndex((t) => {
+    //             return t.autoremarks == val.autoremarks;
+    //           })
+    //         );
+    //       }
+    //     );
+    //     this.leadtrack = uniquehistory;
+    //   });
+    // }
   }
 
   onCallLeadHistory(isCall: any) {
@@ -1778,35 +1788,34 @@ export class OnCallLeadUpdateComponent implements OnInit {
 
   leadDetailsPageNavigation() {
     this.onleadTabData('status');
-    if (
-      this.filteredParams.headerType == 'mandate' ||
-      this.filteredParams.htype == 'mandate'
-    ) {
-      this.router.navigate(['../mandate-customers'], {
-        queryParams: {
-          leadId: this.assignedrm?.[0]?.customer_IDPK,
-          execid: this.assignedrm?.[0]?.RMID,
-          status: 'info',
-          propid: this.selectedSuggestedProp['propid'],
-          htype: this.filteredParams.headerType,
-          fromOnCallModal: true,
-          teamlead:
-            localStorage.getItem('RoleType') == '1'
-              ? localStorage.getItem('UserId')
-              : null,
-        },
-      });
-    } else {
-      this.router.navigate(['../assigned-leads-detail'], {
-        queryParams: {
-          allVisits: null,
-          leadId: this.assignedrm?.[0]?.customer_IDPK,
-          execid: this.assignedrm?.[0]?.RMID,
-          htype: this.filteredParams.headerType,
-          fromOnCallModal: true,
-        },
-      });
-    }
+    // if (
+    //   this.filteredParams.headerType == 'mandate' ||
+    //   this.filteredParams.htype == 'mandate'
+    // ) {
+    this.router.navigate(['../mandate-customers'], {
+      queryParams: {
+        leadId: this.assignedrm?.[0]?.customer_IDPK,
+        execid: this.assignedrm?.[0]?.RMID,
+        status: 'info',
+        propid: this.selectedSuggestedProp['propid'],
+        fromOnCallModal: true,
+        teamlead:
+          localStorage.getItem('RoleType') == '1'
+            ? localStorage.getItem('UserId')
+            : null,
+      },
+    });
+    // } else {
+    //   this.router.navigate(['../assigned-leads-detail'], {
+    //     queryParams: {
+    //       allVisits: null,
+    //       leadId: this.assignedrm?.[0]?.customer_IDPK,
+    //       execid: this.assignedrm?.[0]?.RMID,
+    //       htype: this.filteredParams.headerType,
+    //       fromOnCallModal: true,
+    //     },
+    //   });
+    // }
   }
 
   editNow(leadId, execid, propid, closeid) {
@@ -2450,8 +2459,8 @@ export class OnCallLeadUpdateComponent implements OnInit {
       callto: cleanedNumber,
       leadid: this.assignedrm?.[0]?.customer_IDPK,
       starttime: this.getCurrentDateTime(),
-      modeofcall: 'mobile-' + this.filteredParams.htype,
-      leadtype: this.filteredParams.htype,
+      modeofcall: 'mobile-mandate',
+      leadtype: 'mandate',
       assignee: this.liveCallData.assignee,
     };
     this._sharedservice.outboundCall(param).subscribe(() => {});

@@ -1,0 +1,31 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgOtpInputModule } from 'ng-otp-input';
+import { ShreeindustriesDashboardComponent } from './shreeindustries-dashboard.component';
+import { HeaderComponent } from '../header/header.component';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { DropdownModule } from 'primeng/dropdown';
+
+@NgModule({
+  imports: [
+    CommonModule,
+    NgOtpInputModule,
+    RouterModule.forChild([
+      {
+        path: '',
+        component: ShreeindustriesDashboardComponent,
+      },
+    ]),
+    IonicModule,
+    ReactiveFormsModule,
+    MultiSelectModule,
+    FormsModule,
+    DropdownModule,
+  ],
+
+  declarations: [ShreeindustriesDashboardComponent, HeaderComponent],
+})
+export class ShreeindustriesDashboardModule {}

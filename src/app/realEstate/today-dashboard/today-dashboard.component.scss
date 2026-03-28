@@ -67,6 +67,11 @@ h2 {
     color: #4da3ff;
   }
 }
+.total_lead_details_heading {
+  position: sticky;
+  top: 2px;
+  z-index: 9999;
+}
 
 .scheduledVisits_card {
   background: linear-gradient(84.03deg, #ffffff 32.95%, #e5f6fe 104.6%);

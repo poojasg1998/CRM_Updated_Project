@@ -81,6 +81,7 @@ export class MandateVisitStagesComponent implements OnInit {
     booked: '',
     allvisits: '',
     activevisits: '',
+    accessRemoved: '',
   };
   tempFilteredValues;
   filteredParams = {
@@ -90,7 +91,6 @@ export class MandateVisitStagesComponent implements OnInit {
     stage: '',
     team: '',
     propid: '',
-    htype: '',
     followup: '',
     executid:
       localStorage.getItem('Role') === '1'
@@ -122,6 +122,8 @@ export class MandateVisitStagesComponent implements OnInit {
     type: '',
     visitassignedto: '',
     visitsuntouched: '',
+    confirmedplan: '',
+    accessremoved: '',
     limit: 0,
     limitrows: 5,
   };
@@ -162,7 +164,7 @@ export class MandateVisitStagesComponent implements OnInit {
     private retailService: RetailServiceService,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone,
-    private _sharedservice: SharedService,
+    public _sharedservice: SharedService,
     private mandateService: MandateService
   ) {
     this.initializeStartEndDate();
@@ -830,6 +832,15 @@ export class MandateVisitStagesComponent implements OnInit {
         });
       });
     }
+
+    const params = {
+      ...this.filteredParams,
+      accessremoved: '3',
+    };
+    this.mandateService.getAssignedLeadsCounts(params).subscribe((resp) => {
+      this.mandateLeadsCount.accessRemoved =
+        resp['AssignedLeads'][0]['Uniquee_counts'];
+    });
     this.getAssignedLeadsDetail(false, 0);
     // this.showSpinner = false;
   }
@@ -1242,7 +1253,6 @@ export class MandateVisitStagesComponent implements OnInit {
         stage: 'USV',
         team: '',
         propid: '',
-        htype: 'mandate',
         visitsuntouched: '',
         followup: '',
         executid:
@@ -1274,6 +1284,8 @@ export class MandateVisitStagesComponent implements OnInit {
         visittype: '3',
         type: 'USV',
         visitassignedto: '',
+        accessremoved: '',
+        confirmedplan: '',
         limit: 0,
         limitrows: 5,
       };
@@ -1348,6 +1360,16 @@ export class MandateVisitStagesComponent implements OnInit {
       this.filteredParams.selectedStage = 'USV';
       this.filteredParams.stagestatus = '3';
       this.filteredParams.visittype = '3';
+    }
+
+    if (
+      (this.filteredParams.stage != 'USV' &&
+        this.filteredParams.stage != 'RSV' &&
+        this.filteredParams.stage != 'Final Negotiation') ||
+      this.filteredParams.status == 'junkvisits'
+    ) {
+      this.filteredParams.confirmedplan = '';
+      this.filteredParams.accessremoved = '';
     }
     this.addQueryParams();
   }
@@ -1454,7 +1476,8 @@ export class MandateVisitStagesComponent implements OnInit {
     }
 
     this.filteredParams.executid =
-      localStorage.getItem('Role') === '1'
+      localStorage.getItem('Role') === '1' ||
+      this.localStorage.getItem('RoleType') == '1'
         ? this.filteredParams.executid
         : localStorage.getItem('UserId');
 
@@ -1477,7 +1500,6 @@ export class MandateVisitStagesComponent implements OnInit {
         execid: execid,
         status: 'info',
         propid: propid,
-        htype: this.filteredParams.htype,
         teamlead:
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
@@ -1519,8 +1541,8 @@ export class MandateVisitStagesComponent implements OnInit {
         callto: cleanedNumber,
         leadid: this.lead.LeadID,
         starttime: this.getCurrentDateTime(),
-        modeofcall: 'mobile-' + this.filteredParams.htype,
-        leadtype: this.filteredParams.htype,
+        modeofcall: 'mobile-mandate',
+        leadtype: 'mandate',
         assignee: this.lead.ExecId,
       };
       this._sharedservice.outboundCall(param).subscribe(() => {
@@ -1535,7 +1557,6 @@ export class MandateVisitStagesComponent implements OnInit {
           leadTabData: 'status',
           callStatus: 'Call Connected',
           direction: 'outboundCall',
-          headerType: this.filteredParams.htype,
         },
         queryParamsHandling: 'merge',
       });
@@ -1560,6 +1581,8 @@ export class MandateVisitStagesComponent implements OnInit {
   }
 
   onusvstage(value, stagestatus?) {
+    this.filteredParams.confirmedplan = '';
+    this.filteredParams.accessremoved = '';
     this.filteredParams.stage = 'USV';
     this.resetInfiniteScroll();
     if (value == 'overdues') {
@@ -1569,6 +1592,12 @@ export class MandateVisitStagesComponent implements OnInit {
       this.filteredParams.status = '';
       this.filteredParams.stagestatus = value;
     }
+
+    this.addQueryParams();
+  }
+
+  onutouchedstage(value) {
+    this.filteredParams.stagestatus = value;
     this.addQueryParams();
   }
 
@@ -1609,6 +1638,10 @@ export class MandateVisitStagesComponent implements OnInit {
       this.filteredParams.status = '';
       this.filteredParams.stagestatus = value;
     }
+
+    if (this.filteredParams.stagestatus == '3') {
+      this.filteredParams.confirmedplan = '';
+    }
     this.addQueryParams();
   }
 
@@ -1620,6 +1653,9 @@ export class MandateVisitStagesComponent implements OnInit {
     } else {
       this.filteredParams.status = '';
       this.filteredParams.stagestatus = value;
+    }
+    if (this.filteredParams.stagestatus == '3') {
+      this.filteredParams.confirmedplan = '';
     }
     this.addQueryParams();
   }
@@ -1730,7 +1766,6 @@ export class MandateVisitStagesComponent implements OnInit {
       toTime: '',
       selectedStage: '',
       fromDashboard: '',
-      htype: this.filteredParams.htype,
       isDropDown: 'false',
       active: '1',
       type: this.filteredParams.type,
@@ -2404,40 +2439,40 @@ export class MandateVisitStagesComponent implements OnInit {
     this.addQueryParams();
   }
 
-  onHtype(htype) {
-    this.reset_filter();
-    this.filteredParams = {
-      ...this.tempFilteredValues,
-      visittype: htype !== 'mandate' ? '3' : '',
-    };
-    let queryParams = {};
-    for (const key in this.filteredParams) {
-      if (
-        this.filteredParams.hasOwnProperty(key) &&
-        this.filteredParams[key] !== ''
-      ) {
-        queryParams[key] = this.filteredParams[key];
-      } else {
-        queryParams[key] = null;
-      }
-    }
+  // onHtype(htype) {
+  //   this.reset_filter();
+  //   this.filteredParams = {
+  //     ...this.tempFilteredValues,
+  //     visittype: htype !== 'mandate' ? '3' : '',
+  //   };
+  //   let queryParams = {};
+  //   for (const key in this.filteredParams) {
+  //     if (
+  //       this.filteredParams.hasOwnProperty(key) &&
+  //       this.filteredParams[key] !== ''
+  //     ) {
+  //       queryParams[key] = this.filteredParams[key];
+  //     } else {
+  //       queryParams[key] = null;
+  //     }
+  //   }
 
-    if (this.isHeader == true && localStorage.getItem('Role') != '1') {
-      queryParams = { ...queryParams, visittype: '1' };
-    }
+  //   if (this.isHeader == true && localStorage.getItem('Role') != '1') {
+  //     queryParams = { ...queryParams, visittype: '1' };
+  //   }
 
-    if (htype == 'mandate') {
-      this.router.navigate(['mandate-visit-stages'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.router.navigate(['retail-visit-stages'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    }
-  }
+  //   if (htype == 'mandate') {
+  //     this.router.navigate(['mandate-visit-stages'], {
+  //       queryParams,
+  //       queryParamsHandling: 'merge',
+  //     });
+  //   } else {
+  //     this.router.navigate(['retail-visit-stages'], {
+  //       queryParams,
+  //       queryParamsHandling: 'merge',
+  //     });
+  //   }
+  // }
 
   openEndMenu() {
     this._sharedservice.isMenuOpen = true;
@@ -2796,7 +2831,6 @@ export class MandateVisitStagesComponent implements OnInit {
       queryParams: {
         chatListSearch: number,
         selectedChat: 'all',
-        htype: this.filteredParams.htype,
       },
     });
   }
@@ -2997,5 +3031,18 @@ export class MandateVisitStagesComponent implements OnInit {
         }
       });
     }
+  }
+
+  onAccessRemoved_ConfirmedBtn(event, status) {
+    console.log(event);
+
+    if (status == 'confirmedplan') {
+      this.filteredParams.confirmedplan =
+        event.detail.checked == true ? '1' : '';
+    } else {
+      this.filteredParams.accessremoved =
+        event.detail.checked == true ? '3' : '';
+    }
+    this.addQueryParams();
   }
 }

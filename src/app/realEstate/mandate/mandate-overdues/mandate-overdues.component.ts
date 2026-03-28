@@ -46,7 +46,6 @@ export class MandateOverduesComponent {
     toDate: '',
     stage: '',
     propid: '',
-    htype: '',
     status: 'overdues',
     executid:
       localStorage.getItem('Role') === '1'
@@ -118,7 +117,7 @@ export class MandateOverduesComponent {
     private location: Location,
     private menuCtrl: MenuController,
     private changeDetectorRef: ChangeDetectorRef,
-    private _sharedservice: SharedService,
+    public _sharedservice: SharedService,
     private _location: Location,
     private mandateService: MandateService,
     private router: Router,
@@ -262,7 +261,8 @@ export class MandateOverduesComponent {
     }
 
     (this.filteredParams.executid =
-      localStorage.getItem('Role') === '1'
+      localStorage.getItem('Role') === '1' ||
+      this.localStorage.getItem('RoleType') == '1'
         ? this.filteredParams.executid
         : localStorage.getItem('UserId')),
       (this.tempFilteredValues = { ...this.filteredParams });
@@ -440,7 +440,6 @@ export class MandateOverduesComponent {
           : '',
       priority: '',
       source: '',
-      htype: this.filteredParams.htype,
       stagestatus: '',
       active: '1',
       followup: '',
@@ -738,7 +737,6 @@ export class MandateOverduesComponent {
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
             : null,
-        htype: this.filteredParams.htype,
       },
       queryParamsHandling: 'merge',
     });
@@ -957,30 +955,30 @@ export class MandateOverduesComponent {
     this.popoverController.dismiss();
   }
 
-  onHtype(htype) {
-    const queryParams = {};
-    for (const key in this.filteredParams) {
-      if (
-        this.filteredParams.hasOwnProperty(key) &&
-        this.filteredParams[key] !== ''
-      ) {
-        queryParams[key] = this.filteredParams[key];
-      } else {
-        queryParams[key] = null;
-      }
-    }
-    if (htype == 'mandate') {
-      this.router.navigate(['mandate-myoverdues'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.router.navigate(['retail-myoverdues'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    }
-  }
+  // onHtype(htype) {
+  //   const queryParams = {};
+  //   for (const key in this.filteredParams) {
+  //     if (
+  //       this.filteredParams.hasOwnProperty(key) &&
+  //       this.filteredParams[key] !== ''
+  //     ) {
+  //       queryParams[key] = this.filteredParams[key];
+  //     } else {
+  //       queryParams[key] = null;
+  //     }
+  //   }
+  //   if (htype == 'mandate') {
+  //     this.router.navigate(['mandate-myoverdues'], {
+  //       queryParams,
+  //       queryParamsHandling: 'merge',
+  //     });
+  //   } else {
+  //     this.router.navigate(['retail-myoverdues'], {
+  //       queryParams,
+  //       queryParamsHandling: 'merge',
+  //     });
+  //   }
+  // }
 
   onBackButton() {
     this.resetInfiniteScroll();
@@ -1113,8 +1111,8 @@ export class MandateOverduesComponent {
         callto: cleanedNumber,
         leadid: this.lead.LeadID,
         starttime: this.getCurrentDateTime(),
-        modeofcall: 'mobile-' + this.filteredParams.htype,
-        leadtype: this.filteredParams.htype,
+        modeofcall: 'mobile-manadate',
+        leadtype: 'mandate',
         assignee: this.lead.ExecId,
       };
 
@@ -1130,7 +1128,6 @@ export class MandateOverduesComponent {
           leadTabData: 'status',
           callStatus: 'Call Connected',
           direction: 'outboundCall',
-          headerType: this.filteredParams.htype,
         },
         queryParamsHandling: 'merge',
       });
@@ -1183,7 +1180,6 @@ export class MandateOverduesComponent {
       queryParams: {
         chatListSearch: number,
         selectedChat: 'all',
-        htype: this.filteredParams.htype,
       },
     });
   }

@@ -439,7 +439,6 @@ export class ChatComponent implements OnInit {
         }).then((val) => {
           this.router.navigate(['home'], {
             queryParams: {
-              htype: 'mandate',
               propid: '28773',
             },
           });

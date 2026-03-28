@@ -185,7 +185,7 @@
                   leadscount?.ActiveLeads)}} </h2>
               </ion-col>
               <ion-col (click)="onStatus('Inactive','activeLeads_card')"
-                [ngClass]="filteredParams.status == 'Inactive'?'active-col left-bottom-sec':''">
+                [ngClass]="filteredParams.status == 'Inactive'?'active-col left-right-sec':''">
                 <p class="fw-light mb-0">Inactive</p>
                 <h2>{{leadscount?.Inactive}}</h2>
               </ion-col>
@@ -193,6 +193,34 @@
                 [ngClass]="filteredParams.status == 'JunkLeads'?'active-col right-bottom-sec ':''">
                 <p class="fw-light mb-0">Junk</p>
                 <h2>{{leadscount?.JunkLeads}}</h2>
+              </ion-col>
+            </ion-row>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- VISITS CONVERTED AND JUNK VISITS -->
+    <ion-grid *ngIf="depId == '10005'" class="p-0">
+      <ion-row style="height:54px">
+        <ion-col class="px-0 stats-card-col"
+          [ngClass]="filteredParams.activeCardKey == 'activeVisitsJunk_card' ?'active-card':'opacity50'">
+          <ion-card class="activeVisitsJunk_card m-0 p-0">
+            <ion-row class="card-header">
+              <ion-col size="5" (click)="onStatus('AllVisits','activeVisitsJunk_card')"
+                [ngClass]="filteredParams.status == 'AllVisits'?'active-col left-top-sec':''">
+                <p class="mb-0">Visits Converted</p>
+                <h2> {{leadscount?.AllVisits}} </h2>
+              </ion-col>
+              <ion-col (click)="onStatus('JunkVisits','activeVisitsJunk_card')"
+                [ngClass]="filteredParams.status == 'JunkVisits'?'active-col left-right-sec':''">
+                <p class="fw-light mb-0">Junk visits</p>
+                <h2>{{leadscount?.JunkVisits}}</h2>
+              </ion-col>
+              <ion-col>
+                <div class="icon-circle">
+                  <ion-img src="../assets/CRMimages/activeLeadsicon.svg"></ion-img>
+                </div>
               </ion-col>
             </ion-row>
           </ion-card>
@@ -242,7 +270,7 @@
       </ion-row>
     </ion-grid>
     <!-- ALL VISITS -->
-    <ion-grid class="p-0">
+    <ion-grid class="p-0" *ngIf="depId != '10005'">
       <ion-row>
         <ion-col class="px-0 stats-card-col"
           [ngClass]="filteredParams.activeCardKey == 'allVisits_card' ?'active-card':'opacity50'">
@@ -283,7 +311,7 @@
     </ion-grid>
 
     <!-- BOOKING REQUEST -->
-    <ion-grid class="p-0">
+    <ion-grid class="p-0" *ngIf="depId != '10005'">
       <ion-row>
         <ion-col size="6" class="px-0 stats-card-col"
           [ngClass]="filteredParams.activeCardKey == 'bookingrequest_card' ?'active-card':'opacity50'">
@@ -316,7 +344,7 @@
         </ion-col>
 
         <!-- INACTIVE CARD -->
-        <ion-col size="6" class="pr-0 stats-card-col"
+        <ion-col *ngIf="depId != '10005'" size="6" class="pr-0 stats-card-col"
           [ngClass]="filteredParams.activeCardKey == 'closedLeads_card' && filteredParams.status != 'JunkVisits'  ?'active-card': filteredParams.status == 'JunkVisits' ?'junckVisitsBorder':'opacity50'">
           <ion-card class="closedLeads_card m-0 p-0">
             <ion-row>
@@ -405,7 +433,7 @@
         </ion-col>
         <ion-col size="3" class="d-flex align-items-center justify-content-center h-100">
           <div class="call_ctn_data d-flex align-items-center justify-content-center"
-            *ngIf="lead.activecall != '0' && lead.totalcall != '0'">
+            *ngIf="lead.activecall != '0' && lead.totalcall != '0' && _sharedservice.hasCallFeature">
             <span class="text_color_green">{{lead.activecall}}</span>/<span
               class="font-colorBlue">{{lead.totalcall}}</span>
           </div>

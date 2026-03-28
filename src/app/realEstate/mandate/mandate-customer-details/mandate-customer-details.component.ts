@@ -16,96 +16,79 @@ import {
   PopoverController,
   IonContent,
   AnimationController,
+  Platform,
 } from '@ionic/angular';
 import { Location } from '@angular/common';
 import { debounceTime, Subject } from 'rxjs';
-import { FollowUpFormComponent } from '../follow-up-form/follow-up-form.component';
-import { JunkformComponent } from '../junkform/junkform.component';
-import { MandateNegoformComponent } from '../mandate-negoform/mandate-negoform.component';
-import { MandateRsvFormComponent } from '../mandate-rsv-form/mandate-rsv-form.component';
-import { MandateUsvFormComponent } from '../mandate-usv-form/mandate-usv-form.component';
-import { MandateCloseFormComponent } from '../mandate-close-form/mandate-close-form.component';
 import { SharedService } from '../../shared.service';
-import { RetailServiceService } from '../../retail-service.service';
-import { EchoService } from '../../echo.service';
 import { MandateService } from '../../mandate-service.service';
+import { EchoService } from '../../echo.service';
 @Component({
   selector: 'app-mandate-customer-details',
   templateUrl: './mandate-customer-details.component.html',
   styleUrls: ['./mandate-customer-details.component.scss'],
 })
 export class MandateCustomerDetailsComponent implements OnInit {
-  feedbackId = '0';
-  isProfile = true;
-  ismandate;
-  isProperty = false;
-  isStatusActivity = false;
-  showSpinner = true;
-  remark;
-  id;
+  @ViewChild('unlockleadtomandateModal') unlockleadtomandateModal;
+  @ViewChild('visitAssignModal') visitAssignModal;
+  @ViewChild('scrollContent', { static: false }) scrollContent!: IonContent;
+  @ViewChild('viewToMergedLeads') viewToMergedLeads;
+  @ViewChild('mergeModal') mergeModal;
+  @ViewChild('retailMandate', { static: true }) retailReassignModal: IonModal;
+  @ViewChild('suggModal', { static: true }) suggModal: IonModal;
+  selectedLeadP;
+  properties;
+  isOnCallDetailsPage = false;
+  isfromOnCallModal = false;
+  suggestedproperties;
+  suggestedPropertiesweekplan = [];
+  dropdownSettings = {};
+  propid = '';
+  isAdminEditClosedDetails = false;
+  leadMoveJunkExec: boolean = false;
+  USV = false;
+  RSV = false;
+  negotiation = false;
+  leadclose = false;
   userid: string;
+  isAdmin: boolean;
+  roleid: string;
+  isCP: boolean;
   username: string;
-  isAdmin: boolean = false;
-  isAdminExceStatus = true;
-  isAdminExeActivity = false;
-  isPlanSection = false;
-  roleid: any;
-  leadtrack: any = [];
-  show_cnt: any = [];
-  show_cnt_subarray: any;
-  facemodel: any;
-  closestObject: any;
-  locality: any;
-  selectedlocality: any;
-  leadPossession: string;
-  leadPropertyType: string;
-  showRejectionForm: boolean = false;
+  leadId: any;
+  feedbackID: string = '';
+  selectedExecId: any;
+  projectNames;
+  visitAssigModalDismiss = false;
+  selectedProperty;
+  isEditProDetails = false;
+  isEditFixedPlan = false;
+  isActivityHistory = false;
+  stageForm = '';
+  isCSlogin: boolean;
+  isAtBottom: boolean;
+  localStorage = localStorage;
+  block: boolean;
+  show_cnt: any;
+  mergedleads: any = [];
   assignedrm: any;
   leadsDetailsInfo: any;
-  executeid: any = '';
-  selectedExecId: any = '';
-  usvstagedetection: any;
-  usvstagestatusdetection: any;
-  isSuggestedPropBoolean: boolean = false;
-  selectedItem: any;
-  selectedSuggestedProp;
-  closepropertyname: any;
-  requestedunits: any;
-  execview: boolean;
-  localStorage = localStorage;
-  mergedleads = [];
+  getName: any;
+  getMail: any;
+  locality: any;
+  selectedMandateTeam = '';
+  mandateExecutives = [];
+  retailTeamId = '';
+  retailExecutives = [];
+  selectedMandatePropId = '';
+  selectedExecIds = [];
+  selectedEXEC;
+  mandateExecList;
+  execList = [];
+  selectedExec;
+  isViewMoreSuggestedProp = false;
+  // isAccompanyBy = false;
 
-  size_array = [
-    {
-      id: '1',
-      size: '1BHK',
-    },
-    {
-      id: '2',
-      size: '2BHK',
-    },
-    {
-      id: '3',
-      size: '3BHK',
-    },
-    {
-      id: '4',
-      size: '4BHK',
-    },
-    {
-      id: '5',
-      size: '5BHK',
-    },
-  ];
-
-  budget_array = [
-    '50L - 60L',
-    '60L - 70L',
-    '70L - 80L',
-    '80L - 90L',
-    '90L - 1Cr',
-    'Above 1Cr',
-  ];
   leadpriority = [
     {
       id: '1',
@@ -120,165 +103,137 @@ export class MandateCustomerDetailsComponent implements OnInit {
       priority: 'Cold',
     },
   ];
-  mails: any;
-  leadAssign;
-  today;
+
+  size_array = [
+    {
+      id: '1',
+      size: '1 BHK',
+    },
+    {
+      id: '2',
+      size: '2 BHK',
+    },
+    {
+      id: '3',
+      size: '3 BHK',
+    },
+    {
+      id: '4',
+      size: '4 BHK',
+    },
+    {
+      id: '5',
+      size: '5 BHK',
+    },
+  ];
+
+  budget_array = [
+    '20L - 40L',
+    '50L - 60L',
+    '60L - 70L',
+    '70L - 80L',
+    '80L - 90L',
+    '90L - 1Cr',
+    '1.2Cr - Above',
+    'Above 1Cr',
+  ];
+  showSpinner: boolean;
+  popoverEvent: Event;
+  assignteam: any;
+  selectedSuggestedProp;
+  activestagestatus: any;
+  usvform: boolean;
+  leadtrack: any;
+  visitPlanNextDate: any;
+  visitPlanNextTime: any;
+  visitPlanDone: boolean;
+  visitpanelselection: any;
+  editplan: any;
+  visitPlandate: any;
+  visitPlantime: any;
+  confirmbtnClicked: boolean;
+  selectedpropertylists: any;
   selectedlists: Object;
   selectedproperty_commaseperated: any;
-  isVisitassign = false;
-  callStatus: any = '';
-  onCallLeadData: any;
-  headerType: string;
-  htype: string;
+  autoremarks: string;
+  today;
+  closepropertyname: any;
+  requestedunits: any;
+  closurefiles: any;
+  uploads: any;
+  remark: any = '';
+  showRejectionForm: boolean;
+  junk: any;
+  followup: any;
+  fixedPropertiesList: any;
+  assigntype: string;
+  mandateproperties: any;
+  role_type: string;
+
+  previousUrl: string;
+  currentUrl: string;
+
+  isCallHistory: any = '';
+  isCS: boolean;
+  isRM: boolean;
 
   constructor(
-    public _sharedservice: SharedService,
-    private _retailservice: RetailServiceService,
+    private platform: Platform,
+    private popoverController: PopoverController,
+    public _location: Location,
     private menuCtrl: MenuController,
-    private _echoService: EchoService,
-    private _location: Location,
-    private _mandateService: MandateService,
     private activeroute: ActivatedRoute,
     private router: Router,
     private cdf: ChangeDetectorRef,
-    private popoverController: PopoverController,
-    private animationCtrl: AnimationController
+    public _sharedservice: SharedService,
+    private _mandateService: MandateService,
+    private animationCtrl: AnimationController,
+    private _echoService: EchoService
   ) {
     const currentDate = new Date();
     this.today = currentDate.toISOString();
+
+    this.platform.backButton.subscribeWithPriority(10, () => {
+      if (this.isEditFixedPlan) {
+        this.router.navigate([], {
+          queryParams: {
+            isEditFixedPlan: null,
+          },
+          queryParamsHandling: 'merge',
+        });
+        this.onBackbutton();
+      } else if (this.stageForm) {
+        this.router.navigate([], {
+          queryParams: {
+            stageForm: null,
+          },
+          queryParamsHandling: 'merge',
+        });
+        this.onBackbutton();
+      } else if (this.isEditProDetails) {
+        this.router.navigate([], {
+          queryParams: {
+            isEditProDetails: null,
+          },
+          queryParamsHandling: 'merge',
+        });
+        this.onBackbutton();
+      } else if (this.isActivityHistory) {
+        this.router.navigate([], {
+          queryParams: {
+            isActivityHistory: null,
+          },
+          queryParamsHandling: 'merge',
+        });
+        this.onBackbutton();
+      } else {
+        this._location.back();
+      }
+    });
   }
 
-  @ViewChild(FollowUpFormComponent)
-  FollowUpFormComponent!: FollowUpFormComponent;
-  @ViewChild(JunkformComponent) JunkformComponent!: JunkformComponent;
-  @ViewChild(MandateNegoformComponent)
-  MandateNegoformComponent!: MandateNegoformComponent;
-  @ViewChild(MandateRsvFormComponent)
-  MandateRsvFormComponent!: MandateRsvFormComponent;
-  @ViewChild(MandateUsvFormComponent)
-  MandateUsvFormComponent!: MandateUsvFormComponent;
-  @ViewChild(MandateCloseFormComponent)
-  MandateCloseFormComponent!: MandateCloseFormComponent;
-
-  getLiveCallsData(leadId) {
-    this._sharedservice
-      .fetchLiveCall(localStorage.getItem('UserId'))
-      .subscribe({
-        next: (response) => {
-          if (response['status'] == 'success') {
-            this.callStatus =
-              leadId == response['success'][0].Lead_IDFK
-                ? response['success'][0].dialstatus
-                : '';
-            this.onCallLeadData = response['success'][0];
-            if (
-              leadId != response['success'][0].Lead_IDFK &&
-              this.router.url.includes('mandate-customers')
-            ) {
-              Swal.fire({
-                title: 'Call Details',
-                text: 'You’re already on a call with another client',
-                icon: 'warning',
-                heightAuto: false,
-                allowOutsideClick: false,
-                confirmButtonText: 'Go to client details page',
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  this._sharedservice.isMenuOpen = false;
-                  this.onCallDetails();
-                } else {
-                }
-              });
-            }
-            this._sharedservice.isMenuOpen = false;
-          } else {
-            this._sharedservice.isMenuOpen = true;
-          }
-
-          if (
-            this.onCallLeadData?.modeofcall == 'Desktop-mandate' ||
-            this.onCallLeadData?.modeofcall == 'mobile-mandate' ||
-            this.onCallLeadData?.modeofcall == 'Mobile-Mandate' ||
-            this.onCallLeadData?.modeofcall == 'Mobile-mandate'
-          ) {
-            this.headerType = 'mandate';
-          } else if (
-            this.onCallLeadData?.modeofcall == 'Desktop-retail' ||
-            this.onCallLeadData?.modeofcall == 'mobile-retail' ||
-            this.onCallLeadData?.modeofcall == 'Mobile-Retail' ||
-            this.onCallLeadData?.modeofcall == 'Mobile-retail'
-          ) {
-            this.headerType = 'retail';
-          }
-        },
-        error: () => {
-          this.showSpinner = false;
-        },
-      });
-  }
-  isOnCallDetailsPage = false;
-  onCallDetails() {
-    setTimeout(() => {
-      this.router.navigate([], {
-        queryParams: {
-          isOnCallDetailsPage: true,
-          leadId: this.onCallLeadData.Lead_IDFK,
-          execid: this.onCallLeadData.assignee,
-          leadTabData: 'status',
-          headerType: this.headerType,
-        },
-        queryParamsHandling: 'merge',
-      });
-    }, 500);
-  }
-
-  isfromOnCallModal = false;
-  isRM = false;
-  isCS = false;
-  leadId;
-  isSuggestedProp = false;
-  dropdownSettings = {};
-  properties;
-  isCallHistory: any = '';
   ngOnInit() {
     this.activeroute.queryParams.subscribe((params) => {
-      this.roleid = localStorage.getItem('Role');
-      this.isRM =
-        this.localStorage.getItem('Role') == '50001' ||
-        this.localStorage.getItem('Role') == '50002' ||
-        this.localStorage.getItem('Role') == '50009' ||
-        this.localStorage.getItem('Role') == '50010';
-      this.isCS =
-        localStorage.getItem('Role') == '50014' ||
-        localStorage.getItem('Role') == '50013';
-      this.callStatus = '';
-      this.leadId = params['leadId'];
-      this.htype = params['htype'];
-      this.isCallHistory = params['isCallHistory'];
-      this.executeid = params['execid'];
-      this.selectedExecId = params['execid'];
-
-      this.isSuggestedProp =
-        this.localStorage.getItem('prop_suggestion') == '1' ||
-        localStorage.getItem('Role') == '1' ||
-        localStorage.getItem('Role') == '2';
-      this.isOnCallDetailsPage = params['isOnCallDetailsPage'] == 'true';
-      if (params['fromOnCallModal']) {
-        this.isfromOnCallModal = true;
-      } else {
-        this.isfromOnCallModal = false;
-      }
-      this.getLiveCallsData(params['leadId']);
-
-      this.searchSubject.pipe(debounceTime(300)).subscribe((searchTerm) => {
-        this.fetchData(searchTerm);
-      });
-
-      this.feedbackId = params['feedback'] ? params['feedback'] : '0';
-      this.initializeParams();
-      this.getcustomerview();
-      this.getlocalitylist();
-      this.triggerhistory();
       this.dropdownSettings = {
         singleSelection: false,
         idField: 'id',
@@ -288,8 +243,87 @@ export class MandateCustomerDetailsComponent implements OnInit {
         enableCheckAll: false,
         allowSearchFilter: true,
       };
+      this.searchSubject.pipe(debounceTime(300)).subscribe((searchTerm) => {
+        this.fetchData(searchTerm);
+      });
 
-      this.getFixedMandateProperties();
+      if (params['leadId']) {
+        this.leadId = params['leadId'];
+      }
+      if (params['feedback']) {
+        this.feedbackID = params['feedback'];
+      } else {
+        this.feedbackID = '0';
+      }
+      if (params['execid']) {
+        this.selectedExecId = params['execid'];
+      } else {
+        this.selectedExecId = '';
+      }
+      if (params['isEditFixedPlan']) {
+        this.isEditFixedPlan = params['isEditFixedPlan'] === 'true';
+      } else {
+        this.isEditFixedPlan = false;
+      }
+
+      if (params['stageForm']) {
+        this.stageForm = params['stageForm'];
+      } else {
+        this.stageForm = '';
+      }
+
+      if (params['isEditProDetails']) {
+        this.isEditProDetails = params['isEditProDetails'] === 'true';
+      } else {
+        this.isEditProDetails = false;
+      }
+
+      if (params['isActivityHistory']) {
+        this.isActivityHistory = params['isActivityHistory'] === 'true';
+      } else {
+        this.isActivityHistory = false;
+      }
+
+      if (params['propid']) {
+        this.propid = params['propid'];
+      } else {
+        this.propid = '';
+      }
+
+      this.isCallHistory = params['isCallHistory'];
+      this.isOnCallDetailsPage = params['isOnCallDetailsPage'] == 'true';
+      if (params['fromOnCallModal']) {
+        this.isfromOnCallModal = true;
+      } else {
+        this.isfromOnCallModal = false;
+      }
+
+      this.isRM =
+        this.localStorage.getItem('Role') == '50001' ||
+        this.localStorage.getItem('Role') == '50002' ||
+        this.localStorage.getItem('Role') == '50009' ||
+        this.localStorage.getItem('Role') == '50010';
+      this.isCS =
+        localStorage.getItem('Role') == '50014' ||
+        localStorage.getItem('Role') == '50013';
+
+      this.role_type = this.localStorage.getItem('RoleType');
+      this.userid = localStorage.getItem('UserId');
+      this.isAdmin = localStorage.getItem('Role') == '1';
+      this.roleid = localStorage.getItem('Role');
+      this.isCP = localStorage.getItem('cpId') === '1';
+      this.username = localStorage.getItem('Name');
+      this.isCSlogin =
+        localStorage.getItem('Role') === '50003' ||
+        localStorage.getItem('Role') === '50004';
+      this.block =
+        this.userid != this.selectedExecId &&
+        !this.isAdmin &&
+        this.role_type != '1';
+      this.getcustomerview();
+      this.getlocalitylist();
+      this.getFixedProperties();
+      this.getLiveCallsData(this.leadId);
     });
     this._echoService.listenToChannel(
       'database-changes',
@@ -297,6 +331,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
       (message) => {
         if (localStorage.getItem('UserId') == message.Executive) {
           this.callStatus = message.Call_status_new;
+          this._sharedservice.callStatus = message.Call_status_new;
           if (message.Call_status_new != 'Call Disconnected') {
             this._sharedservice.isMenuOpen = false;
           } else {
@@ -314,7 +349,6 @@ export class MandateCustomerDetailsComponent implements OnInit {
       }
     );
   }
-
   updateStatus() {
     const today = new Date();
     const date = today.toISOString().split('T')[0];
@@ -357,7 +391,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
         assignid: this.onCallLeadData.assignee,
         autoremarks:
           'Status changed to RNR, because the client did not answer the call.',
-        property: this.selectedSuggestedProp?.['propid'],
+        property: this.selectedSuggestedProp?.propid,
         feedbackid: 0,
       };
     } else if (this.callStatus == 'Executive Busy') {
@@ -372,39 +406,38 @@ export class MandateCustomerDetailsComponent implements OnInit {
         userid: localStorage.getItem('UserId'),
         assignid: this.onCallLeadData.assignee,
         autoremarks: localStorage.getItem('Name') + ' did not pick the Call.',
-        property: this.selectedSuggestedProp?.['propid'],
+        property: this.selectedSuggestedProp?.propid,
         feedbackid: 0,
       };
     }
-    if (this.htype == 'mandate') {
-      this._mandateService
-        .addfollowuphistory(followups)
-        .subscribe((success) => {
-          if (success['status'] == 'True') {
-            this.showSpinner = false;
-            if (this.callStatus == 'Executive Busy') {
-              this.executiveBusyAlert();
-            } else if (this.callStatus == 'BUSY') {
-              this.clientBusyAlert();
-            }
-          }
-        });
-    } else if (this.htype == 'retail') {
-      this._retailservice.addfollowuphistory(followups).subscribe(
-        (success) => {
-          if (success['status'] == 'True') {
-            if (this.callStatus == 'Executive Busy') {
-              this.executiveBusyAlert();
-            } else if (this.callStatus == 'BUSY') {
-              this.clientBusyAlert();
-            }
-          }
-        },
-        (err) => {
-          console.log('Failed to Update');
+
+    // if (this.htype == 'mandate') {
+    this._mandateService.addfollowuphistory(followups).subscribe((success) => {
+      if (success['status'] == 'True') {
+        this.showSpinner = false;
+        if (this.callStatus == 'Executive Busy') {
+          this.executiveBusyAlert();
+        } else if (this.callStatus == 'BUSY') {
+          this.clientBusyAlert();
         }
-      );
-    }
+      }
+    });
+    // } else if (this.htype == 'retail') {
+    //   this._retailservice.addfollowuphistory(followups).subscribe(
+    //     (success) => {
+    //       if (success['status'] == 'True') {
+    //         if (this.callStatus == 'Executive Busy') {
+    //           this.executiveBusyAlert();
+    //         } else if (this.callStatus == 'BUSY') {
+    //           this.clientBusyAlert();
+    //         }
+    //       }
+    //     },
+    //     (err) => {
+    //       console.log('Failed to Update');
+    //     }
+    //   );
+    // }
   }
 
   clientBusyAlert() {
@@ -417,16 +450,6 @@ export class MandateCustomerDetailsComponent implements OnInit {
     }).then((val) => {
       if (val.value == true) {
         this._location.back();
-        // let currentUrl = this.router.url;
-        // let pathWithoutQueryParams = currentUrl.split('?')[0];
-        // let currentQueryparams = this.activeRoute.snapshot.queryParams;
-        // this.router
-        //   .navigateByUrl('/', { skipLocationChange: true })
-        //   .then(() => {
-        //     this.router.navigate([pathWithoutQueryParams], {
-        //       queryParams: currentQueryparams,
-        //     });
-        //   });
       }
     });
   }
@@ -468,7 +491,6 @@ export class MandateCustomerDetailsComponent implements OnInit {
       showCloseButton: true,
       showDenyButton: true,
       denyButtonText: 'Move To Inactive',
-      // cancelButtonText: 'Cancel',
       heightAuto: false,
       showConfirmButton: true,
       showCancelButton: false,
@@ -492,7 +514,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
             : this.onCallLeadData?.Exec_IDFK,
           autoremarks:
             'Status changed to Not Connected, as the call could not be established with the client.',
-          property: this.selectedSuggestedProp?.['propid'],
+          property: this.selectedSuggestedProp?.propid,
           feedbackid: 0,
         };
         this.showSpinner = true;
@@ -501,16 +523,6 @@ export class MandateCustomerDetailsComponent implements OnInit {
           .subscribe((success) => {
             this.showSpinner = false;
             if (success['status'] == 'True') {
-              // let currentUrl = this.router.url;
-              // let pathWithoutQueryParams = currentUrl.split('?')[0];
-              // let currentQueryparams = this.route.snapshot.queryParams;
-              // this.router
-              //   .navigateByUrl('/', { skipLocationChange: true })
-              //   .then(() => {
-              //     this.router.navigate([pathWithoutQueryParams], {
-              //       queryParams: currentQueryparams,
-              //     });
-              //   });
               location.reload();
             } else {
               Swal.fire({
@@ -524,407 +536,551 @@ export class MandateCustomerDetailsComponent implements OnInit {
             }
           });
       } else {
-        // location.back();
         location.reload();
-        // let currentUrl = this.router.url;
-        // let pathWithoutQueryParams = currentUrl.split('?')[0];
-        // let currentQueryparams = this.activeRoute.snapshot.queryParams;
-        // this.router
-        //   .navigateByUrl('/', { skipLocationChange: true })
-        //   .then(() => {
-        //     this.router.navigate([pathWithoutQueryParams], {
-        //       queryParams: currentQueryparams,
-        //     });
-        //   });
       }
     });
   }
 
-  block = false;
-  role_type = '';
-
-  initializeParams() {
-    this.activeroute.queryParamMap.subscribe((params) => {
-      this.isProfile = true;
-      this.userid = localStorage.getItem('UserId');
-      this.username = localStorage.getItem('Name');
-      this.selectedExecId = params.get('execid');
-      this.isAdmin = localStorage.getItem('Role') === '1';
-      this.role_type = localStorage.getItem('RoleType');
-      this.block =
-        this.userid != this.selectedExecId &&
-        !this.isAdmin &&
-        this.role_type != '1';
-
-      if (params.get('htype') == 'retail') {
-        this.isRetail = true;
-      } else {
-        this.isRetail = false;
-      }
-
-      this.propid = params.get('propid');
-
-      if (params.get('propid') == '28773') {
-        this._mandateService.setHoverState('ranav_group');
-      } else {
-        this._mandateService.setHoverState('');
-      }
-
-      if (params.get('leadId')) {
-        this.id = params.get('leadId');
-      }
-      this.leadAssign = params.get('execid');
-
-      if (localStorage.getItem('Role') == '1') {
-        this.isAdmin = true;
-        this.isAdminExeActivity = false;
-      } else {
-        this.isAdmin = false;
-        this.isAdminExeActivity = true;
-      }
-      if (params.get('htype') === 'mandate') {
-        this.ismandate = true;
-      } else {
-        this.ismandate = false;
-      }
-      if (params.get('status') === 'info') {
-        this.isProfile = true;
-        this.isProperty = false;
-        this.isStatusActivity = false;
-      } else if (params.get('status') === 'propertyInfo') {
-        this.isProfile = false;
-        this.isProperty = true;
-        this.isStatusActivity = false;
-      } else if (params.get('status') === 'activity') {
-        this.isProfile = false;
-        this.isProperty = false;
-        this.isStatusActivity = true;
-        this.isAdminExceStatus = true;
-        this.isAdminExeActivity = false;
-        if (params.get('statusSection')) {
-          if (
-            !(
-              this.assignedrm &&
-              (this.assignedrm[0]?.leadstage == 'USV' ||
-                this.assignedrm[0]?.leadstage == 'RSV' ||
-                this.assignedrm[0]?.leadstage == 'Final Negotiation')
-            ) &&
-            params.get('statusSection') === 'plan'
-          ) {
-            this.onStatusActivity('status');
-          } else {
-            this.isPlanSection = params.get('statusSection') === 'plan';
-          }
-          // this.isPlanSection = params.get('statusSection')  === 'plan';
-          this.isAdminExeActivity = params.get('statusSection') === 'activity';
-          this.isAdminExceStatus = params.get('statusSection') === 'status';
-        }
-      } else {
-        this.isAdminExeActivity = false;
-        this.isAdminExceStatus = false;
-        this.isPlanSection = false;
-        this.isStatusActivity = false;
-      }
-
-      if (localStorage.getItem('Role') == null) {
-        this.router.navigateByUrl('/login');
-      } else if (localStorage.getItem('Role') == '1') {
-        this.isAdmin = true;
-        // this.execview = false;
-        // this.triggerhistory();
-      } else {
-        this.isAdmin = false;
-        // this.triggerhistory();
-        // this.execview = true;
-      }
-    });
-  }
-
-  getlocalitylist() {
-    this._mandateService.getlocality().subscribe((localities) => {
-      this.locality = localities['Localities'];
-      this.selectedlocality = this.show_cnt?.['localityid'];
-    });
-  }
-
-  // CUSTOMER-VIEW-FROM-ENQUIRY
   getcustomerview() {
-    // this.showRejectionForm = false;
-    this._mandateService.getcustomeredit(this.id).subscribe((cust) => {
-      this.showSpinner = false;
+    this.showSpinner = true;
+    this._mandateService.getcustomeredit(this.leadId).subscribe((cust) => {
       this.show_cnt = cust['Customerview'][0];
       this.mergedleads = cust['Customerview'][0]?.mergedleads;
-      this.show_cnt_subarray = cust['Customerview'][0]?.assignedrm;
-      this.facemodel = cust['Customerview'][0];
-      if (cust['Customerview'][0]?.latestaction) {
-        this.closestObject = cust['Customerview'][0].latestaction;
-      }
-
-      if (this.locality && this.show_cnt?.['localityid']) {
-        let location = this.locality.filter(
-          (data) => data.id == this.show_cnt['  ']
-        );
-        this.selectedlocality = location[0]?.id;
-      }
-
-      if (this.show_cnt?.enquiry_possession == '1') {
-        this.leadPossession = 'Immediate';
-      } else if (this.show_cnt?.enquiry_possession == '2') {
-        this.leadPossession = '6 Months';
-      } else if (this.show_cnt?.enquiry_possession == '3') {
-        this.leadPossession = '1 Year';
-      } else if (this.show_cnt?.enquiry_possession == '4') {
-        this.leadPossession = '< 2 years';
-      }
-
-      if (this.show_cnt?.enquiry_proptype == '1') {
-        this.leadPropertyType = 'Apartment';
-      } else if (this.show_cnt?.enquiry_proptype == '2') {
-        this.leadPropertyType = 'Villa';
-      } else if (this.show_cnt?.enquiry_proptype == '3') {
-        this.leadPropertyType = 'Plot';
-      } else if (this.show_cnt?.enquiry_proptype == '4') {
-        this.leadPropertyType = 'Villament';
-      }
-
-      $('#proptypeselect').val(this.show_cnt?.['enquiry_proptype'] || '');
-      $('#sizeselect').val(this.show_cnt?.['enquiry_bhksize'] || '');
-      $('#budgetselect').val(this.show_cnt?.['enquiry_budget'] || '');
-      $('#possessionselect').val(this.show_cnt?.['enquiry_possession'] || '');
-      $('#priorityselect').val(this.show_cnt?.['lead_priority'] || '');
-      $('#customer_location').val(this.show_cnt?.['localityid'] || '');
-      $('#customer_address').val(this.show_cnt?.['address'] || '');
-
-      if (this.show_cnt?.['customer_phase'] == null) {
-        this.show_cnt['customer_phase'] = 'Fresh lead';
-      } else {
-        this.showRejectionForm = false;
-      }
+      this.getName = this.show_cnt?.enquiry_name
+        ? this.show_cnt.enquiry_name
+        : this.show_cnt.customer_name;
+      this.getMail = this.show_cnt.enquiry_mail
+        ? this.show_cnt.enquiry_mail
+        : this.show_cnt.customer_mail;
     });
 
     this._mandateService
-      .getassignedrm(this.id, this.userid, this.leadAssign, this.feedbackId)
+      .getassignedrm(
+        this.leadId,
+        this.userid,
+        this.selectedExecId,
+        this.feedbackID
+      )
       .subscribe((cust) => {
         if (
           cust.lead == '1' &&
           this.selectedExecId == this.userid &&
-          (localStorage.getItem('Role') === '50003' ||
-            localStorage.getItem('Role') === '50004')
+          this.isCSlogin
         ) {
           this.confirmLeadConversionToMandate();
         }
 
-        this.assignedrm = cust['RMname'];
+        if (cust['status'] == 'True') {
+          this.assignedrm = cust['RMname'];
+          this.leadsDetailsInfo = cust['RMname']; //To display the executive name
 
-        this.leadsDetailsInfo = cust['RMname'];
-        this.usvstagedetection = cust['RMname']?.[0]?.leadstage;
-        this.usvstagestatusdetection = cust['RMname']?.[0]?.leadstatus;
-        this.assignedrm = this.assignedrm?.filter((exec) => {
-          return exec.RMID == this.selectedExecId;
-        });
-        this.selectedSuggestedProp = cust['RMname']?.[0]?.suggestedprop?.filter(
-          (item) => {
-            return item.propid == this.propid;
-          }
-        );
-        this.selectedSuggestedProp = this.selectedSuggestedProp?.[0];
-        if (this.assignedrm) {
-          if (
-            this.assignedrm.length > 0 &&
-            this.assignedrm?.[0]?.rnrcount >= 5 &&
-            this.roleid != 1 &&
-            this.roleid != '2'
-          ) {
-            Swal.fire({
-              text: 'Access Denied , Do contact the Admin',
-              icon: 'error',
-              heightAuto: false,
-            }).then(() => {
-              this.router.navigate(['mandate-lead-stages'], {
-                queryParams: {
-                  status: 'inactive',
-                  type: 'Inactive',
-                  isDropDown: 'false',
-                  followup: '2',
-                  htype: 'mandate',
-                },
-              });
-            });
-          }
-        }
+          this.assignedrm = this.assignedrm.filter((exec) => {
+            return exec.RMID == this.selectedExecId;
+          });
 
-        setTimeout(() => {
-          this.isAccompanyBy = false;
-          if (
-            this.userid != this.selectedExecId &&
-            this.roleid != '1' &&
-            this.roleid != '2' &&
-            ((this.role_type == '1' &&
-              (this.assignedrm[0].roleid == '50003' ||
-                this.assignedrm[0].roleid == '50004')) ||
-              this.role_type != '1') &&
-            this.feedbackId != '1'
-          ) {
-            $('.updateActivities').removeClass('active');
-            $('.allActivities').removeClass('active');
-            setTimeout(() => {
-              const tab = document.getElementById('allActivitiesTab');
-              if (tab) {
-                tab.click();
-              }
-            }, 100);
-          } else if (
-            this.userid == this.selectedExecId &&
-            this.roleid != '1' &&
-            this.roleid != '2' &&
-            this.role_type == '1' &&
-            this.assignedrm[0].roleid != '50003' &&
-            this.assignedrm[0].roleid != '50004' &&
-            this.feedbackId != '1'
-          ) {
+          this.suggestedPropertiesweekplan =
+            this.assignedrm?.[0]?.suggestedprop;
+          console.log(this.assignedrm?.[0]?.suggestedprop);
+          console.log(this.suggestedPropertiesweekplan);
+
+          this.assignedrm?.[0]?.suggestedprop?.forEach((prop, index) => {
+            console.log(this.propid == prop.propid);
+            if (this.propid == prop.propid) {
+              console.log(prop);
+              this.selectedSuggestedProp = prop;
+              console.log(this.selectedSuggestedProp);
+            } else {
+              // this.selectedSuggestedProp = {};
+            }
+          });
+
+          if (this.assignedrm) {
             if (
+              this.assignedrm.length > 0 &&
+              this.assignedrm?.[0]?.rnrcount >= 5 &&
+              this.roleid != '1' &&
+              this.roleid != '2'
+            ) {
+              Swal.fire({
+                text: 'Access Denied , Do contact the Admin',
+                icon: 'error',
+                heightAuto: false,
+              }).then(() => {
+                this.router.navigate(['mandate-lead-stages'], {
+                  queryParams: {
+                    status: 'inactive',
+                    type: 'Inactive',
+                    isDropDown: 'false',
+                    followup: '2',
+                  },
+                });
+              });
+            }
+          }
+
+          // if (this.assignedrm?.[0]?.suggestedprop?.length > 1) {
+          //   let propertyData;
+          //   this.selectedSuggestedProp =
+          //     this.assignedrm?.[0]?.suggestedprop.forEach((prop, index) => {
+          //       return this.propid == prop.propid;
+          //     });
+          //   if (
+          //     (propertyData.selection == 1 &&
+          //       propertyData.leadstage == 'USV' &&
+          //       propertyData.actions == 0) ||
+          //     (propertyData.selection == 2 &&
+          //       propertyData.leadstage == 'RSV' &&
+          //       propertyData.actions == 1)
+          //   ) {
+          //     this.selectedSuggestedProp = propertyData;
+          //   } else {
+          //     setTimeout(() => {
+          //       this.selectedSuggestedProp =
+          //         this.assignedrm?.[0]?.suggestedprop?.[0];
+          //     }, 100);
+          //   }
+          // } else {
+          //   this.selectedSuggestedProp =
+          //     this.assignedrm?.[0]?.suggestedprop?.[0];
+          // }
+
+          // setTimeout(() => {
+          // this.isAccompanyBy = false;
+          // if ((this.userid != this.selectedExecId) && this.roleid != '1' && this.roleid != '2' && ((this.role_type == '1' && (this.assignedrm.roleid == '50003' || this.assignedrm.roleid == '50004')) || this.role_type != '1') && this.feedbackID != '1') {
+          //   $(".updateActivities").removeClass("active");
+          //   $(".allActivities").removeClass("active");
+          // }
+          // else if ((this.userid == this.selectedExecId) && this.roleid != '1' && this.roleid != '2' && ((this.role_type == '1' && this.assignedrm.roleid != '50003' && this.assignedrm.roleid != '50004')) && this.feedbackID !='1') {
+          //   console.log('triggered',this.assignedrm)
+          //   if(this.assignedrm && this.assignedrm[0].visitaccompaniedid && (this.assignedrm[0].visitaccompaniedid != this.assignedrm[0].RMID)){
+          //     this.isAccompanyBy = true;
+          //     console.log(this.isAccompanyBy)
+          //   } else {
+          //   }
+          // }
+          // else if((this.userid != this.selectedExecId) && this.roleid != '1' && this.roleid != '2' && ((this.role_type == '1' && this.assignedrm.roleid != '50003' && this.assignedrm.roleid != '50004') || this.role_type != '1') && this.feedbackID != '1'){
+          //   console.log(this.assignedrm,this.isAccompanyBy)
+          //   if(this.assignedrm && this.assignedrm[0].visitaccompaniedid && (this.assignedrm[0].visitaccompaniedid != this.assignedrm[0].RMID) || this.role_type == '1'){
+          //     this.isAccompanyBy = true;
+          //     console.log(this.isAccompanyBy)
+          //   } else {
+          //   }
+          // }
+          // }, 1000)
+
+          if (this.role_type == '1') {
+            if (
+              this.assignedrm &&
+              this.assignedrm[0].visitaccompaniedid &&
+              this.selectedExecId != this.assignedrm[0].RMID &&
+              this.assignedrm[0].visitaccompaniedid != this.assignedrm[0].RMID
+            ) {
+              // this.isAccompanyBy = true;
+            } else if (
               this.assignedrm &&
               this.assignedrm[0].visitaccompaniedid &&
               this.assignedrm[0].visitaccompaniedid != this.assignedrm[0].RMID
             ) {
-              this.isAccompanyBy = true;
+              // this.isAccompanyBy = true;
             } else {
-              $('.allActivities').removeClass('active');
-              const tab = document.getElementById('updateActivitiesTab');
-              if (tab) {
-                tab.click();
-              }
-            }
-          } else if (
-            this.userid != this.selectedExecId &&
-            this.roleid != '1' &&
-            this.roleid != '2' &&
-            ((this.role_type == '1' &&
-              this.assignedrm[0].roleid != '50003' &&
-              this.assignedrm[0].roleid != '50004') ||
-              this.role_type != '1') &&
-            this.feedbackId != '1'
-          ) {
-            if (
-              (this.assignedrm &&
-                this.assignedrm?.[0]?.visitaccompaniedid &&
-                this.assignedrm?.[0]?.visitaccompaniedid !=
-                  this.assignedrm?.[0]?.RMID) ||
-              this.role_type == '1'
-            ) {
-              this.isAccompanyBy = true;
-            } else {
-              $('.allActivities').removeClass('active');
-              const tab = document.getElementById('updateActivitiesTab');
-              if (tab) {
-                tab.click();
-              }
+              // this.isAccompanyBy = false;
             }
           }
-        }, 1000);
 
-        if (this.assignedrm?.[0]?.suggestedprop?.length > 1) {
-          this.isSuggestedPropBoolean = false;
-          let propertyData, propIndex;
-          this.assignedrm?.[0]?.suggestedprop?.forEach((prop, index) => {
-            propertyData = prop;
-            propIndex = index;
-          });
-          if (
-            (propertyData.selection == 1 &&
-              propertyData.leadstage == 'USV' &&
-              propertyData.actions == 0) ||
-            (propertyData.selection == 2 &&
-              propertyData.leadstage == 'RSV' &&
-              propertyData.actions == 1)
-          ) {
-            this.selectedItem = propIndex;
-            setTimeout(() => {
-              // this.tabclick(propIndex, propertyData);
-              this.getstages();
-            }, 100);
-          } else {
-            this.selectedItem = 0;
-            setTimeout(() => {
-              this.getstages();
-              // this.tabclick(
-              //   this.selectedItem,
-              //   this.assignedrm[0].suggestedprop?.[0]
-              // );
-            }, 100);
-          }
-        } else {
-          this.selectedItem = 0;
           this.getstages();
-          // setTimeout(() => {
-          //   this.tabclick(
-          //     this.selectedItem,
-          //     this.assignedrm[0].suggestedprop?.[0]
-          //   );
-          // }, 100);
-        }
-
-        if (this.assignedrm && this.assignedrm?.[0]?.suggestedprop) {
-          this.visitpanelselection = this.assignedrm?.[0]?.suggestedprop.filter(
-            (prop) => {
-              return !(prop.weekplan == null);
-            }
-          );
-          if (
-            this.visitpanelselection?.length > 0 &&
-            this.visitpanelselection?.[0]?.weekplan == '1'
-          ) {
-            this.selectedPlanType = 'weekdays';
-          } else if (
-            this.visitpanelselection?.length > 0 &&
-            this.visitpanelselection?.[0]?.weekplan == '2'
-          ) {
-            this.selectedPlanType = 'weekend';
-          } else if (
-            this.visitpanelselection?.length > 0 &&
-            this.visitpanelselection?.[0]?.weekplan == '0'
-          ) {
-            this.selectedPlanType = 'ytc';
-          }
-        }
-
-        setTimeout(() => {
-          this.selectedplan(this.selectedPlanType);
-        }, 100);
-        if (
-          this.usvstagedetection == 'USV' &&
-          this.usvstagestatusdetection == '3' &&
-          cust[0]?.visitstatus == '0'
-        ) {
-          this.actionChange(this.usvstagedetection);
-        }
-        if (
-          (this.selectedSuggestedProp &&
-            this.selectedSuggestedProp?.['actions'] == '7' &&
-            this.selectedSuggestedProp?.['currentstage'] == '5') ||
-          (this.selectedSuggestedProp?.['actions'] == '8' &&
-            this.selectedSuggestedProp?.['currentstage'] == '5') ||
-          (this.selectedSuggestedProp?.['actions'] == '6' &&
-            this.selectedSuggestedProp?.['currentstage'] == '5')
-        ) {
-          this.showRejectionForm = true;
           this.verifyrequest(
-            this.assignedrm[0].customer_IDPK,
-            this.selectedSuggestedProp?.['propid'],
-            this.assignedrm[0].RMID,
-            this.selectedSuggestedProp?.['name']
+            this.leadId,
+            this.propid,
+            this.selectedExecId,
+            this.selectedSuggestedProp?.name
           );
+          this.triggerhistory();
+          if (this.assignedrm && this.assignedrm?.[0]?.suggestedprop) {
+            this.visitpanelselection =
+              this.assignedrm?.[0]?.suggestedprop.filter((prop) => {
+                return !(prop.weekplan == null);
+              });
+
+            if (
+              this.visitpanelselection.length > 0 &&
+              this.visitpanelselection?.[0]?.weekplan == '1'
+            ) {
+              this.selectedPlanType = 'weekdays';
+            } else if (
+              this.visitpanelselection.length > 0 &&
+              this.visitpanelselection?.[0]?.weekplan == '2'
+            ) {
+              this.selectedPlanType = 'weekend';
+            } else if (
+              this.visitpanelselection.length > 0 &&
+              this.visitpanelselection?.[0]?.weekplan == '0'
+            ) {
+              this.selectedPlanType = 'ytc';
+            }
+          }
+          this.selectedPlanType === ''
+            ? this.selectedplan('')
+            : this.selectedplan(this.selectedPlanType);
         }
         this.getAllCallLogs(false);
       });
   }
 
-  isAccompanyBy = false;
+  allCallLogs = [];
+  getAllCallLogs(isLoadmore) {
+    const params = {
+      loginid: this.userid,
+      execid: this.selectedExecId,
+      clientnum: this.leadsDetailsInfo?.[0]?.customer_number,
+      limit: 0,
+      limitrows: 30,
+    };
+    return new Promise((resolve, reject) => {
+      this._sharedservice.fetchAllCallLogs(params).subscribe({
+        next: (response: any) => {
+          this.showSpinner = false;
+          if (response['status'] == 'success') {
+            this.allCallLogs = isLoadmore
+              ? this.allCallLogs.concat(response['success'])
+              : response['success'];
+            this.groupByDate(this.allCallLogs);
+            resolve(true);
+          } else {
+            this.showSpinner = false;
+            this.allCallLogs = [];
+            this.groupedByDate = [];
+            resolve(false);
+          }
+        },
+        error: (err) => {
+          console.log('error', err);
+          this.allCallLogs = [];
+          this.groupedByDate = [];
+          this.showSpinner = false;
+          resolve(false);
+        },
+      });
+    });
+  }
 
-  @ViewChild('unlockleadtomandateModal') unlockleadtomandateModal;
-  selectedProperty;
-  visitAssigModalDismiss = false;
+  groupedByDate: any[] = [];
+  groupByDate(records: any[]) {
+    const grouped = {};
+    records?.forEach((call) => {
+      const date = call?.starttime?.split(' ')[0]; // extract 'YYYY-MM-DD'
+      if (!grouped[date]) {
+        grouped[date] = [];
+      }
+      grouped[date].push(call);
+    });
+    // Convert object to array (Angular 5 doesn’t support keyvalue pipe)
+    this.groupedByDate = Object.keys(grouped).map((date) => ({
+      date,
+      calls: grouped[date],
+    }));
+  }
 
+  async toggleAudio(audioElement: HTMLAudioElement, event: Event) {
+    const clickedIcon = event.target as HTMLElement;
+
+    // Pause all other audios
+    const allAudios = document.querySelectorAll('audio');
+    allAudios.forEach((audio) => {
+      if (audio !== audioElement) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    });
+
+    // Reset all other icons to play
+    const allIcons = document.querySelectorAll('ion-icon.play-icon');
+    allIcons.forEach((icon) => {
+      icon.setAttribute('name', 'play');
+    });
+
+    // Toggle current audio
+    if (audioElement.paused) {
+      try {
+        await audioElement.play();
+        clickedIcon.setAttribute('name', 'pause');
+
+        // Reset icon when audio ends
+        audioElement.onended = () => {
+          clickedIcon.setAttribute('name', 'play');
+        };
+      } catch (err) {
+        console.warn('Audio play interrupted:', err);
+      }
+    } else {
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      clickedIcon.setAttribute('name', 'play');
+    }
+  }
+  isleadcloseupdate = false;
+  getstages() {
+    this._mandateService
+      .getactiveleadsstatus(
+        this.leadId,
+        this.userid,
+        this.selectedExecId,
+        this.propid,
+        this.feedbackID
+      )
+      .subscribe((stagestatus) => {
+        if (stagestatus['status'] == 'True') {
+          this.activestagestatus = stagestatus['activeleadsstatus'];
+          if (this.activestagestatus[0].stage == 'Deal Closed') {
+            this.isleadcloseupdate = true;
+          } else if (
+            this.activestagestatus[0].stage == 'Lead Closed' ||
+            this.activestagestatus[0].stage == 'Move to Junk'
+          ) {
+            this.USV = false;
+            this.RSV = true;
+            this.negotiation = true;
+            this.leadclose = true;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = true;
+            this.leadMoveJunkExec = false;
+          } else if (
+            this.activestagestatus[0].stage == 'Deal Closing Requested' &&
+            (this.activestagestatus[0].followupstatus == '0 ' ||
+              this.activestagestatus[0].followupstatus == null ||
+              this.activestagestatus[0].followupstatus == '4')
+          ) {
+            this.USV = false;
+            this.RSV = false;
+            this.negotiation = false;
+            this.leadclose = true;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = true;
+            this.leadMoveJunkExec = false;
+          } else if (
+            this.activestagestatus[0].stage == 'Closing Request Rejected' &&
+            (this.activestagestatus[0].followupstatus == '0 ' ||
+              this.activestagestatus[0].followupstatus == null ||
+              this.activestagestatus[0].followupstatus == '4')
+          ) {
+            this.RSV = false;
+            this.negotiation = false;
+            this.USV = false;
+            this.leadclose = true;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = true;
+            this.leadMoveJunkExec = false;
+          } else if (
+            this.activestagestatus[0].stage == 'Fresh' &&
+            this.activestagestatus[0].followupstatus == '4'
+          ) {
+            this.USV = true;
+            this.RSV = false;
+            this.negotiation = false;
+            this.leadclose = false;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = false;
+            this.leadMoveJunkExec = false;
+          } else if (
+            (this.activestagestatus[0].stage == 'USV' &&
+              this.activestagestatus[0].stagestatus == '1') ||
+            (this.activestagestatus[0].stage == 'USV' &&
+              this.activestagestatus[0].stagestatus == '2') ||
+            (this.activestagestatus[0].stage == 'USV' &&
+              this.activestagestatus[0].stagestatus == '4')
+          ) {
+            this.USV = true;
+            this.RSV = false;
+            this.negotiation = false;
+            this.leadclose = false;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = false;
+            this.leadMoveJunkExec = false;
+          } else if (
+            this.activestagestatus[0].stage == 'USV' &&
+            this.activestagestatus[0].stagestatus == '3' &&
+            this.activestagestatus[0].visitstatus == '1'
+          ) {
+            this.USV = false;
+            this.RSV = true;
+            this.negotiation = true;
+            this.leadclose = true;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = false;
+            this.leadMoveJunkExec = false;
+          } else if (
+            this.activestagestatus[0].stage == 'USV' &&
+            this.activestagestatus[0].stagestatus == '3' &&
+            this.activestagestatus[0].visitstatus == '0'
+          ) {
+            this.RSV = false;
+            this.negotiation = false;
+            this.leadclose = false;
+            this.USV = true;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = false;
+            this.leadMoveJunkExec = false;
+          } else if (
+            (this.activestagestatus[0].stage == 'RSV' &&
+              this.activestagestatus[0].stagestatus == '1') ||
+            (this.activestagestatus[0].stage == 'RSV' &&
+              this.activestagestatus[0].stagestatus == '2') ||
+            (this.activestagestatus[0].stage == 'RSV' &&
+              this.activestagestatus[0].stagestatus == '4')
+          ) {
+            this.USV = false;
+            this.negotiation = false;
+            this.leadclose = false;
+            this.RSV = true;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = false;
+            this.leadMoveJunkExec = false;
+          } else if (
+            this.activestagestatus[0].stage == 'RSV' &&
+            this.activestagestatus[0].stagestatus == '3' &&
+            this.activestagestatus[0].visitstatus == '1'
+          ) {
+            this.USV = false;
+            this.RSV = true;
+            this.negotiation = true;
+            this.leadclose = true;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = false;
+            this.leadMoveJunkExec = false;
+          } else if (
+            this.activestagestatus[0].stage == 'RSV' &&
+            this.activestagestatus[0].stagestatus == '3' &&
+            this.activestagestatus[0].visitstatus == '0'
+          ) {
+            this.USV = false;
+            this.RSV = true;
+            this.negotiation = false;
+            this.leadclose = false;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = false;
+            this.leadMoveJunkExec = false;
+          } else if (
+            (this.activestagestatus[0].stage == 'Final Negotiation' &&
+              this.activestagestatus[0].stagestatus == '1') ||
+            (this.activestagestatus[0].stage == 'Final Negotiation' &&
+              this.activestagestatus[0].stagestatus == '2') ||
+            (this.activestagestatus[0].stage == 'Final Negotiation' &&
+              this.activestagestatus[0].stagestatus == '4')
+          ) {
+            this.USV = false;
+            this.RSV = false;
+            this.leadclose = false;
+            this.negotiation = true;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = false;
+            this.leadMoveJunkExec = false;
+          } else if (
+            this.activestagestatus[0].stage == 'Final Negotiation' &&
+            this.activestagestatus[0].stagestatus == '3' &&
+            this.activestagestatus[0].visitstatus == '1'
+          ) {
+            this.USV = false;
+            this.RSV = true;
+            this.leadclose = true;
+            this.negotiation = true;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = false;
+            this.leadMoveJunkExec = false;
+          } else if (
+            this.activestagestatus[0].stage == 'Final Negotiation' &&
+            this.activestagestatus[0].stagestatus == '3' &&
+            this.activestagestatus[0].visitstatus == '0'
+          ) {
+            this.USV = false;
+            this.RSV = false;
+            this.leadclose = false;
+            this.negotiation = true;
+            this.followup = true;
+            this.junk = true;
+            this.isleadcloseupdate = false;
+            this.leadMoveJunkExec = false;
+          } else if (this.activestagestatus[0].stage == 'Junk') {
+            if (this.roleid == '1') {
+              this.USV = false;
+              this.RSV = false;
+              this.negotiation = false;
+              this.leadclose = false;
+              this.followup = false;
+              this.junk = false;
+              this.leadMoveJunkExec = true;
+              this.isleadcloseupdate = false;
+            } else if (this.roleid != '1' && this.roleid != '2') {
+              if (this.feedbackID == '') {
+                this.USV = false;
+                this.RSV = false;
+                this.negotiation = false;
+                this.leadclose = false;
+                this.followup = false;
+                this.junk = false;
+                this.leadMoveJunkExec = false;
+                this.isleadcloseupdate = false;
+              } else {
+                this.USV = true;
+                this.RSV = true;
+                this.negotiation = true;
+                this.leadclose = true;
+                this.followup = true;
+                this.junk = true;
+                this.leadMoveJunkExec = true;
+                this.isleadcloseupdate = false;
+              }
+            } else {
+            }
+          } else {
+            if (
+              this.activestagestatus[0].stage == 'Fresh' &&
+              this.activestagestatus[0].followupstatus == null
+            ) {
+              this.USV = true;
+              this.RSV = false;
+              this.negotiation = false;
+              this.leadclose = false;
+              this.followup = true;
+              this.junk = true;
+              this.isleadcloseupdate = false;
+              this.leadMoveJunkExec = false;
+            }
+          }
+          if (this.activestagestatus[0].stage == 'Fresh') {
+            this.usvform = false;
+          }
+        } else if (stagestatus['status'] == 'False') {
+          this.RSV = false;
+          this.negotiation = false;
+          this.leadclose = false;
+          this.USV = true;
+          this.followup = true;
+          this.junk = true;
+          this.isleadcloseupdate = false;
+          this.leadMoveJunkExec = false;
+          this.activestagestatus = [];
+        }
+      });
+  }
+
+  getlocalitylist() {
+    this._mandateService.getlocality().subscribe((localities) => {
+      this.locality = localities['Localities'];
+    });
+  }
+
+  // LEAD CONVERSION POPUP
   confirmLeadConversionToMandate() {
     Swal.fire({
       title: 'Do you want to convert lead to Mandate.',
@@ -937,9 +1093,10 @@ export class MandateCustomerDetailsComponent implements OnInit {
       confirmButtonText: 'OK',
       cancelButtonText: 'NO',
     }).then((result) => {
+      console.log(result.isConfirmed);
       if (result.isConfirmed) {
         this.unlockleadtomandateModal.present();
-        this.mandateprojectsfetch();
+        this.mandatepropertyfetch();
       } else {
         this.router.navigate(['assigned-leads-detail'], {
           queryParams: {
@@ -951,13 +1108,63 @@ export class MandateCustomerDetailsComponent implements OnInit {
     });
   }
 
+  //fetch properties
+  mandatepropertyfetch() {
+    this._mandateService.getmandateprojects().subscribe((mandates) => {
+      if (mandates['status'] == 'True') {
+        this.projectNames = mandates['Properties'];
+        this.mandateproperties = mandates['Properties'];
+        if (this.assigntype == 'visit') {
+          const selectedPropIds = this.fixedPropertiesList.map((p) => p.propId);
+          this.mandateproperties = this.mandateproperties.map((item) => {
+            return {
+              ...item,
+              isSelected: selectedPropIds.includes(item.property_idfk),
+            };
+          });
+        } else {
+          this.mandateproperties = this.mandateproperties.map((item) => {
+            return {
+              ...item,
+              isSelected: true,
+            };
+          });
+        }
+      } else {
+      }
+    });
+  }
+
+  getExecutive() {
+    this._mandateService
+      .fetchmandateexecutives(
+        this.propid,
+        this.selectedMandateTeam,
+        this.selectedExecTeam ? this.selectedExecTeam?.code : '50002'
+      )
+      .subscribe((executives) => {
+        if (executives['status'] == 'True') {
+          this.selectedExecIds = [];
+          this.mandateExecutives = executives['mandateexecutives'];
+          this.mandateExecutives = this.mandateExecutives.filter(
+            (executive) => {
+              return !this.leadsDetailsInfo.some(
+                (rmids) => rmids.RMID == executive.id
+              );
+            }
+          );
+        }
+      });
+  }
+  //UNBLOCK THE LEAD METHOD
   unlockleadtomandate() {
     let param = {
-      leadid: this.id,
+      leadid: this.leadId,
       propid: this.selectedProperty?.property_idfk,
       execid: this.userid,
     };
     this._mandateService.unlockleadtomandate(param).subscribe((response) => {
+      console.log(response);
       if (response['status'] == 'True') {
         this.unlockleadtomandateModal.dismiss();
         location.reload();
@@ -965,697 +1172,146 @@ export class MandateCustomerDetailsComponent implements OnInit {
     });
   }
 
-  verifyrequest(leadid, propid, execid, propname) {
-    this.closepropertyname = propname;
-    var param = {
-      leadid: leadid,
-      propid: propid,
-      execid: execid,
-    };
-    this._mandateService.fetchrequestedvalues(param).subscribe((requested) => {
-      this.requestedunits = requested?.['requestedvals']?.map(
-        (request: any) => {
-          // Trim the spaces from bhk
-          request.bhk = request.bhk.trim();
-          return request;
+  //NAVIGATING TO RETAIL DETAILS PAGE
+  // onHtype(htype) {
+  //   this.router.navigate(['mandate-lead-details'], {
+  //     queryParams: {
+  //       htype: 'mandate',
+  //     },
+  //     queryParamsHandling: 'merge',
+  //   });
+  //   // if (this.isRetail) {
+  //   //   this.router.navigate(['assigned-leads-detail'], {
+  //   //     queryParams: {
+  //   //       htype: 'retail',
+  //   //       execid: !this.isAdmin ? this.userid : this.selectedExecId,
+  //   //     },
+  //   //     queryParamsHandling: 'merge',
+  //   //   });
+  //   // } else {
+  //   //   this.router.navigate(['mandate-lead-details'], {
+  //   //     queryParams: {
+  //   //       htype: 'mandate',
+  //   //     },
+  //   //     queryParamsHandling: 'merge',
+  //   //   });
+  //   // }
+  // }
+
+  openEndMenu() {
+    this.menuCtrl.open('end');
+  }
+
+  onBackbutton() {
+    let elementId = '';
+    if (this.stageForm) {
+      elementId = 'statusSection';
+    } else if (this.isEditFixedPlan) {
+      elementId = 'fixedPlanSection';
+    } else if (this.isActivityHistory) {
+      elementId = 'activitySection';
+    }
+
+    setTimeout(() => {
+      if (
+        elementId &&
+        this.stageForm == '' &&
+        !this.isEditFixedPlan &&
+        !this.isActivityHistory
+      ) {
+        const selectedElement = document.getElementById(elementId);
+        if (selectedElement) {
+          this.scrollContent.scrollToPoint(0, selectedElement.offsetTop, 500);
+        } else {
+          console.warn('Element not found:', elementId);
         }
-      );
-    });
-  }
-
-  tabclick(i, suggested) {
-    this.isSuggestedPropBoolean = false;
-    // $('.actionss').addClass('actionbtnss');
-    // $('.selectMarks').addClass('iconmarks');
-    // $('.actionbtnss').removeClass('actionss');
-    // $('.iconmarks').removeClass('selectMarks');
-    // $('.actionss' + i).removeClass('actionbtnss');
-    // $('.actionss' + i).addClass('actionss');
-    // $('.selectMarks' + i).removeClass('iconmarks');
-    // $('.selectMarks' + i).addClass('selectMarks');
-    // this.selectedSuggestedProp = suggested;
-    if (suggested?.propid == '28773') {
-      this._mandateService.setHoverState('ranav_group');
-    } else {
-      this._mandateService.setHoverState('');
-    }
-    this.followform = false;
-    this.usvform = false;
-    this.rsvform = false;
-    this.finalnegoform = false;
-    this.leadclosedform = false;
-    this.junkform = false;
-    // $('.radiocheck').prop('checked', false);
-    this.getstages();
-    this.getFixedMandateProperties();
-  }
-
-  addquerryParam(suggested) {
-    this.router.navigate([], {
-      queryParams: {
-        propid: suggested.propid,
-      },
-      queryParamsHandling: 'merge',
-    });
-  }
-  activestagestatus: any;
-  currentstage: any;
-  currentstagestatus: any;
-  followform = false;
-  followupform = false;
-  followupformbtn = false;
-  f2fform = false;
-  usvform = false;
-  svform = false;
-  rsvform = false;
-  finalnegoform = false;
-  leadclosedform = false;
-  junkform = false;
-  commonformbtn = false;
-  junkformbtn = false;
-  followup = true;
-  USV = true;
-  RSV = true;
-  SV = true;
-  Negotiation = true;
-  leadclose = true;
-  junkmove = true;
-  leadMoveJunkExec: boolean = true;
-
-  actionChange(val) {
-    $('#sectionselector').val('');
-    if (val == 'Follow Up') {
-      this.followform = true;
-      this.followupform = true;
-      this.followupformbtn = true;
-      this.f2fform = false;
-      this.usvform = false;
-      this.svform = false;
-      this.rsvform = false;
-      this.finalnegoform = false;
-      this.leadclosedform = false;
-      this.junkform = false;
-      this.junkformbtn = false;
-      this.commonformbtn = false;
-      $('#customer_phase4').val('Follow Up');
-      $('#sectionselector').val('Follow Up');
-    } else if (val == 'USV') {
-      this.followform = false;
-      this.followupform = false;
-      this.followupformbtn = false;
-      this.usvform = true;
-      this.f2fform = false;
-      this.svform = false;
-      this.rsvform = false;
-      this.finalnegoform = false;
-      this.leadclosedform = false;
-      this.junkform = false;
-      this.junkformbtn = false;
-      $('#customer_phase4').val('USV');
-      $('#sectionselector').val('USV');
-    } else if (val == 'RSV') {
-      this.followform = false;
-      this.followupform = false;
-      this.followupformbtn = false;
-      this.rsvform = true;
-      this.svform = false;
-      this.usvform = false;
-      this.f2fform = false;
-      this.finalnegoform = false;
-      this.leadclosedform = false;
-      this.junkform = false;
-      this.junkformbtn = false;
-      $('#customer_phase4').val('RSV');
-      $('#sectionselector').val('RSV');
-    } else if (val == 'Final Negotiation') {
-      this.followform = false;
-      this.followupform = false;
-      this.followupformbtn = false;
-      this.finalnegoform = true;
-      this.rsvform = false;
-      this.svform = false;
-      this.usvform = false;
-      this.f2fform = false;
-      this.leadclosedform = false;
-      this.junkform = false;
-      this.junkformbtn = false;
-      $('#customer_phase4').val('Final Negotiation');
-      $('#sectionselector').val('Final Negotiation');
-    } else if (val == 'Lead Closed') {
-      this.leadclosedform = true;
-      this.followform = false;
-      this.followupform = false;
-      this.followupformbtn = false;
-      this.finalnegoform = false;
-      this.rsvform = false;
-      this.svform = false;
-      this.usvform = false;
-      this.f2fform = false;
-      this.junkform = false;
-      this.junkformbtn = false;
-      $('#customer_phase4').val('Lead Closed');
-      $('#sectionselector').val('Lead Closed');
-    } else if (val == 'Move to Junk') {
-      this.junkform = true;
-      this.junkformbtn = true;
-      this.f2fform = false;
-      this.followform = false;
-      this.followupform = false;
-      this.followupformbtn = false;
-      this.rsvform = false;
-      this.svform = false;
-      this.usvform = false;
-      this.f2fform = false;
-      this.finalnegoform = false;
-      this.commonformbtn = false;
-      this.leadclosedform = false;
-      $('#customer_phase4').val('Move to Junk');
-      $('#sectionselector').val('Move to Junk');
-    } else {
-      this.followupform = false;
-      this.junkform = false;
-      this.commonformbtn = true;
-      this.followupformbtn = false;
-      this.junkformbtn = false;
-    }
-
-    console.log(this.selectedSuggestedProp);
-  }
-
-  isShowStages;
-  callCounts: number = 2;
-
-  getstages() {
-    this.showSpinner = true;
-    this.showRejectionForm = false;
-    var userid = localStorage.getItem('UserId');
-
-    this.USV = false;
-    this.followup = true;
-    this.junkmove = true;
-    this.SV = false;
-    this.RSV = false;
-    this.Negotiation = false;
-    this.leadclose = false;
-
-    this._mandateService
-      .getactiveleadsstatus(
-        this.id,
-        userid,
-        this.selectedExecId,
-        this.propid,
-        this.feedbackId
-      )
-      .subscribe((stagestatus) => {
-        this.showSpinner = false;
-        if (stagestatus['status'] == 'True') {
-          this.activestagestatus = stagestatus['activeleadsstatus'];
-
-          console.log(this.activestagestatus, '  this.activestagestatus');
-          this.currentstage = this.activestagestatus[0].stage;
-          if (
-            (this.activestagestatus[0].stagestatus == '1' &&
-              this.activestagestatus[0].followupstatus == '0') ||
-            (this.activestagestatus[0].stagestatus == '1' &&
-              this.activestagestatus[0].followupstatus == null)
-          ) {
-            this.currentstagestatus = 'Fixed';
-          } else if (
-            (this.activestagestatus[0].stagestatus == '2' &&
-              this.activestagestatus[0].followupstatus == '0') ||
-            (this.activestagestatus[0].stagestatus == '2' &&
-              this.activestagestatus[0].followupstatus == null)
-          ) {
-            this.currentstagestatus = 'Refixed';
-          } else if (
-            (this.activestagestatus[0].stagestatus == '3' &&
-              this.activestagestatus[0].followupstatus == '0') ||
-            (this.activestagestatus[0].stagestatus == '3' &&
-              this.activestagestatus[0].followupstatus == null)
-          ) {
-            this.currentstagestatus = 'Done';
-          } else if (
-            this.activestagestatus[0].stagestatus == '1' &&
-            this.activestagestatus[0].followupstatus == '4'
-          ) {
-            this.currentstagestatus = 'Fixed - Followup';
-          } else if (
-            this.activestagestatus[0].stagestatus == '2' &&
-            this.activestagestatus[0].followupstatus == '4'
-          ) {
-            this.currentstagestatus = 'Refixed - Followup';
-          } else if (
-            this.activestagestatus[0].stagestatus == '3' &&
-            this.activestagestatus[0].followupstatus == '4'
-          ) {
-            this.currentstagestatus = 'Done - Followup';
-          }
-
-          if (
-            this.activestagestatus[0].stage == 'Closing Request Rejected' ||
-            this.activestagestatus[0].stage == 'Lead Closed'
-          ) {
-            this.isShowStages = false;
-          } else {
-            this.isShowStages = true;
-          }
-
-          if (
-            this.activestagestatus[0].stage == 'Lead Closed' ||
-            this.activestagestatus[0].stage == 'Move to Junk'
-          ) {
-            this.USV = false;
-            if (this.execview) {
-              this.showRejectionForm = true;
-            }
-          } else if (this.activestagestatus[0].stage == 'Deal Closed') {
-            if (
-              this.roleid != '50014' &&
-              this.roleid != '50013' &&
-              this.assignedrm &&
-              this.assignedrm[0].roleid != 50013 &&
-              this.assignedrm[0].roleid != 50014
-            ) {
-              this.showRejectionForm = true;
-              this.verifyrequest(
-                this.id,
-                this.selectedSuggestedProp['propid'],
-                this.selectedExecId,
-                this.selectedSuggestedProp['name']
-              );
-            } else {
-              this.USV = false;
-              this.followup = true;
-              this.RSV = false;
-              this.Negotiation = false;
-              this.leadclose = false;
-              this.junkmove = true;
-            }
-          } else if (
-            this.activestagestatus[0].stage == 'Deal Closing Pending'
-          ) {
-            if (
-              this.roleid != '50014' &&
-              this.roleid != '50013' &&
-              this.assignedrm &&
-              this.assignedrm[0].roleid != 50013 &&
-              this.assignedrm[0].roleid != 50014
-            ) {
-              // this.showRejectionForm = true;
-              // this.verifyrequest(this.id, this.selectedSuggestedProp.propid, this.selectedExecId, this.selectedSuggestedProp.name);
-              this.USV = false;
-              this.followup = true;
-              this.RSV = false;
-              this.Negotiation = false;
-              this.leadclose = true;
-              this.junkmove = true;
-            } else {
-              this.USV = false;
-              this.followup = true;
-              this.RSV = false;
-              this.Negotiation = false;
-              this.leadclose = false;
-              this.junkmove = true;
-            }
-          } else if (
-            this.activestagestatus[0].stage == 'Deal Closing Requested' &&
-            (this.activestagestatus[0].followupstatus == '0 ' ||
-              this.activestagestatus[0].followupstatus == null ||
-              this.activestagestatus[0].followupstatus == '4')
-          ) {
-            this.RSV = false;
-            this.Negotiation = false;
-            this.USV = false;
-            if (this.userid == '1') {
-              this.showRejectionForm = true;
-              this.verifyrequest(
-                this.id,
-                this.selectedSuggestedProp?.['propid'],
-                this.selectedExecId,
-                this.selectedSuggestedProp?.['name']
-              );
-            } else {
-              this.showRejectionForm = true;
-              this.verifyrequest(
-                this.id,
-                this.selectedSuggestedProp?.['propid'],
-                this.selectedExecId,
-                this.selectedSuggestedProp?.['name']
-              );
-            }
-          } else if (
-            this.activestagestatus[0].stage == 'Closing Request Rejected' &&
-            (this.activestagestatus[0].followupstatus == '0 ' ||
-              this.activestagestatus[0].followupstatus == null ||
-              this.activestagestatus[0].followupstatus == '4')
-          ) {
-            this.RSV = false;
-            this.Negotiation = false;
-            this.USV = false;
-            if (this.userid == '1') {
-              this.showRejectionForm = true;
-              this.verifyrequest(
-                this.id,
-                this.selectedSuggestedProp?.['propid'],
-                this.selectedExecId,
-                this.selectedSuggestedProp?.['name']
-              );
-            } else {
-              this.showRejectionForm = true;
-              this.verifyrequest(
-                this.id,
-                this.selectedSuggestedProp?.['propid'],
-                this.selectedExecId,
-                this.selectedSuggestedProp?.['name']
-              );
-            }
-          } else if (
-            this.activestagestatus[0].stage == 'Fresh' &&
-            this.activestagestatus[0].followupstatus == '4'
-          ) {
-            this.USV = true;
-            this.followup = true;
-            this.junkmove = true;
-            this.SV = false;
-            this.RSV = false;
-            this.Negotiation = false;
-            this.leadclose = false;
-          } else if (
-            (this.activestagestatus[0].stage == 'USV' &&
-              this.activestagestatus[0].stagestatus == '1') ||
-            (this.activestagestatus[0].stage == 'USV' &&
-              this.activestagestatus[0].stagestatus == '2') ||
-            (this.activestagestatus[0].stage == 'USV' &&
-              this.activestagestatus[0].stagestatus == '4') ||
-            (this.activestagestatus[0].stage == 'USV' &&
-              this.activestagestatus[0].stagestatus == null &&
-              this.activestagestatus[0].visitstatus == '0')
-          ) {
-            this.followup = true;
-            this.USV = true;
-            this.SV = false;
-            this.RSV = false;
-            this.Negotiation = false;
-            this.leadclose = false;
-            this.junkmove = true;
-          } else if (
-            this.activestagestatus[0].stage == 'USV' &&
-            this.activestagestatus[0].stagestatus == '3' &&
-            this.activestagestatus[0].visitstatus == '1'
-          ) {
-            this.USV = false;
-            this.followup = true;
-            this.RSV = true;
-            this.Negotiation = true;
-            this.leadclose = true;
-            this.junkmove = true;
-          } else if (
-            this.activestagestatus[0].stage == 'USV' &&
-            this.activestagestatus[0].stagestatus == '3' &&
-            this.activestagestatus[0].visitstatus == '0'
-          ) {
-            this.followup = true;
-            this.SV = false;
-            this.RSV = false;
-            this.Negotiation = false;
-            this.leadclose = false;
-            this.junkmove = true;
-            this.USV = true;
-            this.usvform = true;
-            // Loading this API again only for fetching the walkin date & time and write to the html view hidden visited date and time input boxes after the usvform in true condition
-            this._mandateService
-              .getassignedrm(
-                this.id,
-                this.userid,
-                this.leadAssign,
-                this.feedbackId,
-                localStorage.getItem('RoleType') == '1'
-                  ? localStorage.getItem('UserId')
-                  : ''
-              )
-              .subscribe((cust) => {
-                // Adding First Visit date time to USV Submission Section
-                var date = cust[0]?.walkintime.split(' ')[0];
-                var time = cust[0]?.walkintime.split(' ').pop();
-                $('#USVvisiteddate').val(date);
-                $('#USVvisitedtime').val(time);
-                // Adding First Visit date time to USV Submission Section
-              });
-            // Loading this API again only for fetching the walkin date & time and write to the html view hidden visited date and time input boxes after the usvform in true condition
-          } else if (
-            (this.activestagestatus[0].stage == 'RSV' &&
-              this.activestagestatus[0].stagestatus == '1') ||
-            (this.activestagestatus[0].stage == 'RSV' &&
-              this.activestagestatus[0].stagestatus == '2') ||
-            (this.activestagestatus[0].stage == 'RSV' &&
-              this.activestagestatus[0].stagestatus == '4') ||
-            (this.activestagestatus[0].stage == 'RSV' &&
-              this.activestagestatus[0].stagestatus == null &&
-              this.activestagestatus[0].visitstatus == '0')
-          ) {
-            this.USV = false;
-            this.SV = false;
-            this.Negotiation = false;
-            this.leadclose = false;
-            this.RSV = true;
-            this.junkmove = true;
-            this.followup = true;
-          } else if (
-            this.activestagestatus[0].stage == 'RSV' &&
-            this.activestagestatus[0].stagestatus == '3' &&
-            this.activestagestatus[0].visitstatus == '1'
-          ) {
-            this.USV = false;
-            this.RSV = true;
-            this.Negotiation = true;
-            this.leadclose = true;
-            this.followup = true;
-            this.junkmove = true;
-          } else if (
-            this.activestagestatus[0].stage == 'RSV' &&
-            this.activestagestatus[0].stagestatus == '3' &&
-            this.activestagestatus[0].visitstatus == '0'
-          ) {
-            this.followup = true;
-            this.SV = false;
-            this.USV = false;
-            this.RSV = true;
-            this.Negotiation = false;
-            this.leadclose = false;
-            this.junkmove = true;
-            this.usvform = false;
-            this.rsvform = true;
-          } else if (
-            (this.activestagestatus[0].stage == 'Final Negotiation' &&
-              this.activestagestatus[0].stagestatus == '1') ||
-            (this.activestagestatus[0].stage == 'Final Negotiation' &&
-              this.activestagestatus[0].stagestatus == '2') ||
-            (this.activestagestatus[0].stage == 'Final Negotiation' &&
-              this.activestagestatus[0].stagestatus == '4') ||
-            (this.activestagestatus[0].stage == 'Final Negotiation' &&
-              this.activestagestatus[0].stagestatus == null &&
-              this.activestagestatus[0].visitstatus == '0')
-          ) {
-            this.USV = false;
-            this.SV = false;
-            this.RSV = false;
-            this.leadclose = false;
-            // this.finalnegoform = true;
-            this.Negotiation = true;
-            this.followup = true;
-            this.junkmove = true;
-          } else if (
-            this.activestagestatus[0].stage == 'Final Negotiation' &&
-            this.activestagestatus[0].stagestatus == '3' &&
-            this.activestagestatus[0].visitstatus == '1'
-          ) {
-            this.USV = false;
-            this.RSV = true;
-            this.leadclose = true;
-            this.Negotiation = true;
-            this.followup = true;
-            this.junkmove = true;
-          } else if (
-            this.activestagestatus[0].stage == 'Final Negotiation' &&
-            this.activestagestatus[0].stagestatus == '3' &&
-            this.activestagestatus[0].visitstatus == '0'
-          ) {
-            this.followup = false;
-            this.SV = false;
-            this.USV = false;
-            this.RSV = false;
-            this.leadclose = false;
-            this.junkmove = false;
-            this.usvform = false;
-            this.finalnegoform = true;
-            this.Negotiation = true;
-          } else if (this.activestagestatus[0].stage == 'Junk') {
-            if (this.roleid == 1) {
-              this.USV = false;
-              this.RSV = false;
-              this.Negotiation = false;
-              this.leadclose = false;
-              this.followup = false;
-              this.junkmove = false;
-              this.leadMoveJunkExec = true;
-            } else if (this.roleid != '1' && this.roleid != '2') {
-              if (this.feedbackId == '') {
-                this.followup = false;
-                this.junkmove = false;
-                this.USV = false;
-                this.RSV = false;
-                this.Negotiation = false;
-                this.leadclose = false;
-                this.leadMoveJunkExec = false;
-              } else {
-                this.followup = true;
-                this.junkmove = true;
-                this.USV = true;
-                this.RSV = true;
-                this.Negotiation = true;
-                this.leadclose = true;
-                this.leadMoveJunkExec = true;
-              }
-            }
-          } else {
-            if (
-              this.activestagestatus[0].stage == 'Fresh' &&
-              this.activestagestatus[0].followupstatus == null
-            ) {
-              this.showRejectionForm = false;
-              this.followup = true;
-              this.USV = true;
-              this.SV = false;
-              this.RSV = false;
-              this.Negotiation = false;
-              this.leadclose = false;
-              this.junkmove = true;
-            }
-          }
-          if (this.activestagestatus[0].stage == 'Fresh') {
-            this.usvform = false;
-          }
-        } else if (stagestatus['status'] == 'False') {
-          this.currentstage = 'Fresh';
-          this.SV = false;
-          this.RSV = false;
-          this.Negotiation = false;
-          this.leadclose = false;
-        }
-      });
-  }
-
-  //here the we can revert the lead that is pushed to junk
-  revertStage() {
-    Swal.fire({
-      title: `Do you want to Revert the lead for ${this.assignedrm[0].customer_assign_name}`,
-      icon: 'question',
-      heightAuto: false,
-      showConfirmButton: true,
-      showCancelButton: true,
-      confirmButtonText: 'Yes',
-      cancelButtonText: 'No',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        let param = {
-          leadid: this.id,
-          propid: this.selectedSuggestedProp?.['propid'],
-          executid: this.selectedExecId,
-        };
-        this._mandateService
-          .revertBackToPreStage(param)
-          .subscribe((resposne) => {
-            if (resposne['status'] == 'True') {
-              this.getstages();
-              location.reload();
-            }
-          });
-      }
-    });
-  }
-
-  //to get activity of leads
-  triggerhistory() {
-    this.roleid = localStorage.getItem('Role');
-    this.userid = localStorage.getItem('UserId');
-
-    let execId;
-    if (this.isCallHistory == 'executive') {
-      execId = this.selectedExecId;
-    } else {
-      execId = '';
-    }
-
-    var param2 = {
-      leadid: this.id,
-      roleid: this.roleid,
-      userid: this.userid,
-      execid: execId,
-      feedbackid: this.feedbackId,
-    };
-    this._mandateService.gethistory(param2).subscribe((history) => {
-      this.showSpinner = false;
-      if (history['status'] == 'True') {
-        // this.leadtrack = history['Leadhistory'];
-
-        const uniquehistory = history['Leadhistory'].filter((val, i, self) => {
-          return (
-            i ==
-            self.findIndex((t) => {
-              return (
-                t.autoremarks == val.autoremarks && t.Saveddate == val.Saveddate
-              );
-            })
-          );
-        });
-        this.leadtrack = uniquehistory;
       } else {
-        this.leadtrack = [];
+        this.scrollContent.scrollToTop();
+      }
+    }, 300);
+
+    if (
+      this.stageForm ||
+      this.isEditFixedPlan ||
+      this.isActivityHistory ||
+      this.isEditProDetails
+    ) {
+      if (this.stageForm) {
+        this.stageForm = '';
+      } else if (this.isEditFixedPlan) {
+        this.isEditFixedPlan = false;
+      } else if (this.isActivityHistory) {
+        this.isActivityHistory = false;
+      } else if (this.isEditProDetails) {
+        this.isEditProDetails = false;
+      }
+
+      this.router.navigate([], {
+        queryParams: {
+          stageForm: null,
+          isEditFixedPlan: null,
+          isActivityHistory: null,
+          isCallHistory: null,
+          isEditProDetails: null,
+          execid:
+            this.isAdmin && this.selectedExecId == ''
+              ? this.leadsDetailsInfo[0].RMID
+              : this.selectedExecId,
+        },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    } else {
+      this._location.back();
+    }
+  }
+  canScroll;
+  //Scroll event handler
+  onScroll(event: CustomEvent) {
+    // const scrollTop = event.detail.scrollTop;
+
+    // this.scrollContent.getScrollElement().then((scrollEl) => {
+    //   const scrollHeight = scrollEl.scrollHeight;
+    //   const clientHeight = scrollEl.offsetHeight;
+
+    //   const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
+    //   this.isAtBottom = isNearBottom;
+    // });
+
+    this._sharedservice.scrollTop = event.detail.scrollTop;
+    const scrollTop = event.detail.scrollTop;
+    this.scrollContent.getScrollElement().then((scrollEl) => {
+      const scrollTop = scrollEl.scrollTop;
+      const scrollHeight = scrollEl.scrollHeight;
+      const clientHeight = scrollEl.offsetHeight;
+
+      this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
+
+      if (!this.canScroll) {
+        this._sharedservice.isBottom = false;
+      } else {
+        this._sharedservice.isBottom =
+          scrollTop + clientHeight >= scrollHeight - 100;
       }
     });
   }
 
-  @ViewChild('editLeadInfoModal') editLeadInfoModal: IonModal;
-  getName;
-  getMail;
-  onEditProfile(id) {
-    this.getName = this.show_cnt.enquiry_name
-      ? this.show_cnt.enquiry_name
-      : this.show_cnt.customer_name;
-    this.getMail = this.show_cnt.enquiry_mail
-      ? this.show_cnt.enquiry_mail
-      : this.show_cnt.customer_mail;
-    // if(this.show_cnt.enquiry_name){
-
-    //   $('#customer_name').val(this.show_cnt.enquiry_name);
-    // }else{
-    //   // ? this.show_cnt.enquiry_name : this.show_cnt.customer_name
-    //   $('#customer_name').val(this.show_cnt.customer_name);
-    // }
-    // $('#customer_mail').val(this.show_cnt.enquiry_mail? this.show_cnt.enquiry_mail:this.show_cnt.customer_mail);
-    this.editLeadInfoModal.present();
-
-    // this._mandateService.getcustomeredit(id).subscribe(test => {
-    //   this.modela = test[0];
-    //   this.editmodela = test[0];
-    //   this.localityid = this.editmodela['localityid'];
-    //   if (this.editmodela['customer_phase'] == null) {
-    //     this.editmodela['customer_phase'] = 'Fresh lead';
-    //   } else {
-    //   }
-
-    //   $('#proptypeselect').val(this.show_cnt['enquiry_proptype']);
-    //   $('#sizeselect').val(this.show_cnt['enquiry_bhksize']);
-    //   $('#budgetselect').val(this.show_cnt['enquiry_budget']);
-    //   $('#possessionselect').val(this.show_cnt['enquiry_possession']);
-    //   $('#priorityselect').val(this.show_cnt['lead_priority']);
-    //   $('#customer_location').val(this.show_cnt['localityid']);
-    //   $('#customer_address').val(this.show_cnt['address']);
-    // })
-  }
-
-  onBack() {
-    this._location.back();
+  //CALLED WHEN WE CLICK ON WHATS APP, CALL AND MAIL ICONS
+  onContactIconClick(type: 'email' | 'call' | 'whatsapp', contact): void {
+    if (type === 'email') {
+      window.open(`mailto:${contact}`, '_system');
+    } else if (type === 'call') {
+      // window.open(`tel:${contact}`, '_system');
+      Swal.fire({
+        title: 'Lead in Junk',
+        text: 'This lead is currently marked as Junk. Please revert the lead first to make a call.',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+        heightAuto: false,
+      });
+    } else if (type === 'whatsapp') {
+      window.open(`https://wa.me/+91 ${contact}`, '_system');
+    }
   }
 
   alternateNumbercheck(event) {
@@ -1667,6 +1323,17 @@ export class MandateCustomerDetailsComponent implements OnInit {
         .attr('placeholder', 'Please enter different contact number')
         .val('');
     }
+  }
+
+  async onEditPropDetails() {
+    this.isEditProDetails = true;
+    this.router.navigate([], {
+      queryParams: {
+        isEditProDetails: true,
+      },
+      queryParamsHandling: 'merge',
+    });
+    await this.popoverController.dismiss();
   }
 
   updateProfile() {
@@ -1695,7 +1362,6 @@ export class MandateCustomerDetailsComponent implements OnInit {
     if ($('#customer_mail').val() != '') {
       let enameFilter =
         /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-
       if (enameFilter.test(String($('#customer_mail').val()))) {
         $('#customer_mail').removeAttr('style');
       } else {
@@ -1712,7 +1378,6 @@ export class MandateCustomerDetailsComponent implements OnInit {
     if ($('#enquiry_mail').val() != '') {
       let enameFilter =
         /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-
       if (enameFilter.test(String($('#enquiry_mail').val()))) {
         $('#enquiry_mail').removeAttr('style');
       } else {
@@ -1768,27 +1433,10 @@ export class MandateCustomerDetailsComponent implements OnInit {
       property: propertyselect,
       priority: this.show_cnt.lead_priority,
       address: this.show_cnt.address,
-      leadid: this.id,
+      leadid: this.leadId,
       possession: this.show_cnt.enquiry_possession,
     };
 
-    // var param = {
-    //   primaryname: $('#customer_name').val(),
-    //   primarynumber:$('#customer_number').val(),
-    //   primarymail:  $('#customer_mail').val(),
-    //   name: $('#enquiry_name').val(),
-    //   number:$('#enquiry_number').val(),
-    //   mail:  $('#enquiry_mail').val(),
-    //   budget: this.show_cnt.enquiry_budget,
-    //   location: this.show_cnt.localityid,
-    //   proptype: this.show_cnt.enquiry_proptype,
-    //   size: this.show_cnt.enquiry_bhksize,
-    //   property: propertyselect,
-    //   priority:this.show_cnt.lead_priority,
-    //   address: this.show_cnt.address,
-    //   leadid: this.id,
-    //   possession: this.show_cnt.enquiry_possession
-    // }
     if (localStorage.getItem('Name') == 'demo') {
       Swal.fire({
         title: 'Updating lead details is restricted for demo accounts',
@@ -1808,8 +1456,8 @@ export class MandateCustomerDetailsComponent implements OnInit {
               heightAuto: false,
               confirmButtonText: 'OK!',
             }).then((result) => {
-              this.editLeadInfoModal.dismiss();
-              location.reload();
+              this.scrollContent.scrollToTop(500);
+              this.onBackbutton();
             });
           }
         },
@@ -1820,212 +1468,1085 @@ export class MandateCustomerDetailsComponent implements OnInit {
     }
     return true;
   }
-  activeTabIndex = 0;
-  getexecutiveId(exec) {
+
+  toViewMergedLeads() {
+    this.viewToMergedLeads.present();
+  }
+
+  mergeLeadDetails = [];
+  onMergeIcon() {
+    this.mergeLeadDetails = [];
+    const obj = {
+      id: this.assignedrm[0].customer_IDPK,
+      name: this.assignedrm[0].customer_name,
+    };
+
+    this.mergeLeadDetails.push(obj);
+
+    console.log(this.mergeLeadDetails);
+    this.mergeModal.present();
+  }
+
+  leadSearchTerm;
+  filteredLeads = [];
+  filteredLead = [];
+  isActiveMerge = false;
+  searchSubject = new Subject<string>();
+  selectedRelation;
+  relationShips = [
+    { name: 'Father', code: 'Father' },
+    { name: 'Mother', code: 'Mother' },
+    { name: 'Sister', code: 'Sister' },
+    { name: 'Brother', code: 'Brother' },
+    { name: 'Husband', code: 'Husband' },
+    { name: 'Wife', code: 'Wife' },
+    { name: 'Friend', code: 'Friend' },
+    { name: 'Others', code: 'Others' },
+  ];
+  onCloseMergeModal() {
+    this.filteredLead = [];
+    this.filteredLeads = [];
+    this.leadSearchTerm = '';
+    this.isActiveMerge = false;
+    this.mergeModal.dismiss();
+  }
+
+  searchClient(event): void {
     this.showSpinner = true;
-    this.selectedExecId = exec.RMID;
-    this.activeTabIndex = this.leadsDetailsInfo.indexOf(exec);
-    this.followform = false;
-    this.usvform = false;
-    this.rsvform = false;
-
-    // this.followup = false;
-    // this.USV = false;
-    // this.RSV = false;
-    // this.Negotiation = false;
-    // this.leadclose = false;
-    // this.junkmove = false;
-
-    this.finalnegoform = false;
-    this.leadclosedform = false;
-    this.junkform = false;
-    this.assignedrm = this.leadsDetailsInfo.filter((exec) => {
-      return exec.RMID == this.selectedExecId;
-    });
-    if (this.assignedrm[0].suggestedprop?.length > 1) {
-      this.isSuggestedPropBoolean = true;
-    }
-    setTimeout(() => {
+    const query = event.target.value;
+    if (query.length >= 5) {
+      this.searchSubject.next(query);
+    } else {
+      this.filteredLeads = [];
       this.showSpinner = false;
-      this.verifyrequest(
-        this.assignedrm[0].customer_IDPK,
-        this.assignedrm[0]?.suggestedprop?.[0]?.propid,
-        exec.RMID,
-        this.assignedrm[0].suggestedprop?.[0]?.name
-      );
-      this.getstages();
-      // this.tabclick(0, this.assignedrm[0].suggestedprop?.[0]);
-    }, 1000);
-    $('.radiocheck').prop('checked', false);
+    }
+  }
 
-    //   this.router.navigate([],{
-    //   queryParams:{
-    //     execid:exec.RMID
-    //   },
-    //   queryParamsHandling: 'merge'
-    // })
+  onFilteredLead(lead) {
+    this.filteredLead = [];
+    this.filteredLead.push(lead);
+    this.isActiveMerge = true;
+    this.leadSearchTerm = '';
+    this.filteredLeads = [];
 
-    setTimeout(() => {
-      this.isAccompanyBy = false;
-      if (
-        this.userid != this.selectedExecId &&
-        this.roleid != 1 &&
-        this.roleid != 2 &&
-        ((this.role_type == '1' &&
-          (exec.roleid == 50003 || exec.roleid == 50004)) ||
-          this.role_type != '1') &&
-        this.feedbackId != '1'
-      ) {
-        $('.updateActivities').removeClass('active');
-        $('.allActivities').removeClass('active');
-        this.getstages();
-        // setTimeout(()=>{
-        //   console.log('tabclicked')
-        //   const tab = document.getElementById('allActivitiesTab');
-        //   if (tab) {
-        //     tab.click();
-        //   }
-        // },100)
-      } else if (
-        this.userid == this.selectedExecId &&
-        this.roleid != 1 &&
-        this.roleid != 2 &&
-        ((this.role_type == '1' &&
-          exec.roleid != 50003 &&
-          exec.roleid != 50004) ||
-          this.role_type != '1') &&
-        this.feedbackId != '1'
-      ) {
-        if (
-          this.assignedrm &&
-          this.assignedrm[0].visitaccompaniedid &&
-          this.assignedrm[0].visitaccompaniedid != this.assignedrm[0].RMID
-        ) {
-          this.isAccompanyBy = true;
+    const obj = {
+      id: this.filteredLead[0].customer_IDPK,
+      name: this.filteredLead[0].customer_name,
+    };
+
+    this.mergeLeadDetails.push(obj);
+    console.log(this.mergeLeadDetails);
+  }
+
+  onMergeLead() {
+    if (
+      this.selectedRelation == '' ||
+      this.selectedRelation == undefined ||
+      this.selectedRelation == null
+    ) {
+      Swal.fire({
+        title: 'Relation',
+        text: 'Please select the Relationship',
+        timer: 2000,
+        heightAuto: false,
+        showConfirmButton: false,
+        icon: 'error',
+      });
+      $('#relationship_dropdown')
+        .focus()
+        .css('border-color', 'red')
+        .attr('placeholder', 'Please Select the Relation');
+      return false;
+    }
+
+    let param = {
+      leadId: this.leadId,
+      mergeLeadId: this.filteredLead[0].customer_IDPK,
+      relation: this.selectedRelation.name,
+      LeadP: this.selectedLeadP.id,
+    };
+
+    this._sharedservice.postMergeLeads(param).subscribe((resp) => {
+      Swal.fire({
+        title: 'Merge Lead',
+        text: 'The Lead has been successfully Merged',
+        showConfirmButton: false,
+        timer: 2000,
+        heightAuto: false,
+        icon: 'success',
+      }).then(() => {
+        location.reload();
+      });
+    });
+    return true;
+  }
+
+  fetchData(query: string) {
+    let searchedData;
+    if (/^[\d\s+]+$/.test(query)) {
+      searchedData = query.replace(/\s+/g, '');
+      searchedData = searchedData.slice(-10);
+    } else {
+      searchedData = query;
+    }
+    this._sharedservice.searchLeads(searchedData, '', '', '').subscribe({
+      next: (response) => {
+        if (response['status'] == 'True') {
+          this.filteredLeads = response['Searchlist'];
+          this.showSpinner = false;
         } else {
-          this.getstages();
-          //  $(".allActivities").removeClass("active");
-          //  const tab = document.getElementById('updateActivitiesTab');
-          //  if (tab) {
-          //    tab.click();
-          //  }
+          this.filteredLeads = [];
+          this.showSpinner = false;
         }
-      } else if (
-        this.userid != this.selectedExecId &&
-        this.roleid != 1 &&
-        this.roleid != 2 &&
-        ((this.role_type == '1' &&
-          exec.roleid != 50003 &&
-          exec.roleid != 50004) ||
-          this.role_type != '1') &&
-        this.feedbackId != '1'
-      ) {
-        if (
-          (this.assignedrm &&
-            this.assignedrm[0].visitaccompaniedid &&
-            this.assignedrm[0].visitaccompaniedid != this.assignedrm[0].RMID) ||
-          this.role_type == '1'
-        ) {
-          this.isAccompanyBy = true;
-        } else {
-          this.getstages();
-          // $(".allActivities").removeClass("active");
-          // const tab = document.getElementById('updateActivitiesTab');
-          // if (tab) {
-          //   tab.click();
-          // }
-        }
-      }
-    }, 1000);
+      },
+      error: (error) => {
+        this.filteredLeads = [];
+        this.showSpinner = false;
+      },
+    });
+  }
 
-    if (this.userid != exec.RMID && !this.isAdmin && this.role_type != '1') {
+  getexecutiveId(exec) {
+    console.log(exec);
+    console.log(exec.roleid == '50004');
+    if (exec.RMID != this.userid && !this.isAdmin && this.role_type != '1') {
       this.router.navigate([], {
         queryParams: {
           execid: exec.RMID,
-          statusSection: 'activity',
-          status: 'activity',
+          propid: exec.suggestedprop[0].propid,
+          isActivityHistory: true,
+          stageForm: null,
           isCallHistory: 'leads',
-          propid: this.assignedrm[0]?.suggestedprop?.[0]?.propid
-            ? this.assignedrm[0]?.suggestedprop?.[0]?.propid
-            : this.assignedrm[0].propid,
+          isEditFixedPlan: null,
         },
         queryParamsHandling: 'merge',
+        replaceUrl: true,
       });
     } else {
+      if (this.stageForm) {
+        this.router.navigate([], {
+          queryParams: {
+            execid: exec.RMID,
+            propid: exec.suggestedprop[0].propid,
+            stageForm: 'onleadStatus',
+          },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        });
+      } else {
+        this.router.navigate([], {
+          queryParams: {
+            execid: exec.RMID ? exec.RMID : null,
+            propid: exec.suggestedprop?.[0]?.propid,
+          },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        });
+      }
+    }
+  }
+
+  displayAssignLeadModal(type) {
+    this.assignteam = type;
+    if (type == 'mandate') {
+      this.mandatepropertyfetch();
+    }
+    this.retailReassignModal.present();
+  }
+
+  modeldismis_reset() {
+    this.visitAssignModal.dismiss();
+    this.retailReassignModal.dismiss();
+    this.selectedMandateTeam = '';
+    this.selectedExecTeam = '';
+    this.selectedProperty = '';
+    this.retailTeamId = '';
+    this.mandateExecutives = [];
+    this.retailExecutives = [];
+    this.selectedMandatePropId = '';
+    this.selectedExecIds = [];
+    this.selectedEXEC = null;
+  }
+
+  getselectedteam(vals) {
+    if (this.assignteam == 'mandate') {
+      this.selectedMandateTeam = vals.detail.value;
+      this._mandateService
+        .fetchmandateexecutives(this.selectedMandatePropId, vals.detail.value)
+        .subscribe((executives) => {
+          if (executives['status'] == 'True') {
+            this.selectedExecIds = [];
+            this.mandateExecutives = executives['mandateexecutives'];
+            this.mandateExecutives = this.mandateExecutives.filter(
+              (executive) => {
+                return !this.leadsDetailsInfo.some(
+                  (rmids) => rmids.RMID == executive.id
+                );
+              }
+            );
+          }
+        });
+    } else if (this.assignteam == 'retail') {
+      this.retailTeamId = vals.detail.value;
+      this._mandateService
+        .getexecutivesbasedid(this.retailTeamId)
+        .subscribe((execute) => {
+          this.selectedExecIds = [];
+          this.retailExecutives = execute['Executiveslist'];
+          this.retailExecutives = this.retailExecutives.filter((executive) => {
+            return !this.leadsDetailsInfo.some(
+              (rmids) => rmids.RMID == executive.ID
+            );
+          });
+        });
+    }
+  }
+
+  //here we get the selected  mandate property
+  getselectedprop(event) {
+    console.log(event);
+    console.log(this.selectedExecTeam);
+    this.selectedExecIds = [];
+    this.selectedEXEC = [];
+    this.selectedMandatePropId = event.detail.value;
+    this._mandateService
+      .fetchmandateexecutives(
+        event.detail.value,
+        this.selectedMandateTeam,
+        this.selectedExecTeam ? this.selectedExecTeam?.code : '50002'
+      )
+      .subscribe((executives) => {
+        if (executives['status'] == 'True') {
+          this.selectedExecIds = [];
+          this.mandateExecutives = executives['mandateexecutives'];
+          this.mandateExecutives = this.mandateExecutives.filter(
+            (executive) => {
+              return !this.leadsDetailsInfo.some(
+                (rmids) => rmids.RMID == executive.id
+              );
+            }
+          );
+        }
+      });
+  }
+
+  // here we get the selected executive id's
+  executiveSelect(event) {
+    console.log(event);
+    this.selectedExecIds = [];
+    console.log(this.selectedEXEC);
+    if (this.assigntype != 'visit') {
+      this.selectedExecIds = this.selectedEXEC.map((exec) => exec.id);
+      this.selectedExecIds = Array.from(new Set(this.selectedExecIds));
+    } else if (this.assigntype == 'visit') {
+      this.selectedExecIds = this.selectedEXEC.id;
+    } else if (this.assignteam == 'retail') {
+      this.selectedExecIds = this.selectedEXEC.map((exec) => exec.ID);
+      this.selectedExecIds = Array.from(new Set(this.selectedExecIds));
+    }
+    console.log(this.selectedExecIds);
+    // this.selectedExecIds = Array.from(new Set(this.selectedExecIds));
+  }
+
+  assignLead() {
+    let comma_separated_data;
+    if (this.selectedExecIds) {
+      comma_separated_data = this.selectedExecIds.join(', ');
+    }
+    if (
+      this.assignteam == 'retail' &&
+      (this.retailTeamId == '' || this.retailTeamId == undefined)
+    ) {
+      Swal.fire({
+        title: 'Please Select The Team!',
+        text: 'Please try agin',
+        icon: 'error',
+        heightAuto: false,
+        confirmButtonText: 'OK!',
+      });
+    } else if (
+      this.assignteam == 'mandate' &&
+      this.selectedMandatePropId == ''
+    ) {
+      Swal.fire({
+        title: 'Please Select The Property!',
+        text: 'Please try agin',
+        icon: 'error',
+        heightAuto: false,
+        confirmButtonText: 'OK!',
+      });
+      $('#property')
+        .focus()
+        .css('border-color', 'red')
+        .attr('placeholder', 'Please Select the Property');
+    } else if (this.selectedExecIds.length === 0) {
+      Swal.fire({
+        title: 'Please Select The Executive!',
+        text: 'Please try agin',
+        icon: 'error',
+        heightAuto: false,
+        confirmButtonText: 'OK!',
+      }).then((result) => {});
+      $('#rm_dropdown')
+        .focus()
+        .css('border-color', 'red')
+        .attr('placeholder', 'Please Select the Executives');
+    } else {
+      $('#rm_dropdown').removeAttr('style');
+      var param = {
+        rmID: comma_separated_data,
+        LeadID: this.leadId,
+        random: '',
+        propID: this.selectedMandatePropId,
+        loginId: this.userid,
+      };
+
+      if (localStorage.getItem('Name') == 'demo') {
+        Swal.fire({
+          title: 'Lead assignment is not allowed for demo account.',
+          icon: 'error',
+          allowOutsideClick: false,
+          heightAuto: false,
+          confirmButtonText: 'OK',
+        }).then((result) => {
+          this.showSpinner = false;
+        });
+      } else {
+        // if (this.assignteam == 'mandate') {
+        //ASSIGNED TO MANDATE
+        this._mandateService.lead_ReAssign(param).subscribe((success) => {
+          if (success['status'] == 'True') {
+            this.reassignedResponseInfo = success['assignedleads'];
+            Swal.fire({
+              title: 'Assigned Successfully',
+              icon: 'success',
+              heightAuto: false,
+              confirmButtonText: 'OK!',
+            }).then((result) => {
+              this.showSpinner = true;
+              if (result.isConfirmed) {
+                this.retailReassignModal.dismiss();
+                this.viewAssignLeadDetail.present();
+              } else if (result.dismiss === Swal.DismissReason.backdrop) {
+                this.retailReassignModal.dismiss();
+                this.viewAssignLeadDetail.present();
+              }
+            });
+          }
+        });
+        // } else if (this.assignteam == 'retail') {
+        //   //ASSIGNED TO RETAIL
+        //   this._retailservice.leadassign(param).subscribe((success) => {
+        //     if (success['status'] == 'True') {
+        //       Swal.fire({
+        //         title: 'Assigned Successfully',
+        //         icon: 'success',
+        //         heightAuto: false,
+        //         confirmButtonText: 'OK!',
+        //       }).then((result) => {
+        //         this.selectedExecIds = [];
+        //         this.selectedMandatePropId = '';
+        //         this.selectedMandateTeam = '';
+        //         location.reload();
+        //       });
+        //     } else {
+        //       Swal.fire({
+        //         title: 'Authentication Failed!',
+        //         icon: 'error',
+        //         heightAuto: false,
+        //         confirmButtonText: 'OK!',
+        //       }).then((result) => {
+        //         this.selectedExecIds = [];
+        //         this.selectedMandatePropId = '';
+        //         this.selectedMandateTeam = '';
+        //         location.reload();
+        //       });
+        //     }
+        //   });
+        // }
+      }
+    }
+  }
+
+  actionChange(val) {
+    $('#sectionselector').val('');
+    if (val == 'Follow Up') {
+      this.stageForm = 'followupform';
+      $('#customer_phase4').val('Follow Up');
+      $('#sectionselector').val('Follow Up');
+    } else if (val == 'USV') {
+      this.stageForm = 'usvform';
+      $('#customer_phase4').val('USV');
+      $('#sectionselector').val('USV');
+    } else if (val == 'RSV') {
+      this.stageForm = 'rsvform';
+      $('#customer_phase4').val('RSV');
+      $('#sectionselector').val('RSV');
+    } else if (val == 'Final Negotiation') {
+      this.stageForm = 'finalnegoform';
+      $('#customer_phase4').val('Final Negotiation');
+      $('#sectionselector').val('Final Negotiation');
+    } else if (val == 'Lead Closed') {
+      this.stageForm = 'leadclosedform';
+      $('#customer_phase4').val('Lead Closed');
+      $('#sectionselector').val('Lead Closed');
+    } else if (val == 'Move to Junk') {
+      this.stageForm = 'junkform';
+      $('#customer_phase4').val('Move to Junk');
+      $('#sectionselector').val('Move to Junk');
+    } else if (val == 'onleadStatus') {
+      this.stageForm = 'onleadStatus';
+    }
+    this.router.navigate([], {
+      queryParams: {
+        stageForm: this.stageForm,
+      },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+
+    // const baseUrl = this.router.url.split('?')[0];
+    // const params = new URLSearchParams(this.activeroute.snapshot.queryParams);
+    // params.set('stageForm', this.stageForm);
+
+    // this._location.replaceState(baseUrl, params.toString());
+  }
+
+  //to get activity of leads
+  triggerhistory() {
+    this.roleid = localStorage.getItem('Role');
+    this.userid = localStorage.getItem('UserId');
+
+    let execId;
+    if (this.isCallHistory == 'executive') {
+      execId = this.selectedExecId;
+    } else {
+      execId = '';
+    }
+
+    var param2 = {
+      leadid: this.leadId,
+      roleid: this.roleid,
+      userid: this.userid,
+      execid: this.selectedExecId,
+      feedbackid: this.feedbackID,
+    };
+    this._mandateService.gethistory(param2).subscribe((history) => {
+      this.showSpinner = false;
+      if (history['status'] == 'True') {
+        // this.leadtrack = history['Leadhistory'];
+
+        const uniquehistory = history['Leadhistory'].filter((val, i, self) => {
+          return (
+            i ==
+            self.findIndex((t) => {
+              return (
+                t.autoremarks == val.autoremarks && t.Saveddate == val.Saveddate
+              );
+            })
+          );
+        });
+        this.leadtrack = uniquehistory;
+      } else {
+        this.leadtrack = [];
+      }
+    });
+  }
+
+  onViewAllActivity(data) {
+    if (data == 'history') {
       this.router.navigate([], {
         queryParams: {
-          execid: exec.RMID,
-          propid: this.assignedrm[0]?.suggestedprop?.[0]?.propid
-            ? this.assignedrm[0]?.suggestedprop?.[0]?.propid
-            : this.assignedrm[0].propid,
+          isActivityHistory: true,
+          isCallHistory: 'leads',
+          execid: this.selectedExecId,
         },
         queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    } else if (data == 'calls') {
+      this.router.navigate([], {
+        queryParams: {
+          isActivityHistory: true,
+          isCallHistory: 'calls',
+          execid: this.selectedExecId,
+        },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
       });
     }
   }
-
-  getexecutiveLeadCloseDetail() {
-    this.showSpinner = true;
-    this.assignedrm = this.leadsDetailsInfo.filter((exec) => {
-      return exec.RMID == this.selectedExecId;
-    });
-
-    setTimeout(() => {
-      this.showSpinner = false;
-      this.verifyrequest(
-        this.assignedrm[0].customer_IDPK,
-        this.assignedrm[0].suggestedprop[0]?.propid,
-        this.selectedExecId,
-        this.assignedrm[0].suggestedprop[0]?.name
-      );
-      // this.tabclick(0, this.assignedrm[0].suggestedprop[0]);
-    }, 1000);
-    //  this.editLeadInfoModal.dismiss()
-  }
-  onfooter(value) {
-    this.showSpinner = true;
-    this.isProfile = value == 'info';
-    this.isProperty = value == 'propertyInfo';
-    this.isStatusActivity = value == 'activity';
-    this.isPlanSection = false;
+  onFixingPlan() {
     this.router.navigate([], {
       queryParams: {
-        status: value,
-        statusSection:
-          this.userid != this.selectedExecId && !this.isAdmin
-            ? 'activity'
-            : 'status',
-        isCallHistory: value == 'activity' ? 'leads' : null,
+        isEditFixedPlan: true,
       },
       queryParamsHandling: 'merge',
+      replaceUrl: true,
     });
-    // if(value=='activity'){
-
-    // }else{
-    //   this.router.navigate([],{
-    //     queryParams:{
-    //       status:null,
-    //       statusSection:null
-    //     },
-    //     queryParamsHandling: 'merge'
-    //   })
-    // }
   }
 
-  //to check the img and pdf extension
-  public getExstendsion(image) {
-    if (
-      image.endsWith('jpg') ||
-      image.endsWith('jpeg') ||
-      image.endsWith('png')
+  selectedPlanType = '';
+  selectedplan(plantype) {
+    this.selectedPlanType = plantype;
+    if (this.assignedrm && this.assignedrm?.[0]?.leadstage == 'USV') {
+      this.visitPlanNextDate = this.selectedSuggestedProp?.nextdate;
+      this.visitPlanNextTime = this.selectedSuggestedProp?.nexttime;
+    } else if (
+      this.assignedrm &&
+      this.assignedrm?.[0]?.leadstage == 'RSV' &&
+      this.assignedrm?.[0]?.suggestedprop
     ) {
-      return 'jpg';
+      this.visitPlanNextDate = this.selectedSuggestedProp?.nextdate;
+      this.visitPlanNextTime = this.selectedSuggestedProp?.nexttime;
+    } else if (
+      this.assignedrm &&
+      this.assignedrm?.[0]?.leadstage == 'Final Negotiation' &&
+      this.assignedrm?.[0]?.suggestedprop
+    ) {
+      this.visitPlanNextDate = this.selectedSuggestedProp?.nextdate;
+      this.visitPlanNextTime = this.selectedSuggestedProp?.nexttime;
     }
-    if (image.endsWith('pdf')) {
-      return 'pdf';
-    }
-    return false;
+    setTimeout(() => {
+      this.checkWeekDay();
+    }, 0);
   }
+
+  checkWeekDay() {
+    let date = new Date(this.assignedrm?.[0]?.suggestedprop?.[0]?.actiondate);
+    let day = date.getDay();
+    let isWeekend = day === 6 || day === 0;
+    if (isWeekend) {
+      if (this.selectedPlanType == 'weekend') {
+        if (
+          this.assignedrm &&
+          this.assignedrm?.[0]?.suggestedprop[0].weekplan == '2'
+        ) {
+          this.visitPlanDone = true;
+        } else {
+          this.visitPlanDone = false;
+        }
+      } else {
+        if (this.selectedPlanType == '2') {
+          this.visitPlanDone = false;
+        } else {
+          this.visitPlanDone = true;
+        }
+      }
+    } else {
+      if (this.selectedPlanType == 'weekdays') {
+        if (
+          this.assignedrm &&
+          this.assignedrm?.[0]?.suggestedprop[0].weekplan == '1'
+        ) {
+          this.visitPlanDone = true;
+        } else {
+          this.visitPlanDone = false;
+        }
+      } else {
+        if (this.selectedPlanType == '1') {
+          this.visitPlanDone = false;
+        } else {
+          this.visitPlanDone = true;
+        }
+      }
+    }
+  }
+
+  editvisitPlan(type) {
+    if (
+      this.assignedrm &&
+      this.assignedrm?.[0]?.suggestedprop &&
+      this.assignedrm?.[0]?.suggestedprop[0].weekplan == '2'
+    ) {
+      this.selectedPlanType = 'weekend';
+      setTimeout(() => {
+        $('#visitPlandate').val(
+          this.assignedrm?.[0]?.suggestedprop[0].actiondate
+        );
+        $('#visitPlantime').val(
+          this.assignedrm?.[0]?.suggestedprop[0].actiontime
+        );
+        this.visitPlandate = this.assignedrm?.[0]?.suggestedprop[0].actiondate;
+        this.visitPlantime = this.assignedrm?.[0]?.suggestedprop[0].actiontime;
+      }, 100);
+    } else if (
+      this.assignedrm &&
+      this.assignedrm?.[0]?.suggestedprop &&
+      this.assignedrm?.[0]?.suggestedprop[0].weekplan == '1'
+    ) {
+      this.selectedPlanType = 'weekdays';
+      setTimeout(() => {
+        $('#visitPlandate').val(
+          this.assignedrm?.[0]?.suggestedprop[0].actiondate
+        );
+        $('#visitPlantime').val(
+          this.assignedrm?.[0]?.suggestedprop[0].actiontime
+        );
+        this.visitPlandate = this.assignedrm?.[0]?.suggestedprop[0].actiondate;
+        this.visitPlantime = this.assignedrm?.[0]?.suggestedprop[0].actiontime;
+      }, 100);
+    } else if (
+      this.assignedrm &&
+      this.assignedrm?.[0]?.suggestedprop &&
+      this.assignedrm?.[0]?.suggestedprop[0].weekplan == '0'
+    ) {
+      this.selectedPlanType = 'ytc';
+    } else if (
+      this.assignedrm &&
+      this.assignedrm?.[0]?.suggestedprop &&
+      this.assignedrm?.[0]?.suggestedprop[0].weekplan == null
+    ) {
+      if (type == 'edit') {
+        setTimeout(() => {
+          $('#visitPlandate').val(
+            this.assignedrm?.[0]?.suggestedprop[0].nextdate
+          );
+          $('#visitPlantime').val(
+            this.assignedrm?.[0]?.suggestedprop[0].nexttime
+          );
+          this.visitPlandate = this.assignedrm?.[0]?.suggestedprop[0].nextdate;
+          this.visitPlantime = this.assignedrm?.[0]?.suggestedprop[0].nexttime;
+          // this.scriptfunctions();
+        }, 100);
+      }
+    }
+    // this.scriptfunctions();
+    this.editplan = true;
+  }
+
+  confirmPlan() {
+    this.confirmbtnClicked = true;
+    setTimeout(() => {
+      this.fixPlan();
+    }, 0);
+  }
+  fixPlan() {
+    const rawValue = $('#visitPlandate').val();
+
+    let selectPlanid: any;
+    if (this.selectedPlanType == 'weekend') {
+      selectPlanid = 2;
+    } else if (this.selectedPlanType == 'weekdays') {
+      selectPlanid = 1;
+    } else if (this.selectedPlanType == 'ytc') {
+      selectPlanid = 0;
+    }
+
+    if (
+      this.selectedPlanType == '' ||
+      this.selectedPlanType == undefined ||
+      this.selectedPlanType == null
+    ) {
+      Swal.fire({
+        title: 'Please select the correct weekdays date',
+        text: 'Select the correct date',
+        icon: 'error',
+        heightAuto: false,
+        timer: 2000,
+        showConfirmButton: true,
+      });
+    } else if (
+      this.confirmbtnClicked == false &&
+      $('#visitPlandate').val() == ''
+    ) {
+      $('#visitPlandate')
+        .focus()
+        .css('border-color', 'red')
+        .attr('placeholder', 'Please Select One Date');
+    } else if ($('#visitPlantime').val() == '') {
+      $('#visitPlandate').removeAttr('style');
+      $('#visitPlantime')
+        .focus()
+        .css('border-color', 'red')
+        .attr('placeholder', 'Please Select The Time');
+    } else if ($('#visitPlandate').val() != '') {
+      let date = new Date(rawValue as string);
+      let day = date.getDay();
+      let isWeekend = day === 6 || day === 0;
+      if (isWeekend && this.selectedPlanType != 'weekend') {
+        $('#visitPlandate').removeAttr('style');
+        Swal.fire({
+          title: 'Please select the correct weekdays date',
+          text: 'Select the correct date',
+          icon: 'error',
+          heightAuto: false,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else if (!isWeekend && this.selectedPlanType != 'weekdays') {
+        $('#visitPlandate').removeAttr('style');
+        Swal.fire({
+          title: 'Please select the correct weekend date',
+          text: 'Select the correct date',
+          icon: 'error',
+          heightAuto: false,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        $('#visitPlantime').removeAttr('style');
+        if (this.confirmbtnClicked == true) {
+          var nextdate = this.visitPlanNextDate;
+          var nexttime = this.visitPlanNextTime;
+        } else {
+          var nextdate: any = $('#visitPlandate').val();
+          var nexttime: any = $('#visitPlantime').val();
+        }
+
+        console.log(nextdate);
+        console.log(nexttime);
+        this.showSpinner = true;
+
+        if (!this.isMoreThan14Days(nextdate)) {
+          if (this.activestagestatus[0].stage == 'USV') {
+            var param = {
+              leadid: this.leadId,
+              nextdate: nextdate,
+              nexttime: nexttime,
+              suggestproperties: this.selectedSuggestedProp?.propid,
+              execid: this.userid,
+              assignid: this.selectedExecId,
+            };
+
+            this._mandateService
+              .addselectedsuggestedproperties(param)
+              .subscribe((success) => {
+                this._mandateService
+                  .getselectedsuggestproperties(
+                    this.leadId,
+                    this.userid,
+                    this.selectedExecId
+                  )
+                  .subscribe((selectsuggested) => {
+                    this.selectedpropertylists =
+                      selectsuggested['selectedlists'];
+                    this.selectedlists = selectsuggested;
+                    // Joining the object values as comma seperated when add the property for the history storing
+                    this.selectedproperty_commaseperated =
+                      this.selectedpropertylists
+                        .map((item) => {
+                          return item.name;
+                        })
+                        .join(',');
+                    // Joining the object values as comma seperated when add the property for the history storing
+
+                    this.autoremarks =
+                      'Scheduled the USV for ' +
+                      this.selectedproperty_commaseperated +
+                      ' On ' +
+                      nextdate +
+                      ' ' +
+                      nexttime;
+                    var leadusvhistparam = {
+                      leadid: this.leadId,
+                      closedate: nextdate,
+                      closetime: nexttime,
+                      leadstage: 'USV',
+                      stagestatus: '1',
+                      textarearemarks: '',
+                      userid: this.userid,
+                      assignid: this.selectedExecId,
+                      autoremarks: this.autoremarks,
+                      property: this.selectedSuggestedProp?.propid,
+                      feedbackid: this.feedbackID,
+                    };
+                    this._mandateService
+                      .addleadhistory(leadusvhistparam)
+                      .subscribe(
+                        (success) => {
+                          if (success['status'] == 'True') {
+                            let params = {
+                              execid: this.selectedExecId,
+                              leadid: this.leadId,
+                              planid: selectPlanid,
+                              plandate: nextdate,
+                              plantime: nexttime,
+                              stage: this.assignedrm[0].leadstage,
+                              stagestatus: this.assignedrm[0].leadstatus,
+                              loginid: this.userid,
+                              propid: this.selectedSuggestedProp?.propid,
+                            };
+                            this._mandateService
+                              .updatemyplan(params)
+                              .subscribe((response) => {
+                                this.showSpinner = false;
+                                if (response['status'] == 'True') {
+                                  Swal.fire({
+                                    title: 'Plan Confirmed',
+                                    text: 'Visit Plan added Successfully',
+                                    icon: 'success',
+                                    heightAuto: false,
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                  }).then(() => {
+                                    location.reload();
+                                  });
+                                }
+                              });
+                          }
+                        },
+                        (err) => {
+                          console.log('Failed to Update');
+                        }
+                      );
+                  });
+              });
+          } else if (this.activestagestatus[0].stage == 'RSV') {
+            var param1 = {
+              leadid: this.leadId,
+              nextdate: nextdate,
+              nexttime: nexttime,
+              suggestproperties: this.selectedSuggestedProp?.propid,
+              execid: this.userid,
+              assignid: this.selectedExecId,
+            };
+            this._mandateService.addrsvselected(param1).subscribe(
+              (success) => {
+                if (success['status'] == 'True') {
+                  var param = {
+                    leadid: this.leadId,
+                    execid: this.userid,
+                    stage: 'RSV',
+                    assignid: this.selectedExecId,
+                  };
+
+                  this._mandateService
+                    .rsvselectproperties(param)
+                    .subscribe((selectsuggested) => {
+                      this.selectedpropertylists =
+                        selectsuggested['selectedrsvlists'];
+                      // Joining the object values as comma seperated when remove the property for the history storing
+                      this.selectedproperty_commaseperated =
+                        this.selectedpropertylists
+                          .map((item) => {
+                            return item.name;
+                          })
+                          .join(',');
+                      // Joining the object values as comma seperated when remove the property for the history storing
+
+                      this.autoremarks =
+                        ' Scheduled the RSV for ' +
+                        this.selectedproperty_commaseperated +
+                        ' On ' +
+                        nextdate +
+                        ' ' +
+                        nexttime;
+                      var leadrsvfixparam = {
+                        leadid: this.leadId,
+                        closedate: nextdate,
+                        closetime: nexttime,
+                        leadstage: 'RSV',
+                        stagestatus: '1',
+                        textarearemarks: '',
+                        userid: this.userid,
+                        assignid: this.selectedExecId,
+                        autoremarks: this.autoremarks,
+                        property: this.selectedSuggestedProp?.propid,
+                        feedbackid: this.feedbackID,
+                      };
+                      this._mandateService
+                        .addleadhistory(leadrsvfixparam)
+                        .subscribe(
+                          (success) => {
+                            if (success['status'] == 'True') {
+                              let params = {
+                                execid: this.selectedExecId,
+                                leadid: this.leadId,
+                                planid: selectPlanid,
+                                plandate: nextdate,
+                                plantime: nexttime,
+                                stage: this.assignedrm[0].leadstage,
+                                stagestatus: this.assignedrm[0].leadstatus,
+                                loginid: this.userid,
+                                propid: this.selectedSuggestedProp?.propid,
+                              };
+                              this._mandateService
+                                .updatemyplan(params)
+                                .subscribe((response) => {
+                                  this.showSpinner = false;
+                                  if (response['status'] == 'True') {
+                                    Swal.fire({
+                                      title: 'Plan Confirmed',
+                                      text: 'Visit Plan added Successfully',
+                                      icon: 'success',
+                                      timer: 2000,
+                                      heightAuto: false,
+                                      showConfirmButton: false,
+                                    }).then(() => {
+                                      location.reload();
+                                    });
+                                  }
+                                });
+                            }
+                          },
+                          (err) => {
+                            console.log('Failed to Update');
+                          }
+                        );
+                    });
+                }
+              },
+              (err) => {
+                console.log('Failed to Update');
+              }
+            );
+          } else if (this.activestagestatus[0].stage == 'Final Negotiation') {
+            var param3 = {
+              leadid: this.leadId,
+              nextdate: nextdate,
+              nexttime: nexttime,
+              suggestproperties: this.selectedSuggestedProp?.propid,
+              execid: this.userid,
+              assignid: this.selectedExecId,
+            };
+            this._mandateService.addnegoselected(param3).subscribe(
+              (success) => {
+                this._mandateService
+                  .negoselectproperties(
+                    this.leadId,
+                    this.userid,
+                    this.selectedExecId,
+                    this.feedbackID
+                  )
+                  .subscribe((selectsuggested) => {
+                    this.selectedpropertylists =
+                      selectsuggested['selectednegolists'];
+                    this.selectedlists = selectsuggested;
+                    // Joining the object values as comma seperated when add the property for the history storing
+                    this.selectedproperty_commaseperated =
+                      this.selectedpropertylists
+                        .map((item) => {
+                          return item.name;
+                        })
+                        .join(',');
+                    // Joining the object values as comma seperated when add the property for the history storing
+
+                    this.autoremarks =
+                      'Scheduled the Final Negotiation for ' +
+                      this.selectedproperty_commaseperated +
+                      ' On ' +
+                      nextdate +
+                      ' ' +
+                      nexttime;
+                    var leadnegofixparam = {
+                      leadid: this.leadId,
+                      closedate: nextdate,
+                      closetime: nexttime,
+                      leadstage: 'Final Negotiation',
+                      stagestatus: '1',
+                      textarearemarks: '',
+                      userid: this.userid,
+                      assignid: this.selectedExecId,
+                      autoremarks: this.autoremarks,
+                      property: this.selectedSuggestedProp?.propid,
+                      feedbackid: this.feedbackID,
+                    };
+                    this._mandateService
+                      .addleadhistory(leadnegofixparam)
+                      .subscribe(
+                        (success) => {
+                          if (success['status'] == 'True') {
+                            let params = {
+                              execid: this.selectedExecId,
+                              leadid: this.leadId,
+                              planid: selectPlanid,
+                              plandate: nextdate,
+                              plantime: nexttime,
+                              stage: this.assignedrm[0].leadstage,
+                              stagestatus: this.assignedrm[0].leadstatus,
+                              loginid: this.userid,
+                              propid: this.selectedSuggestedProp?.propid,
+                            };
+                            this._mandateService
+                              .updatemyplan(params)
+                              .subscribe((response) => {
+                                this.showSpinner = false;
+                                if (response['status'] == 'True') {
+                                  Swal.fire({
+                                    title: 'Plan Confirmed',
+                                    text: 'Visit Plan added Successfully',
+                                    icon: 'success',
+                                    heightAuto: false,
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                  }).then(() => {
+                                    location.reload();
+                                  });
+                                }
+                              });
+                          }
+                        },
+                        (err) => {
+                          console.log('Failed to Update');
+                        }
+                      );
+                  });
+              },
+              (err) => {
+                console.log('Failed to Update');
+              }
+            );
+          }
+        } else {
+          Swal.fire({
+            title: 'Plan Confirmation',
+            text: 'You can Confirm the plan only within 14 days',
+            icon: 'warning',
+            heightAuto: false,
+          }).then(() => {
+            this.showSpinner = false;
+          });
+        }
+      }
+    }
+  }
+  timeError: boolean = false;
+  // to display date in the format of YYYY-MM-DD
+  onDateChange(event: CustomEvent) {
+    const selectedDate = new Date(event.detail.value);
+    this.visitPlandate = selectedDate.toLocaleDateString('en-CA');
+  }
+
+  validateTime(): void {
+    if (this.visitPlantime) {
+      const [time, modifier] = this.visitPlantime.split(' ');
+      let [hours, minutes] = time.split(':').map(Number);
+      if (modifier === 'PM' && hours < 12) {
+        hours += 12;
+      }
+      if (modifier === 'AM' && hours === 12) {
+        hours = 0;
+      }
+      const selectedTime = new Date(
+        `1970-01-01T${String(hours).padStart(2, '0')}:${String(
+          minutes
+        ).padStart(2, '0')}:00`
+      );
+      const startLimit = new Date(`1970-01-01T20:00:00`);
+      const endLimit = new Date(`1970-01-01T08:00:00`);
+      this.timeError = selectedTime >= startLimit || selectedTime < endLimit;
+    } else {
+      this.timeError = false;
+    }
+
+    if (this.timeError) {
+      this.visitPlantime = '';
+      $('#visitPlantime').val('');
+      $('#refixtime').val('');
+      $('#RSVvisitedtime').val('');
+      $('#subrsvnextactiontime').val('');
+    }
+  }
+  isWeekday = (dateString: string) => {
+    const date = new Date(dateString);
+    const utcDay = date.getUTCDay();
+
+    this.cdf.detectChanges();
+    return this.selectedPlanType == 'weekdays'
+      ? utcDay !== 0 && utcDay !== 6
+      : utcDay === 0 || utcDay === 6;
+  };
 
   @ViewChild('closeddeal') closeddeal: any;
   @ViewChild('reSubmitLead') reSubmitLead: any;
@@ -2043,23 +2564,37 @@ export class MandateCustomerDetailsComponent implements OnInit {
     }
   }
 
-  //to remove uploaded image
-  removeImage(file) {
-    this._mandateService
-      .removeUploadedImage(file.files_IDPK, file.file_name, file.lead_IDFK)
-      .subscribe(() => {
-        this.requestedunits?.forEach((element) => {
-          element.images = element.images.filter((ele) => {
-            return !(ele.file_name == file.file_name);
-          });
-        });
-        this.closurefiles = [];
-      });
+  public getExstendsion(image) {
+    if (
+      image.endsWith('jpg') ||
+      image.endsWith('jpeg') ||
+      image.endsWith('png')
+    ) {
+      return 'jpg';
+    }
+    if (image.endsWith('pdf')) {
+      return 'pdf';
+    }
+    return false;
+  }
+  verifyrequest(leadid, propid, execid, propname) {
+    this.closepropertyname = propname;
+    var param = {
+      leadid: leadid,
+      propid: propid,
+      execid: execid,
+    };
+    this._mandateService.fetchrequestedvalues(param).subscribe((requested) => {
+      this.requestedunits = requested?.['requestedvals']?.map(
+        (request: any) => {
+          // Trim the spaces from bhk
+          request.bhk = request.bhk.trim();
+          return request;
+        }
+      );
+    });
   }
 
-  selectedFileName;
-  closurefiles = [];
-  uploads = [];
   onFileSelected(event: any, leadid, execid, propid) {
     let myFile = event.target.files;
     let allFilesValid = true;
@@ -2101,42 +2636,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
       }
     }
     this.uploadFile(leadid, execid, propid);
-
-    // for(let i=0;i<myFile.length;i++){
-    //   if(myFile[i].size>1110000){
-    //     Swal.fire({
-    //       title: 'File Size Exceeded',
-    //       text: 'File Size limit is 1MB',
-    //       icon: "error",
-    //       heightAuto: false,
-    //       confirmButtonText: 'OK!',
-    //     }).then((result) => {
-    //       if (result.value) {
-    //       }
-    //     });
-    //   }else{
-    //     const fileInput = event.target as HTMLInputElement;
-    //       if (fileInput.files.length > 0) {
-    //         this.closurefiles = []
-    //         this.selectedFileName = fileInput.files[0].name;
-    //         for (let j = 0; j < event.target.files.length; j++){
-    //           if(!this.closurefiles.includes(event.target.files[j])){
-    //             this.closurefiles.push(event.target.files[j]);
-    //             var reader = new FileReader();
-    //             reader.onload = (event: any) => {
-    //             this.uploads.push(event.target.result);
-    //             };
-    //             reader.readAsDataURL(event.target.files[j]);
-    //           }
-    //         }
-    //         this.uploadFile(leadid,execid,propid);
-    //       } else {
-    //         this.selectedFileName = null;
-    //       }
-    //   }
-    // }
   }
-
   uploadFile(leadid, execid, propid) {
     const formData = new FormData();
     formData.append('PropID', propid);
@@ -2150,13 +2650,10 @@ export class MandateCustomerDetailsComponent implements OnInit {
       if (res['status'] == 'True') {
         this._mandateService
           .getassignedrm(
-            this.id,
+            this.leadId,
             this.userid,
-            this.leadAssign,
-            this.feedbackId,
-            localStorage.getItem('RoleType') == '1'
-              ? localStorage.getItem('UserId')
-              : ''
+            this.selectedExecId,
+            this.feedbackID
           )
           .subscribe((cust) => {
             this.assignedrm = cust['RMname'];
@@ -2168,7 +2665,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
 
             this.verifyrequest(
               this.assignedrm[0].customer_IDPK,
-              this.assignedrm[0].suggestedprop[0].propid,
+              this.propid,
               this.selectedExecId,
               this.assignedrm[0].suggestedprop[0].name
             );
@@ -2178,8 +2675,19 @@ export class MandateCustomerDetailsComponent implements OnInit {
       }
     });
   }
+  removeImage(file) {
+    this._mandateService
+      .removeUploadedImage(file.files_IDPK, file.file_name, file.lead_IDFK)
+      .subscribe(() => {
+        this.requestedunits?.forEach((element) => {
+          element.images = element.images.filter((ele) => {
+            return !(ele.file_name == file.file_name);
+          });
+        });
+        this.closurefiles = [];
+      });
+  }
 
-  // method to reject lead close request
   requestrejection(leadid, execid, propid) {
     if (this.requestedunits[0].images.length == 0) {
       Swal.fire({
@@ -2194,7 +2702,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
         .focus()
         .css('border-color', 'red')
         .attr('placeholder', 'Please add the reason for rejection');
-    } else if (!/^(?!\s*$).+$/.test(String($('.rejectedtextarea').val()))) {
+    } else if (!/^(?!\s*$).+$/g.test(String($('.rejectedtextarea').val()))) {
       $('.rejectedtextarea')
         .focus()
         .css('border-color', 'red')
@@ -2231,20 +2739,17 @@ export class MandateCustomerDetailsComponent implements OnInit {
                 heightAuto: false,
                 confirmButtonText: 'OK!',
               }).then((result) => {
-                this.router
-                  .navigate([], {
-                    queryParams: {
-                      editRejectedLead: null,
-                    },
-                    queryParamsHandling: 'merge',
-                  })
-                  .then(() => {
-                    setTimeout(() => {
-                      // location.reload();
-                      this.ngOnInit();
-                    }, 100);
-                  });
+                const currentParams = this.activeroute.snapshot.queryParams;
+                this.router.navigate([], {
+                  relativeTo: this.activeroute,
+                  queryParams: {
+                    ...currentParams,
+                    stageForm: 'onleadStatus',
+                  },
+                  queryParamsHandling: 'merge',
+                });
               });
+              this.ngOnInit();
             } else {
               Swal.fire({
                 title: 'Some Error Occured',
@@ -2252,15 +2757,21 @@ export class MandateCustomerDetailsComponent implements OnInit {
                 heightAuto: false,
                 confirmButtonText: 'OK!',
               }).then((result) => {
-                //  window.location.reload();
-                this.ngOnInit();
+                const currentParams = this.activeroute.snapshot.queryParams;
+                this.router.navigate([], {
+                  relativeTo: this.activeroute,
+                  queryParams: {
+                    ...currentParams,
+                    stageForm: 'onleadStatus',
+                  },
+                  queryParamsHandling: 'merge',
+                });
               });
             }
           });
       }
     }
   }
-  autoremarks;
 
   requestapproval(leadid, execid, propid) {
     // this.verifyrequest(leadid, propid, this.selectedExecId, this.selectedSuggestedProp.name);
@@ -2310,7 +2821,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
                 assignid: this.selectedExecId,
                 property: propid,
                 autoremarks: this.autoremarks,
-                feedbackid: this.feedbackId,
+                feedbackid: this.feedbackID,
               };
               this._mandateService.addleadhistory(leadhistparam).subscribe(
                 (success) => {
@@ -2326,13 +2837,17 @@ export class MandateCustomerDetailsComponent implements OnInit {
                     }).then(() => {
                       this.showRejectionForm = false;
                       this.showSpinner = false;
+                      const currentParams =
+                        this.activeroute.snapshot.queryParams;
+                      this.router.navigate([], {
+                        relativeTo: this.activeroute,
+                        queryParams: {
+                          ...currentParams,
+                          stageForm: 'onleadStatus',
+                        },
+                        queryParamsHandling: 'merge',
+                      });
                       this.ngOnInit();
-                      // location.reload();
-                      // $('.modal-backdrop').closest('div').remove();
-                      // let currentUrl = this.router.url;
-                      // this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-                      //   this.router.navigate([currentUrl]);
-                      // });
                     });
                   } else if (success['status'] == 'Duplicate Request') {
                     Swal.fire({
@@ -2344,6 +2859,16 @@ export class MandateCustomerDetailsComponent implements OnInit {
                       allowOutsideClick: false,
                       showConfirmButton: false,
                     }).then(() => {
+                      const currentParams =
+                        this.activeroute.snapshot.queryParams;
+                      this.router.navigate([], {
+                        relativeTo: this.activeroute,
+                        queryParams: {
+                          ...currentParams,
+                          stageForm: 'onleadStatus',
+                        },
+                        queryParamsHandling: 'merge',
+                      });
                       this.ngOnInit();
                     });
                   }
@@ -2361,437 +2886,21 @@ export class MandateCustomerDetailsComponent implements OnInit {
                 allowOutsideClick: false,
                 showConfirmButton: false,
               }).then(() => {
-                location.reload();
-                // let currentUrl = this.router.url;
-                // this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-                //   this.router.navigate([currentUrl]);
-                // });
+                const currentParams = this.activeroute.snapshot.queryParams;
+                this.router.navigate([], {
+                  relativeTo: this.activeroute,
+                  queryParams: {
+                    ...currentParams,
+                    stageForm: 'onleadStatus',
+                  },
+                  queryParamsHandling: 'merge',
+                });
               });
             }
           });
       }
     }
   }
-
-  editNow(leadId, execid, propid, closeid) {
-    if ($('#unit').val() == '') {
-      Swal.fire({
-        title: 'Units Not Selected',
-        text: 'Select any Unit for ',
-        icon: 'error',
-        heightAuto: false,
-        timer: 2000,
-        showConfirmButton: false,
-      });
-      // return false;
-    } else if (String($('#unit_number').val()).trim() == '') {
-      $('#unit_number').val('');
-      $('#unit_number')
-        .focus()
-        .css('border-color', 'red')
-        .attr('placeholder', 'Please type the Unit Number');
-      // return false;
-    } else if (
-      String($('#dimension').val()).trim() == '' ||
-      !/^[0-9]+$/.test(String($('#dimension').val()))
-    ) {
-      $('#dimension').val('');
-      $('#dimension')
-        .focus()
-        .css('border-color', 'red')
-        .attr('placeholder', 'Please type the Dimension');
-      // return false;
-    } else if (
-      String($('#rate_per_sqft').val()).trim() == '' ||
-      !/^[0-9]+$/.test(String($('#rate_per_sqft').val()))
-    ) {
-      $('#rate_per_sqft').val('');
-      $('#rate_per_sqft')
-        .focus()
-        .css('border-color', 'red')
-        .attr('placeholder', 'Please type the Rate Per Squarefeet');
-      // return false;
-    } else if ($('#customFile').val() == '') {
-      Swal.fire({
-        title: 'No Files Uploaded',
-        text: 'Upload atleast one file for ',
-        icon: 'error',
-        timer: 2000,
-        showConfirmButton: false,
-      });
-      // return false;
-    } else {
-      $('#unit_number').removeAttr('style');
-      $('#dimension').removeAttr('style');
-      $('#rate_per_sqft').removeAttr('style');
-
-      var unitsselected = $('#unit').val();
-      var unitnumbers = $('#unit_number').val();
-      var dimensions = $('#dimension').val();
-      var rpsft = $('#rate_per_sqft').val();
-
-      var closedate = this.requestedunits[0].closed_date;
-      var closetime = this.requestedunits[0].closed_time;
-      var textarearemarks = this.requestedunits[0].suggested[0].remarks;
-      this.autoremarks = 'The Deal Closed has been edited successfully.';
-      var leadhistparam = {
-        leadid: this.id,
-        closedate: closedate,
-        closetime: closetime,
-        leadstage: 'Edit Closed Lead',
-        stagestatus: '0',
-        textarearemarks: textarearemarks,
-        userid: this.userid,
-        assignid: this.selectedExecId,
-        property: propid,
-        bhk: unitsselected,
-        bhkunit: unitnumbers,
-        dimension: dimensions,
-        ratepersft: rpsft,
-        autoremarks: this.autoremarks,
-        closedleadID: closeid,
-        feedbackid: this.feedbackId,
-      };
-
-      if (localStorage.getItem('Name') == 'demo') {
-        Swal.fire({
-          title: 'This feature is restricted for demo accounts.',
-          icon: 'error',
-          heightAuto: false,
-          confirmButtonText: 'ok',
-        }).then(() => {
-          this.showSpinner = false;
-        });
-      } else {
-        this._mandateService.addleadhistory(leadhistparam).subscribe(
-          (success) => {
-            if (success['status'] == 'True') {
-              Swal.fire({
-                title: 'Deal Closed Successfully',
-                icon: 'success',
-                heightAuto: false,
-                timer: 2000,
-                showConfirmButton: false,
-              }).then(() => {
-                window.location.reload();
-                // let currentUrl = this.router.url;
-                // this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-                //   this.router.navigate([currentUrl]);
-                // });
-              });
-            } else if (success['status'] == 'Duplicate Request') {
-              Swal.fire({
-                title: 'Already got the request for this same Unit number',
-                icon: 'error',
-                heightAuto: false,
-                timer: 2000,
-                showConfirmButton: false,
-              }).then(() => {
-                window.location.reload();
-              });
-            }
-          },
-          (err) => {
-            console.log('Failed to Update');
-          }
-        );
-      }
-    }
-  }
-
-  assignteam;
-  projectNames;
-  selectedMandatePropId = '';
-  selectedExecIds = [];
-  mandateExecutives;
-  selectedMandateTeam;
-  retailExecutives;
-  selectedEXEC;
-  @ViewChild('retailMandate', { static: true }) retailReassignModal: IonModal;
-  //TO OPEN ASSIGN LEAD MODAL
-  displayAssignLeadModal(type) {
-    this.assignteam = type;
-    this.selectedMandateTeam = '';
-    this.retailTeamId = '';
-    this.mandateExecutives = [];
-    this.retailExecutives = [];
-
-    this.selectedMandatePropId = '';
-    this.selectedExecIds = [];
-    // if (type == 'mandate') {
-    this.mandateprojectsfetch();
-    // }
-    this.retailReassignModal.present();
-  }
-
-  //fetch properties
-  mandateprojectsfetch() {
-    this._mandateService.getmandateprojects().subscribe((mandates) => {
-      if (mandates['status'] == 'True') {
-        this.projectNames = mandates['Properties'];
-
-        const allowedPropIds = this.fixedVisitProperties.map(
-          (item) => item.propId
-        ); // collect all propIds
-
-        this.projectNames = mandates['Properties'].map((property) => {
-          const isEnabled = allowedPropIds.includes(property.property_idfk);
-
-          return {
-            ...property,
-            disabled: !isEnabled, // disable if not in allowed list
-          };
-        });
-      } else {
-      }
-    });
-  }
-  // here we get the selected executive id's
-  executiveSelect(event) {
-    this.selectedExecIds = [];
-
-    let execData = Array.isArray(this.selectedEXEC)
-      ? this.selectedEXEC
-      : [this.selectedEXEC];
-
-    if (this.assignteam === 'mandate') {
-      this.selectedExecIds = execData.map((e) => e.id);
-    } else if (this.assignteam === 'retail') {
-      this.selectedExecIds = execData.map((e) => e.ID);
-    }
-
-    this.selectedExecIds = Array.from(new Set(this.selectedExecIds));
-  }
-
-  //here we get the selected  mandate property
-  getselectedprop(event) {
-    this.selectedMandatePropId = event.target.value;
-    let selectedExecTeam;
-    if (this.selectedExecTeam != undefined || this.selectedExecTeam != '') {
-      selectedExecTeam = this.selectedExecTeam;
-    }
-    this._mandateService
-      .fetchmandateexecutives(
-        event.target.value,
-        this.selectedMandateTeam,
-        selectedExecTeam?.code
-      )
-      .subscribe((executives) => {
-        if (executives['status'] == 'True') {
-          this.selectedExecIds = [];
-          this.mandateExecutives = executives['mandateexecutives'];
-          this.mandateExecutives = this.mandateExecutives.filter(
-            (executive) => {
-              return !this.leadsDetailsInfo.some(
-                (rmids) => rmids.RMID == executive.id
-              );
-            }
-          );
-        }
-      });
-  }
-
-  //get selected team type based on the selected assign team type
-  getselectedteam(vals) {
-    if (this.assignteam == 'mandate') {
-      this.selectedMandateTeam = vals.detail.value;
-      this._mandateService
-        .fetchmandateexecutives(this.selectedMandatePropId, vals.detail.value)
-        .subscribe((executives) => {
-          if (executives['status'] == 'True') {
-            this.selectedExecIds = [];
-            this.mandateExecutives = executives['mandateexecutives'];
-            this.mandateExecutives = this.mandateExecutives.filter(
-              (executive) => {
-                return !this.leadsDetailsInfo.some(
-                  (rmids) => rmids.RMID == executive.id
-                );
-              }
-            );
-          }
-        });
-    } else if (this.assignteam == 'retail') {
-      this.retailTeamId = vals.detail.value;
-      this._mandateService
-        .getexecutivesbasedid(this.retailTeamId)
-        .subscribe((execute) => {
-          this.selectedExecIds = [];
-          this.retailExecutives = execute['Executiveslist'];
-          this.retailExecutives = this.retailExecutives.filter((executive) => {
-            return !this.leadsDetailsInfo.some(
-              (rmids) => rmids.RMID == executive.ID
-            );
-          });
-        });
-    }
-  }
-
-  retailTeamId;
-  @ViewChild('viewAssignLeadDetail') viewAssignLeadDetail;
-  reassignedResponseInfo;
-  // assign lead to mandate or retail
-  assignLead() {
-    let comma_separated_data;
-    if (this.selectedExecIds) {
-      comma_separated_data = this.selectedExecIds.join(', ');
-    }
-    if (
-      this.activestagestatus[0].stage == 'Fresh' ||
-      (this.activestagestatus[0].stagestatus == '1' &&
-        this.activestagestatus[0].stage == 'USV')
-    ) {
-      if (
-        this.assignteam == 'retail' &&
-        (this.retailTeamId == '' || this.retailTeamId == undefined)
-      ) {
-        Swal.fire({
-          title: 'Please Select The Team!',
-          text: 'Please try agin',
-          icon: 'error',
-          heightAuto: false,
-          confirmButtonText: 'OK!',
-        });
-      } else if (
-        this.assignteam == 'mandate' &&
-        this.selectedMandatePropId == ''
-      ) {
-        Swal.fire({
-          title: 'Please Select The Property!',
-          text: 'Please try agin',
-          icon: 'error',
-          heightAuto: false,
-          confirmButtonText: 'OK!',
-        });
-        $('#property')
-          .focus()
-          .css('border-color', 'red')
-          .attr('placeholder', 'Please Select the Property');
-      } else if (this.selectedExecIds.length === 0) {
-        Swal.fire({
-          title: 'Please Select The Executive!',
-          text: 'Please try agin',
-          icon: 'error',
-          heightAuto: false,
-          confirmButtonText: 'OK!',
-        }).then((result) => {});
-        $('#rm_dropdown')
-          .focus()
-          .css('border-color', 'red')
-          .attr('placeholder', 'Please Select the Executives');
-      } else {
-        $('#rm_dropdown').removeAttr('style');
-        var param = {
-          rmID: comma_separated_data,
-          LeadID: this.id,
-          random: '',
-          propID: this.selectedMandatePropId,
-          loginId: this.userid,
-        };
-        if (localStorage.getItem('Name') == 'demo') {
-          Swal.fire({
-            title: 'Lead assignment is not allowed for demo account.',
-            icon: 'error',
-            allowOutsideClick: false,
-            heightAuto: false,
-            confirmButtonText: 'OK',
-          }).then((result) => {
-            this.showSpinner = false;
-          });
-        } else {
-          this._mandateService.leadassign(param).subscribe((success) => {
-            if (success['status'] == 'True') {
-              this.reassignedResponseInfo = success['details'];
-              Swal.fire({
-                title: 'Assigned Successfully',
-                icon: 'success',
-                heightAuto: false,
-                confirmButtonText: 'OK!',
-              }).then((result) => {
-                this.showSpinner = true;
-                if (result.isConfirmed) {
-                  this.retailReassignModal.dismiss();
-                  this.viewAssignLeadDetail.present();
-                } else if (result.dismiss === Swal.DismissReason.backdrop) {
-                  this.retailReassignModal.dismiss();
-                  this.viewAssignLeadDetail.present();
-                }
-              });
-            }
-          });
-        }
-      }
-    } else {
-      const params = {
-        rmID: comma_separated_data,
-        fromExecid: this.executeid,
-        leadid: this.id,
-        propid: this.propid,
-        random: '',
-        loginid: localStorage.getItem('UserId'),
-        stage: this.activestagestatus[0].stage,
-      };
-
-      this._mandateService.visitreassign(params).subscribe((response) => {
-        if (response['status'] == 'True') {
-          if (response['result'] == '1') {
-            Swal.fire({
-              title: 'Visit Re-assign Successfully',
-              icon: 'success',
-              heightAuto: false,
-              confirmButtonText: 'OK!',
-            }).then((result) => {
-              this.selectedExecIds = [];
-              this.selectedMandatePropId = '';
-              this.selectedMandateTeam = '';
-              location.reload();
-            });
-          } else if (response['result'] == '2') {
-            Swal.fire({
-              title: 'Visit Re-assign Unsuccessfull',
-              text: 'The lead can be assigned only if its overdue',
-              icon: 'error',
-              heightAuto: false,
-              confirmButtonText: 'OK!',
-            }).then((result) => {
-              this.selectedExecIds = [];
-              this.selectedMandatePropId = '';
-              this.selectedMandateTeam = '';
-              location.reload();
-            });
-          }
-        }
-      });
-    }
-  }
-
-  // Modal animation
-  enterAnimation = (baseEl: HTMLElement) => {
-    const root = baseEl.shadowRoot;
-
-    const backdropAnimation = this.animationCtrl
-      .create()
-      .addElement(root.querySelector('ion-backdrop')!)
-      .fromTo('opacity', '0.01', 'var(--backdrop-opacity)');
-
-    const wrapperAnimation = this.animationCtrl
-      .create()
-      .addElement(root.querySelector('.modal-wrapper')!)
-      .keyframes([
-        { offset: 0, opacity: '0', transform: 'scale(0)' },
-        { offset: 1, opacity: '0.99', transform: 'scale(1)' },
-      ]);
-
-    return this.animationCtrl
-      .create()
-      .addElement(baseEl)
-      .easing('ease-out')
-      .duration(500)
-      .addAnimation([backdropAnimation, wrapperAnimation]);
-  };
-
-  leaveAnimation = (baseEl: HTMLElement) => {
-    return this.enterAnimation(baseEl).direction('reverse');
-  };
 
   // method to update data for booking form
   resubmitdata(leadid, execid, propid, i) {
@@ -2861,6 +2970,15 @@ export class MandateCustomerDetailsComponent implements OnInit {
                 confirmButtonText: 'OK!',
               }).then((result) => {
                 // window.location.reload();
+                const currentParams = this.activeroute.snapshot.queryParams;
+                this.router.navigate([], {
+                  relativeTo: this.activeroute,
+                  queryParams: {
+                    ...currentParams,
+                    stageForm: 'onleadStatus',
+                  },
+                  queryParamsHandling: 'merge',
+                });
                 this.ngOnInit();
               });
             } else {
@@ -2872,6 +2990,15 @@ export class MandateCustomerDetailsComponent implements OnInit {
                 showConfirmButton: false,
               }).then(() => {
                 // window.location.reload();
+                const currentParams = this.activeroute.snapshot.queryParams;
+                this.router.navigate([], {
+                  relativeTo: this.activeroute,
+                  queryParams: {
+                    ...currentParams,
+                    stageForm: 'onleadStatus',
+                  },
+                  queryParamsHandling: 'merge',
+                });
                 this.ngOnInit();
               });
             }
@@ -2879,87 +3006,320 @@ export class MandateCustomerDetailsComponent implements OnInit {
       }
     }
   }
+  // Modal animation
+  enterAnimation = (baseEl: HTMLElement) => {
+    const root = baseEl.shadowRoot;
 
-  enablebuttonReject: boolean = false;
-  enablebuttonApprove: boolean = true;
-  enableButton() {
-    if ($('.rejectedtextarea').val() == '') {
-      this.enablebuttonApprove = true;
-      this.enablebuttonReject = false;
+    const backdropAnimation = this.animationCtrl
+      .create()
+      .addElement(root.querySelector('ion-backdrop')!)
+      .fromTo('opacity', '0.01', 'var(--backdrop-opacity)');
+
+    const wrapperAnimation = this.animationCtrl
+      .create()
+      .addElement(root.querySelector('.modal-wrapper')!)
+      .keyframes([
+        { offset: 0, opacity: '0', transform: 'scale(0)' },
+        { offset: 1, opacity: '0.99', transform: 'scale(1)' },
+      ]);
+
+    return this.animationCtrl
+      .create()
+      .addElement(baseEl)
+      .easing('ease-out')
+      .duration(500)
+      .addAnimation([backdropAnimation, wrapperAnimation]);
+  };
+
+  leaveAnimation = (baseEl: HTMLElement) => {
+    return this.enterAnimation(baseEl).direction('reverse');
+  };
+
+  //here the we can revert the lead that is pushed to junk
+  revertStage() {
+    Swal.fire({
+      title: `Do you want to Revert the lead for ${this.assignedrm[0].customer_assign_name}`,
+      icon: 'question',
+      heightAuto: false,
+      showConfirmButton: true,
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'No',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let param = {
+          leadid: this.leadId,
+          propid: this.selectedSuggestedProp?.propid,
+          executid: this.selectedExecId,
+        };
+        this._mandateService
+          .revertBackToPreStage(param)
+          .subscribe((resposne) => {
+            if (resposne['status'] == 'True') {
+              this.getstages();
+              location.reload();
+            }
+          });
+      }
+    });
+  }
+
+  unblockleadModalDismiss() {
+    this.visitAssigModalDismiss = true;
+    this.unlockleadtomandateModal.dismiss();
+    this.router.navigate(['assigned-leads-detail']);
+  }
+
+  //here we get the fixed property names.
+  getFixedProperties() {
+    let param = {
+      leadid: this.leadId,
+      execid: this.selectedExecId,
+      loginid: this.userid,
+    };
+    this._mandateService.getFixedMandateProperties(param).subscribe((resp) => {
+      if (resp['status'] == 'True') {
+        this.fixedPropertiesList = resp['result'];
+      } else {
+        this.fixedPropertiesList = [];
+      }
+    });
+  }
+
+  presentVisit_AssignPopover(event) {
+    this.mandatepropertyfetch();
+    this.assignteam = 'mandate';
+    this.assigntype = 'visit';
+    this.visitAssignModal.present();
+  }
+
+  visitAssign() {
+    let dbclinet = '';
+    if (this.selectedMandatePropId == '28773') {
+      dbclinet = '1';
+    }
+
+    console.log(this.selectedEXEC);
+    if (!this.selectedEXEC) {
+      Swal.fire({
+        title: 'Please Select The Executive!',
+        text: 'Please try agin',
+        icon: 'error',
+        heightAuto: false,
+        confirmButtonText: 'OK!',
+      }).then((result) => {});
+      $('#rm_dropdown')
+        .focus()
+        .css('border-color', 'red')
+        .attr('placeholder', 'Please Select the Executives');
     } else {
-      this.enablebuttonReject = true;
-      this.enablebuttonApprove = false;
+      let param = {
+        leadid: this.leadId,
+        propid: this.propid,
+        loginid: this.userid,
+        fromexecutives: this.userid,
+        toexecutives: this.selectedEXEC.id,
+        crmtype: '1',
+        dbclinet: dbclinet,
+      };
+      this._mandateService.visitAssign(param).subscribe((resp) => {
+        if (resp['status'] == 'True') {
+          Swal.fire({
+            title: 'Visit Assigned Successfully',
+            icon: 'success',
+            heightAuto: false,
+            timer: 2000,
+            showConfirmButton: false,
+          }).then(() => {
+            this.selectedExecIds = [];
+            this.selectedMandatePropId = '';
+            this.selectedMandateTeam = '';
+            location.reload();
+          });
+        } else {
+          Swal.fire({
+            title: 'Authentication Failed!',
+            text: 'Please try agin',
+            icon: 'error',
+            heightAuto: false,
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
+      });
     }
   }
 
-  modeldismis_reset() {
-    this.retailReassignModal.dismiss();
-    this.selectedMandateTeam = '';
-    this.retailTeamId = '';
-    this.mandateExecutives = [];
-    this.retailExecutives = [];
-    this.selectedMandatePropId = '';
-    this.selectedExecIds = [];
-    this.selectedExecTeam = null;
-  }
-
-  ngOnDestroy() {
-    this.popoverController.dismiss();
-    if (this.FollowUpFormComponent) {
-      this.FollowUpFormComponent.closeAlert();
-    }
-    if (this.JunkformComponent) {
-      this.JunkformComponent.closeAlert();
-    }
-    if (this.MandateNegoformComponent) {
-      this.MandateNegoformComponent.closeAlert();
-    }
-    if (this.MandateRsvFormComponent) {
-      this.MandateRsvFormComponent.closeAlert();
-    }
-
-    if (this.MandateUsvFormComponent) {
-      this.MandateUsvFormComponent.closeAlert();
-    }
-
-    if (this.MandateCloseFormComponent) {
-      this.MandateCloseFormComponent.closeAlert();
-    }
-  }
-
-  refresh(event) {
-    this.ngOnInit();
-    setTimeout(() => {
-      event.target.complete();
-    }, 1000);
-  }
-
-  selectedPlanType = '';
-  selectedPlanProperties;
-  visitPlanNextDate;
-  visitPlanNextTime;
-  visitPlanDone: boolean = false;
-  editplan: boolean = false;
-  visitPlantime;
-  filteredFixProperties: any;
-  visitPlandate;
-  isWeekend = true;
-  isWeekdays = false;
-  isYetToConfirm = false;
-  visitpanelselection;
-  // to Change the section of activity and status when we logged to admin
-  onStatusActivity(value) {
-    // this.isAdminExeActivity = value == 'activity';
-    // this.isAdminExceStatus = value== 'status';
-    // this.isPlanSection = value == 'plan';
-    this.showSpinner = true;
+  accessNow() {
+    // this.isAccompanyBy = false;
+    let accompapiedData = this.leadsDetailsInfo.filter(
+      (exec) => exec.RMID == this.assignedrm[0].visitaccompaniedid
+    );
     this.router.navigate([], {
       queryParams: {
-        statusSection: value,
-        isCallHistory: value == 'status' || value == 'plan' ? null : 'leads',
+        execid: accompapiedData[0].RMID,
       },
       queryParamsHandling: 'merge',
     });
+  }
+
+  editNow(leadId, execid, propid, closeid) {
+    if ($('#unit').val() == '') {
+      Swal.fire({
+        title: 'Units Not Selected',
+        text: 'Select any Unit for ',
+        icon: 'error',
+        heightAuto: false,
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      // return false;
+    } else if (String($('#unit_number').val()).trim() == '') {
+      $('#unit_number').val('');
+      $('#unit_number')
+        .focus()
+        .css('border-color', 'red')
+        .attr('placeholder', 'Please type the Unit Number');
+      // return false;
+    } else if (
+      String($('#dimension').val()).trim() == '' ||
+      !/^[0-9]+$/.test(String($('#dimension').val()))
+    ) {
+      $('#dimension').val('');
+      $('#dimension')
+        .focus()
+        .css('border-color', 'red')
+        .attr('placeholder', 'Please type the Dimension');
+      // return false;
+    } else if (
+      String($('#rate_per_sqft').val()).trim() == '' ||
+      !/^[0-9]+$/.test(String($('#rate_per_sqft').val()))
+    ) {
+      $('#rate_per_sqft').val('');
+      $('#rate_per_sqft')
+        .focus()
+        .css('border-color', 'red')
+        .attr('placeholder', 'Please type the Rate Per Squarefeet');
+      // return false;
+    } else if ($('#customFile').val() == '') {
+      Swal.fire({
+        title: 'No Files Uploaded',
+        text: 'Upload atleast one file for ',
+        icon: 'error',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      // return false;
+    } else {
+      $('#unit_number').removeAttr('style');
+      $('#dimension').removeAttr('style');
+      $('#rate_per_sqft').removeAttr('style');
+
+      var unitsselected = $('#unit').val();
+      var unitnumbers = $('#unit_number').val();
+      var dimensions = $('#dimension').val();
+      var rpsft = $('#rate_per_sqft').val();
+
+      var closedate = this.requestedunits[0].closed_date;
+      var closetime = this.requestedunits[0].closed_time;
+      var textarearemarks = this.requestedunits[0].suggested[0].remarks;
+      this.autoremarks = 'The Deal Closed has been edited successfully.';
+      var leadhistparam = {
+        leadid: this.leadId,
+        closedate: closedate,
+        closetime: closetime,
+        leadstage: 'Edit Closed Lead',
+        stagestatus: '0',
+        textarearemarks: textarearemarks,
+        userid: this.userid,
+        assignid: this.selectedExecId,
+        property: propid,
+        bhk: unitsselected,
+        bhkunit: unitnumbers,
+        dimension: dimensions,
+        ratepersft: rpsft,
+        autoremarks: this.autoremarks,
+        closedleadID: closeid,
+        feedbackid: this.feedbackID,
+      };
+
+      if (localStorage.getItem('Name') == 'demo') {
+        Swal.fire({
+          title: 'This feature is restricted for demo accounts.',
+          icon: 'error',
+          heightAuto: false,
+          confirmButtonText: 'ok',
+        }).then(() => {
+          this.showSpinner = false;
+        });
+      } else {
+        this._mandateService.addleadhistory(leadhistparam).subscribe(
+          (success) => {
+            if (success['status'] == 'True') {
+              Swal.fire({
+                title:
+                  this.activestagestatus?.[0]?.stage === 'Deal Closed'
+                    ? 'Updated Successfully'
+                    : ' Deal Closed Successfully',
+                icon: 'success',
+                heightAuto: false,
+                timer: 2000,
+                showConfirmButton: false,
+              }).then(() => {
+                // window.location.reload();
+                const currentParams = this.activeroute.snapshot.queryParams;
+                this.router.navigate([], {
+                  relativeTo: this.activeroute,
+                  queryParams: {
+                    ...currentParams,
+                    stageForm: 'onleadStatus',
+                  },
+                  queryParamsHandling: 'merge',
+                });
+              });
+            } else if (success['status'] == 'Duplicate Request') {
+              Swal.fire({
+                title: 'Already got the request for this same Unit number',
+                icon: 'error',
+                heightAuto: false,
+                timer: 2000,
+                showConfirmButton: false,
+              }).then(() => {
+                window.location.reload();
+              });
+            }
+          },
+          (err) => {
+            console.log('Failed to Update');
+          }
+        );
+      }
+    }
+  }
+
+  onProperty(propid) {
+    // if (
+    //   this.activestagestatus?.[0]?.stage == 'Deal Closing Requested' ||
+    //   this.activestagestatus?.[0]?.stage == 'Closing Request Rejected' ||
+    //   this.activestagestatus?.[0]?.stage == 'Deal Closing Pending' ||
+    //   this.activestagestatus?.[0]?.stage == 'Deal Closed'
+    // ) {
+    //   alert('if');
+    //   this.router.navigate([], {
+    //     queryParams: {
+    //       propid: propid,
+    //       stageForm: 'onleadStatus',
+    //     },
+    //     queryParamsHandling: 'merge',
+    //   });
+    // } else {
+    this.router.navigate([], {
+      queryParams: {
+        propid: propid,
+      },
+      queryParamsHandling: 'merge',
+    });
+    // }
   }
 
   onCallLeadHistory(isCall: any) {
@@ -2968,938 +3328,83 @@ export class MandateCustomerDetailsComponent implements OnInit {
         isCallHistory: isCall,
       },
       queryParamsHandling: 'merge',
+      replaceUrl: true,
     });
   }
 
-  checkstage() {
-    if (
-      this.assignedrm &&
-      this.assignedrm[0].leadstage == 'Fresh' &&
-      this.assignedrm[0].followupreason == '8'
-    ) {
-      Swal.fire({
-        title: 'Please Fix the USV..!',
-        icon: 'warning',
-        heightAuto: false,
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    }
-    if (
-      this.selectedPlanType == 'weekend' ||
-      this.selectedPlanType == 'weekdays'
-    ) {
-      let listofProperties: any = [];
-      if (
-        this.assignedrm &&
-        this.assignedrm[0].leadstage == 'USV' &&
-        this.assignedrm[0].suggestedprop
-      ) {
-        this.visitPlanNextDate = this.selectedSuggestedProp?.['nextdate'];
-        this.visitPlanNextTime = this.selectedSuggestedProp?.['nexttime'];
-      } else if (
-        this.assignedrm &&
-        this.assignedrm[0].leadstage == 'RSV' &&
-        this.assignedrm[0].suggestedprop
-      ) {
-        this.visitPlanNextDate = this.selectedSuggestedProp?.['nextdate'];
-        this.visitPlanNextTime = this.selectedSuggestedProp?.['nexttime'];
-      } else if (
-        this.assignedrm &&
-        this.assignedrm[0].leadstage == 'Final Negotiation' &&
-        this.assignedrm[0].suggestedprop
-      ) {
-        this.visitPlanNextDate = this.selectedSuggestedProp?.['nextdate'];
-        this.visitPlanNextTime = this.selectedSuggestedProp?.['nexttime'];
-      }
-    }
-    this.checkWeekDay();
-    setTimeout(() => {
-      this.scriptfunctions();
-    }, 0);
-  }
+  reassignedResponseInfo;
+  @ViewChild('viewAssignLeadDetail') viewAssignLeadDetail;
+  // enableAccess() {
+  //   console.log(this.assignedrm);
+  //   let param = {
+  //     LeadID: this.assignedrm[0].customer_IDPK,
+  //     rmID: this.assignedrm[0].RMID,
+  //     propID: this.assignedrm[0].propid,
+  //     loginId: this.userid,
+  //     fromExecids: this.assignedrm[0].RMID,
+  //   };
+  //   this._mandateService.leadreassign(param).subscribe({
+  //     next: (success) => {
+  //       this.showSpinner = false;
+  //       if (success['status'] == 'True') {
+  //         this.reassignedResponseInfo = success['assignedleads'];
+  //         Swal.fire({
+  //           title: 'Access Enabled Successfully',
+  //           icon: 'success',
+  //           heightAuto: false,
+  //           confirmButtonText: 'Show Details',
+  //         }).then(() => {
+  //           this.viewAssignLeadDetail.present();
+  //         });
+  //       } else {
+  //         Swal.fire({
+  //           title: 'Authentication Failed!',
+  //           text: 'Please try again',
+  //           icon: 'error',
+  //           heightAuto: false,
+  //           confirmButtonText: 'OK',
+  //         });
+  //       }
+  //     },
+  //     error: () => {
+  //       console.log('Connection Failed');
+  //     },
+  //   });
+  // }
 
-  selectedplan(plantype) {
-    this.selectedPlanType = plantype;
-    setTimeout(() => {
-      this.scriptfunctions();
-    }, 0);
-    if (
-      this.selectedPlanType == 'weekend' ||
-      this.selectedPlanType == 'weekdays'
-    ) {
-      if (this.assignedrm && this.assignedrm[0].leadstage == 'USV') {
-        this.visitPlanNextDate = this.selectedSuggestedProp?.['nextdate'];
-        this.visitPlanNextTime = this.selectedSuggestedProp?.['nexttime'];
-        // },0);
-      } else if (
-        this.assignedrm &&
-        this.assignedrm[0].leadstage == 'RSV' &&
-        this.assignedrm[0].suggestedprop
-      ) {
-        // setTimeout(()=>{
-        this.visitPlanNextDate = this.selectedSuggestedProp?.['nextdate'];
-        this.visitPlanNextTime = this.selectedSuggestedProp?.['nexttime'];
-        // },0);
-      } else if (
-        this.assignedrm &&
-        this.assignedrm[0].leadstage == 'Final Negotiation' &&
-        this.assignedrm[0].suggestedprop
-      ) {
-        // setTimeout(()=>{
-        this.visitPlanNextDate = this.selectedSuggestedProp?.['nextdate'];
-        this.visitPlanNextTime = this.selectedSuggestedProp?.['nexttime'];
-        // },0);
-      }
-    }
-    // $('#visitPlandate').val('');
-    // $('#visitPlantime').val('');
-    setTimeout(() => {
-      this.checkWeekDay();
-    }, 0);
-  }
-
-  scriptfunctions() {}
-
-  checkWeekDay() {
-    let date = new Date(this.assignedrm?.[0]?.suggestedprop?.[0]?.actiondate);
-    let day = date.getDay();
-    let isWeekend = day === 6 || day === 0;
-    if (isWeekend) {
-      if (this.selectedPlanType == 'weekend') {
-        if (
-          this.assignedrm &&
-          this.assignedrm?.[0]?.suggestedprop?.[0]?.weekplan == '2'
-        ) {
-          this.visitPlanDone = true;
-        } else {
-          this.visitPlanDone = false;
-        }
-        // this.visitPlanDone = false;
-      } else {
-        // this.visitPlanDone = true
-        if (this.selectedPlanType == '2') {
-          this.visitPlanDone = false;
-        } else {
-          this.visitPlanDone = true;
-        }
-      }
-    } else {
-      if (this.selectedPlanType == 'weekdays') {
-        if (
-          this.assignedrm &&
-          this.assignedrm?.[0]?.suggestedprop?.[0]?.weekplan == '1'
-        ) {
-          this.visitPlanDone = true;
-        } else {
-          this.visitPlanDone = false;
-        }
-        // this.visitPlanDone = false;
-      } else {
-        if (this.selectedPlanType == '1') {
-          this.visitPlanDone = false;
-        } else {
-          this.visitPlanDone = true;
-        }
-        // this.visitPlanDone = true
-      }
-    }
-  }
-
-  editvisitPlan(type) {
-    if (
-      this.assignedrm &&
-      this.assignedrm?.[0]?.suggestedprop &&
-      this.assignedrm?.[0]?.suggestedprop[0].weekplan == '2'
-    ) {
-      this.selectedPlanType = 'weekend';
-      setTimeout(() => {
-        $('#visitPlandate').val(
-          this.assignedrm?.[0]?.suggestedprop?.[0]?.actiondate
-        );
-        $('#visitPlantime').val(
-          this.assignedrm?.[0]?.suggestedprop?.[0]?.actiontime
-        );
-        this.visitPlandate =
-          this.assignedrm?.[0]?.suggestedprop?.[0]?.actiondate;
-        this.visitPlantime =
-          this.assignedrm?.[0]?.suggestedprop?.[0]?.actiontime;
-      }, 100);
-    } else if (
-      this.assignedrm &&
-      this.assignedrm?.[0].suggestedprop &&
-      this.assignedrm?.[0].suggestedprop?.[0]?.weekplan == '1'
-    ) {
-      this.selectedPlanType = 'weekdays';
-      setTimeout(() => {
-        $('#visitPlandate').val(
-          this.assignedrm?.[0].suggestedprop?.[0]?.actiondate
-        );
-        $('#visitPlantime').val(
-          this.assignedrm?.[0].suggestedprop?.[0]?.actiontime
-        );
-        this.visitPlandate =
-          this.assignedrm?.[0].suggestedprop?.[0]?.actiondate;
-        this.visitPlantime =
-          this.assignedrm?.[0].suggestedprop?.[0]?.actiontime;
-      }, 100);
-    } else if (
-      this.assignedrm &&
-      this.assignedrm?.[0]?.suggestedprop &&
-      this.assignedrm?.[0]?.suggestedprop?.[0]?.weekplan == '0'
-    ) {
-      this.selectedPlanType = 'ytc';
-    } else if (
-      this.assignedrm &&
-      this.assignedrm?.[0]?.suggestedprop &&
-      this.assignedrm?.[0]?.suggestedprop?.[0]?.weekplan == null
-    ) {
-      if (type == 'edit') {
-        setTimeout(() => {
-          $('#visitPlandate').val(
-            this.assignedrm?.[0]?.suggestedprop?.[0]?.nextdate
-          );
-          $('#visitPlantime').val(
-            this.assignedrm?.[0]?.suggestedprop?.[0]?.nexttime
-          );
-          this.visitPlandate =
-            this.assignedrm?.[0]?.suggestedprop?.[0]?.nextdate;
-          this.visitPlantime =
-            this.assignedrm?.[0]?.suggestedprop?.[0]?.nexttime;
-          // this.scriptfunctions();
-        }, 100);
-      }
-    }
-    // this.scriptfunctions();
-    this.editplan = true;
-  }
-
-  isWeekday = (dateString: string) => {
-    const date = new Date(dateString);
-    const utcDay = date.getUTCDay();
-
-    this.cdf.detectChanges();
-    return this.selectedPlanType == 'weekdays'
-      ? utcDay !== 0 && utcDay !== 6
-      : utcDay === 0 || utcDay === 6;
-  };
-
-  timeError: boolean = false;
-  confirmbtnClicked: boolean = false;
-  // to display date in the format of YYYY-MM-DD
-  onDateChange(event: CustomEvent) {
-    const selectedDate = new Date(event.detail.value);
-    this.visitPlandate = selectedDate.toLocaleDateString('en-CA');
-  }
-
-  validateTime(): void {
-    if (this.visitPlantime) {
-      const [time, modifier] = this.visitPlantime.split(' ');
-      let [hours, minutes] = time.split(':').map(Number);
-      if (modifier === 'PM' && hours < 12) {
-        hours += 12;
-      }
-      if (modifier === 'AM' && hours === 12) {
-        hours = 0;
-      }
-      const selectedTime = new Date(
-        `1970-01-01T${String(hours).padStart(2, '0')}:${String(
-          minutes
-        ).padStart(2, '0')}:00`
-      );
-      const startLimit = new Date(`1970-01-01T20:00:00`);
-      const endLimit = new Date(`1970-01-01T08:00:00`);
-      this.timeError = selectedTime >= startLimit || selectedTime < endLimit;
-    } else {
-      this.timeError = false;
-    }
-
-    if (this.timeError) {
-      this.visitPlantime = '';
-      $('#visitPlantime').val('');
-      $('#refixtime').val('');
-      $('#RSVvisitedtime').val('');
-      $('#subrsvnextactiontime').val('');
-    }
-  }
-  selectedpropertylists;
-  fixPlan() {
-    let selectPlanid: any;
-    if (this.selectedPlanType == 'weekend') {
-      selectPlanid = 2;
-    } else if (this.selectedPlanType == 'weekdays') {
-      selectPlanid = 1;
-    } else if (this.selectedPlanType == 'ytc') {
-      selectPlanid = 0;
-    }
-
-    if (
-      this.selectedPlanType == '' ||
-      this.selectedPlanType == undefined ||
-      this.selectedPlanType == null
-    ) {
-      Swal.fire({
-        title: 'Please select the correct weekdays date',
-        text: 'Select the correct date',
-        icon: 'error',
-        heightAuto: false,
-        timer: 2000,
-        showConfirmButton: true,
-      });
-    } else if (
-      this.confirmbtnClicked == false &&
-      $('#visitPlandate').val() == ''
-    ) {
-      $('#visitPlandate')
-        .focus()
-        .css('border-color', 'red')
-        .attr('placeholder', 'Please Select One Date');
-    } else if ($('#visitPlantime').val() == '') {
-      $('#visitPlandate').removeAttr('style');
-      $('#visitPlantime')
-        .focus()
-        .css('border-color', 'red')
-        .attr('placeholder', 'Please Select The Time');
-    } else if ($('#visitPlandate').val() != '') {
-      const rawVal = $('#visitPlandate').val();
-      const date = new Date(String(rawVal));
-      let day = date.getDay();
-      let isWeekend = day === 6 || day === 0;
-      if (isWeekend && this.selectedPlanType != 'weekend') {
-        $('#visitPlandate').removeAttr('style');
-        Swal.fire({
-          title: 'Please select the correct weekdays date',
-          text: 'Select the correct date',
-          icon: 'error',
-          heightAuto: false,
-          timer: 2000,
-          showConfirmButton: false,
-        });
-      } else if (!isWeekend && this.selectedPlanType != 'weekdays') {
-        $('#visitPlandate').removeAttr('style');
-        Swal.fire({
-          title: 'Please select the correct weekend date',
-          text: 'Select the correct date',
-          icon: 'error',
-          heightAuto: false,
-          timer: 2000,
-          showConfirmButton: false,
-        });
-      } else {
-        $('#visitPlantime').removeAttr('style');
-        if (this.confirmbtnClicked == true) {
-          var nextdate = this.visitPlanNextDate;
-          var nexttime = this.visitPlanNextTime;
-        } else {
-          var nextdate: any = $('#visitPlandate').val();
-          var nexttime: any = $('#visitPlantime').val();
-        }
-        this.showSpinner = true;
-        if (this.activestagestatus[0].stage == 'USV') {
-          var param = {
-            leadid: this.id,
-            nextdate: nextdate,
-            nexttime: nexttime,
-            suggestproperties: this.selectedSuggestedProp['propid'],
-            execid: this.userid,
-            assignid: this.selectedExecId,
-          };
-
-          this._mandateService
-            .addselectedsuggestedproperties(param)
-            .subscribe((success) => {
-              this._mandateService
-                .getselectedsuggestproperties(
-                  this.id,
-                  this.userid,
-                  this.selectedExecId
-                )
-                .subscribe((selectsuggested) => {
-                  this.selectedpropertylists = selectsuggested['selectedlists'];
-                  this.selectedlists = selectsuggested;
-                  // Joining the object values as comma seperated when add the property for the history storing
-                  this.selectedproperty_commaseperated =
-                    this.selectedpropertylists
-                      .map((item) => {
-                        return item.name;
-                      })
-                      .join(',');
-                  // Joining the object values as comma seperated when add the property for the history storing
-
-                  this.autoremarks =
-                    'Scheduled the USV for ' +
-                    this.selectedproperty_commaseperated +
-                    ' On ' +
-                    nextdate +
-                    ' ' +
-                    nexttime;
-                  var leadusvhistparam = {
-                    leadid: this.id,
-                    closedate: nextdate,
-                    closetime: nexttime,
-                    leadstage: 'USV',
-                    stagestatus: '1',
-                    textarearemarks: '',
-                    userid: this.userid,
-                    assignid: this.selectedExecId,
-                    autoremarks: this.autoremarks,
-                    property: this.selectedSuggestedProp['propid'],
-                    feedbackid: this.feedbackId,
-                  };
-                  this._mandateService
-                    .addleadhistory(leadusvhistparam)
-                    .subscribe(
-                      (success) => {
-                        if (success['status'] == 'True') {
-                          let params = {
-                            execid: this.selectedExecId,
-                            leadid: this.id,
-                            planid: selectPlanid,
-                            plandate: nextdate,
-                            plantime: nexttime,
-                            stage: this.assignedrm[0].leadstage,
-                            stagestatus: this.assignedrm[0].leadstatus,
-                            loginid: this.userid,
-                            propid: this.selectedSuggestedProp['propid'],
-                          };
-                          this._mandateService
-                            .updatemyplan(params)
-                            .subscribe((response) => {
-                              this.showSpinner = false;
-                              if (response['status'] == 'True') {
-                                Swal.fire({
-                                  title: 'Plan Confirmed',
-                                  text: 'Visit Plan added Successfully',
-                                  icon: 'success',
-                                  heightAuto: false,
-                                  timer: 2000,
-                                  showConfirmButton: false,
-                                }).then(() => {
-                                  location.reload();
-                                });
-                              }
-                            });
-                        } else if (
-                          success['status'] == 'False' &&
-                          success['data']
-                        ) {
-                          Swal.fire({
-                            title: ` ${success['data'][0].Lead_stage} already fixed by ${success['data'][0].name}`,
-                            text: `Please Contact Admin to assign this visit`,
-                            icon: 'error',
-                            heightAuto: false,
-                            showConfirmButton: true,
-                          }).then(() => {
-                            location.reload();
-                          });
-                        }
-                      },
-                      (err) => {
-                        console.log('Failed to Update');
-                      }
-                    );
-                });
-            });
-        } else if (this.activestagestatus[0].stage == 'RSV') {
-          var param1 = {
-            leadid: this.id,
-            nextdate: nextdate,
-            nexttime: nexttime,
-            suggestproperties: this.selectedSuggestedProp['propid'],
-            execid: this.userid,
-            assignid: this.selectedExecId,
-          };
-          this._mandateService.addrsvselected(param1).subscribe(
-            (success) => {
-              if (success['status'] == 'True') {
-                var param = {
-                  leadid: this.id,
-                  execid: this.userid,
-                  stage: 'RSV',
-                  assignid: this.selectedExecId,
-                };
-
-                this._mandateService
-                  .rsvselectproperties(param)
-                  .subscribe((selectsuggested) => {
-                    this.selectedpropertylists =
-                      selectsuggested['selectedrsvlists'];
-                    // Joining the object values as comma seperated when remove the property for the history storing
-                    this.selectedproperty_commaseperated =
-                      this.selectedpropertylists
-                        .map((item) => {
-                          return item.name;
-                        })
-                        .join(',');
-                    // Joining the object values as comma seperated when remove the property for the history storing
-
-                    this.autoremarks =
-                      ' Scheduled the RSV for ' +
-                      this.selectedproperty_commaseperated +
-                      ' On ' +
-                      nextdate +
-                      ' ' +
-                      nexttime;
-                    var leadrsvfixparam = {
-                      leadid: this.id,
-                      closedate: nextdate,
-                      closetime: nexttime,
-                      leadstage: 'RSV',
-                      stagestatus: '1',
-                      textarearemarks: '',
-                      userid: this.userid,
-                      assignid: this.selectedExecId,
-                      autoremarks: this.autoremarks,
-                      property: this.selectedSuggestedProp['propid'],
-                      feedbackid: this.feedbackId,
-                    };
-                    this._mandateService
-                      .addleadhistory(leadrsvfixparam)
-                      .subscribe(
-                        (success) => {
-                          if (success['status'] == 'True') {
-                            let params = {
-                              execid: this.selectedExecId,
-                              leadid: this.id,
-                              planid: selectPlanid,
-                              plandate: nextdate,
-                              plantime: nexttime,
-                              stage: this.assignedrm[0].leadstage,
-                              stagestatus: this.assignedrm[0].leadstatus,
-                              loginid: this.userid,
-                              propid: this.selectedSuggestedProp['propid'],
-                            };
-                            this._mandateService
-                              .updatemyplan(params)
-                              .subscribe((response) => {
-                                this.showSpinner = false;
-                                if (response['status'] == 'True') {
-                                  Swal.fire({
-                                    title: 'Plan Confirmed',
-                                    text: 'Visit Plan added Successfully',
-                                    icon: 'success',
-                                    timer: 2000,
-                                    heightAuto: false,
-                                    showConfirmButton: false,
-                                  }).then(() => {
-                                    location.reload();
-                                  });
-                                }
-                              });
-                          } else if (
-                            success['status'] == 'False' &&
-                            success['data']
-                          ) {
-                            Swal.fire({
-                              title: ` ${success['data'][0].Lead_stage} already fixed by ${success['data'][0].name}`,
-                              text: `Please Contact Admin to assign this visit`,
-                              icon: 'error',
-                              heightAuto: false,
-                              showConfirmButton: true,
-                            }).then(() => {
-                              location.reload();
-                            });
-                          }
-                        },
-                        (err) => {
-                          console.log('Failed to Update');
-                        }
-                      );
-                  });
-              }
-            },
-            (err) => {
-              console.log('Failed to Update');
-            }
-          );
-        } else if (this.activestagestatus[0].stage == 'Final Negotiation') {
-          var param3 = {
-            leadid: this.id,
-            nextdate: nextdate,
-            nexttime: nexttime,
-            suggestproperties: this.selectedSuggestedProp['propid'],
-            execid: this.userid,
-            assignid: this.selectedExecId,
-          };
-          this._mandateService.addnegoselected(param3).subscribe(
-            (success) => {
-              this._mandateService
-                .negoselectproperties(
-                  this.id,
-                  this.userid,
-                  this.selectedExecId,
-                  this.feedbackId
-                )
-                .subscribe((selectsuggested) => {
-                  this.selectedpropertylists =
-                    selectsuggested['selectednegolists'];
-                  this.selectedlists = selectsuggested;
-                  // Joining the object values as comma seperated when add the property for the history storing
-                  this.selectedproperty_commaseperated =
-                    this.selectedpropertylists
-                      .map((item) => {
-                        return item.name;
-                      })
-                      .join(',');
-                  // Joining the object values as comma seperated when add the property for the history storing
-
-                  this.autoremarks =
-                    'Scheduled the Final Negotiation for ' +
-                    this.selectedproperty_commaseperated +
-                    ' On ' +
-                    nextdate +
-                    ' ' +
-                    nexttime;
-                  var leadnegofixparam = {
-                    leadid: this.id,
-                    closedate: nextdate,
-                    closetime: nexttime,
-                    leadstage: 'Final Negotiation',
-                    stagestatus: '1',
-                    textarearemarks: '',
-                    userid: this.userid,
-                    assignid: this.selectedExecId,
-                    autoremarks: this.autoremarks,
-                    property: this.selectedSuggestedProp['propid'],
-                    feedbackid: this.feedbackId,
-                  };
-                  this._mandateService
-                    .addleadhistory(leadnegofixparam)
-                    .subscribe(
-                      (success) => {
-                        if (success['status'] == 'True') {
-                          let params = {
-                            execid: this.selectedExecId,
-                            leadid: this.id,
-                            planid: selectPlanid,
-                            plandate: nextdate,
-                            plantime: nexttime,
-                            stage: this.assignedrm[0].leadstage,
-                            stagestatus: this.assignedrm[0].leadstatus,
-                            loginid: this.userid,
-                            propid: this.selectedSuggestedProp['propid'],
-                          };
-                          this._mandateService
-                            .updatemyplan(params)
-                            .subscribe((response) => {
-                              this.showSpinner = false;
-                              if (response['status'] == 'True') {
-                                Swal.fire({
-                                  title: 'Plan Confirmed',
-                                  text: 'Visit Plan added Successfully',
-                                  icon: 'success',
-                                  heightAuto: false,
-                                  timer: 2000,
-                                  showConfirmButton: false,
-                                }).then(() => {
-                                  location.reload();
-                                });
-                              }
-                            });
-                        } else if (
-                          success['status'] == 'False' &&
-                          success['data']
-                        ) {
-                          Swal.fire({
-                            title: ` ${success['data'][0].Lead_stage} already fixed by ${success['data'][0].name}`,
-                            text: `Please Contact Admin to assign this visit`,
-                            icon: 'error',
-                            heightAuto: false,
-                            showConfirmButton: true,
-                          }).then(() => {
-                            location.reload();
-                          });
-                        }
-                      },
-                      (err) => {
-                        console.log('Failed to Update');
-                      }
-                    );
-                });
-            },
-            (err) => {
-              console.log('Failed to Update');
-            }
-          );
-        }
-      }
-    }
-  }
-
-  confirmPlan() {
-    this.confirmbtnClicked = true;
-    setTimeout(() => {
-      this.fixPlan();
-    }, 0);
-  }
-
-  trimSpce(value) {
-    return value.bhk.trim();
-  }
-
-  // MERG LEADS
-  @ViewChild('mergeModal') mergeModal;
-  @ViewChild('viewToMergedLeads') viewToMergedLeads;
-  selectedRelation;
-  filteredLead = [];
-  relationShips = [
-    { name: 'Father', code: 'Father' },
-    { name: 'Mother', code: 'Mother' },
-    { name: 'Sister', code: 'Sister' },
-    { name: 'Brother', code: 'Brother' },
-    { name: 'Husband', code: 'Husband' },
-    { name: 'Wife', code: 'Wife' },
-    { name: 'Others', code: 'Others' },
-  ];
-  searchSubject = new Subject<string>();
-  filteredLeads = [];
-  leadSearchTerm;
-  isActiveMerge = false;
-  searchClient(event): void {
-    this.showSpinner = true;
-    const query = event.target.value;
-    if (query.length >= 5) {
-      this.searchSubject.next(query);
-    } else {
-      this.filteredLeads = [];
-      this.showSpinner = false;
-    }
-  }
-
-  fetchData(query: string) {
-    let searchedData;
-    if (/^[\d\s+]+$/.test(query)) {
-      searchedData = query.replace(/\s+/g, '');
-      searchedData = searchedData.slice(-10);
-    } else {
-      searchedData = query;
-    }
-    this._sharedservice.searchLeads(searchedData, '', '', '1').subscribe({
-      next: (response) => {
-        if (response['status'] == 'True') {
-          this.filteredLeads = response['Searchlist'];
-          this.showSpinner = false;
-        } else {
-          this.filteredLeads = [];
-          this.showSpinner = false;
-        }
-      },
-      error: (error) => {
-        this.filteredLeads = [];
-        this.showSpinner = false;
-      },
-    });
-  }
-  toViewMergedLeads() {
-    this.viewToMergedLeads.present();
-  }
-  onMergeIcon() {
-    this.mergeModal.present();
-  }
-
-  onCloseMergeModal() {
-    this.filteredLead = [];
-    this.filteredLeads = [];
-    this.leadSearchTerm = '';
-    this.isActiveMerge = false;
-    this.mergeModal.dismiss();
-  }
-
-  onFilteredLead(lead) {
-    this.filteredLead = [];
-    this.filteredLead.push(lead);
-    this.isActiveMerge = true;
-    this.leadSearchTerm = '';
-    this.filteredLeads = [];
-  }
-
-  relationshipSelect(event) {
-    console.log(event);
-  }
-
-  onMergeLead() {
-    if (
-      this.selectedRelation == '' ||
-      this.selectedRelation == undefined ||
-      this.selectedRelation == null
-    ) {
-      Swal.fire({
-        title: 'Relation',
-        text: 'Please select the Relationship',
-        timer: 2000,
-        heightAuto: false,
-        showConfirmButton: false,
-        icon: 'error',
-      });
-      $('#relationship_dropdown')
-        .focus()
-        .css('border-color', 'red')
-        .attr('placeholder', 'Please Select the Relation');
-      return false;
-    }
-
-    let param = {
-      leadId: this.id,
-      mergeLeadId: this.filteredLead[0].customer_IDPK,
-      relation: this.selectedRelation.name,
+  enableAccess() {
+    const params = {
+      leadid: this.assignedrm[0].customer_IDPK,
+      execid: this.selectedExecId,
+      propid: this.propid,
     };
-
-    this._sharedservice.postMergeLeads(param).subscribe((resp) => {
-      Swal.fire({
-        title: 'Merge Lead',
-        text: 'The Lead has been successfully Merged',
-        showConfirmButton: false,
-        timer: 2000,
-        heightAuto: false,
-        icon: 'success',
-      }).then(() => {
-        location.reload();
-      });
+    this._mandateService.givevisitaccess(params).subscribe((resp) => {
+      if (resp['status'] == 'True') {
+        Swal.fire({
+          title: 'Access Enabled Successfully',
+          text: 'Lead Access reverted Successfully',
+          icon: 'success',
+          timer: 2000,
+          heightAuto: false,
+          showConfirmButton: false,
+        }).then(() => {
+          location.reload();
+        });
+      } else {
+        Swal.fire({
+          title: 'Some Error Occured',
+          icon: 'error',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
     });
-    return true;
-  }
-
-  isRetail = false;
-  onHtype(htype) {
-    if (this.isRetail) {
-      this.router.navigate(['assigned-leads-detail'], {
-        queryParams: {
-          htype: 'retail',
-          execid: !this.isAdmin ? this.userid : this.selectedExecId,
-        },
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.router.navigate(['mandate-customers'], {
-        queryParams: {
-          htype: 'mandate',
-        },
-        queryParamsHandling: 'merge',
-      });
-    }
-  }
-
-  openEndMenu() {
-    this._sharedservice.isMenuOpen = true;
-    this.menuCtrl.open('end');
-  }
-
-  accessNow(execDetails) {
-    this.isAccompanyBy = false;
-    // this.router.navigateByUrl(`/mandate-customers/${this.id}/${this.assignedrm[0].visitaccompaniedid}/${this.feedbackId}/${this.htype}`);
-    setTimeout(() => {
-      let accompapiedData = this.leadsDetailsInfo.filter(
-        (exec) => exec.RMID == this.assignedrm[0].visitaccompaniedid
-      );
-
-      this.router.navigate([], {
-        queryParams: {
-          execid: accompapiedData[0].RMID,
-          propid: accompapiedData[0].propid,
-        },
-        queryParamsHandling: 'merge',
-      });
-      // console.log(accompapiedData);
-      // this.showSpinner = true;
-      // this.selectedExecId = accompapiedData[0].RMID;
-      // this.activeTabIndex = this.leadsDetailsInfo.indexOf(accompapiedData[0]);
-      // this.followform = false;
-      // this.usvform = false;
-      // this.rsvform = false;
-      // this.finalnegoform = false;
-      // this.leadclosedform = false;
-      // this.junkform = false;
-
-      // //  this.router.navigate([],{
-      // //       queryParams:{
-      // //         execid:accompapiedData[0].RMID,
-      // //       },
-      // //       queryParamsHandling: 'merge'
-      // //   })
-
-      // const currentUrlTree = this.router.parseUrl(this.router.url);
-      // currentUrlTree.queryParams['execid'] = accompapiedData[0].RMID;
-      // currentUrlTree.queryParams['propid'] = accompapiedData[0].propid;
-
-      // this._location.go(this.router.serializeUrl(currentUrlTree));
-
-      // // this.getcustomerview();
-
-      // // this.router.navigateByUrl(`/mandate-customers/${this.id}/${this.selectedExecId}/${this.feedbackId}/${this.htype}`);
-
-      // this.assignedrm = this.leadsDetailsInfo.filter((exec) => {
-      //   return exec.RMID == this.selectedExecId;
-      // });
-
-      // if (
-      //   this.assignedrm &&
-      //   this.assignedrm.length > 0 &&
-      //   this.assignedrm[0].suggestedprop &&
-      //   this.assignedrm[0].suggestedprop.length > 1
-      // ) {
-      //   this.isSuggestedPropBoolean = true;
-      //   let propertyData;
-      //   let propIndex;
-      //   this.assignedrm[0].suggestedprop.forEach((prop, index) => {
-      //     propertyData = prop;
-      //     propIndex = index;
-      //   });
-      //   if (
-      //     (propertyData.selection == 1 &&
-      //       propertyData.leadstage == 'USV' &&
-      //       propertyData.actions == 0) ||
-      //     (propertyData.selection == 2 &&
-      //       propertyData.leadstage == 'RSV' &&
-      //       propertyData.actions == 1)
-      //   ) {
-      //     this.selectedItem = propIndex;
-      //     setTimeout(() => {
-      //       // this.tabclick(propIndex, propertyData);
-      //     }, 100);
-      //   }
-      // } else {
-      //   // this.selectedItem = 0;
-      //   if (
-      //     this.assignedrm &&
-      //     this.assignedrm.length > 0 &&
-      //     this.assignedrm[0].suggestedprop
-      //   ) {
-      //     // this.tabclick(0, this.assignedrm[0].suggestedprop[0]);
-      //   }
-      // }
-
-      // if (
-      //   this.assignedrm &&
-      //   this.assignedrm.length > 0 &&
-      //   this.assignedrm[0].suggestedprop
-      // ) {
-      //   this.visitpanelselection = this.assignedrm[0].suggestedprop.filter(
-      //     (prop) => {
-      //       return !(prop.weekplan == null);
-      //     }
-      //   );
-
-      //   if (this.selectedSuggestedProp) {
-      //     if (this.selectedSuggestedProp.weekplan == '1') {
-      //       this.selectedPlanType = 'weekdays';
-      //     } else if (this.selectedSuggestedProp.weekplan == '2') {
-      //       this.selectedPlanType = 'weekend';
-      //     } else if (this.selectedSuggestedProp.weekplan == '0') {
-      //       this.selectedPlanType = 'ytc';
-      //     }
-      //   }
-      // }
-
-      // setTimeout(() => {
-      //   this.getstages();
-      //   this.triggerhistory();
-      //   this.scriptfunctions();
-      //   this.showSpinner = false;
-      // }, 10);
-    }, 0);
   }
 
   @ViewChild('callConfirmationModal') callConfirmationModal;
+  callStatus;
+  onCallLeadData;
+  headerType;
   outboundCall() {
     this.showSpinner = true;
     const cleanedNumber =
@@ -3913,8 +3418,8 @@ export class MandateCustomerDetailsComponent implements OnInit {
       callto: cleanedNumber,
       leadid: this.show_cnt.customer_IDPK,
       starttime: this.getCurrentDateTime(),
-      modeofcall: 'mobile-' + this.htype,
-      leadtype: this.htype,
+      modeofcall: 'mobile-' + 'mandate',
+      leadtype: 'mandate',
       assignee: this.selectedExecId,
     };
     this._sharedservice.outboundCall(param).subscribe(() => {
@@ -3922,6 +3427,78 @@ export class MandateCustomerDetailsComponent implements OnInit {
       this.getLiveCallsData(this.show_cnt.customer_IDPK);
       this.callConfirmationModal.dismiss();
     });
+  }
+
+  getLiveCallsData(leadId) {
+    this._sharedservice
+      .fetchLiveCall(localStorage.getItem('UserId'))
+      .subscribe({
+        next: (response) => {
+          if (response['status'] == 'success') {
+            this.callStatus =
+              leadId == response['success'][0].Lead_IDFK
+                ? response['success'][0].dialstatus
+                : '';
+            this.onCallLeadData = response['success'][0];
+            if (
+              leadId != response['success'][0].Lead_IDFK &&
+              this.router.url.includes('mandate-customers')
+            ) {
+              Swal.fire({
+                title: 'Call Details',
+                text: 'You’re already on a call with another client',
+                icon: 'warning',
+                heightAuto: false,
+                allowOutsideClick: false,
+                confirmButtonText: 'Go to client details page',
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  this._sharedservice.isMenuOpen = false;
+                  this.onCallDetails();
+                } else {
+                }
+              });
+            }
+            this._sharedservice.isMenuOpen = false;
+          } else {
+            this._sharedservice.isMenuOpen = true;
+          }
+
+          if (
+            this.onCallLeadData?.modeofcall == 'Desktop-mandate' ||
+            this.onCallLeadData?.modeofcall == 'mobile-mandate' ||
+            this.onCallLeadData?.modeofcall == 'Mobile-Mandate' ||
+            this.onCallLeadData?.modeofcall == 'Mobile-mandate'
+          ) {
+            this.headerType = 'mandate';
+          } else if (
+            this.onCallLeadData?.modeofcall == 'Desktop-retail' ||
+            this.onCallLeadData?.modeofcall == 'mobile-retail' ||
+            this.onCallLeadData?.modeofcall == 'Mobile-Retail' ||
+            this.onCallLeadData?.modeofcall == 'Mobile-retail'
+          ) {
+            this.headerType = 'retail';
+          }
+        },
+        error: () => {
+          this.showSpinner = false;
+        },
+      });
+  }
+
+  onCallDetails() {
+    setTimeout(() => {
+      this.router.navigate([], {
+        queryParams: {
+          isOnCallDetailsPage: true,
+          leadId: this.onCallLeadData.Lead_IDFK,
+          execid: this.onCallLeadData.assignee,
+          leadTabData: 'status',
+          headerType: this.headerType,
+        },
+        queryParamsHandling: 'merge',
+      });
+    }, 500);
   }
 
   getCurrentDateTime(): string {
@@ -3935,212 +3512,83 @@ export class MandateCustomerDetailsComponent implements OnInit {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
 
-  navigateToWhatsApp() {
-    window.open(
-      `https://wa.me/+91 ${this.show_cnt?.customer_number}`,
-      '_system'
-    );
-    // this.router.navigate(['./clients-chats'], {
-    //   queryParams: {
-    //     chatListSearch: this.show_cnt?.customer_number,
-    //     selectedChat: 'all',
-    //     htype: this.htype,
-    //   },
-    // });
-  }
-
-  allCallLogs = [];
-  getAllCallLogs(isLoadmore) {
-    const params = {
-      loginid: this.userid,
-      execid: this.executeid,
-      clientnum: this.assignedrm?.[0]?.customer_number,
-      limit: 0,
-      limitrows: 30,
-    };
-    return new Promise((resolve, reject) => {
-      this._sharedservice.fetchAllCallLogs(params).subscribe({
-        next: (response: any) => {
-          this.showSpinner = false;
-          if (response['status'] == 'success') {
-            this.allCallLogs = isLoadmore
-              ? this.allCallLogs.concat(response['success'])
-              : response['success'];
-            this.groupByDate(response['success']);
-            resolve(true);
-          } else {
-            this.showSpinner = false;
-            this.allCallLogs = [];
-            resolve(false);
-          }
-        },
-        error: (err) => {
-          console.log('error', err);
-          this.allCallLogs = [];
-          this.showSpinner = false;
-          resolve(false);
-        },
-      });
-    });
-  }
-  groupedByDate: any[] = [];
-  groupByDate(records: any[]) {
-    const grouped = {};
-    records?.forEach((call) => {
-      const date = call?.starttime?.split(' ')[0]; // extract 'YYYY-MM-DD'
-      if (!grouped[date]) {
-        grouped[date] = [];
-      }
-      grouped[date].push(call);
-    });
-    // Convert object to array (Angular 5 doesn’t support keyvalue pipe)
-    this.groupedByDate = Object.keys(grouped).map((date) => ({
-      date,
-      calls: grouped[date],
-    }));
-  }
-
-  isDateOver30Days(dateString: string): boolean {
-    // Parse the date string into a Date object
-    const dateObject = new Date(dateString);
-    // Get today's date and subtract 30 days
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    // Compare the parsed date with the 30-day threshold using getTime()
-    return dateObject.getTime() < thirtyDaysAgo.getTime();
-  }
-
-  clientregistereddata;
-  propertyid;
-  buildernamereg;
-  property;
-  fetchregistereddata(leadid, propid) {
-    var param = {
-      leadid: leadid,
-      propid: propid,
-    };
-    this._retailservice
-      .fetchclientregistereddata(param)
-      .subscribe((regdata) => {
-        this.clientregistereddata = regdata['registereddata'][0];
-      });
-  }
-  fetchmails(name, propid) {
+  execTeam = [
+    { name: 'Relationship Executives', code: '50002' },
+    { name: 'Customersupport Executives', code: '50014' },
+  ];
+  selectedExecutiveName;
+  selectedExecTeam;
+  onExecTeamSelect(event) {
+    console.log(event);
     this.showSpinner = true;
-    this.propertyid = propid;
-    this._retailservice.getfetchmail(propid).subscribe((mails) => {
-      this.showSpinner = false;
-      this.mails = mails['Buildermail'];
-      this.buildernamereg = this.mails[0]['builderInfo_name'];
-    });
-    this.property = name;
-  }
-  toselect;
-  registrationremarks;
-  ccselect;
-  clientregisteration() {
-    this.toselect = $('#mailtoselect').val();
-    this.registrationremarks = $('#regremarks').val();
+    this.selectedExecutiveName = [];
 
-    if ($('#ccselect').val() == '') {
-      this.ccselect = this.toselect;
-    } else {
-      this.ccselect = $('#ccselect').val();
+    this._mandateService
+      .fetchmandateexecutives(this.selectedMandatePropId, '', event.value.code)
+      .subscribe((response) => {
+        this.selectedExecIds = [];
+        this.mandateExecutives = response['mandateexecutives'];
+        this.mandateExecutives = this.mandateExecutives.filter((executive) => {
+          return !this.leadsDetailsInfo.some(
+            (rmids) => rmids.RMID == executive.id
+          );
+        });
+        this.showSpinner = false;
+      });
+  }
+  onWillDismiss(event) {
+    location.reload();
+  }
+
+  getItemsCountForDate(index: number): number {
+    let count = 0;
+
+    // go backward to find the date header
+    let dateIndex = index;
+    while (
+      dateIndex >= 0 &&
+      this.leadtrack[dateIndex].item_type !== 'message_date'
+    ) {
+      dateIndex--;
     }
 
-    if ($('#mailtoselect').val() == '') {
-      $('.sendto')
-        .focus()
-        .css('border-color', 'red')
-        .attr('placeholder', 'Please Enter Name');
-    } else {
-      $('.sendto').removeAttr('style');
-
-      var param = {
-        leadid: this.id,
-        propid: this.propertyid,
-        customer: this.assignedrm?.[0].customer_name,
-        customernum: this.assignedrm?.[0].customer_number,
-        customermail: this.assignedrm?.[0].customer_mail,
-        rmname: localStorage.getItem('Name'),
-        rmmail: localStorage.getItem('Mail'),
-        builder: this.buildernamereg,
-        property: this.property,
-        sendto: this.toselect,
-        sendcc: this.ccselect,
-        execid: this.selectedExecId,
-        remarks: this.registrationremarks,
-      };
-      this.showSpinner = true;
-      this._retailservice.clientregistration(param).subscribe(
-        (success) => {
-          var status = success['status'];
-          var data = success['success'];
-
-          if (status == '1') {
-            this.showSpinner = false;
-            Swal.fire({
-              title: 'Mail Sent Successfully!',
-              text: 'This Data registered on 30 Days before so Re-registered Successfully',
-              icon: 'success',
-              heightAuto: false,
-            }).then((result) => {
-              if (result.value) {
-                location.reload();
-              }
-            });
-          } else if (status == '0') {
-            this.showSpinner = false;
-            Swal.fire({
-              title: 'Mail Sent Successfully!',
-              text: 'Registered Successfully',
-              icon: 'success',
-              heightAuto: false,
-            }).then((result) => {
-              if (result.value) {
-                location.reload();
-              }
-            });
-          } else {
-            this.showSpinner = false;
-            Swal.fire({
-              title: 'Already Registered Data Found.!',
-              text:
-                data[0].registered_property +
-                ' is registered by ' +
-                data[0].registered_RM +
-                ' on ' +
-                data[0].registered_date +
-                '. Please Unselect this Property If it is a group Submission.',
-              icon: 'error',
-              heightAuto: false,
-              showConfirmButton: true,
-            });
-          }
-        },
-        (err) => {
-          console.log('Failed to Update');
-        }
-      );
+    // count items until next date header
+    for (let i = dateIndex + 1; i < this.leadtrack.length; i++) {
+      if (this.leadtrack[i].item_type === 'message_date') {
+        break;
+      }
+      count++;
     }
+
+    return count;
   }
-  alert() {
-    Swal.fire({
-      title: 'Lead in Junk',
-      text: 'This lead is currently marked as Junk. Please revert the lead first to make a call.',
-      icon: 'warning',
-      confirmButtonText: 'OK',
-      heightAuto: false,
+  isLastItemUnderDate(index: number): boolean {
+    // next item is either date header or end of array
+    return (
+      index + 1 === this.leadtrack.length ||
+      this.leadtrack[index + 1].item_type === 'message_date'
+    );
+  }
+
+  // to open suggested property modal
+  displaySuggProperty() {
+    const param = {
+      leadid: this.leadId,
+      execid: this.selectedExecId,
+      feedback: this.feedbackID,
+      loginid: localStorage.getItem('UserId'),
+    };
+    this._mandateService.getPropertylist(param).subscribe((res) => {
+      this.properties = res['Properties'];
     });
+    // this.getProperty();
+    this.suggestedproperties = [];
+    this.suggModal.present();
   }
-  suggestedproperties;
-  //called when we click on multiselect suggProp dropdown
   onSelectSuggProp(item) {
     this.suggestedproperties.push(item.id);
   }
 
-  // when we click on close icon pesent inside the multiselect suggProp dropdown
   deSelectSuggProp(item) {
     this.suggestedproperties = this.suggestedproperties.filter((id) => {
       return id != item.id;
@@ -4149,7 +3597,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
 
   addpropertiestolist() {
     let param = {
-      LeadID: this.id,
+      LeadID: this.leadId,
       Stage: this.activestagestatus?.[0].stage,
       Execid: this.userid,
       assignID: this.selectedExecId,
@@ -4165,7 +3613,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
         }).then((result) => {
           this.getAssignedRM();
           this.suggModal.dismiss();
-          this._retailservice.isCloseSuggModal = true;
+          // this._retailservice.isCloseSuggModal = true;
         });
       }
     });
@@ -4174,10 +3622,10 @@ export class MandateCustomerDetailsComponent implements OnInit {
   getAssignedRM() {
     this._mandateService
       .getassignedrm(
-        this.id,
+        this.leadId,
         this.userid,
-        this.leadAssign,
-        this.feedbackId,
+        this.selectedExecId,
+        this.feedbackID,
         localStorage.getItem('RoleType') == '1'
           ? localStorage.getItem('UserId')
           : ''
@@ -4195,8 +3643,8 @@ export class MandateCustomerDetailsComponent implements OnInit {
         this.assignedrm = cust['RMname'];
         this.leadsDetailsInfo = cust['RMname'];
 
-        this.usvstagedetection = cust['RMname'][0].leadstage;
-        this.usvstagestatusdetection = cust['RMname'][0].leadstatus;
+        // this.usvstagedetection = cust['RMname'][0].leadstage;
+        // this.usvstagestatusdetection = cust['RMname'][0].leadstatus;
         this.assignedrm = this.assignedrm.filter((exec) => {
           return exec.RMID == this.selectedExecId;
         });
@@ -4204,8 +3652,8 @@ export class MandateCustomerDetailsComponent implements OnInit {
         if (this.assignedrm) {
           if (
             this.assignedrm.length > 0 &&
-            this.assignedrm[0].rnrcount >= 5 &&
-            this.roleid != 1 &&
+            this.assignedrm?.[0]?.rnrcount >= 5 &&
+            this.roleid != '1' &&
             this.roleid != '2'
           ) {
             Swal.fire({
@@ -4219,7 +3667,6 @@ export class MandateCustomerDetailsComponent implements OnInit {
                   type: 'Inactive',
                   isDropDown: 'false',
                   followup: '2',
-                  htype: 'mandate',
                 },
               });
             });
@@ -4227,7 +3674,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
         }
 
         setTimeout(() => {
-          this.isAccompanyBy = false;
+          // this.isAccompanyBy = false;
           if (
             this.userid != this.selectedExecId &&
             this.roleid != '1' &&
@@ -4236,7 +3683,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
               (this.assignedrm.roleid == '50003' ||
                 this.assignedrm.roleid == '50004')) ||
               this.role_type != '1') &&
-            this.feedbackId != '1'
+            this.feedbackID != '1'
           ) {
             $('.updateActivities').removeClass('active');
             $('.allActivities').removeClass('active');
@@ -4253,14 +3700,15 @@ export class MandateCustomerDetailsComponent implements OnInit {
             this.role_type == '1' &&
             this.assignedrm.roleid != '50003' &&
             this.assignedrm.roleid != '50004' &&
-            this.feedbackId != '1'
+            this.feedbackID != '1'
           ) {
             if (
               this.assignedrm &&
-              this.assignedrm[0].visitaccompaniedid &&
-              this.assignedrm[0].visitaccompaniedid != this.assignedrm[0].RMID
+              this.assignedrm?.[0]?.visitaccompaniedid &&
+              this.assignedrm?.[0]?.visitaccompaniedid !=
+                this.assignedrm?.[0]?.RMID
             ) {
-              this.isAccompanyBy = true;
+              // this.isAccompanyBy = true;
             } else {
               $('.allActivities').removeClass('active');
               const tab = document.getElementById('updateActivitiesTab');
@@ -4276,16 +3724,16 @@ export class MandateCustomerDetailsComponent implements OnInit {
               this.assignedrm.roleid != '50003' &&
               this.assignedrm.roleid != '50004') ||
               this.role_type != '1') &&
-            this.feedbackId != '1'
+            this.feedbackID != '1'
           ) {
             if (
               (this.assignedrm &&
-                this.assignedrm[0].visitaccompaniedid &&
-                this.assignedrm[0].visitaccompaniedid !=
-                  this.assignedrm[0].RMID) ||
+                this.assignedrm?.[0]?.visitaccompaniedid &&
+                this.assignedrm?.[0]?.visitaccompaniedid !=
+                  this.assignedrm?.[0]?.RMID) ||
               this.role_type == '1'
             ) {
-              this.isAccompanyBy = true;
+              // this.isAccompanyBy = true;
             } else {
               $('.allActivities').removeClass('active');
               const tab = document.getElementById('updateActivitiesTab');
@@ -4296,46 +3744,18 @@ export class MandateCustomerDetailsComponent implements OnInit {
           }
         }, 1000);
 
-        if (this.assignedrm[0].suggestedprop?.length > 1) {
-          this.isSuggestedPropBoolean = false;
+        if (this.assignedrm?.[0]?.suggestedprop?.length > 1) {
+          // this.isSuggestedPropBoolean = false;
           let propertyData, propIndex;
-          this.assignedrm[0].suggestedprop.forEach((prop, index) => {
+          this.assignedrm?.[0]?.suggestedprop.forEach((prop, index) => {
             propertyData = prop;
             propIndex = index;
           });
-          if (
-            (propertyData.selection == 1 &&
-              propertyData.leadstage == 'USV' &&
-              propertyData.actions == 0) ||
-            (propertyData.selection == 2 &&
-              propertyData.leadstage == 'RSV' &&
-              propertyData.actions == 1)
-          ) {
-            this.selectedItem = propIndex;
-            setTimeout(() => {
-              // this.tabclick(propIndex, propertyData);
-            }, 100);
-          } else {
-            this.selectedItem = 0;
-            setTimeout(() => {
-              // this.tabclick(
-              //   this.selectedItem,
-              //   this.assignedrm[0].suggestedprop?.[0]
-              // );
-            }, 100);
-          }
         } else {
-          this.selectedItem = 0;
-          setTimeout(() => {
-            // this.tabclick(
-            //   this.selectedItem,
-            //   this.assignedrm[0].suggestedprop?.[0]
-            // );
-          }, 100);
         }
 
-        if (this.assignedrm && this.assignedrm[0].suggestedprop) {
-          this.visitpanelselection = this.assignedrm[0].suggestedprop.filter(
+        if (this.assignedrm && this.assignedrm?.[0]?.suggestedprop) {
+          this.visitpanelselection = this.assignedrm?.[0]?.suggestedprop.filter(
             (prop) => {
               return !(prop.weekplan == null);
             }
@@ -4361,300 +3781,25 @@ export class MandateCustomerDetailsComponent implements OnInit {
         setTimeout(() => {
           this.selectedplan(this.selectedPlanType);
         }, 100);
-        if (
-          this.usvstagedetection == 'USV' &&
-          this.usvstagestatusdetection == '3' &&
-          cust[0]?.visitstatus == '0'
-        ) {
-          this.actionChange(this.usvstagedetection);
-        }
+
         if (
           (this.selectedSuggestedProp &&
-            this.selectedSuggestedProp['actions'] == '7' &&
-            this.selectedSuggestedProp['currentstage'] == '5') ||
-          (this.selectedSuggestedProp['actions'] == '8' &&
-            this.selectedSuggestedProp['currentstage'] == '5') ||
-          (this.selectedSuggestedProp['actions'] == '6' &&
-            this.selectedSuggestedProp['currentstage'] == '5')
+            this.selectedSuggestedProp?.actions == '7' &&
+            this.selectedSuggestedProp?.currentstage == '5') ||
+          (this.selectedSuggestedProp?.actions == '8' &&
+            this.selectedSuggestedProp?.currentstage == '5') ||
+          (this.selectedSuggestedProp?.actions == '6' &&
+            this.selectedSuggestedProp?.currentstage == '5')
         ) {
           this.showRejectionForm = true;
           this.verifyrequest(
-            this.assignedrm[0].customer_IDPK,
-            this.selectedSuggestedProp['propid'],
-            this.assignedrm[0].RMID,
-            this.selectedSuggestedProp['name']
+            this.assignedrm?.[0]?.customer_IDPK,
+            this.selectedSuggestedProp?.propid,
+            this.assignedrm?.[0]?.RMID,
+            this.selectedSuggestedProp?.name
           );
         }
       });
-  }
-
-  @ViewChild('suggModal', { static: true }) suggModal: IonModal;
-  // to open suggested property modal
-  displaySuggProperty() {
-    //  .set('leadid', param.leadid)
-    // .set('execid', param.execid)
-    // .set('feedback', param.feedbackid ?? '');
-    const param = {
-      leadid: this.id,
-      execid: this.selectedExecId,
-      feedback: this.feedbackId,
-    };
-    this._mandateService.getPropertylist(param).subscribe((res) => {
-      this.properties = res['Properties'];
-    });
-    // this.getProperty();
-    this.suggestedproperties = [];
-    this.suggModal.present();
-  }
-
-  isVisitAssign_btn;
-  fixedVisitProperties;
-  propid;
-  getFixedMandateProperties() {
-    let param = {
-      leadid: this.id,
-      execid: this.selectedExecId,
-      loginid: this.localStorage.getItem('UserId'),
-      PropId: this.propid,
-    };
-
-    this._mandateService.getFixedMandateProperties(param).subscribe((resp) => {
-      if (resp['status'] == 'True') {
-        this.isVisitAssign_btn = true;
-        this.fixedVisitProperties = resp['result'];
-      } else {
-        this.fixedVisitProperties = [];
-        this.isVisitAssign_btn = false;
-      }
-    });
-  }
-
-  onPropSelectOfVisitsAssign(event) {
-    this._mandateService
-      .fetchmandateexecutives1(event.value.property_idfk, '', '', '50002')
-      .subscribe((response) => {
-        this.mandateExecList = response['mandateexecutives'];
-      });
-  }
-  onvisitAssignModal() {
-    this.mandateprojectsfetch();
-
-    this.visitAssign.present();
-  }
-  mandateExecList;
-  selectedExec;
-
-  @ViewChild('visitAssign') visitAssign;
-  assignFixedLead() {
-    //     .set('LeadId', param.leadid)
-    // .set('PropId', param.propid)
-    // .set('LoginId', param.loginid)
-    // .set('FromExecId', param.fromExecid)
-    // .set('ToExecId', param.toExecid)
-    // .set('CrmType', param.crmType)
-    // .set('DbClient', param.dbClient);
-
-    let param = {
-      leadid: this.id,
-      propid: this.propid,
-      loginid: localStorage.getItem('UserId'),
-      fromExecid: localStorage.getItem('UserId'),
-      toExecid: this.selectedExec.id,
-      crmType: '1',
-    };
-
-    this._mandateService.assignfixedvisitlead(param).subscribe((resp) => {
-      Swal.fire({
-        title: 'Visit Assigned Successfully',
-        icon: 'success',
-        heightAuto: false,
-        confirmButtonText: 'OK!',
-      }).then((result) => {
-        location.reload();
-      });
-    });
-  }
-
-  @ViewChild('content', { static: false }) content: IonContent;
-  canScroll;
-  isAtBottom = false;
-  onScroll(event: CustomEvent) {
-    const scrollTop = event.detail.scrollTop;
-    this.content.getScrollElement().then((scrollEl) => {
-      const scrollTop = scrollEl.scrollTop;
-      const scrollHeight = scrollEl.scrollHeight;
-      const clientHeight = scrollEl.offsetHeight;
-
-      this.canScroll = scrollHeight > clientHeight + 10;
-      if (!this.canScroll) {
-        this.isAtBottom = false;
-      } else {
-        this.isAtBottom = scrollTop + clientHeight >= scrollHeight - 100;
-      }
-    });
-  }
-
-  selectedExecTeam;
-  selectedExecutiveName;
-  execTeam = [
-    { name: 'Relationship Executives', code: '50002' },
-    { name: 'Customersupport Executives', code: '50014' },
-  ];
-  onExecTeamSelect(event) {
-    this.showSpinner = true;
-    this.selectedExecutiveName = [];
-
-    this._mandateService
-      .fetchmandateexecutives(this.selectedMandatePropId, '', event.value.code)
-      .subscribe((response) => {
-        this.selectedExecIds = [];
-        this.mandateExecutives = response['mandateexecutives'];
-        this.mandateExecutives = this.mandateExecutives.filter((executive) => {
-          return !this.leadsDetailsInfo.some(
-            (rmids) => rmids.RMID == executive.id
-          );
-        });
-        this.showSpinner = false;
-      });
-  }
-  allCallsData;
-  count = 0;
-  fetchAllCallLogs(isLoadmore) {
-    const params = {
-      loginid: this.userid,
-      execid: this.executeid,
-      clientnum: this.assignedrm[0]?.customer_number,
-      limit: 0,
-      limitrows: 30,
-    };
-
-    return new Promise((resolve, reject) => {
-      this._sharedservice.fetchAllCallLogs(params).subscribe({
-        next: (response: any) => {
-          this.showSpinner = false;
-          if (response['status'] == 'success') {
-            this.allCallLogs = isLoadmore
-              ? this.allCallLogs.concat(response['success'])
-              : response['success'];
-            resolve(true);
-          } else {
-            this.showSpinner = false;
-            this.allCallLogs = [];
-            resolve(false);
-          }
-        },
-        error: (err) => {
-          this.allCallLogs = [];
-          this.showSpinner = false;
-          resolve(false);
-        },
-      });
-    });
-  }
-
-  loadData(event) {
-    this.fetchAllCallLogs(true).then(() => {
-      event.target.complete();
-      event.target.disabled = true;
-    });
-  }
-  showInfiniteScroll = true;
-  //TO RESET THE INFINITE SRCOLL
-  resetInfiniteScroll() {
-    this.showInfiniteScroll = false;
-    setTimeout(() => {
-      this.showInfiniteScroll = true;
-    }, 10);
-  }
-
-  async toggleAudio(audioElement: HTMLAudioElement, event: Event) {
-    const clickedIcon = event.target as HTMLElement;
-
-    // Pause all other audios
-    const allAudios = document.querySelectorAll('audio');
-    allAudios.forEach((audio) => {
-      if (audio !== audioElement) {
-        audio.pause();
-        audio.currentTime = 0;
-      }
-    });
-
-    // Reset all other icons to play
-    const allIcons = document.querySelectorAll('ion-icon.play-icon');
-    allIcons.forEach((icon) => {
-      icon.setAttribute('name', 'play');
-    });
-
-    // Toggle current audio
-    if (audioElement.paused) {
-      try {
-        await audioElement.play();
-        clickedIcon.setAttribute('name', 'pause');
-
-        // Reset icon when audio ends
-        audioElement.onended = () => {
-          clickedIcon.setAttribute('name', 'play');
-        };
-      } catch (err) {
-        console.warn('Audio play interrupted:', err);
-      }
-    } else {
-      audioElement.pause();
-      audioElement.currentTime = 0;
-      clickedIcon.setAttribute('name', 'play');
-    }
-  }
-  getExecList() {
-    this._mandateService
-      .fetchmandateexecutives(this.propid, '', '50002')
-      .subscribe((executives) => {
-        if (executives['status'] == 'True') {
-          this.selectedExecIds = [];
-          this.mandateExecutives = executives['mandateexecutives'];
-        }
-      });
-  }
-  onWillDismiss(event) {
-    location.reload();
-  }
-
-  enableAccess() {
-    console.log(this.assignedrm);
-    let param = {
-      LeadID: this.assignedrm[0].customer_IDPK,
-      rmID: this.assignedrm[0].RMID,
-      propID: this.assignedrm[0].propid,
-      loginId: this.userid,
-      fromExecids: this.assignedrm[0].RMID,
-    };
-    console.log(param);
-    this._mandateService.leadreassign(param).subscribe(
-      (success) => {
-        this.showSpinner = false;
-        if (success['status'] == 'True') {
-          this.reassignedResponseInfo = success['assignedleads'];
-          Swal.fire({
-            title: 'Access Enabled Successfully',
-            icon: 'success',
-            heightAuto: false,
-            confirmButtonText: 'Show Details',
-          }).then(() => {
-            this.viewAssignLeadDetail.present();
-          });
-        } else {
-          Swal.fire({
-            title: 'Authentication Failed!',
-            text: 'Please try again',
-            icon: 'error',
-            heightAuto: false,
-            confirmButtonText: 'OK',
-          });
-        }
-      },
-      (err) => {
-        console.log('Connection Failed');
-      }
-    );
   }
 
   revertToActive(exec) {
@@ -4677,21 +3822,43 @@ export class MandateCustomerDetailsComponent implements OnInit {
         this._mandateService.revertBackToActive(param).subscribe((resp) => {
           this.showSpinner = false;
           if (resp['status'] == 'True') {
-            // let currentUrl = this.router.url;
-            // let pathWithoutQueryParams = currentUrl.split('?')[0];
-            // let currentQueryparams = this.route.snapshot.queryParams;
-            // this.router
-            //   .navigateByUrl('/', { skipLocationChange: true })
-            //   .then(() => {
-            //     this.router.navigate([pathWithoutQueryParams], {
-            //       queryParams: currentQueryparams,
-            //     });
-            //   });
-
             location.reload();
           }
         });
       }
     });
+  }
+  onBack() {
+    this._location.back();
+  }
+  isLeadAssign = false;
+  @ViewChild('retailMandate') retailMandate;
+  onAssign_btn(lead_visits) {
+    lead_visits == 'leads' ? '' : this.getExecutive();
+    this.isLeadAssign = lead_visits == 'leads' ? true : false;
+    this.mandatepropertyfetch();
+    this.retailMandate.present();
+  }
+
+  isMoreThan14Days(selectedDateStr: string) {
+    const today = new Date();
+    const selectedDate = new Date(selectedDateStr);
+
+    // Remove time part (VERY IMPORTANT)
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    const diffTime = selectedDate.getTime() - today.getTime();
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+    console.log('Days Difference:', diffDays);
+
+    if (diffDays > 14) {
+      console.log('More than 14 days');
+    } else {
+      console.log('Within 14 days');
+    }
+
+    return diffDays > 14;
   }
 }

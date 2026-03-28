@@ -17,13 +17,22 @@
   <ion-row>
     <ion-col style="border: 0.5px solid #e6e6e6; border-radius: 20px; padding: 2px !important;">
       <ion-row>
-        <ion-col size="3" (click)="dateFilter('today')" class="d-flex  align-items-center justify-content-center"
+        <!-- <ion-col size="3" (click)="dateFilter('today')" class="d-flex  align-items-center justify-content-center"
           [ngClass]="filteredParams.isDateFilter == 'today' ? 'active_btn': ''">
           <span>Today </span><i class="fi fi-tr-calendar"></i>
         </ion-col>
         <ion-col (click)="dateFilter('yesterday')" class="d-flex align-items-center justify-content-center"
           [ngClass]="filteredParams?.isDateFilter == 'yesterday'?'active_btn':''">
           <span>Yesterday</span>
+        </ion-col> -->
+
+        <ion-col size="3" (click)="dateFilter('allTime')" class="d-flex  align-items-center justify-content-center"
+          [ngClass]="filteredParams.isDateFilter == 'allTime' ? 'active_btn': ''">
+          <span>All Time </span>
+        </ion-col>
+        <ion-col size="4" (click)="dateFilter('last3days')" class="d-flex  align-items-center justify-content-center"
+          [ngClass]="filteredParams.isDateFilter == 'last3days' ? 'active_btn': ''">
+          <span>Last 3 days </span>
         </ion-col>
         <ion-col (click)="dateFilter('lastsevenDay')" class="d-flex align-items-center justify-content-center"
           [ngClass]="filteredParams?.isDateFilter == 'lastsevenDay'?'active_btn':''">
@@ -46,11 +55,11 @@
 </div>
 <!-- EXECUTIVE DROPDOWN -->
 <ion-row style="margin: 6px 6px 0;" *ngIf="!isOnCallDetailsPage">
-  <ion-col class=" p-0 exec" size="6" *ngIf="roleid == '1' || roletype == '1'">
+  <ion-col class="p-0 exec" size="6" *ngIf="roleid == '1' || roletype == '1'">
     <p-dropdown [options]="executiveNames" class="exec_css" (onChange)="onFilterSelection('exec', selectedExecu)"
       [(ngModel)]="selectedExecu" optionLabel="name" placeholder="Executive" />
   </ion-col>
-  <ion-col class=" p-0 exec" size="6" *ngIf="roleid == '1' ">
+  <ion-col class="p-0 exec" size="6" *ngIf="roleid == '1' ">
     <p-dropdown [options]="sourceList" class="exec_css sourcedropdown"
       (onChange)="onFilterSelection('source', selectedSource)" [(ngModel)]="selectedSource" optionLabel="source"
       placeholder="Source" />
@@ -393,7 +402,8 @@
                 </ng-template>
               </ion-popover>
 
-              <ion-col size="1.5" class="d-flex align-item-center justify-content-center">
+              <ion-col *ngIf="_sharedservice.hasCallFeature" size="1.5"
+                class="d-flex align-item-center justify-content-center">
                 <a (click)="this.outboundCall(lead)" class="ion-text-start call-icon">
                   <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
                 </a>
@@ -403,7 +413,8 @@
                   <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
                 </a>
               </ion-col>
-              <ion-col size="1.5" class="d-flex align-item-center justify-content-center">
+              <ion-col *ngIf="_sharedservice.hasCallFeature" size="1.5"
+                class="d-flex align-item-center justify-content-center">
                 <a (click)="onplayButton(lead)" class="play_icon">
                   <ion-img src="../../assets/CRMimages/play-icon.svg"></ion-img>
                 </a>
@@ -518,7 +529,7 @@
         </ion-card>
       </ion-item>
       <span *ngIf="userName != 'demo'">
-        <ion-item-options side="end">
+        <ion-item-options side="end" *ngIf="_sharedservice.hasCallFeature">
           <ion-img src="../../assets/CRMimages/phone-call.svg" style="width:45px;padding: 10px;"
             class="call-icon"></ion-img>
         </ion-item-options>

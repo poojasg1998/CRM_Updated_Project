@@ -25,6 +25,10 @@ export class AuthServiceService {
   }
 
   login() {
+    console.log(
+      localStorage.getItem('crmcategory_IDFK'),
+      localStorage.getItem('Department')
+    );
     this.isLoggedIn = true;
     localStorage.setItem('isLoggedIn', 'true');
     this.setHoverState(localStorage.getItem('ranavPropId'));
@@ -109,7 +113,6 @@ export class AuthServiceService {
     if (localStorage.getItem('Department') == '10005') {
       this.router.navigate(['source-dashboard'], {
         queryParams: {
-          htype: 'mandate',
           fromDate: new Date().toLocaleDateString('en-CA'),
           toDate: new Date().toLocaleDateString('en-CA'),
           isDateFilter: 'today',
@@ -127,12 +130,21 @@ export class AuthServiceService {
           isDateFilter: 'today',
         },
       });
+    } else if (localStorage.getItem('crmcategory_IDFK') == '2') {
+      console.log('entered');
+      this.router.navigate(['shreeindustries-dashboard'], {
+        queryParams: {
+          isDateFilter: 'allTime',
+          activeCardKey: 'total_card',
+          tabid: '1',
+          status: '0',
+        },
+      });
     } else if (localStorage.getItem('Role') == null) {
       this.router.navigate['/'];
     } else {
       this.router.navigate(['home'], {
         queryParams: {
-          htype: 'mandate',
           isDateFilter: 'today',
         },
       });
@@ -156,7 +168,7 @@ export class AuthServiceService {
       recursive: true,
     });
     location.reload();
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 
   isAuthenticated(): boolean {

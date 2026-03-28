@@ -1,0 +1,26 @@
+* {
+  font-family: "Poppins";
+}
+.leads_jobs {
+  gap: 2;
+  border-radius: 30px;
+  span {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 30px;
+    padding: 2px;
+  }
+  ion-col {
+    padding: 2px;
+  }
+  background: #0b7ab2 !important;
+  color: white;
+}
+
+.active_btn {
+  background: white !important;
+  color: #0b7ab2 !important;
+}

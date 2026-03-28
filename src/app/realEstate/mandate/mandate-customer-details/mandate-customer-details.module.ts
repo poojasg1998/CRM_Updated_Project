@@ -17,6 +17,12 @@ import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { PhotoGalleryModule } from '@twogate/ngx-photo-gallery';
 import { DropdownModule } from 'primeng/dropdown';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { JunkformComponent } from '../junkform/junkform.component';
+import { FollowUpFormComponent } from '../follow-up-form/follow-up-form.component';
+import { MandateRsvFormComponent } from '../mandate-rsv-form/mandate-rsv-form.component';
+import { MandateUsvFormComponent } from '../mandate-usv-form/mandate-usv-form.component';
+import { MandateNegoformComponent } from '../mandate-negoform/mandate-negoform.component';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { SharedModule } from '../../shared.module';
 @NgModule({
   imports: [
@@ -37,6 +43,7 @@ import { SharedModule } from '../../shared.module';
     NgxMaterialTimepickerModule,
     PhotoGalleryModule,
     SharedModule,
+    MultiSelectModule,
   ],
   providers: [LocalNotifications],
   declarations: [MandateCustomerDetailsComponent],

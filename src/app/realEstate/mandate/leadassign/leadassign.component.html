@@ -143,7 +143,7 @@
         </span>
       </div>
       <div style="width:100%" class="lead-info">
-        <div (click)="navigateToDetailsPage(lead.LeadID,lead.RMID,lead)">
+        <div (click)="navigateToDetailsPage(lead.LeadID,lead.ExecId,lead)">
           <ion-row class="info-row-heading">
             <ion-col size="6">
               <div>Lead Name</div>
@@ -311,7 +311,8 @@
             </ng-template>
           </ion-popover>
 
-          <ion-col size="1.5" class="d-flex align-item-center justify-content-center">
+          <ion-col size="1.5" *ngIf="_sharedservice.hasCallFeature"
+            class="d-flex align-item-center justify-content-center">
             <a (click)="this.outboundCall(lead)" class="ion-text-start call-icon">
               <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
             </a>
@@ -321,7 +322,8 @@
               <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
             </a>
           </ion-col>
-          <ion-col size="1.5" class="d-flex align-item-center justify-content-center">
+          <ion-col size="1.5" *ngIf="_sharedservice.hasCallFeature"
+            class="d-flex align-item-center justify-content-center">
             <a (click)="onplayButton(lead)" class="play_icon">
               <ion-img src="../../assets/CRMimages/play-icon.svg"></ion-img>
             </a>
@@ -462,7 +464,7 @@
     </ion-item>
 
     <span *ngIf="localStorage.getItem('Name') !== 'demo'">
-      <ion-item-options side="end">
+      <ion-item-options side="end" *ngIf="_sharedservice.hasCallFeature">
         <ion-img src="../../assets/CRMimages/phone-call.svg" style="width:45px;padding: 10px;"
           class="call-icon"></ion-img>
       </ion-item-options>

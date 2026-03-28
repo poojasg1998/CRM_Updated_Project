@@ -45,6 +45,7 @@ export class DashboardComponent {
   @ViewChild('dashboard_toDate_modal') dashboard_toDate_modal: IonModal;
   segments = 6;
   weekDataCal: any[];
+  todaysDate;
   weekData = [
     {
       label: 'Assigned',
@@ -140,6 +141,10 @@ export class DashboardComponent {
   roleid: string;
   disabledDays: number[];
   plan_vs_summary = [];
+  scheduledPlans: any;
+  tableData: any[];
+  isRM: boolean;
+  page: number;
   toggleDarkMode(event: any) {
     const isDark = event.detail.checked;
 
@@ -169,6 +174,7 @@ export class DashboardComponent {
     propertyName: '',
     team: '',
     status: '',
+    priority: '1',
     stage: '',
     stagestatus: '',
     visits: '',
@@ -176,11 +182,12 @@ export class DashboardComponent {
     roleId: '',
     loginid: localStorage.getItem('UserId'),
     callstage: 'overall',
+    lead_stage: '',
+    lead_status: 'totalplanned',
     teamlead:
       localStorage.getItem('RoleType') == '1'
         ? localStorage.getItem('UserId')
         : '',
-    htype: '',
     plan: '2',
     leadvisit: '',
     limit: 0,
@@ -262,12 +269,20 @@ export class DashboardComponent {
           this.getAssignedLeadsCount();
         }
       });
+    this.todaysDate = this.getTodayDate();
 
     this.isCP = localStorage.getItem('cpId') == '1';
     this.roleid = localStorage.getItem('Role');
     if (this.queryParamSub) {
       this.queryParamSub.unsubscribe();
     }
+
+    this.isRM =
+      this.localStorage.getItem('Role') == '50001' ||
+      this.localStorage.getItem('Role') == '50002' ||
+      this.localStorage.getItem('Role') == '50009' ||
+      this.localStorage.getItem('Role') == '50010';
+
     this.queryParamSub = this.activeRoute.queryParams
       .pipe(
         takeUntil(this.destroy$),
@@ -282,9 +297,35 @@ export class DashboardComponent {
       .subscribe((params) => {
         // this.content.scrollToTop(300);
         this.fetchmandateexecutives();
-        this.getScheduledplans_counts();
+        if (this.filteredParams1.isLeadsVisitsCalls == 'plans') {
+          this.getScheduledplans_counts();
+        }
+
         this.getAssignedLeadsCount();
       });
+  }
+
+  counts: any = {
+    USV: {
+      total_planned: 0,
+      done_counts: 0,
+      overdue_counts: 0,
+      rescheduled_counts: 0,
+      unplanned_counts: 0,
+    },
+    RSV: {
+      total_planned: 0,
+      done_counts: 0,
+      overdue_counts: 0,
+      rescheduled_counts: 0,
+      unplanned_counts: 0,
+    },
+  };
+  // Helper to sum USV and RSV for the main big number
+  getTotal(key: string): number {
+    const usv = parseInt(this.counts.USV?.[key] || 0);
+    const rsv = parseInt(this.counts.RSV?.[key] || 0);
+    return usv + rsv;
   }
   getScheduledplans_counts() {
     this.mandateService
@@ -292,6 +333,52 @@ export class DashboardComponent {
       .subscribe((resp) => {
         console.log(resp);
         this.plan_vs_summary = resp['result'];
+
+        this.filteredParams1.lead_stage =
+          this.filteredParams1.lead_stage == ''
+            ? this.plan_vs_summary?.['0']?.['lead_stage']
+            : this.filteredParams1.lead_stage;
+
+        //CARD DESIGN API ALTER
+        this.counts = { USV: {}, RSV: {} };
+
+        resp['result']?.forEach((item) => {
+          if (item.lead_stage === 'USV' || item.lead_stage === 'RSV') {
+            this.counts[item.lead_stage] = item;
+          }
+        });
+
+        //TABLE DESIGN API ALTER
+        const stages = [
+          'total_planned',
+          'done_counts',
+          'rescheduled_counts',
+          'overdue_counts',
+          'unplanned_counts',
+        ];
+
+        const labels: any = {
+          total_planned: 'totalplanned',
+          done_counts: 'done',
+          rescheduled_counts: 'rescheduled',
+          overdue_counts: 'overdue',
+          unplanned_counts: 'unplanned',
+        };
+
+        // Get all lead stages dynamically (USV, RSV, etc.)
+        const leadStages = resp['result']?.map((x: any) => x.lead_stage);
+
+        this.tableData = stages.map((stageKey) => {
+          const row: any = { stage: labels[stageKey] };
+
+          resp['result']?.forEach((item: any) => {
+            row[item.lead_stage] = item?.[stageKey] || 0;
+          });
+
+          return row;
+        });
+
+        this.getScheduledVisitsdata(false);
       });
   }
   ngOnDestroy() {
@@ -514,7 +601,9 @@ export class DashboardComponent {
         key != 'visitedtodate' &&
         key != 'visitedfromdate' &&
         key != 'teamlead' &&
-        key != 'plan'
+        key != 'lead_stage' &&
+        key != 'plan' &&
+        key != 'lead_status'
       ) {
         result[key] = '';
       }
@@ -530,9 +619,29 @@ export class DashboardComponent {
     if (this.filteredParams1.isLeadsVisitsCalls == 'visits') {
       this.filteredParams1.fromDate = '';
       this.filteredParams1.toDate = '';
+      if (this.filteredParams1.visitedfromdate == '') {
+        this.filteredParams1.visitedfromdate = new Date().toLocaleDateString(
+          'en-CA'
+        );
+        this.filteredParams1.visitedtodate = new Date().toLocaleDateString(
+          'en-CA'
+        );
+        this.filteredParams1.isDateFilter = 'today';
+      }
+      if (this.filteredParams1.priority == '') {
+        this.filteredParams1.priority = '1';
+      }
     } else if (this.filteredParams1.isLeadsVisitsCalls == 'leads') {
+      this.filteredParams1.priority = '';
       this.filteredParams1.visitedfromdate = '';
       this.filteredParams1.visitedtodate = '';
+      if (this.filteredParams1.fromDate == '') {
+        this.filteredParams1.fromDate = new Date().toLocaleDateString('en-CA');
+        this.filteredParams1.toDate = new Date().toLocaleDateString('en-CA');
+        this.filteredParams1.isDateFilter = 'today';
+      }
+    } else {
+      this.filteredParams1.priority = '';
     }
     // Example condition: enable only weekends
     if (this.filteredParams1.plan === '1') {
@@ -553,30 +662,34 @@ export class DashboardComponent {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const day = today.getDay(); // 0=Sun, 1=Mon ... 6=Sat
+    const day = today.getDay(); // 0=Sun ... 6=Sat
 
-    let lastFriday = new Date(today);
+    let monday: Date;
+    let friday: Date;
 
-    if (day === 0) {
-      // Sunday → go back 2 days to Friday
-      lastFriday.setDate(today.getDate() - 2);
-    } else if (day === 6) {
-      // Saturday → go back 1 day to Friday
-      lastFriday.setDate(today.getDate() - 1);
+    if (day >= 5 || day === 0) {
+      // 🔥 Friday, Saturday, Sunday → NEXT week
+      const daysToNextMonday = day === 0 ? 1 : 8 - day;
+
+      monday = new Date(today);
+      monday.setDate(today.getDate() + daysToNextMonday);
     } else {
-      // Mon–Fri → go back to previous Friday
-      lastFriday.setDate(today.getDate() - day - 2);
+      // ✅ Monday–Thursday → CURRENT week
+      const daysFromMonday = day - 1;
+
+      monday = new Date(today);
+      monday.setDate(today.getDate() - daysFromMonday);
     }
 
-    const lastMonday = new Date(lastFriday);
-    lastMonday.setDate(lastFriday.getDate() - 4);
-    this.plan_vs_summary_dateRange = [lastMonday, lastFriday];
+    // Friday = Monday + 4 days
+    friday = new Date(monday);
+    friday.setDate(monday.getDate() + 4);
+
+    this.plan_vs_summary_dateRange = [monday, friday];
 
     if (this.filteredParams1.weekendfromdate == '') {
-      this.filteredParams1.weekendfromdate =
-        lastMonday.toLocaleDateString('en-CA');
-      this.filteredParams1.weekendtodate =
-        lastFriday.toLocaleDateString('en-CA');
+      this.filteredParams1.weekendfromdate = monday.toLocaleDateString('en-CA');
+      this.filteredParams1.weekendtodate = friday.toLocaleDateString('en-CA');
     } else {
       console.log(this.filteredParams1);
       this.setCalendarFromStoredDates();
@@ -588,28 +701,30 @@ export class DashboardComponent {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const day = today.getDay(); // 0 = Sunday
+      const day = today.getDay(); // 0=Sun, 6=Sat
 
       let saturday: Date;
       let sunday: Date;
 
-      if (day === 0) {
-        // Today is Sunday → current weekend
-        sunday = new Date(today);
+      if (day === 6) {
+        // Saturday → current weekend
         saturday = new Date(today);
-        saturday.setDate(today.getDate() - 1);
-      } else {
-        // Last completed weekend
-        // Go back to previous Sunday
-        sunday = new Date(today);
-        sunday.setDate(today.getDate() - day);
 
-        // Saturday is one day before that Sunday
-        saturday = new Date(sunday);
-        saturday.setDate(sunday.getDate() - 1);
+        sunday = new Date(today);
+        sunday.setDate(today.getDate() + 1);
+      } else {
+        // Weekdays + Sunday → NEXT weekend
+        const daysToSaturday = day === 0 ? 6 : 6 - day;
+
+        saturday = new Date(today);
+        saturday.setDate(today.getDate() + daysToSaturday);
+
+        sunday = new Date(saturday);
+        sunday.setDate(saturday.getDate() + 1);
       }
 
       this.plan_vs_summary_dateRange = [saturday, sunday];
+
       this.filteredParams1.weekendfromdate =
         saturday.toLocaleDateString('en-CA');
       this.filteredParams1.weekendtodate = sunday.toLocaleDateString('en-CA');
@@ -665,6 +780,44 @@ export class DashboardComponent {
     }
   }
 
+  onPlanDateFilter(value) {
+    this.filteredParams1.isDateFilter = value;
+    const today = new Date();
+    const format = (d) => d.toISOString().split('T')[0];
+    if (value === 'today') {
+      this.filteredParams1.weekendfromdate = format(today);
+      this.filteredParams1.weekendtodate = format(today);
+    } else if (value == 'yesterday') {
+      const y = new Date(today);
+      y.setDate(today.getDate() - 1);
+      this.filteredParams1.weekendfromdate = format(y);
+      this.filteredParams1.weekendtodate = format(y);
+    }
+
+    let lastFriday = new Date(this.filteredParams1.weekendfromdate);
+
+    if (lastFriday.getDay() == 0 || lastFriday.getDay() == 6) {
+      this.filteredParams1.plan = '2';
+      this.setWeekendRange();
+    } else {
+      this.filteredParams1.plan = '1';
+      this.setWeekdayRange();
+    }
+    this.addQueryParams();
+  }
+
+  // onWeekend_Weekday_plan(plan) {
+  //   this.filteredParams1.plan = plan;
+  //   this.filteredParams1.weekendfromdate = '';
+  //   this.filteredParams1.weekendtodate = '';
+  //   if (this.filteredParams1.plan == '1') {
+  //     this.setWeekdayRange();
+  //   } else if (this.filteredParams1.plan == '2') {
+  //     this.setWeekendRange();
+  //   }
+  //   this.addQueryParams();
+  // }
+
   onFilterSelection(type, value) {
     this.resetInfiniteScroll();
     const today = new Date();
@@ -679,8 +832,11 @@ export class DashboardComponent {
       }
     };
 
+    console.log(setDates);
+
     switch (type) {
       case 'property':
+        this.filteredParams1.lead_stage = '';
         this.filteredParams1.executid = '';
         Object.assign(this.filteredParams1, {
           propid: value.property_idfk,
@@ -699,25 +855,70 @@ export class DashboardComponent {
         // } else {
         //   this.filteredParams1.propid = this.propertyLists[0].property_idfk;
         // }
-
-        if (this.filteredParams1.isDateFilter == 'lastsevenDay') {
-          // this.filteredParams1.isDateFilter = 'alltime';
-          // setDates('', '');
-          // this.filteredParams1.visitedfromdate = '';
-          // this.filteredParams1.visitedtodate = '';
-          // this.filteredParams1.fromDate = '';
-          // this.filteredParams1.toDate = '';
+        if (
+          this.filteredParams1.fromDate == '' &&
+          this.filteredParams1.visitedfromdate == ''
+        ) {
+          if (this.filteredParams1.isDateFilter == 'yesterday') {
+            if (value == 'calls' || value == 'leads') {
+              this.filteredParams1.fromDate =
+                this.filteredParams1.weekendfromdate;
+              this.filteredParams1.toDate = this.filteredParams1.weekendtodate;
+            } else if (value == 'visits') {
+              this.filteredParams1.visitedfromdate =
+                this.filteredParams1.weekendfromdate;
+              this.filteredParams1.visitedtodate =
+                this.filteredParams1.weekendtodate;
+            }
+          } else {
+            if (value == 'visits') {
+              this.filteredParams1.visitedfromdate =
+                new Date().toLocaleDateString('en-CA');
+              this.filteredParams1.visitedtodate =
+                new Date().toLocaleDateString('en-CA');
+            } else {
+              this.filteredParams1.fromDate = new Date().toLocaleDateString(
+                'en-CA'
+              );
+              this.filteredParams1.toDate = new Date().toLocaleDateString(
+                'en-CA'
+              );
+            }
+            this.filteredParams1.isDateFilter = 'today';
+          }
+          this.filteredParams1.weekendfromdate = '';
+          this.filteredParams1.weekendtodate = '';
         } else if (value == 'calls' && this.filteredParams1.visitedfromdate) {
           this.filteredParams1.fromDate = this.filteredParams1.visitedfromdate
             ? this.filteredParams1.visitedfromdate
-            : this.filteredParams1.fromDate;
+            : this.filteredParams1.fromDate ||
+              this.filteredParams1.weekendfromdate;
           this.filteredParams1.toDate = this.filteredParams1.visitedtodate
             ? this.filteredParams1.visitedtodate
-            : this.filteredParams1.toDate;
+            : this.filteredParams1.toDate || this.filteredParams1.weekendtodate;
 
           this.filteredParams1.visitedfromdate = '';
           this.filteredParams1.visitedtodate = '';
           this.filteredParams1.roleId = '';
+        } else if (value == 'visits') {
+          this.filteredParams1.visitedfromdate =
+            this.filteredParams1.fromDate ||
+            this.filteredParams1.weekendfromdate;
+          this.filteredParams1.visitedtodate =
+            this.filteredParams1.toDate || this.filteredParams1.weekendtodate;
+        } else if (value == 'plans') {
+          this.filteredParams1.toDate = '';
+          this.filteredParams1.fromDate = '';
+          this.filteredParams1.visitedtodate = '';
+          this.filteredParams1.visitedfromdate = '';
+          this.filteredParams1.isDateFilter != 'lastsevenDay'
+            ? this.onPlanDateFilter(this.filteredParams1.isDateFilter)
+            : '';
+
+          this.filteredParams1.isDateFilter =
+            this.filteredParams1.isDateFilter == 'custom'
+              ? ''
+              : this.filteredParams1.isDateFilter;
         }
 
         if (
@@ -785,10 +986,11 @@ export class DashboardComponent {
           today.setDate(today.getDate() - 6);
           this.filteredParams1.fromDate = today.toISOString().split('T')[0];
           this.filteredParams1.toDate = new Date().toISOString().split('T')[0];
-          // setDates(
-          //   today.toISOString().split('T')[0],
-          //   new Date().toISOString().split('T')[0]
-          // );
+
+          setDates(
+            today.toISOString().split('T')[0],
+            new Date().toISOString().split('T')[0]
+          );
         } else if (value === 'custom') {
           this.dashboard_custDate_modal.present();
           return;
@@ -807,6 +1009,7 @@ export class DashboardComponent {
           }
 
           const p = this.filteredParams1;
+
           if (p.isLeadsVisitsCalls === 'visits') {
             p.visitedfromdate = p.fromDate || p.visitedfromdate;
             p.visitedtodate = p.toDate || p.visitedtodate;
@@ -837,6 +1040,7 @@ export class DashboardComponent {
           this.dashboard_toDate_modal?.dismiss();
           return;
         }
+
         break;
       case 'callstage':
         this.allCallsData = [];
@@ -844,23 +1048,26 @@ export class DashboardComponent {
         break;
     }
 
-    const p = this.filteredParams1;
-    if (p.isLeadsVisitsCalls === 'visits') {
-      p.visitedfromdate = p.fromDate || p.visitedfromdate;
-      p.visitedtodate = p.toDate || p.visitedtodate;
-      p.fromDate = p.toDate = '';
-    } else if (p.isLeadsVisitsCalls === 'leads') {
-      p.fromDate = p.visitedfromdate || p.fromDate;
-      p.toDate = p.visitedtodate || p.toDate;
-      p.visitedfromdate = p.visitedtodate = '';
-    }
-    this.showSpinner = true;
+    // const p = this.filteredParams1;
+    // if (p.isLeadsVisitsCalls === 'visits') {
+    //   p.visitedfromdate = p.visitedfromdate ? p.visitedfromdate : p.fromDate;
+    //   p.visitedtodate = p.visitedtodate ? p.visitedtodate : p.toDate;
+    //   p.fromDate = p.toDate = '';
+    // } else if (p.isLeadsVisitsCalls === 'leads') {
+    //   p.fromDate = p.fromDate ? p.fromDate : p.visitedfromdate;
+    //   p.toDate = p.toDate ? p.toDate : p.visitedtodate;
+    //   p.visitedfromdate = p.visitedtodate = '';
+    // }
+    // this.showSpinner = true;
     this.addQueryParams();
   }
 
   navigateToLeadListPage(value) {
     this.filteredParams1.status = value != 'NC' ? value : '';
     this.filteredParams1.stage = value == 'NC' ? value : '';
+    if (value == 'pending') {
+      this.filteredParams1;
+    }
     let queryParams = {};
     for (const key in this.filteredParams1) {
       if (
@@ -884,6 +1091,12 @@ export class DashboardComponent {
           : value == 'generalfollowups'
           ? 'General Followup'
           : '',
+      assignedfromdate:
+        value == 'assignedleads' ? this.filteredParams1.fromDate : null,
+      assignedtodate:
+        value == 'assignedleads' ? this.filteredParams1.toDate : null,
+      fromDate: value == 'assignedleads' ? null : this.filteredParams1.fromDate,
+      toDate: value == 'assignedleads' ? null : this.filteredParams1.toDate,
     };
 
     this.router.navigate(['/mandate-lead-stages'], {
@@ -1084,19 +1297,21 @@ export class DashboardComponent {
       team: '',
       status: '',
       stage: '',
+      priority: '1',
       stagestatus: '',
+      lead_stage: 'USV',
+      lead_status: 'totalplanned',
       visits: '',
       followup: '',
       loginid: localStorage.getItem('UserId'),
       callstage: 'overall',
       roleId: '',
-      htype: this.filteredParams1.htype,
       teamlead:
         localStorage.getItem('RoleType') == '1'
           ? localStorage.getItem('UserId')
           : '',
       leadvisit: '',
-      plan: '2',
+      plan: '',
       limit: 0,
       limitrows: 5,
     };
@@ -1104,7 +1319,7 @@ export class DashboardComponent {
       fromdate: null as Date | null,
       todate: null as Date | null,
     };
-    this.setWeekendRange();
+    this.onPlanDateFilter(this.filteredParams1.isDateFilter);
 
     // event.target.complete();
     this.addQueryParams();
@@ -1116,6 +1331,7 @@ export class DashboardComponent {
   }
   // Getting counts of all assigned leads
   getAssignedLeadsCount() {
+    this.showSpinner = true;
     const requests = [];
     this.changeDetectorRef.detectChanges();
     if (this.filteredParams1.isLeadsVisitsCalls == 'leads') {
@@ -1341,6 +1557,7 @@ export class DashboardComponent {
           ...this.filteredParams1,
           stage: stage,
           stagestatus: '3',
+          priority: '',
         };
         requests.push(
           this.mandateService.getAssignedLeadsCounts(params).pipe(
@@ -1363,6 +1580,7 @@ export class DashboardComponent {
               this.filteredParams1.visitedtodate)
               ? '3'
               : '',
+          priority: '',
         };
         requests.push(
           this.mandateService.getAssignedLeadsCounts(params).pipe(
@@ -1413,6 +1631,7 @@ export class DashboardComponent {
             overduestages == 'Final Negotiation'
               ? '3'
               : '',
+          priority: '',
         };
         requests.push(
           this.mandateService.getAssignedLeadsCounts(params).pipe(
@@ -1495,15 +1714,13 @@ export class DashboardComponent {
               break;
           }
         });
-
-        this.showSpinner = false;
-        this.getScheduledVisitsdata(false);
+        this.getHotWarmColdCounts();
       });
     }
 
-    if (this.filteredParams1.isLeadsVisitsCalls != 'calls') {
-      this.getWeekPlansData(false);
-    }
+    // if (this.filteredParams1.isLeadsVisitsCalls != 'calls') {
+    //   this.getWeekPlansData(false);
+    // }
 
     //
     if (this.filteredParams1.isLeadsVisitsCalls == 'calls') {
@@ -1599,6 +1816,7 @@ export class DashboardComponent {
             ? this.calculateSegments(d.value, d.total)
             : null,
       }));
+      this.showSpinner = false;
     }, 100);
   }
 
@@ -1706,31 +1924,156 @@ export class DashboardComponent {
   }
   scheduledVisitedData = [];
   getScheduledVisitsdata(isLoadmore) {
+    // const params = {
+    //   ...this.filteredParams1,
+    //   fromDate: new Date().toLocaleDateString('en-CA'),
+    //   toDate: new Date().toLocaleDateString('en-CA'),
+    //   visitedfromdate: '',
+    //   visitedtodate: '',
+    //   status: 'scheduledtoday',
+    // };
+
+    // this.count = isLoadmore ? (this.count += 5) : 0;
+    // params.limit = this.count;
+
+    // return new Promise((resolve, reject) => {
+    //   this.mandateService
+    //     .getAssignedLeadsRecord(params)
+    //     .subscribe((response) => {
+    //       if (response['status'] == 'True') {
+    //         this.scheduledVisitedData = isLoadmore
+    //           ? this.scheduledVisitedData.concat(response['AssignedLeads'])
+    //           : response['AssignedLeads'];
+
+    //         console.log(this.scheduledVisitedData);
+    //         resolve(true);
+    //       } else {
+    //         isLoadmore ? '' : (this.scheduledVisitedData = []);
+    //         resolve(false);
+    //       }
+    //     });
+    // });
+
     const params = {
       ...this.filteredParams1,
-      fromDate: new Date().toLocaleDateString('en-CA'),
-      toDate: new Date().toLocaleDateString('en-CA'),
-      visitedfromdate: '',
-      visitedtodate: '',
-      status: 'scheduledtoday',
+      fromDate: this.filteredParams1.weekendfromdate,
+      toDate: this.filteredParams1.weekendtodate,
+      status: this.filteredParams1.lead_status,
     };
 
+    // this.count = isLoadmore ? (this.count += 5) : 0;
+    // params.limit = this.count;
+
+    return new Promise((resolve, reject) => {
+      this.mandateService.getScheduledPlans(params).subscribe((response) => {
+        if (response['status'] == 'True') {
+          this.scheduledPlans = isLoadmore
+            ? this.scheduledPlans.concat(response['result'])
+            : response['result'];
+          this.scheduledPlans = response['result'];
+          console.log(this.scheduledPlans);
+          this.showSpinner = false;
+          resolve(true);
+        } else {
+          isLoadmore ? '' : (this.scheduledPlans = []);
+          this.showSpinner = false;
+          resolve(false);
+        }
+      });
+    });
+  }
+  hotVisitsData;
+  priorityCount = {
+    hot: '',
+    warm: '',
+    cold: '',
+  };
+  getHotWarmColdCounts() {
+    const requests = [];
+    const priority = ['1', '2', '3'];
+    priority.forEach((priority) => {
+      const params = {
+        ...this.filteredParams1,
+        fromDate: '',
+        toDate: '',
+        priority: priority,
+        stagestatus: '3',
+        status: 'allvisits',
+      };
+      requests.push(
+        this.mandateService.getAssignedLeadsCounts(params).pipe(
+          catchError((error) => {
+            console.error(`Error fetching data for status: ${status}`, error);
+            return of(null);
+          })
+        )
+      );
+    });
+
+    forkJoin(requests).subscribe((results) => {
+      results.forEach((assgnleads, index) => {
+        switch (index) {
+          case 0:
+            this.priorityCount.hot =
+              assgnleads['AssignedLeads'][0]['Uniquee_counts'];
+            break;
+          case 1:
+            this.priorityCount.warm =
+              assgnleads['AssignedLeads'][0]['Uniquee_counts'];
+            break;
+          case 2:
+            this.priorityCount.cold =
+              assgnleads['AssignedLeads'][0]['Uniquee_counts'];
+            break;
+          default:
+            break;
+        }
+      });
+
+      if (this.sharedService.hasState) {
+        this.showSpinner = false;
+        this.hotVisitsData = this.sharedService.enquiries;
+        this.page = this.sharedService.page;
+        setTimeout(() => {
+          this.content.scrollToPoint(0, this.sharedService.scrollTop, 0);
+        }, 0);
+
+        setTimeout(() => {
+          this.sharedService.hasState = false;
+        }, 5000);
+      } else {
+        this.content?.scrollToTop(300);
+        this.getHotVisitLeads(false);
+      }
+    });
+  }
+
+  getHotVisitLeads(isLoadmore) {
     this.count = isLoadmore ? (this.count += 5) : 0;
-    params.limit = this.count;
+    this.filteredParams1.limit = this.count;
+    const params = {
+      ...this.filteredParams1,
+      stagestatus: '3',
+      toDate: '',
+      fromDate: '',
+      priority: this.filteredParams1.priority,
+      status: 'allvisits',
+    };
 
     return new Promise((resolve, reject) => {
       this.mandateService
-        .getAssignedLeadsRecord(params)
+        .getAssignedLeadsDetail(params)
         .subscribe((response) => {
           if (response['status'] == 'True') {
-            this.scheduledVisitedData = isLoadmore
-              ? this.scheduledVisitedData.concat(response['AssignedLeads'])
+            this.hotVisitsData = isLoadmore
+              ? this.hotVisitsData.concat(response['AssignedLeads'])
               : response['AssignedLeads'];
 
-            console.log(this.scheduledVisitedData);
+            this.showSpinner = false;
             resolve(true);
           } else {
-            isLoadmore ? '' : (this.scheduledVisitedData = []);
+            isLoadmore ? '' : (this.hotVisitsData = []);
+            this.showSpinner = false;
             resolve(false);
           }
         });
@@ -1738,14 +2081,29 @@ export class DashboardComponent {
   }
 
   canScroll;
+  isScrollMoved = false;
   onScroll(event: CustomEvent) {
-    const scrollTop = event.detail.scrollTop;
     this.content.getScrollElement().then((scrollEl) => {
       const scrollTop = scrollEl.scrollTop;
       const scrollHeight = scrollEl.scrollHeight;
       const clientHeight = scrollEl.offsetHeight;
 
-      this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
+      // 1. Calculate the total distance the user CAN scroll
+      const maxScroll = scrollHeight - clientHeight;
+
+      // 2. Check if the user has moved past the 25% mark
+      const isQuarterScrolled = scrollTop >= maxScroll * 0.25;
+
+      if (isQuarterScrolled) {
+        this.isScrollMoved = true;
+        console.log('User has moved 25% down the page');
+        // You can trigger your logic here (e.g., hide the spinner or show a button)
+      } else {
+        this.isScrollMoved = false;
+      }
+
+      // --- Your existing logic ---
+      this.canScroll = scrollHeight > clientHeight + 10;
 
       if (!this.canScroll) {
         this.sharedService.isBottom = false;
@@ -1772,11 +2130,20 @@ export class DashboardComponent {
           event.target.disabled = true;
         }
       });
-    } else if (
-      this.roleid != '1' ||
-      (this.roleid == '1' && this.filteredParams1.executid)
-    ) {
-      this.getScheduledToday_Overdues_data(true).then((hasData) => {
+    }
+    //  else if (
+    //   this.roleid != '1' ||
+    //   (this.roleid == '1' && this.filteredParams1.executid)
+    // ) {
+    //   this.getScheduledToday_Overdues_data(true).then((hasData) => {
+    //     event.target.complete();
+    //     if (!hasData) {
+    //       event.target.disabled = true;
+    //     }
+    //   });
+    // }
+    else if (this.filteredParams1.isLeadsVisitsCalls == 'visits') {
+      this.getHotVisitLeads(true).then((hasData) => {
         event.target.complete();
         if (!hasData) {
           event.target.disabled = true;
@@ -1802,6 +2169,15 @@ export class DashboardComponent {
   }
 
   loadScheduledVisitsData(event) {
+    this.getScheduledVisitsdata(true).then((hasData) => {
+      event.target.complete();
+      if (!hasData) {
+        event.target.disabled = true;
+      }
+    });
+  }
+
+  loadScheduledPlansData(event) {
     this.getScheduledVisitsdata(true).then((hasData) => {
       event.target.complete();
       if (!hasData) {
@@ -1978,7 +2354,16 @@ export class DashboardComponent {
   isOnCallDetailsPage;
   onSwipe(event, lead: any) {
     if (event.detail.side == 'start') {
-      window.open(`https://wa.me/+91 ${lead.number}`, '_system');
+      window.open(
+        `https://wa.me/+91 ${
+          lead?.number
+            ? lead?.number
+            : lead.callto
+            ? lead.callto
+            : lead.cust_number
+        }`,
+        '_system'
+      );
       // this.navigateToWhatsApp(lead.number);
     } else {
       this.outboundCall(lead);
@@ -1992,20 +2377,37 @@ export class DashboardComponent {
       this.isOnCallDetailsPage = true;
       this.callConfirmationModal.dismiss();
 
-      const cleanedNumber =
-        this.lead?.callto.startsWith('91') && this.lead?.callto.length > 10
+      const cleanedNumber = this.lead?.callto
+        ? this.lead?.callto.startsWith('91') && this.lead?.callto.length > 10
           ? this.lead?.callto.slice(2)
-          : this.lead?.callto;
+          : this.lead?.callto
+        : this.lead?.cust_number
+        ? this.lead?.cust_number.startsWith('91') &&
+          this.lead?.cust_number.length > 10
+          ? this.lead?.cust_number.slice(2)
+          : this.lead?.cust_number
+        : this.lead?.number.startsWith('91') && this.lead?.number.length > 10
+        ? this.lead?.number.slice(2)
+        : this.lead?.number;
 
       const param = {
         execid: this.localStorage.getItem('UserId'),
         callto: cleanedNumber,
-        leadid: this.lead.leadid,
+        leadid: this.lead.leadid
+          ? this.lead.leadid
+          : this.lead.lead_id
+          ? this.lead.lead_id
+          : this.lead.LeadID,
         starttime: this.getCurrentDateTime(),
-        modeofcall: 'mobile-' + this.filteredParams1.htype,
-        leadtype: this.filteredParams1.htype,
-        assignee: this.lead.Exec_IDFK,
+        modeofcall: 'mobile-mandate',
+        leadtype: 'mandate',
+        assignee: this.lead.Exec_IDFK
+          ? this.lead.Exec_IDFK
+          : this.lead.exec_id
+          ? this.lead.exec_id
+          : this.lead.ExecId,
       };
+      console.log(param);
 
       this.callConfirmationModal.dismiss();
       this.sharedService.outboundCall(param).subscribe((resp) => {
@@ -2020,17 +2422,26 @@ export class DashboardComponent {
       this.router.navigate([], {
         queryParams: {
           isOnCallDetailsPage: this.isOnCallDetailsPage,
-          leadId: this.lead.leadid,
-          execid: this.lead.Exec_IDFK,
+          leadId: this.lead.leadid
+            ? this.lead.leadid
+            : this.lead.lead_id
+            ? this.lead.lead_id
+            : this.lead.LeadID,
+          execid: this.lead.Exec_IDFK
+            ? this.lead.Exec_IDFK
+            : this.lead.exec_id
+            ? this.lead.exec_id
+            : this.lead.ExecId,
           leadTabData: 'status',
           callStatus: 'Call Connected',
           direction: 'outboundCall',
-          headerType: this.filteredParams1.htype,
+          headerType: 'mandate',
         },
         queryParamsHandling: 'merge',
       });
     } else {
       this.lead = lead;
+
       this.showSpinner = false;
       this.callConfirmationModal.present();
     }
@@ -2122,6 +2533,7 @@ export class DashboardComponent {
   isWeekend = false;
 
   onWeekend_Weekday_plan(plan) {
+    this.filteredParams1.isDateFilter = '';
     this.filteredParams1.plan = plan;
     this.filteredParams1.weekendfromdate = '';
     this.filteredParams1.weekendtodate = '';
@@ -2139,6 +2551,7 @@ export class DashboardComponent {
 
   plan_vs_summary_dateRange: Date[] = [];
   onPlan_vs_summary_dateRange() {
+    this.filteredParams1.isDateFilter = '';
     console.log(this.plan_vs_summary_dateRange);
     this.filteredParams1.weekendfromdate =
       this.plan_vs_summary_dateRange[0].toLocaleDateString('en-CA');
@@ -2152,5 +2565,78 @@ export class DashboardComponent {
     if (el.scrollHeight - el.scrollTop <= el.clientHeight + 50) {
       this.loadTableData(event);
     }
+  }
+
+  onPlan_VS_summary(stage, status) {
+    this.showSpinner = true;
+    this.filteredParams1.lead_stage = stage;
+    this.filteredParams1.lead_status = status;
+    setTimeout(() => {
+      this.scrollToLeads();
+    }, 1000);
+    this.addQueryParams();
+  }
+
+  @ViewChild('leadsSection') leadsSection!: any;
+  scrollToLeads() {
+    this.leadsSection.nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+    setTimeout(() => {
+      this.showSpinner = false;
+    }, 2000);
+  }
+
+  // Convert API date string to Date object
+  toDate(dateStr: string): Date {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    d.setHours(0, 0, 0, 0); // remove time part
+    return d;
+  }
+
+  calculateDiff(dateStr: string): number {
+    if (!dateStr) return 0;
+
+    const nextDate = this.toDate(dateStr);
+    const diffTime = nextDate.getTime() - this.todaysDate.getTime();
+    return Math.ceil(Math.abs(diffTime / (1000 * 60 * 60 * 24)));
+  }
+
+  getTodayDate(): Date {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  }
+  onHotWarmCold(priority) {
+    this.resetInfiniteScroll();
+    this.filteredParams1.priority = priority;
+    this.addQueryParams();
+  }
+
+  navigateToMandateCustomerPage(leadId, execid, lead) {
+    this.sharedService.enquiries = this.hotVisitsData;
+    this.sharedService.page = this.page;
+    this.sharedService.hasState = true;
+    let propid;
+    lead.suggestedprop.forEach((prop) => {
+      if (lead.propertyname == prop.name) {
+        propid = prop.propid;
+      }
+    });
+    this.router.navigate(['../mandate-customers'], {
+      queryParams: {
+        leadId: leadId,
+        execid: execid,
+        status: 'info',
+        propid: propid,
+        teamlead:
+          localStorage.getItem('RoleType') == '1'
+            ? localStorage.getItem('UserId')
+            : null,
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 }

@@ -13,9 +13,7 @@ export class HeaderComponent implements OnInit {
   isLeadsVisitsCalls = 'leads';
   depId;
   @Input() leadDetails: any;
-  filteredParams = {
-    htype: '',
-  };
+
   roleid = '';
   isRanav;
   iscpId: boolean;
@@ -63,7 +61,6 @@ export class HeaderComponent implements OnInit {
         queryParams: {
           todaysvisits: '1',
           status: 'scheduledtoday',
-          htype: 'mandate',
         },
         replaceUrl: true,
       });
@@ -76,7 +73,6 @@ export class HeaderComponent implements OnInit {
         queryParams: {
           todaysfollowups: '1',
           status: 'todaysfollowups',
-          htype: 'mandate',
         },
         replaceUrl: true,
       });
@@ -89,7 +85,6 @@ export class HeaderComponent implements OnInit {
           status: 'pending',
           type: 'Untouched',
           isDropDown: 'false',
-          htype: 'mandate',
         },
         replaceUrl: true,
       });
@@ -99,7 +94,6 @@ export class HeaderComponent implements OnInit {
     ) {
       this.router.navigate([], {
         queryParams: {
-          htype: 'mandate',
           type: 'USV',
           stage: 'USV',
           stagestatus: '3',
@@ -115,7 +109,6 @@ export class HeaderComponent implements OnInit {
       this.router.navigate([], {
         queryParams: {
           stage: 'Fresh',
-          htype: 'mandate',
           status: 'overdues',
         },
         replaceUrl: true,
@@ -130,7 +123,6 @@ export class HeaderComponent implements OnInit {
           plan: '2',
           datefrom: this.getUpcomingWeekendDates().fromdate,
           dateto: this.getUpcomingWeekendDates().todate,
-          htype: 'mandate',
         },
         replaceUrl: true,
       });
@@ -144,7 +136,6 @@ export class HeaderComponent implements OnInit {
           toDate: new Date().toLocaleDateString('en-CA'),
           status: 'generalfollowups',
           selecteddaterange: 'today',
-          htype: 'mandate',
         },
         replaceUrl: true,
       });
@@ -156,7 +147,6 @@ export class HeaderComponent implements OnInit {
         queryParams: {
           status: 'inactive',
           counter: '1',
-          htype: 'mandate',
         },
         replaceUrl: true,
       });
@@ -167,7 +157,6 @@ export class HeaderComponent implements OnInit {
       this.router.navigate([], {
         queryParams: {
           status: 'pending',
-          htype: 'mandate',
         },
         replaceUrl: true,
       });
@@ -178,7 +167,6 @@ export class HeaderComponent implements OnInit {
       this.router.navigate([], {
         queryParams: {
           leads: '1',
-          htype: 'mandate',
         },
         replaceUrl: true,
       });
@@ -189,7 +177,6 @@ export class HeaderComponent implements OnInit {
           executid: null,
           propid: localStorage.getItem('Role') == '1' ? '1830' : null,
           roleId: null,
-          htype: 'mandate',
         },
         replaceUrl: true,
         queryParamsHandling: 'merge',
@@ -262,7 +249,7 @@ export class HeaderComponent implements OnInit {
       }
     });
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
   onJunkStatus(status) {
     this.router.navigate([], {

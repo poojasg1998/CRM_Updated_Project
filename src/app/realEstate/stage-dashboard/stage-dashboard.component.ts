@@ -821,7 +821,6 @@ export class StageDashboardComponent implements OnInit {
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
             : null,
-        htype: 'mandate',
       },
       queryParamsHandling: 'merge',
     });

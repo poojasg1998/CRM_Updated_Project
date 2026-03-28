@@ -50,7 +50,7 @@ export class MandateInactiveJunkComponent implements OnInit {
     suggestedprop: '',
     visitedPropertyName: '',
     suggetsedPropertyName: '',
-    htype: '',
+
     active: '1',
     propid: '',
     limit: 0,
@@ -286,7 +286,8 @@ export class MandateInactiveJunkComponent implements OnInit {
     });
 
     this.filteredParams.executid =
-      localStorage.getItem('Role') === '1'
+      localStorage.getItem('Role') === '1' ||
+      this.localStorage.getItem('RoleType') == '1'
         ? this.filteredParams.executid
         : localStorage.getItem('UserId');
   }
@@ -336,33 +337,6 @@ export class MandateInactiveJunkComponent implements OnInit {
     setTimeout(() => {
       this.showInfiniteScroll = true;
     }, 10);
-  }
-
-  onHtype(htype) {
-    this.reset_filter();
-    this.filteredParams = { ...this.tempFilteredValues };
-    const queryParams = {};
-    for (const key in this.filteredParams) {
-      if (
-        this.filteredParams.hasOwnProperty(key) &&
-        this.filteredParams[key] !== ''
-      ) {
-        queryParams[key] = this.filteredParams[key];
-      } else {
-        queryParams[key] = null;
-      }
-    }
-    if (htype == 'mandate') {
-      this.router.navigate(['mandate-inactive-junk'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.router.navigate(['retail-inactive-junk'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    }
   }
 
   onInactiveJunkTab(data) {
@@ -673,7 +647,6 @@ export class MandateInactiveJunkComponent implements OnInit {
         leadId: leadId,
         execid: execid,
         status: 'info',
-        htype: this.filteredParams.htype,
         teamlead:
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
@@ -741,7 +714,6 @@ export class MandateInactiveJunkComponent implements OnInit {
       visitedPropertyName: '',
       suggetsedPropertyName: '',
       propid: '',
-      htype: this.filteredParams.htype,
       active: '1',
       limit: 0,
       limitrows: 5,
@@ -963,7 +935,6 @@ export class MandateInactiveJunkComponent implements OnInit {
       queryParams: {
         chatListSearch: number,
         selectedChat: 'all',
-        htype: this.filteredParams.htype,
       },
     });
   }

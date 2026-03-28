@@ -607,16 +607,18 @@ export class MandateCloseFormComponent implements OnInit {
                                             confirmButtonText: 'OK!',
                                           }).then((result) => {
                                             if (result.value) {
-                                              //         const currentParams = this.activeroute.snapshot.queryParams;
-                                              // this.router.navigate([], {
-                                              // relativeTo: this.activeroute,
-                                              // queryParams: {
-                                              //   ...currentParams,
-                                              //   stageForm: 'onleadStatus'
-                                              // },
-                                              // queryParamsHandling: 'merge'
-                                              // });
-                                              location.reload();
+                                              const currentParams =
+                                                this.activeroute.snapshot
+                                                  .queryParams;
+                                              this.router.navigate([], {
+                                                relativeTo: this.activeroute,
+                                                queryParams: {
+                                                  ...currentParams,
+                                                  stageForm: 'onleadStatus',
+                                                },
+                                                queryParamsHandling: 'merge',
+                                              });
+                                              // location.reload();
                                             }
                                           });
                                         } else if (
@@ -906,15 +908,17 @@ export class MandateCloseFormComponent implements OnInit {
                                           confirmButtonText: 'OK!',
                                         }).then((result) => {
                                           if (result.value) {
-                                            //           const currentParams = this.activeroute.snapshot.queryParams;
-                                            // this.router.navigate([], {
-                                            // relativeTo: this.activeroute,
-                                            // queryParams: {
-                                            //   ...currentParams,
-                                            //   stageForm: 'onleadStatus'
-                                            // },
-                                            // queryParamsHandling: 'merge'
-                                            // });
+                                            const currentParams =
+                                              this.activeroute.snapshot
+                                                .queryParams;
+                                            this.router.navigate([], {
+                                              relativeTo: this.activeroute,
+                                              queryParams: {
+                                                ...currentParams,
+                                                stageForm: 'onleadStatus',
+                                              },
+                                              queryParamsHandling: 'merge',
+                                            });
                                             location.reload();
                                           }
                                         });
@@ -1248,16 +1252,18 @@ export class MandateCloseFormComponent implements OnInit {
                                               confirmButtonText: 'OK!',
                                             }).then((result) => {
                                               if (result.value) {
-                                                //          const currentParams = this.activeroute.snapshot.queryParams;
-                                                // this.router.navigate([], {
-                                                // relativeTo: this.activeroute,
-                                                // queryParams: {
-                                                //   ...currentParams,
-                                                //   stageForm: 'onleadStatus'
-                                                // },
-                                                // queryParamsHandling: 'merge'
-                                                // });
-                                                location.reload();
+                                                const currentParams =
+                                                  this.activeroute.snapshot
+                                                    .queryParams;
+                                                this.router.navigate([], {
+                                                  relativeTo: this.activeroute,
+                                                  queryParams: {
+                                                    ...currentParams,
+                                                    stageForm: 'onleadStatus',
+                                                  },
+                                                  queryParamsHandling: 'merge',
+                                                });
+                                                // location.reload();
                                               }
                                             });
                                           } else if (
@@ -1541,16 +1547,18 @@ export class MandateCloseFormComponent implements OnInit {
                                           confirmButtonText: 'OK!',
                                         }).then((result) => {
                                           if (result.value) {
-                                            //           const currentParams = this.activeroute.snapshot.queryParams;
-                                            // this.router.navigate([], {
-                                            // relativeTo: this.activeroute,
-                                            // queryParams: {
-                                            //   ...currentParams,
-                                            //   stageForm: 'onleadStatus'
-                                            // },
-                                            // queryParamsHandling: 'merge'
-                                            // });
-                                            location.reload();
+                                            const currentParams =
+                                              this.activeroute.snapshot
+                                                .queryParams;
+                                            this.router.navigate([], {
+                                              relativeTo: this.activeroute,
+                                              queryParams: {
+                                                ...currentParams,
+                                                stageForm: 'onleadStatus',
+                                              },
+                                              queryParamsHandling: 'merge',
+                                            });
+                                            // location.reload();
                                           }
                                         });
                                       } else if (

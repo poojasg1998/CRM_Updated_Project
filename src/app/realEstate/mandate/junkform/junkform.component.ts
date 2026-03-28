@@ -112,21 +112,32 @@ export class JunkformComponent implements OnInit {
 
   //to heighlight the selected option
   selectedJunkCategoryIndex: number = -1;
-  selectsuggested(index: number, catogs): void {
-    if (this.selectedJunkCategoryIndex === index) {
-      this.selectedJunkCategoryIndex = -1;
-      this.junkcatognames = '';
+  selectedJunkCategoryIndexes: number[] = [];
+  selectedJunkCategoryIds: any[] = [];
+  selectedJunkCategoryNames: string[] = [];
+  selectsuggested(index: number, catogs: any): void {
+    const exists = this.selectedJunkCategoryIndexes.includes(index);
+
+    if (exists) {
+      // REMOVE
+      this.selectedJunkCategoryIndexes =
+        this.selectedJunkCategoryIndexes.filter((i) => i !== index);
+      this.selectedJunkCategoryIds = this.selectedJunkCategoryIds.filter(
+        (id) => id !== catogs.junk_section_IDPK
+      );
+      this.selectedJunkCategoryNames = this.selectedJunkCategoryNames.filter(
+        (name) => name !== catogs.junk_categories
+      );
     } else {
-      this.selectedJunkCategoryIndex = index;
-      this.junkcategoryId = catogs.junk_section_IDPK;
-      this.junkcatognames = catogs.junk_categories;
+      // ADD
+      this.selectedJunkCategoryIndexes.push(index);
+      this.selectedJunkCategoryIds.push(catogs.junk_section_IDPK);
+      this.selectedJunkCategoryNames.push(catogs.junk_categories);
     }
   }
-
   isJunkCategorySelected(index: number): boolean {
-    return this.selectedJunkCategoryIndex === index;
+    return this.selectedJunkCategoryIndexes.includes(index);
   }
-
   junkmoving() {
     if (this.getselectedLeadExec?.suggestedprop?.length > 1) {
       this.suggestchecked = this.selectedSuggestedProp?.propid;
@@ -134,11 +145,7 @@ export class JunkformComponent implements OnInit {
       this.suggestchecked = this.getselectedLeadExec?.suggestedprop[0]?.propid;
     }
 
-    if (
-      this.junkcategoryId == '' ||
-      this.junkcategoryId == undefined ||
-      this.junkcategoryId == null
-    ) {
+    if (this.selectedJunkCategoryIds.length == 0) {
       Swal.fire({
         title: 'Select any JUNK Reason',
         text: 'Select any Reason for the JUNK',
@@ -156,7 +163,7 @@ export class JunkformComponent implements OnInit {
         closedate: '',
         closetime: '',
         leadstage: 'Move to Junk',
-        stagestatus: this.junkcategoryId,
+        stagestatus: this.selectedJunkCategoryIds,
         textarearemarks: textarearemarks,
         userid: userid,
         assignid: this.junkExecutiveId,

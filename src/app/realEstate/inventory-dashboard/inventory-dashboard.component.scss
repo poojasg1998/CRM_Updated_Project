@@ -1,9 +1,12 @@
+* {
+  font-family: "Poppins" !important;
+}
+
 .logo::part(image) {
   border-radius: 3px !important;
   width: 30px;
   height: 30px;
 }
-
 ::ng-deep
   .details_units_row
   p-dropdown.exec_css
@@ -51,44 +54,54 @@
   font-size: 12px;
 }
 
-.assignedLeads-card {
+.total_units_col,
+.available_units_col,
+.resale_col,
+.total_booked_col,
+.cancelled_bookings_col,
+.sale_agreement_col,
+.payment_col,
+.registration_due_col,
+.sold_units_col {
   height: auto;
   padding: 0;
   margin: 0 2px 0 2px;
   border-radius: 1px !important;
   margin-bottom: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px !important;
 }
-.assignedLeads-card ion-card {
+.card {
   border-radius: 9px !important;
   margin: 0 5px !important;
   box-shadow: 0px 1px 10px 4px #959da533;
 }
 
-.assignedLeads-card ion-img {
+.card ion-img {
   position: absolute;
   right: 0 !important;
 }
 
-.assignedLeads-card div {
+.card div {
   font-size: 10px;
   margin: 10px 5px 2px 4px;
 }
 
-.assignedLeads-card p:first-child {
+.card p:first-child {
   font-size: 10px;
   font-weight: 400;
 }
 
-.assignedLeads-card h1 + p span {
+.card h1 + p span {
   font-weight: 600;
 }
 
-.assignedLeads-card h1 + p {
+.card h1 + p {
   font-size: 10px !important;
   font-weight: 400;
 }
 
-.assignedLeads-card h1 {
+.card h1 {
   font-size: 20px;
   font-weight: 600;
   padding-bottom: 6px;
@@ -96,16 +109,13 @@
   font-family: "Poppins";
 }
 
-.assignedLeads-card p:first-child {
+.card p:first-child {
   color: #3d3d3d;
   font-weight: 400;
   font-family: "Poppins";
 }
-.assignedLeads-card {
-  margin-bottom: 10px;
-  border-radius: 6px !important;
-}
-ion-content {
+
+ion-content.main-content {
   --padding-top: 10px;
   --padding-bottom: 10px;
   --padding-start: 10px;
@@ -338,16 +348,12 @@ ion-content {
   color: #0c7300;
 }
 
-.editUnitModal .block {
+.custom-bottom-modal .block {
   width: 100%;
   height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-ion-modal.editUnitModal {
-  --height: auto;
 }
 
 .editing-data-header {
@@ -359,6 +365,12 @@ ion-modal.editUnitModal {
     padding-bottom: 0;
   }
 }
+::ng-deep .custom-bottom-modal .ion-delegate-host {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start !important;
+  height: 80vh;
+}
 
 .editing-data-row {
   p-dropdown {
@@ -368,23 +380,26 @@ ion-modal.editUnitModal {
     padding-top: 0;
   }
   ion-textarea,
-  input {
+  input,
+  ion-input {
     border: 0.5px solid #e5e7eb;
     border-radius: 4px;
     width: 100%;
     padding: 5px;
   }
-  input {
-    height: 27px;
+  input,
+  ion-input {
+    height: 30px;
+    font-size: 0.9rem;
   }
+
   div {
-    border: 0.6px solid #dfdfdf;
     border-radius: 4px;
     padding-left: 4px;
     display: flex;
     justify-content: space-between;
     border: 0.6px solid #dfdfdf;
-    padding: 2px 4px;
+    padding: 0 4px;
     border-radius: 2px;
   }
   .sqft {
@@ -402,7 +417,7 @@ ion-modal.editUnitModal {
 }
 
 ::ng-deep .editing-data-row p-dropdown.exec_css .p-inputwrapper span {
-  padding: 0.4vw 1vw;
+  // padding: 0.4vw 1vw;
   font-size: 14px !important;
   font-weight: 400;
   font-family: "Poppins";
@@ -421,6 +436,9 @@ ion-modal.editUnitModal {
   }
 }
 
+.editing-data-row p-dropdown.pointer_eventsNone .p-inputwrapper span {
+  color: #b3b7bb;
+}
 .cancelSold-btn .cancel-btn div {
   width: 100%;
   border: 1px solid #0b7ab2;
@@ -428,6 +446,7 @@ ion-modal.editUnitModal {
   border-radius: 4px;
   padding: 6px 2px;
 }
+
 .saveContinue-btn ion-button {
   border-radius: 4px;
 }
@@ -435,27 +454,6 @@ ion-modal.editUnitModal {
 .unit-update-status {
   background: #00476a;
   color: white;
-}
-
-.completedStage-bg-text-color {
-  background: #d1ffc9;
-  span {
-    color: #006900 !important;
-  }
-}
-
-.pendingStage-bg-text-color {
-  background: #efefef;
-  span {
-    color: #606060;
-  }
-}
-
-.updatingStage-bg-text-color {
-  background: #c2e3fe;
-  span {
-    color: #0059a1;
-  }
 }
 
 .unit-status-button {
@@ -497,7 +495,7 @@ ion-modal.editUnitModal {
     font-size: 22px;
     color: #0b7ab2;
   }
-  margin: 0 4px;
+  margin: 0 6px;
 }
 .uploading-file {
   span {
@@ -513,9 +511,10 @@ ion-modal.editUnitModal {
 .loan-disbursed {
   font-family: "Poppins";
   div {
-    color: #727272;
+    color: #b8b5bd;
     border: 0.6px solid #a8a8a8;
     border-radius: 4px;
+    padding: 2px;
   }
   span {
     color: #4c4c4c;
@@ -535,6 +534,11 @@ ion-modal.editUnitModal {
 .rejected-btn {
   background: #fa4838;
   color: white;
+}
+.booking {
+  ion-input {
+    border: none !important;
+  }
 }
 .cancel-booking-div {
   border: 1px solid #dfdfdf;
@@ -573,4 +577,423 @@ ion-input[readonly] {
   border-radius: 6px;
   opacity: 0.9;
   pointer-events: none;
+}
+::ng-deep .exec_css .p-dropdown-label.p-placeholder {
+  color: #9da1ab !important;
+  font-size: 0.68rem !important;
+}
+ion-input {
+  --placeholder-color: #9e9e9e;
+  --placeholder-opacity: 1;
+}
+
+// ::ng-deep .leadSearch .searchbar-input-container input[type="search"] {
+//   padding: 0px 0px 0px 22px !important;
+//   border: 0.6px solid #dfdfdf;
+//   border-radius: 6px;
+//   font-size: 0.8rem;
+//   height: 27px;
+// }
+
+// ::ng-deep ion-searchbar.leadSearch .searchbar-search-icon.sc-ion-searchbar-md {
+//   inset-inline-start: 2px !important;
+// }
+
+// ::ng-deep .leadSearch .searchbar-search-icon.sc-ion-searchbar-md {
+//   top: 2px;
+//   width: 18px !important;
+// }
+// .leadSearch {
+//   padding: 0;
+// }
+
+// ::ng-deep .leadSearch .searchbar-input-container {
+//   --box-shadow: none !important;
+// }
+
+::ng-deep p-autocomplete.leadSearch .p-autocomplete-input {
+  width: 100% !important;
+  font-size: 14px;
+  border: 0.6px solid #dfdfdf;
+  border-radius: 6px;
+  padding: 2px;
+}
+::ng-deep p-autocomplete.leadSearch .p-autocomplete-empty-message {
+  padding: 2px;
+  font-size: 14px;
+}
+::ng-deep p-autocomplete.leadSearch .p-autocomplete-input:focus {
+  outline: none !important;
+  box-shadow: none;
+}
+
+::ng-deep p-autocomplete.leadSearch .p-autocomplete-item {
+  padding: 2px 6px;
+  font-size: 14px;
+}
+.pointer_eventsNone {
+  filter: blur(0.6px);
+  pointer-events: none;
+  cursor: none;
+}
+
+::ng-deep .pointer_eventsNone p-autocomplete.leadSearch .p-autocomplete-input {
+  background: #f8f9fa;
+}
+
+::ng-deep .pointer_eventsNone .p-inputwrapper {
+  background: #f8f9fa !important;
+}
+
+::ng-deep .editing-data-row p-dropdown.pointer_eventsNone .p-inputwrapper span {
+  color: #c3c9d0 !important;
+}
+::ng-deep .pointer_eventsNone .p-autocomplete .p-inputtext::placeholder {
+  color: #c3c9d0 !important;
+  opacity: 1;
+}
+.error-text {
+  font-size: 0.68rem;
+}
+
+.booking-editing {
+  background: #fff6e8;
+  span {
+    color: #b26d00;
+  }
+}
+.sale-agreement-editing {
+  background: #ddd8ff;
+  span {
+    color: #3e29e0;
+  }
+}
+.loanDisbursement-editing {
+  background: #c1e3fe;
+  span {
+    color: #0059a1;
+  }
+}
+.registration-editing {
+  background: #ffecdf;
+  span {
+    color: #ff8a36;
+  }
+}
+
+.stage-completed {
+  background: #d1ffc9;
+}
+
+.stage-completed span {
+  color: #006900;
+}
+
+.border-left {
+  border-left: 0.5px solid #9cd29c;
+}
+.stage {
+  background: #efefef;
+  span {
+    color: #606060;
+  }
+}
+
+.completedStage-bg-text-color {
+  background: #d1ffc9;
+  span {
+    color: #006900 !important;
+  }
+}
+
+.pendingStage-bg-text-color {
+  background: #efefef;
+  span {
+    color: #606060;
+  }
+}
+
+.updatingStage-bg-text-color {
+  background: #c2e3fe;
+  span {
+    color: #0059a1;
+  }
+}
+.saleAgreementStage-bg-text-color {
+  background: #ddd8ff;
+  span {
+    color: #3e29e0;
+  }
+}
+.loanDisbursement-bg-text-color {
+  background: #c2e3fe;
+  span {
+    color: #0059a1;
+  }
+}
+.registration-bg-text-color {
+  background: #ffecdf;
+  span {
+    color: #ff740f;
+  }
+}
+
+.active {
+  background: #0b7ab2;
+  color: #ffffff !important;
+}
+::ng-deep .native-wrapper textarea {
+  padding: 0 !important;
+}
+
+.value {
+  font-size: 0.8rem !important;
+  color: #727272 !important;
+  ion-label {
+    font-size: 0.8rem;
+    color: #727272;
+  }
+}
+.head-row {
+  color: #4c4c4c;
+  span {
+    font-size: 0.8rem;
+  }
+}
+.paymentMode-radio-btn {
+  font-size: 0.9rem;
+  color: #727272;
+}
+ion-radio.small-radio {
+  transform: scale(0.8); // reduce size (0.7, 0.6 as needed)
+}
+#date {
+  border: none !important;
+}
+.date-input {
+  height: 34px !important;
+}
+
+ion-input {
+  font-size: 0.9rem;
+  min-height: 0 !important;
+}
+::ng-deep ion-input .native-wrapper {
+  padding-left: 2px;
+}
+
+::ng-deep ion-input .input-wrapper {
+  padding-left: 0;
+}
+.input-with-image ion-input::after {
+  right: 0px !important;
+}
+.add-bank-btn {
+  ion-icon {
+    color: #00476a;
+  }
+  color: #00476a;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+.disable-style {
+  ion-input,
+  span {
+    color: #9c9c9c !important;
+  }
+  background-color: #f8f9fa !important;
+}
+.custom-bottom-modal {
+  // --height: auto;
+  --border-radius: 4px 4px 0 0;
+  align-items: flex-end;
+}
+
+.custom-bottom-modal::part(content) {
+  max-height: 80vh;
+  // overflow-y: auto;
+}
+// .custom-bottom-modal form {
+//   max-height: 90vh;
+//   overflow-y: auto;
+// }
+
+.backstageActive-btn {
+  background: #3d913d;
+  span {
+    color: white;
+  }
+}
+
+.modal-main-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 95vh;
+  overflow: hidden;
+}
+
+.modal-content-scroll {
+  flex: 1; /* Takes up all available space */
+  overflow-y: auto; /* Enables scrolling for the form only */
+  overflow-x: hidden;
+  padding-bottom: 20px;
+}
+
+.cancelSold-btn {
+  background: #fff;
+  border-top: 1px solid #eee;
+  /* Ensures the buttons stay at the bottom */
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+/* Optional: Smooth scrolling for iOS */
+.modal-content-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+::ng-deep .pointer_eventsNone p-autocomplete.leadSearch .p-autocomplete-input {
+  color: #c3c9d0 !important;
+}
+.date_range {
+  display: flex;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 8px 4px;
+  border-radius: 5px;
+  border: 1px solid #ececec;
+}
+.date_range span {
+  color: #8a8a8a;
+  font-size: 3.4vw;
+  font-family: "Poppins";
+}
+
+::ng-deep .p-datepicker table td > span.p-highlight {
+  color: #e6eaed !important;
+  background: rgb(11 122 178) !important;
+}
+
+.date_range.border_color_red {
+  border: 1px solid red !important;
+  span {
+    color: red !important;
+  }
+}
+::ng-deep p-calendar input {
+  top: 15px;
+  left: 10px;
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  display: none !important;
+}
+
+.sold_form {
+  .sold_head {
+    font-weight: 400;
+    font-size: 12px;
+    color: #4c4c4c;
+  }
+  .sold_value {
+    font-weight: 400;
+    font-size: 12px;
+  }
+
+  .sold_data {
+    background: #efefef;
+    border: 1px solid #c3c3c3;
+    border-radius: 4px;
+    margin: 7px;
+  }
+  .unit_num .sold_head {
+    background: #fafafa;
+    border: 0.6px solid #f0f0f0;
+    padding: 4px;
+    border-radius: 4px;
+  }
+  .unit_status .sold_head {
+    width: 40%;
+    padding: 6px 12px;
+    background: #0b7ab2;
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 2px;
+    text-align: center;
+  }
+  .resale_unit {
+    background: #c9edff;
+    color: #003652;
+    margin: 6px;
+    border: 1px solid #0b7ab2;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    padding: 6px;
+  }
+  .sold_remark {
+    ion-textarea {
+      border: 0.6px solid #c5c5c5;
+      border-radius: 4px;
+      padding: 2px;
+    }
+  }
+}
+
+.mobile-toast {
+  width: 100% !important;
+  max-width: 420px; /* keeps it nice on desktop too */
+  left: 50% !important;
+  transform: translateX(-50%);
+  padding: 0 10px;
+}
+
+/* Toast box */
+::ng-deep .mobile-toast .p-toast-message {
+  width: 100%;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Success style */
+::ng-deep .mobile-toast .p-toast-message-success {
+  background: linear-gradient(135deg, #28a745, #5cd65c);
+  color: #fff;
+}
+
+/* Text */
+::ng-deep .mobile-toast .p-toast-summary {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+::ng-deep .mobile-toast .p-toast-detail {
+  font-size: 13px;
+}
+
+/* Close icon */
+::ng-deep .mobile-toast .p-toast-icon-close {
+  font-size: 18px;
+}
+
+::ng-deep ion-alert .alert-head {
+  padding: 10px !important;
+}
+::ng-deep ion-alert .alert-message {
+  padding: 0 10px !important;
+}
+
+.editingForm {
+  padding: 8px;
 }

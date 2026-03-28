@@ -17,7 +17,8 @@ import { AuthServiceService } from '../realEstate/auth-service.service';
 import { MandateService } from '../realEstate/mandate-service.service';
 import { SharedService } from '../realEstate/shared.service';
 import { BiometricService } from '../realEstate/biometric.service';
-
+import { ShreeindustriesApiService } from '../constructer/shreeindustries-api.service';
+import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 declare var window: any;
 
 @Component({
@@ -50,7 +51,8 @@ export class LoginComponent implements OnInit {
     private platform: Platform,
     private alertCtrl: AlertController,
     private biometricService: BiometricService,
-    public modalCtrl: ModalController
+    public modalCtrl: ModalController,
+    public shreeindustriesService: ShreeindustriesApiService
   ) {
     // this.requestNotificationPermission();
     this.platform.ready().then(() => {
@@ -310,10 +312,20 @@ export class LoginComponent implements OnInit {
                   success['success'][0].executives_FKID
                 );
                 localStorage.setItem('Name', success['success'][0].name);
+                localStorage.setItem(
+                  'call_enroll_status',
+                  success['success'][0].call_enroll_status
+                );
+                localStorage.setItem(
+                  'chat_enroll_status',
+                  success['success'][0].chat_enroll_status
+                );
                 this.sharedService.isMenuOpen = false;
 
                 this.sharedService
-                  .getEmployeeLoginVersionCode('')
+                  .getEmployeeLoginVersionCode(
+                    success['success'][0].executives_FKID
+                  )
                   .subscribe((response) => {
                     if (
                       this.isNewVersionAvailable(
@@ -420,6 +432,10 @@ export class LoginComponent implements OnInit {
           localStorage.setItem('RoleType', success['details'][0].role_type);
           localStorage.setItem('session_id', success['session_id']);
           localStorage.setItem(
+            'crmcategory_IDFK',
+            success['details'][0]['crmcategory_IDFK']
+          );
+          localStorage.setItem(
             'direct_inhouse',
             success['details'][0].direct_inhouse
           );
@@ -428,13 +444,31 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('ranavPropId', '28773');
           }
 
+          localStorage.setItem(
+            'call_enroll_status',
+            success['details'][0].call_enroll_status
+          );
+          localStorage.setItem(
+            'chat_enroll_status',
+            success['details'][0].chat_enroll_status
+          );
+          this.sharedService.setChatFeature(
+            success['details'][0].chat_enroll_status
+          );
+          this.sharedService.setCallFeature(
+            success['details'][0].call_enroll_status
+          );
+
           this.sharedService
             .getVersionCode(
               success['details'][0].executives_FKID,
               success['session_id']
             )
             .subscribe((response) => {
-              if (response['Executives'][0]['active_status'] != '0') {
+              if (
+                response?.['Executives']?.[0]?.['active_status'] != '0' &&
+                success['details'][0].department_IDFK != '10005'
+              ) {
                 Swal.fire({
                   title: 'Blocked',
                   text: 'Your account has been blocked',
@@ -492,13 +526,14 @@ export class LoginComponent implements OnInit {
             if (this.platform.is('hybrid')) {
               // alert(' hybrid platform detected — about to init OneSignal');
               // ------------------------------------------------------------RELATED_TO_ONESIGNAL_PUSH------------------------------------------------------------
-              const loggedInUserId = success['details'][0].executives_FKID;
+              // const loggedInUserId = success['details'][0].executives_FKID;
               // --- Trigger OneSignal Setup ONLY AFTER SUCCESSFUL LOGIN ---
               // Ensure setup runs only once per login session
               // alert( this.isOneSignalSetupAttempted)
               // if (!this.isOneSignalSetupAttempted){
               // alert(this.isOneSignalSetupAttempted +'inside if');
-              this.initializeOneSignal(loggedInUserId.toString()); // Pass user ID as string
+              // this.initializeOneSignal(loggedInUserId.toString()); // Pass user ID as string
+              this.initializeFCM();
               // this.isOneSignalSetupAttempted = true;
               // }
               // ------------------------------------------------------------RELATED_TO_ONESIGNAL_PUSH------------------------------------------------------------
@@ -559,6 +594,25 @@ export class LoginComponent implements OnInit {
                   this.authService.setadminControllerState(
                     localStorage.getItem('contrllerName')
                   );
+                  localStorage.setItem(
+                    'crmcategory_IDFK',
+                    success['details'][0]['crmcategory_IDFK']
+                  );
+                  localStorage.setItem(
+                    'call_enroll_status',
+                    success['details'][0].call_enroll_status
+                  );
+                  localStorage.setItem(
+                    'chat_enroll_status',
+                    success['details'][0].chat_enroll_status
+                  );
+
+                  this.sharedService.setChatFeature(
+                    success['details'][0].chat_enroll_status
+                  );
+                  this.sharedService.setCallFeature(
+                    success['details'][0].call_enroll_status
+                  );
                   this.showSpinner = false;
                   // setTimeout(()=>{
 
@@ -618,6 +672,96 @@ export class LoginComponent implements OnInit {
                     });
                   // },1000)
                 } else {
+                  // this.shreeindustriesService
+                  //   .login(data1, data2)
+                  //   .subscribe((resp) => {
+                  //     if (resp['status'] == 'True') {
+                  //       localStorage.setItem('Name', resp['details'][0].name);
+                  //       localStorage.setItem(
+                  //         'UserId',
+                  //         resp['details'][0].executives_FKID
+                  //       );
+                  //       localStorage.setItem(
+                  //         'Password',
+                  //         resp['details'][0].password
+                  //       );
+                  //       localStorage.setItem('Mail', resp['details'][0].email);
+                  //       localStorage.setItem(
+                  //         'Role',
+                  //         resp['details'][0].role_IDFK
+                  //       );
+                  //       localStorage.setItem(
+                  //         'Number',
+                  //         resp['details'][0].number
+                  //       );
+                  //       localStorage.setItem(
+                  //         'crmcategory_IDFK',
+                  //         resp['details'][0]['crmcategory_IDFK']
+                  //       );
+                  //       localStorage.setItem('session_id', resp['session_id']);
+                  //       this.shreeindustriesService
+                  //         .getVersionCode(
+                  //           resp['details'][0].executives_FKID,
+                  //           resp['session_id']
+                  //         )
+                  //         .subscribe((response) => {
+                  //           if (
+                  //             this.isNewVersionAvailable(
+                  //               this.versionCode,
+                  //               response['versioncode'][0].version_code
+                  //             )
+                  //           ) {
+                  //             Swal.fire({
+                  //               title: 'Time to Catch Up',
+                  //               text: 'Update to the latest version & enjoy a seamless experience',
+                  //               confirmButtonText: 'Update Now',
+                  //               heightAuto: false,
+                  //               allowOutsideClick: false,
+                  //             }).then((result) => {
+                  //               if (result.isConfirmed) {
+                  //                 window.location.href =
+                  //                   'https://play.google.com/store/apps/details?id=io.lead247';
+                  //               }
+                  //             });
+                  //           } else {
+                  //             this.sharedService.isMenuOpen = false;
+                  //             setTimeout(() => {
+                  //               if (!localStorage.getItem('useBiometric')) {
+                  //                 this.showSpinner = false;
+                  //                 this.enableFingerPrintModal = true;
+                  //               } else if (
+                  //                 localStorage.getItem('useBiometric') == 'true'
+                  //               ) {
+                  //                 this.authService.login();
+                  //                 // this.router.navigate([
+                  //                 //   '/shreeindustries-dashboard',
+                  //                 // ]);
+                  //               }
+                  //             }, 1000);
+                  //           }
+                  //         });
+                  //     } else {
+                  //       Swal.fire({
+                  //         title: 'Authentication Failed!',
+                  //         text: 'Please try again',
+                  //         icon: 'error',
+                  //         confirmButtonText: 'ok',
+                  //         heightAuto: false,
+                  //         customClass: {
+                  //           container: 'my-swal-error',
+                  //         },
+                  //       }).then(() => {
+                  //         this.showSpinner = false;
+                  //         if (localStorage.getItem('useBiometric') == 'true') {
+                  //           this.isFingerPrintEnabled = true;
+                  //         } else {
+                  //           this.isFingerPrintEnabled = false;
+                  //         }
+                  //         // location.reload();
+                  //       });
+                  //     }
+                  //   });
+
                   //    this.sharedService.setloginState('ranav_group');
                   //  setTimeout(() => {
                   //    this.sharedService.getlogin(data1,data2,deviceid,browser).subscribe((success)=>{
@@ -703,6 +847,8 @@ export class LoginComponent implements OnInit {
                   //     }
                   //   });
                   // } else {
+                  // }
+
                   Swal.fire({
                     title: 'Authentication Failed!',
                     text: 'Please try again',
@@ -719,9 +865,7 @@ export class LoginComponent implements OnInit {
                     } else {
                       this.isFingerPrintEnabled = false;
                     }
-                    // location.reload();
                   });
-                  // }
                 }
               });
           }, 0);
@@ -744,6 +888,43 @@ export class LoginComponent implements OnInit {
       if (serverVal < localVal) return false;
     }
     return false;
+  }
+
+  async initializeFCM() {
+    try {
+      const permission = await FirebaseMessaging.requestPermissions();
+
+      if (permission.receive !== 'granted') {
+        console.log('❌ Permission not granted');
+        return;
+      }
+
+      const tokenResult = await FirebaseMessaging.getToken();
+      const newToken = tokenResult.token;
+
+      const storedToken = localStorage.getItem('fcmToken');
+
+      //SAME token → skip API call
+      if (storedToken === newToken) {
+        console.log('✅ FCM token already stored, skipping API');
+        return;
+      }
+
+      // Token changed or first time
+      localStorage.setItem('fcmToken', newToken);
+
+      const param = {
+        user_id: localStorage.getItem('UserId'),
+        fcw_token: newToken,
+      };
+
+      this.sharedService.ads_fcmToken(param).subscribe({
+        next: (res) => console.log('✅ Token saved:', res),
+        error: (err) => console.error('❌ Error saving token:', err),
+      });
+    } catch (error) {
+      console.error('❌ FCM error:', error);
+    }
   }
 
   // ----------------------------METHOD-FOR-onesignal-cordova-plugin----------------------------
@@ -849,7 +1030,7 @@ export class LoginComponent implements OnInit {
       }
     });
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 
   // async biometricenable() {
@@ -993,14 +1174,10 @@ export class LoginComponent implements OnInit {
           this.loginData.password
         );
         localStorage.setItem('useBiometric', 'true');
+
         this.authService.login();
       })
       .catch((err: any) => {
-        // alert(err == 'Biometric authentication is not available');
-        // if (err == 'Biometric authentication is not available') {
-        //   alert('err123' + err);
-        // }
-        // alert('err?.message++' + err?.message);
         this.showSpinner = false;
         if (
           err?.message == 'Cancel' ||
@@ -1113,5 +1290,15 @@ export class LoginComponent implements OnInit {
     //     alert('Authentication failed: ' + error.message);
     //   }
     // }
+  }
+
+  onNotNowFinguePrintEnable() {
+    if (localStorage.getItem('UserId') == '3') {
+      this.sharedService.isMenuOpen = false;
+    }
+    setTimeout(() => {
+      this.enableFingerPrintModal = false;
+      this.authService.login();
+    }, 0);
   }
 }

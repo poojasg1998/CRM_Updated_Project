@@ -50,7 +50,7 @@ export class CheckInOutPhotoCaptureComponent implements OnInit {
     this.depId = this.localStorage.getItem('Department');
     this.loadGoogleMapsScript();
     this.getcheckInStatus();
-    this.getCurrentLocation1();
+    // this.getCurrentLocation1();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -68,7 +68,6 @@ export class CheckInOutPhotoCaptureComponent implements OnInit {
     };
     this.sharedService.getPunchData(params).subscribe((resp) => {
       this.employeePunchData = resp['executive'];
-
       if (resp['executive'][0]['login'] == null) {
         this.check_in_AlertModal.present();
       } else {
@@ -483,48 +482,48 @@ export class CheckInOutPhotoCaptureComponent implements OnInit {
       }
     });
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 
   ngOnDestroy() {
     this.check_in_AlertModal.dismiss();
     this.sharedService.dismissAllOverlays();
   }
-  async getCurrentLocation1() {
-    try {
-      const perm = await Geolocation.checkPermissions();
-      if (perm.location !== 'granted') {
-        await Geolocation.requestPermissions();
-      }
+  // async getCurrentLocation1() {
+  //   try {
+  //     const perm = await Geolocation.checkPermissions();
+  //     if (perm.location !== 'granted') {
+  //       await Geolocation.requestPermissions();
+  //     }
 
-      await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 15000,
-      });
-    } catch (err) {
-      // GPS is OFF or unavailable
+  //     await Geolocation.getCurrentPosition({
+  //       enableHighAccuracy: true,
+  //       timeout: 15000,
+  //     });
+  //   } catch (err) {
+  //     // GPS is OFF or unavailable
 
-      this.showEnableLocationAlert();
-    }
-  }
+  //     this.showEnableLocationAlert();
+  //   }
+  // }
 
-  async showEnableLocationAlert() {
-    const alert = await this.alertController.create({
-      header: 'Enable Location',
-      message: 'Location is required to continue using this app.',
-      backdropDismiss: false,
-      buttons: [
-        {
-          text: 'Enable Location',
-          handler: () => {
-            this.openLocationSettings();
-          },
-        },
-      ],
-    });
+  // async showEnableLocationAlert() {
+  //   const alert = await this.alertController.create({
+  //     header: 'Enable Location',
+  //     message: 'Location is required to continue using this app.',
+  //     backdropDismiss: false,
+  //     buttons: [
+  //       {
+  //         text: 'Enable Location',
+  //         handler: () => {
+  //           this.openLocationSettings();
+  //         },
+  //       },
+  //     ],
+  //   });
 
-    await alert.present();
-  }
+  //   await alert.present();
+  // }
 
   openLocationSettings() {
     NativeSettings.open({

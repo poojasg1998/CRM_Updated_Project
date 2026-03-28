@@ -18,7 +18,7 @@
         </ion-col>
 
         <!-- CALL LOG -->
-        <ion-col class="filter-col" (click)="onFilter('call')"
+        <ion-col *ngIf="sharedService.hasCallFeature" class="filter-col" (click)="onFilter('call')"
             [ngClass]="filteredParams.chatCallAssign == 'call' ? 'active' : ''">
             <div class="notif-Call d-flex align-items-center justify-content-center">
                 <span>Call Log</span>

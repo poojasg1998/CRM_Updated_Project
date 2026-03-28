@@ -746,7 +746,7 @@ export class EmployeeAttendanceComponent implements OnInit {
       }
     });
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 
   onCheck_inPhotoCapture() {

@@ -36,7 +36,6 @@ export class MandateExecActivitiesComponent implements OnInit {
     status: 'generalfollowups',
     stage: '',
     team: '',
-    htype: '',
     propid: '',
     followup: '',
     isDateFilter: '',
@@ -103,7 +102,6 @@ export class MandateExecActivitiesComponent implements OnInit {
     status: string;
     stage: string;
     team: string;
-    htype: string;
     propid: string;
     followup: string;
     executid: any;
@@ -463,7 +461,8 @@ export class MandateExecActivitiesComponent implements OnInit {
     }
 
     this.filteredParams.executid =
-      localStorage.getItem('Role') === '1'
+      localStorage.getItem('Role') === '1' ||
+      this.localStorage.getItem('RoleType') == '1'
         ? this.filteredParams.executid
         : localStorage.getItem('UserId');
     // });
@@ -540,7 +539,6 @@ export class MandateExecActivitiesComponent implements OnInit {
       stage: '',
       team: '',
       propid: '',
-      htype: '',
       followup: '',
       executid:
         localStorage.getItem('Role') === '1'
@@ -1181,7 +1179,6 @@ export class MandateExecActivitiesComponent implements OnInit {
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
             : null,
-        htype: this.filteredParams.htype,
       },
     });
   }
@@ -1237,24 +1234,6 @@ export class MandateExecActivitiesComponent implements OnInit {
     return `${this.filteredParams.actiontodate || ''}, ${
       this.filteredParams.toTime || ''
     }`;
-  }
-
-  onHtype(htype) {
-    if (htype == 'mandate') {
-      this.router.navigate(['mymandatereports'], {
-        queryParams: {
-          htype: htype,
-        },
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.router.navigate(['myretailreports'], {
-        queryParams: {
-          htype: htype,
-        },
-        queryParamsHandling: 'merge',
-      });
-    }
   }
 
   onBackButton() {
@@ -1397,8 +1376,8 @@ export class MandateExecActivitiesComponent implements OnInit {
         callto: cleanedNumber,
         leadid: this.lead.LeadID,
         starttime: this.getCurrentDateTime(),
-        modeofcall: 'mobile-' + this.filteredParams.htype,
-        leadtype: this.filteredParams.htype,
+        modeofcall: 'mobile-mandate',
+        leadtype: 'mandate',
         assignee: this.lead.ExecId,
       };
       this._sharedservice.outboundCall(param).subscribe(() => {
@@ -1413,7 +1392,6 @@ export class MandateExecActivitiesComponent implements OnInit {
           leadTabData: 'status',
           callStatus: 'Call Connected',
           direction: 'outboundCall',
-          headerType: this.filteredParams.htype,
         },
         queryParamsHandling: 'merge',
       });
@@ -1465,7 +1443,6 @@ export class MandateExecActivitiesComponent implements OnInit {
       queryParams: {
         chatListSearch: number,
         selectedChat: 'all',
-        htype: this.filteredParams.htype,
       },
     });
   }

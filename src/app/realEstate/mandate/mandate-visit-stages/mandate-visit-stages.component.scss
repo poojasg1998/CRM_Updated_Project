@@ -1191,3 +1191,36 @@ ion-modal.addPriorityModal ion-toolbar {
   font-size: 10px;
   margin-left: 4px;
 }
+
+.confirmed_AccessRemoved {
+  // gap: 4px;
+  ion-checkbox {
+    transform: scale(0.7);
+    --border-color: #175778;
+  }
+  // border-top: 0.5px solid rgb(212, 217, 222);
+  // border-bottom: 0.5px solid rgb(212, 217, 222);
+  border-bottom: 1px solid #d4d9de;
+}
+
+.confirmed_btn,
+.accessRemoved_btn,
+.overdue_btn {
+  // box-shadow: 0px -1px 10px 0 rgba(99, 99, 99, 0.2);
+  // border-right: 0.5px solid rgb(212, 217, 222);
+  font-size: 0.8rem;
+  color: #00476b;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.border-right {
+  border-right: 1px solid #d4d9de;
+}
+.accessRemovedCount {
+  font-size: 0.68rem;
+  span {
+    color: #dc5a37;
+  }
+}

@@ -85,30 +85,30 @@ export class MandatePricingListComponent implements OnInit {
     };
   }
 
-  onHtype(htype) {
-    const queryParams = {};
-    for (const key in this.filteredParams) {
-      if (
-        this.filteredParams.hasOwnProperty(key) &&
-        this.filteredParams[key] !== ''
-      ) {
-        queryParams[key] = this.filteredParams[key];
-      } else {
-        queryParams[key] = null;
-      }
-    }
-    if (htype == 'mandate') {
-      this.router.navigate(['mandate-pricing-list'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.router.navigate(['retail-pricing-list'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    }
-  }
+  // onHtype(htype) {
+  //   const queryParams = {};
+  //   for (const key in this.filteredParams) {
+  //     if (
+  //       this.filteredParams.hasOwnProperty(key) &&
+  //       this.filteredParams[key] !== ''
+  //     ) {
+  //       queryParams[key] = this.filteredParams[key];
+  //     } else {
+  //       queryParams[key] = null;
+  //     }
+  //   }
+  //   if (htype == 'mandate') {
+  //     this.router.navigate(['mandate-pricing-list'], {
+  //       queryParams,
+  //       queryParamsHandling: 'merge',
+  //     });
+  //   } else {
+  //     this.router.navigate(['retail-pricing-list'], {
+  //       queryParams,
+  //       queryParamsHandling: 'merge',
+  //     });
+  //   }
+  // }
 
   getQueryParams() {
     const queryString = window.location.search;

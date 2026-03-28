@@ -142,6 +142,7 @@ export class MandateUsvFormComponent implements OnInit {
           this.username = localStorage.getItem('Name');
           this.isAdmin = localStorage.getItem('Role') == '1';
 
+          this.selectedExecId = params.get('execid');
           // 2. **Return the API Observable**
           // The switchMap automatically handles the inner subscription and cleanup.
           return this.mandateService.getassignedrm(
@@ -175,6 +176,8 @@ export class MandateUsvFormComponent implements OnInit {
           filteredInfo = cust['RMname'].filter(
             (da) => da.executiveid == this.selectedExecId
           );
+
+          console.log(filteredInfo);
           this.getselectedLeadExec = filteredInfo[0];
 
           if (this.getselectedLeadExec.walkintime) {
@@ -495,6 +498,7 @@ export class MandateUsvFormComponent implements OnInit {
     var nexttime = $('#nextactiontime').val();
     var textarearemarks = $('#textarearemarks').val();
     var dateformatchange = new Date(nextdate).toDateString();
+    console.log(this.getselectedLeadExec);
 
     if (this.getselectedLeadExec.suggestedprop.length > 1) {
       this.suggestchecked = this.propid;
@@ -602,20 +606,20 @@ export class MandateUsvFormComponent implements OnInit {
                           this.showSpinner = true;
                           var param = {
                             leadid: this.leadid,
-                            propid: this.selectedSuggestedProp.propid,
+                            propid: this.suggestchecked,
                             customer: this.getselectedLeadExec.customer_name,
                             customernum:
                               this.getselectedLeadExec.customer_number,
                             customermail:
-                              this.getselectedLeadExec.customer_mail,
+                              this.getselectedLeadExec.customer_mail ?? '',
                             rmname: localStorage.getItem('Name'),
                             rmid: localStorage.getItem('UserId'),
                             rmmail: localStorage.getItem('Mail'),
                             execid: this.usvExecutiveId,
-                            builder: this.buildernamereg,
-                            property: this.selectedSuggestedProp.name,
-                            sendto: this.mails[0].builder_mail,
-                            sendcc: this.mails[1].builder_mail,
+                            builder: this.buildernamereg ?? '',
+                            property: this.selectedSuggestedProp.name ?? '',
+                            sendto: this.mails?.[0]?.builder_mail ?? '',
+                            sendcc: this.mails?.[1]?.builder_mail ?? '',
                             remarks: registrationremarks,
                           };
 

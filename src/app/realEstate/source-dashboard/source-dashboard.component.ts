@@ -57,7 +57,7 @@ export class SourceDashboardComponent implements OnInit {
   depId;
   isOnCallDetailsPage = false;
   constructor(
-    private _sharedservice: SharedService,
+    public _sharedservice: SharedService,
     private menuCtrl: MenuController,
     private router: Router,
     private activeRoute: ActivatedRoute,
@@ -84,6 +84,8 @@ export class SourceDashboardComponent implements OnInit {
         this.filteredParams.source = 'Magicbricks';
       } else if (this.localStorage.getItem('Role') == '50016') {
         this.filteredParams.source = 'Housing';
+      } else if (this.localStorage.getItem('Role') == '50018') {
+        this.filteredParams.source = 'Aurum Analytica';
       }
 
       this.loadSourceDashboard();
@@ -580,7 +582,6 @@ export class SourceDashboardComponent implements OnInit {
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
             : null,
-        htype: 'mandate',
       },
     });
   }

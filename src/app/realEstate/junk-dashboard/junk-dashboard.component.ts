@@ -89,7 +89,7 @@ export class JunkDashboardComponent implements OnInit {
     private activeRoute: ActivatedRoute,
     public router: Router,
     private mandateService: MandateService,
-    private _sharedservice: SharedService
+    public _sharedservice: SharedService
   ) {}
 
   @ViewChild('filter_modal') filter_modal;
@@ -771,7 +771,6 @@ export class JunkDashboardComponent implements OnInit {
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
             : null,
-        htype: 'mandate',
       },
       queryParamsHandling: 'merge',
     });

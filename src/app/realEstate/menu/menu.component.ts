@@ -35,7 +35,7 @@ export class MenuComponent implements OnInit {
   showSpinner: any;
 
   constructor(
-    private router: Router,
+    public router: Router,
     private authService: AuthServiceService,
     public mandateService: MandateService,
     private activeRoute: ActivatedRoute,
@@ -45,6 +45,33 @@ export class MenuComponent implements OnInit {
 
   ngOnInit() {
     this.activeRoute.queryParams.subscribe((param) => {
+      if (
+        this.router.url.indexOf('isLeadsVisitsCalls=leads') > -1 ||
+        this.router.url.indexOf('isLeadsVisitsCalls=visits') > -1 ||
+        this.router.url.indexOf('isLeadsVisitsCalls=calls') > -1 ||
+        this.router.url.indexOf('source-dashboard') > -1 ||
+        this.router.url.indexOf('today-dashboard') > -1 ||
+        this.router.url.indexOf('overdues-dashboard') > -1 ||
+        this.router.url.indexOf('junk-dashboard') > -1
+      ) {
+        this.accordionOpen = true;
+      }
+
+      if (
+        this.router.url.indexOf('mandate-visit-stages') > -1 ||
+        this.router.url.indexOf('whatsapp-visits') > -1
+      ) {
+        this.visitsAccordion = true;
+      }
+
+      if (
+        this.router.url.indexOf('attendance') > -1 ||
+        this.router.url.indexOf('mymandatereports') > -1 ||
+        this.router.url.indexOf('hourly-report') > -1
+      ) {
+        this.reportAccordion = true;
+      }
+
       this.isFingureprintEnabled =
         localStorage.getItem('useBiometric') == 'true';
       this.getPreviousPresentmonthDate();
@@ -116,7 +143,7 @@ export class MenuComponent implements OnInit {
                 }
               });
               this.authService.logout();
-              this.router.navigate(['/']);
+              this.router.navigate(['/login']);
             },
           });
       }
@@ -156,7 +183,9 @@ export class MenuComponent implements OnInit {
       this.updateRole();
     });
 
-    this.fetchmandateexecutives();
+    this.localStorage.getItem('crmcategory_IDFK') != '2'
+      ? this.fetchmandateexecutives()
+      : '';
   }
   executiveNames;
   fetchmandateexecutives() {
@@ -200,7 +229,6 @@ export class MenuComponent implements OnInit {
     this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
       this.router.navigate(['home'], {
         queryParams: {
-          htype: 'mandate',
           isDateFilter: 'today',
         },
       });
@@ -217,7 +245,7 @@ export class MenuComponent implements OnInit {
       this.builderexecview = false;
     } else {
       if (localStorage.getItem('Role') == null) {
-        this.router.navigate(['/']);
+        this.router.navigate(['/login']);
       } else if (localStorage.getItem('Role') == '1') {
         this.adminview = true;
         this.MandateRMEXview = false;
@@ -304,7 +332,7 @@ export class MenuComponent implements OnInit {
       }
     });
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 
   onHomeicon() {
@@ -316,11 +344,7 @@ export class MenuComponent implements OnInit {
     //     },
     //   });
     // } else {
-    this.router.navigate(['home'], {
-      queryParams: {
-        htype: 'mandate',
-      },
-    });
+    this.router.navigate(['home']);
     // }
   }
 
@@ -365,29 +389,12 @@ export class MenuComponent implements OnInit {
     };
   }
 
-  onHtype(htype) {
-    if (htype == 'retail') {
-      this.router.navigate(['retail-dashboard'], {
-        queryParams: {
-          htype: htype,
-        },
-      });
-    } else {
-      this.router.navigate(['home'], {
-        queryParams: {
-          htype: htype,
-          propid: !localStorage.getItem('ranavPropId') ? '16793' : '28773',
-        },
-      });
-    }
-  }
-
   getTodayDate() {
     const today = new Date();
     return today.toISOString().split('T')[0]; // Returns 'YYYY-MM-DD'
   }
 
-  onDashboard() {
+  onDashboard(state) {
     // if (!this.isRetail) {
     //   this.router.navigate(['/home'], {
     //     queryParams: {
@@ -404,7 +411,7 @@ export class MenuComponent implements OnInit {
     // } else {
     this.router.navigate(['/home'], {
       queryParams: {
-        htype: 'mandate',
+        isLeadsVisitsCalls: state,
       },
     });
     // }
@@ -455,7 +462,22 @@ export class MenuComponent implements OnInit {
   accordionOpen: boolean = false;
 
   toggleAccordion() {
+    this.reportAccordion = false;
+    this.visitsAccordion = false;
     this.accordionOpen = !this.accordionOpen;
+  }
+  reportAccordion: boolean = false;
+  toggleReportBtn() {
+    this.accordionOpen = false;
+    this.visitsAccordion = false;
+    this.reportAccordion = !this.reportAccordion;
+  }
+
+  visitsAccordion: boolean = false;
+  toggleVisitsBtn() {
+    this.accordionOpen = false;
+    this.reportAccordion = false;
+    this.visitsAccordion = !this.visitsAccordion;
   }
 
   async enableFingerprint(event) {
@@ -556,7 +578,6 @@ export class MenuComponent implements OnInit {
     this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
       this.router.navigate(['home'], {
         queryParams: {
-          htype: 'mandate',
           isDateFilter: 'today',
         },
       });
@@ -600,7 +621,6 @@ export class MenuComponent implements OnInit {
             stagestatus: '3',
             visittype: '3',
             isDropDown: 'false',
-            htype: this.isRetail ? 'retail' : 'mandate',
             teamlead:
               localStorage.getItem('RoleType') == '1'
                 ? localStorage.getItem('UserId')
@@ -613,7 +633,6 @@ export class MenuComponent implements OnInit {
             stagestatus: '3',
             visittype: '3',
             isDropDown: 'false',
-            htype: this.isRetail ? 'retail' : 'mandate',
             type: 'USV',
             stage: 'USV',
             teamlead:
@@ -628,5 +647,46 @@ export class MenuComponent implements OnInit {
   resetStoredData() {
     this.sharedService.enquiries = [];
     this.sharedService.hasState = false;
+  }
+
+  onMenuClosed() {
+    this.accordionOpen = false;
+    this.visitsAccordion = false;
+    this.reportAccordion = false;
+
+    if (
+      this.router.url.indexOf('isLeadsVisitsCalls=leads') > -1 ||
+      this.router.url.indexOf('isLeadsVisitsCalls=visits') > -1 ||
+      this.router.url.indexOf('isLeadsVisitsCalls=calls') > -1 ||
+      this.router.url.indexOf('source-dashboard') > -1 ||
+      this.router.url.indexOf('today-dashboard') > -1 ||
+      this.router.url.indexOf('overdues-dashboard') > -1 ||
+      this.router.url.indexOf('junk-dashboard') > -1 ||
+      this.router.url.indexOf('priority-dashboard') > -1 ||
+      this.router.url.indexOf('feeback-dashboard') > -1
+    ) {
+      this.accordionOpen = true;
+      this.visitsAccordion = false;
+      this.reportAccordion = false;
+    }
+
+    if (
+      this.router.url.indexOf('mandate-visit-stages') > -1 ||
+      this.router.url.indexOf('whatsapp-visits') > -1
+    ) {
+      this.visitsAccordion = true;
+      this.reportAccordion = false;
+      this.accordionOpen = false;
+    }
+
+    if (
+      this.router.url.indexOf('attendance') > -1 ||
+      this.router.url.indexOf('mymandatereports') > -1 ||
+      this.router.url.indexOf('hourly-report') > -1
+    ) {
+      this.reportAccordion = true;
+      this.accordionOpen = false;
+      this.visitsAccordion = false;
+    }
   }
 }

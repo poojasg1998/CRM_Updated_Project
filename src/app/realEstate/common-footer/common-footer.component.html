@@ -67,7 +67,7 @@
 
 <app-on-call-lead-update *ngIf="isOnCallDetailsPage"></app-on-call-lead-update>
 <div (click)="navigateToCallDetails()"
-  *ngIf="!sharedService.isBottom && !router.url.includes('isnewGroupCreation=true') && !router.url.includes('isOnCallDetailsPage=true') && !router.url.includes('switch-account')"
+  *ngIf="!sharedService.isBottom && !router.url.includes('isnewGroupCreation=true') && !router.url.includes('isOnCallDetailsPage=true') && !router.url.includes('switch-account') && !router.url.includes('mandate-customers') && sharedService.hasCallFeature"
   [ngClass]="
   (router.url.includes('/mandate-visit-stages') && !(router.url.includes('Deal%20Closing%20Requested') || 
   router.url.includes('Deal%20Closed') || router.url.includes('Closing%20Request%20Rejected') ||
@@ -118,7 +118,8 @@
         </div>
         <span [ngClass]="isChatActive()?'text_color_blue':'text_color_gray'" class="chat-label">Chat</span>
       </ion-col> -->
-      <ion-col class="content_center" (click)="footerNavigation('notifications')">
+      <ion-col class="content_center" (click)="footerNavigation('notifications')"
+        *ngIf="sharedService.hasCallFeature || sharedService.hasChatFeature">
         <div class="icon-badge-wrapper">
           <ion-img *ngIf="!isNotificationActive()" src="../../assets/CRMimages/footer_notification-icon.svg"></ion-img>
           <ion-img *ngIf="isNotificationActive()" src="../../assets/CRMimages/activeNotification-icon.svg"></ion-img>

@@ -111,7 +111,6 @@ export class MandateLeadStagesComponent implements OnInit {
         : localStorage.getItem('UserId'),
     loginid: localStorage.getItem('UserId'),
     priority: '',
-    htype: '',
     source: '',
     stagestatus: '',
     visits: '',
@@ -139,6 +138,7 @@ export class MandateLeadStagesComponent implements OnInit {
     counter: '',
   };
   mandateLeadsCount = {
+    assigned: '0',
     untouched: '0',
     generalFollowup: '0',
     nc: '0',
@@ -166,7 +166,7 @@ export class MandateLeadStagesComponent implements OnInit {
     private router: Router,
     private activeRoute: ActivatedRoute,
     private retailService: RetailServiceService,
-    private _sharedservice: SharedService,
+    public _sharedservice: SharedService,
     private mandateService: MandateService,
     private ngZone: NgZone,
     private platform: Platform
@@ -287,7 +287,6 @@ export class MandateLeadStagesComponent implements OnInit {
             : localStorage.getItem('UserId'),
         loginid: localStorage.getItem('UserId'),
         priority: '',
-        htype: '',
         source: '',
         stagestatus: '',
         visits: '',
@@ -470,8 +469,10 @@ export class MandateLeadStagesComponent implements OnInit {
     } else {
       this.mandateService.setHoverState('');
     }
+
     (this.filteredParams.executid =
-      localStorage.getItem('Role') === '1'
+      localStorage.getItem('Role') === '1' ||
+      this.localStorage.getItem('RoleType') == '1'
         ? this.filteredParams.executid
         : localStorage.getItem('UserId')),
       this.settingSelectedDate();
@@ -568,6 +569,7 @@ export class MandateLeadStagesComponent implements OnInit {
     this.showSpinner = true;
     const requests = [];
     const status = [
+      'assignedleads',
       'pending',
       'generalfollowups',
       'inactive',
@@ -630,30 +632,34 @@ export class MandateLeadStagesComponent implements OnInit {
         if (assignleads && assignleads['AssignedLeads']) {
           switch (index) {
             case 0:
+              this.mandateLeadsCount.assigned =
+                assignleads['AssignedLeads'][0]['counts'];
+              break;
+            case 1:
               this.mandateLeadsCount.untouched =
                 assignleads['AssignedLeads'][0]['Uniquee_counts'];
               break;
-            case 1:
+            case 2:
               this.mandateLeadsCount.generalFollowup =
                 assignleads['AssignedLeads'][0]['Uniquee_counts'];
               break;
-            case 2:
+            case 3:
               this.mandateLeadsCount.inactive =
                 assignleads['AssignedLeads'][0]['Uniquee_counts'];
               break;
-            case 3:
+            case 4:
               this.mandateLeadsCount.junkLeads =
                 assignleads['AssignedLeads'][0]['Uniquee_counts'];
               break;
-            case 4:
+            case 5:
               this.mandateLeadsCount.touched =
                 assignleads['AssignedLeads'][0]['counts'];
               break;
-            case 5:
+            case 6:
               this.mandateLeadsCount.active =
                 assignleads['AssignedLeads'][0]['counts'];
               break;
-            case 6:
+            case 7:
               this.mandateLeadsCount.nc =
                 assignleads['AssignedLeads'][0]['Uniquee_counts'];
               break;
@@ -878,8 +884,8 @@ export class MandateLeadStagesComponent implements OnInit {
         callto: cleanedNumber,
         leadid: this.lead.LeadID,
         starttime: this.getCurrentDateTime(),
-        modeofcall: 'mobile-' + this.filteredParams.htype,
-        leadtype: this.filteredParams.htype,
+        modeofcall: 'mobile-mandate',
+        leadtype: 'mandate',
         assignee: this.lead.ExecId,
       };
 
@@ -903,7 +909,6 @@ export class MandateLeadStagesComponent implements OnInit {
           leadTabData: 'status',
           callStatus: 'Call Connected',
           direction: 'outboundCall',
-          headerType: this.filteredParams.htype,
         },
         queryParamsHandling: 'merge',
       });
@@ -1001,7 +1006,6 @@ export class MandateLeadStagesComponent implements OnInit {
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
             : null,
-        htype: this.filteredParams.htype,
       },
     });
   }
@@ -1081,7 +1085,6 @@ export class MandateLeadStagesComponent implements OnInit {
       stage: this.filteredParams.stage,
       team: '',
       propid: '',
-      htype: this.filteredParams.htype,
       followup: this.filteredParams.followup,
       executid:
         localStorage.getItem('Role') === '1'
@@ -1642,32 +1645,36 @@ export class MandateLeadStagesComponent implements OnInit {
     this.addQuerryParams();
   }
 
-  onHtype(htype) {
-    this.reset_filter();
-    this.filteredParams = { ...this.tempFilteredValues };
-    const queryParams = {};
-    for (const key in this.filteredParams) {
-      if (
-        this.filteredParams.hasOwnProperty(key) &&
-        this.filteredParams[key] !== ''
-      ) {
-        queryParams[key] = this.filteredParams[key];
-      } else {
-        queryParams[key] = null;
-      }
-    }
-    if (this.filteredParams.htype == 'mandate') {
-      this.router.navigate(['mandate-lead-stages'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.router.navigate(['retail-lead-stages'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    }
-  }
+  // onHtype(htype) {
+  //   this.reset_filter();
+  //   this.filteredParams = { ...this.tempFilteredValues };
+  //   const queryParams = {};
+  //   for (const key in this.filteredParams) {
+  //     if (
+  //       this.filteredParams.hasOwnProperty(key) &&
+  //       this.filteredParams[key] !== ''
+  //     ) {
+  //       queryParams[key] = this.filteredParams[key];
+  //     } else {
+  //       queryParams[key] = null;
+  //     }
+  //   }
+  //   this.router.navigate(['mandate-lead-stages'], {
+  //     queryParams,
+  //     queryParamsHandling: 'merge',
+  //   });
+  //   // if (this.filteredParams.htype == 'mandate') {
+  //   //   this.router.navigate(['mandate-lead-stages'], {
+  //   //     queryParams,
+  //   //     queryParamsHandling: 'merge',
+  //   //   });
+  //   // } else {
+  //   //   this.router.navigate(['retail-lead-stages'], {
+  //   //     queryParams,
+  //   //     queryParamsHandling: 'merge',
+  //   //   });
+  //   // }
+  // }
   openEndMenu() {
     this._sharedservice.isMenuOpen = true;
     this.menuCtrl.open('end');
@@ -1884,7 +1891,6 @@ export class MandateLeadStagesComponent implements OnInit {
       queryParams: {
         chatListSearch: number,
         selectedChat: 'all',
-        htype: this.filteredParams.htype,
       },
     });
     // }

@@ -89,7 +89,6 @@ export class MandateFeedbackComponent implements OnInit {
         ? ''
         : localStorage.getItem('UserId'),
     source: '',
-    htype: '',
     propid: '',
     receivedfromdate: '',
     receivedtodate: '',
@@ -306,38 +305,37 @@ export class MandateFeedbackComponent implements OnInit {
     });
   }
 
-  onHtype(htype) {
-    this.reset_filter();
-    this.filteredParams = { ...this.tempFilteredValues };
-    const queryParams = {};
-    for (const key in this.filteredParams) {
-      if (
-        this.filteredParams.hasOwnProperty(key) &&
-        this.filteredParams[key] !== ''
-      ) {
-        queryParams[key] = this.filteredParams[key];
-      } else {
-        queryParams[key] = null;
-      }
-    }
-    if (htype == 'mandate') {
-      this.router.navigate(['mandate-feedback'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    } else {
-      this.router.navigate(['retail-feedback'], {
-        queryParams,
-        queryParamsHandling: 'merge',
-      });
-    }
-  }
+  // onHtype(htype) {
+  //   this.reset_filter();
+  //   this.filteredParams = { ...this.tempFilteredValues };
+  //   const queryParams = {};
+  //   for (const key in this.filteredParams) {
+  //     if (
+  //       this.filteredParams.hasOwnProperty(key) &&
+  //       this.filteredParams[key] !== ''
+  //     ) {
+  //       queryParams[key] = this.filteredParams[key];
+  //     } else {
+  //       queryParams[key] = null;
+  //     }
+  //   }
+  //   if (htype == 'mandate') {
+  //     this.router.navigate(['mandate-feedback'], {
+  //       queryParams,
+  //       queryParamsHandling: 'merge',
+  //     });
+  //   } else {
+  //     this.router.navigate(['retail-feedback'], {
+  //       queryParams,
+  //       queryParamsHandling: 'merge',
+  //     });
+  //   }
+  // }
 
   onRetailFeedback() {
     this.router.navigate(['retail-feedback'], {
       queryParams: {
         status: 'pending',
-        htype: 'retail',
       },
       queryParamsHandling: 'merge',
     });
@@ -512,7 +510,6 @@ export class MandateFeedbackComponent implements OnInit {
         leadId: leadId,
         execid: execid,
         feedback: '1',
-        htype: this.filteredParams.htype,
         teamlead:
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
@@ -826,7 +823,6 @@ export class MandateFeedbackComponent implements OnInit {
           ? ''
           : localStorage.getItem('UserId'),
       source: '',
-      htype: this.filteredParams.htype,
       propid: '',
       receivedfromdate: '',
       receivedtodate: '',
@@ -1295,8 +1291,8 @@ export class MandateFeedbackComponent implements OnInit {
         callto: cleanedNumber,
         leadid: this.lead.LeadID,
         starttime: this.getCurrentDateTime(),
-        modeofcall: 'mobile-' + this.filteredParams.htype,
-        leadtype: this.filteredParams.htype,
+        modeofcall: 'mobile-mandate',
+        leadtype: 'mandate',
         assignee: this.lead.ExecId,
       };
 
@@ -1312,7 +1308,6 @@ export class MandateFeedbackComponent implements OnInit {
           execid: this.lead.RMID,
           leadTabData: 'status',
           callStatus: 'Call Connected',
-          headerType: this.filteredParams.htype,
         },
         queryParamsHandling: 'merge',
       });
@@ -1365,7 +1360,6 @@ export class MandateFeedbackComponent implements OnInit {
       queryParams: {
         chatListSearch: number,
         selectedChat: 'all',
-        htype: this.filteredParams.htype,
       },
     });
   }

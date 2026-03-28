@@ -59,10 +59,6 @@
   float: right;
   height: 40px;
 }
-.header_footerHeight {
-  height: 45px;
-}
-
 .borderBottom_background {
   border-bottom: 0.5px solid #ececec;
 }
@@ -145,7 +141,7 @@
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
-  background: url("../../../assets/CRMimages/calendar-edit-outline.png")
+  background: url("../../../../assets/CRMimages/calendar-edit-outline.png")
     no-repeat center;
   background-size: contain;
 }

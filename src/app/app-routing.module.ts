@@ -5,9 +5,24 @@ import { CanActivateGuard } from './realEstate/can-activate.service';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/login',
+    redirectTo: 'home',
     pathMatch: 'full',
   },
+
+  // {
+  //   path: '',
+  //   canActivate: [CanActivateGuard],
+  //   children: [
+  //     {
+  //       path: '',
+  //       loadChildren: () =>
+  //         import('./realEstate/mandate/dashboard/dashboard.module').then(
+  //           (m) => m.DashboardModule
+  //         ),
+  //     },
+  //   ],
+  // },
+
   {
     path: 'login',
     loadChildren: () =>
@@ -255,6 +270,35 @@ const routes: Routes = [
     loadChildren: () =>
       import('./realEstate/stage-dashboard/stage-dashboard.module').then(
         (m) => m.StageDashboardModule
+      ),
+  },
+  {
+    path: 'shreeindustries-dashboard',
+    loadChildren: () =>
+      import(
+        './constructer/shreeindustries-dashboard/shreeindustries-dashboard.module'
+      ).then((m) => m.ShreeindustriesDashboardModule),
+    // canActivate: [CanActivateGuard],
+  },
+  {
+    path: 'marketing-calls',
+    loadChildren: () =>
+      import('./constructer/marketing-calls/marketing-calls.module').then(
+        (m) => m.MarketingCallsModule
+      ),
+  },
+  {
+    path: 'priority-dashboard',
+    loadChildren: () =>
+      import('./realEstate/priority-dashboard/priority-dashboard.module').then(
+        (m) => m.PriorityDashboardModule
+      ),
+  },
+  {
+    path: 'feeback-dashboard',
+    loadChildren: () =>
+      import('./realEstate/feedback-dashboard/feedback-dashboard.module').then(
+        (m) => m.FeedbackDashboardModule
       ),
   },
 ];
