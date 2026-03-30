@@ -22,7 +22,9 @@ import { MessageService } from 'primeng/api';
 })
 export class InventoryDashboardComponent implements OnInit {
   @ViewChild('content', { static: false }) content!: IonContent;
-
+  @ViewChild('editUnitDetailsModal') editUnitDetailsModal;
+  @ViewChild('popover') popover: IonPopover;
+  editToSelectedUnit;
   showSpinner = false;
   filteredParams = {
     propid: '',
@@ -48,7 +50,6 @@ export class InventoryDashboardComponent implements OnInit {
   statusListingData: any;
   bhkListingData: any;
   unitListingData: any;
-  fullInventoryData: any;
   doreFacingData: any;
   selectedExec: any;
   leadsBasedexecData: any;
@@ -58,7 +59,14 @@ export class InventoryDashboardComponent implements OnInit {
   soldForm!: FormGroup;
   unitEditForm!: FormGroup;
   bankNames;
+  selectedFloors = [];
   registrationForm;
+  isEditUnitStatus = false;
+  selectedLeadsBasedexec;
+  executiveList;
+  backstage = 0;
+  inventoryData1: any;
+  floorNum = '';
   constructor(
     private sharedService: SharedService,
     private menuCtrl: MenuController,
@@ -73,6 +81,29 @@ export class InventoryDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.formsInitialization();
+    this.activeRoute.queryParams.subscribe(() => {
+      this.showSpinner = true;
+      this.getQueryParams();
+      this.getExecutivedata();
+      this.getmandateprojects();
+      this.getAllCountsOfInventory();
+
+      setTimeout(() => {
+        this.getTowerDetails();
+        this.getBHKDetails();
+        this.getSizeDetails();
+        this.getStatusDetails();
+      }, 1000);
+
+      this.getDoreFacingDetails();
+      this.getBHKListing();
+      // this.getStatusListing();
+      this.getUnitListing();
+    });
+  }
+
+  formsInitialization() {
     this.bookingForm = this.fb.group({
       bhk: ['', Validators.required],
       unitNumber: ['', Validators.required],
@@ -151,36 +182,16 @@ export class InventoryDashboardComponent implements OnInit {
 
     this.unitEditForm = this.fb.group({
       unitName: [null, Validators.required],
-      bhk: [null, Validators.required],
-      unitSize: ['', [Validators.required, Validators.pattern(/^[0-9 ]+$/)]],
-      builtupArea: ['', [Validators.required, Validators.pattern(/^[0-9 ]+$/)]],
+      bhk: [null],
+      unitSize: ['', [, Validators.pattern(/^[0-9 ]+$/)]],
+      builtupArea: ['', [, Validators.pattern(/^[0-9 ]+$/)]],
       carpetarea: ['', [Validators.pattern(/^[0-9 ]+$/)]],
-      unitSBA: ['', [Validators.required, Validators.pattern(/^[0-9 ]+$/)]],
-      unitUDS: ['', [Validators.required, Validators.pattern(/^[0-9 ]+$/)]],
-      doreFacing: [null, Validators.required],
-      status: [null, Validators.required],
+      unitSBA: ['', [, Validators.pattern(/^[0-9 ]+$/)]],
+      unitUDS: ['', [, Validators.pattern(/^[0-9 ]+$/)]],
+      doreFacing: [null],
+      status: [null],
       balcony: [false],
       garden: [false],
-    });
-
-    this.activeRoute.queryParams.subscribe(() => {
-      this.showSpinner = true;
-      this.getQueryParams();
-      this.getExecutivedata();
-      this.getmandateprojects();
-      this.getAllCountsOfInventory();
-
-      setTimeout(() => {
-        this.getTowerDetails();
-        this.getBHKDetails();
-        this.getSizeDetails();
-        this.getStatusDetails();
-      }, 1000);
-
-      this.getDoreFacingDetails();
-      this.getBHKListing();
-      // this.getStatusListing();
-      this.getUnitListing();
     });
   }
   applyValidation() {
@@ -227,7 +238,6 @@ export class InventoryDashboardComponent implements OnInit {
       form.get('receivedDate')?.setValidators([Validators.required]);
     }
 
-    // 🔥 MUST UPDATE
     Object.keys(form.controls).forEach((key) => {
       form.get(key)?.updateValueAndValidity({ emitEvent: false });
     });
@@ -324,6 +334,24 @@ export class InventoryDashboardComponent implements OnInit {
     });
   }
 
+  getmandateprojects() {
+    this.mandateService.getmandateprojects().subscribe((resp) => {
+      this.properties = resp['Properties'];
+      this.selectedProp = resp['Properties'].filter(
+        (item) => item.property_idfk == this.filteredParams.propid
+      );
+      this.selectedProp = this.selectedProp[0];
+    });
+  }
+
+  getExecutivedata() {
+    this.mandateService
+      .fetchmandateexecutives(this.filteredParams.propid, '')
+      .subscribe((resp) => {
+        this.executiveList = resp['mandateexecutives'];
+      });
+  }
+
   getAllCountsOfInventory() {
     this.sharedService
       .getPropInventoryCount(this.filteredParams.propid)
@@ -333,14 +361,48 @@ export class InventoryDashboardComponent implements OnInit {
       });
   }
 
-  getmandateprojects() {
-    this.mandateService.getmandateprojects().subscribe((resp) => {
-      this.properties = resp['Properties'];
-      this.selectedProp = resp['Properties'].filter(
-        (item) => item.property_idfk == this.filteredParams.propid
-      );
-      this.selectedProp = this.selectedProp[0];
+  getInventoryDetails() {
+    const baseParams = {
+      propid: this.filteredParams.propid,
+      viewtype: this.filteredParams.viewtype,
+      size: this.filteredParams.size,
+      bhk: this.filteredParams.bhk,
+      status: this.filteredParams.status,
+    };
+
+    this.sharedService.getInventoryDetails(baseParams).subscribe((resp) => {
+      this.inventoryData = resp['data'];
+      this.inventoryData1 = this.inventoryData;
+      if (
+        this.filteredParams.towerid == '' &&
+        this.filteredParams.viewtype == '2'
+      ) {
+        this.filteredParams.towerid = this.inventoryData?.[0].towerid;
+      }
+      // this.selectedFloors = this.inventoryData?.[0]?.floors;
+      this.showSpinner = false;
+      this.prepareData(resp['data']);
     });
+
+    // forkJoin({
+    //   withoutTower: this.sharedService.getInventoryDetails(baseParams),
+    //   withTower: this.sharedService.getInventoryDetails({
+    //     ...baseParams,
+    //     towerid: this.filteredParams.towerid,
+    //   }),
+    // }).subscribe(({ withoutTower, withTower }) => {
+    //   this.fullInventoryData = withoutTower['data'];
+    //   this.inventoryData = withTower['data'];
+
+    //   if (
+    //     this.filteredParams.towerid == '' &&
+    //     this.filteredParams.viewtype == '2'
+    //   ) {
+    //     this.filteredParams.towerid = this.inventoryData?.[0].towerid;
+    //   }
+    //   this.selectedFloors = this.inventoryData?.[0]?.floors;
+    //   this.showSpinner = false;
+    // });
   }
 
   addQueryParams() {
@@ -417,60 +479,13 @@ export class InventoryDashboardComponent implements OnInit {
     this.addQueryParams();
   }
 
-  getInventoryDetails() {
-    const baseParams = {
-      propid: this.filteredParams.propid,
-      viewtype: this.filteredParams.viewtype,
-      size: this.filteredParams.size,
-      bhk: this.filteredParams.bhk,
-      status: this.filteredParams.status,
-    };
-
-    this.sharedService.getInventoryDetails(baseParams).subscribe((resp) => {
-      this.inventoryData = resp['data'];
-      if (
-        this.filteredParams.towerid == '' &&
-        this.filteredParams.viewtype == '2'
-      ) {
-        this.filteredParams.towerid = this.inventoryData?.[0].towerid;
-      }
-      this.selectedFloors = this.inventoryData?.[0]?.floors;
-      this.showSpinner = false;
-    });
-
-    // forkJoin({
-    //   withoutTower: this.sharedService.getInventoryDetails(baseParams),
-    //   withTower: this.sharedService.getInventoryDetails({
-    //     ...baseParams,
-    //     towerid: this.filteredParams.towerid,
-    //   }),
-    // }).subscribe(({ withoutTower, withTower }) => {
-    //   this.fullInventoryData = withoutTower['data'];
-    //   this.inventoryData = withTower['data'];
-
-    //   if (
-    //     this.filteredParams.towerid == '' &&
-    //     this.filteredParams.viewtype == '2'
-    //   ) {
-    //     this.filteredParams.towerid = this.inventoryData?.[0].towerid;
-    //   }
-    //   this.selectedFloors = this.inventoryData?.[0]?.floors;
-    //   this.showSpinner = false;
-    // });
-  }
-
-  selectedFloors = [];
   onBlock(data) {
     this.filteredParams.towerid = data.towerid;
-    this.selectedFloors = data['floors'];
+    // this.selectedFloors = data['floors'];
     this.addQueryParams();
   }
 
-  editToSelectedUnit;
-  @ViewChild('editUnitDetailsModal') editUnitDetailsModal;
   onEditInventoryUintDetails(data) {
-    console.log(data);
-
     const unitid = data.unit_IDPK || data;
     this.sharedService.getSingleUnit(unitid).subscribe((res) => {
       console.log(res);
@@ -492,7 +507,6 @@ export class InventoryDashboardComponent implements OnInit {
           exename: data.Exec_IDFK,
         });
       } else if (this.editToSelectedUnit?.unitstatus_IDFK == '4') {
-        // if (this.editToSelectedUnit?.saleagreement_files?.length) {
         const saleDocs =
           this.editToSelectedUnit.saleagreement_files?.map((file: any) => {
             return {
@@ -508,7 +522,6 @@ export class InventoryDashboardComponent implements OnInit {
           status: this.editToSelectedUnit.saleagreement_stage || '',
           remark: this.editToSelectedUnit.remarks_4 || '',
         });
-        // }
       } else if (this.editToSelectedUnit?.unitstatus_IDFK == '5') {
         this.sharedService.getBankNames().subscribe((resp) => {
           this.bankNames = resp['data'];
@@ -548,21 +561,12 @@ export class InventoryDashboardComponent implements OnInit {
       }
       this.showSpinner = false;
     });
-
-    // setTimeout(() => {
-    //   // this.getLeadsBasedexec();
-    //   const param = {
-    //     unitid: this.editToSelectedUnit.unit_IDPK,
-    //     leadid: this.editToSelectedUnit.Lead_IDFK,
-    //     execid: this.editToSelectedUnit.Exec_IDFK,
-    //   };
-    //   this.getunithistory(param);
-    // }, 1000);
     this.editUnitDetailsModal.present();
   }
+
   onBooking() {
     if (this.bookingForm.invalid) {
-      this.bookingForm.markAllAsTouched(); // 🔥 important
+      this.bookingForm.markAllAsTouched();
       return;
     }
     this.showSpinner = true;
@@ -846,43 +850,6 @@ export class InventoryDashboardComponent implements OnInit {
     });
   }
 
-  showesTheData() {
-    this.bookingForm.patchValue({
-      bhk: this.editToSelectedUnit.bhk,
-      unitNumber: this.editToSelectedUnit.unit_name,
-    });
-
-    // this.selectedUnitForEdit = this.unitListingData.filter(
-    //   (element) => element.unit_IDPK == this.editToSelectedUnit.unit_IDPK
-    // );
-    // this.selectedUnitForEdit = this.selectedUnitForEdit[0];
-
-    // this.selectedBHKForEdit = this.bhkData.filter(
-    //   (element) => element.bhk_IDFK == this.editToSelectedUnit.bhk_IDFK
-    // );
-    // this.selectedBHKForEdit = this.selectedBHKForEdit[0];
-
-    // this.selectedDoreFacing = this.doreFacingData.filter(
-    //   (element) =>
-    //     element.doorfacing_IDPK === this.editToSelectedUnit.doorfacing_IDFK
-    // );
-    // this.selectedDoreFacing = this.selectedDoreFacing[0];
-
-    // this.selectedstatus = this.statusData.filter(
-    //   (element) =>
-    //     element.unitstatus_IDFK == this.editToSelectedUnit.unitstatus_IDFK
-    // );
-    // this.selectedstatus = this.selectedstatus[0];
-
-    // this.selectedExec = this.executiveList.filter(
-    //   (element) => element.name == this.editToSelectedUnit.updated_by
-    // );
-
-    // this.selectedExec = this.selectedExec[0];
-  }
-
-  isEditUnitStatus = false;
-  selectedLeadsBasedexec;
   getLeadsBasedexec(event) {
     const params = {
       execid: this.bookingForm.get('exename')?.value,
@@ -894,7 +861,6 @@ export class InventoryDashboardComponent implements OnInit {
         this.selectedLeadsBasedexec = this.leadsBasedexecData.filter(
           (element) => element.Lead_IDFK == this.editToSelectedUnit.Lead_IDFK
         );
-
         this.selectedLeadsBasedexec = this.selectedLeadsBasedexec[0];
       },
       error: () => {
@@ -902,73 +868,6 @@ export class InventoryDashboardComponent implements OnInit {
       },
       complete: () => {},
     });
-  }
-
-  onBalconyGardenEdit(event, data) {
-    if (event.detail.checked == true) {
-      this.editToSelectedUnit.unit_balcony =
-        data == 'balcony' ? '1' : this.editToSelectedUnit.unit_balcony;
-      this.editToSelectedUnit.unit_garden =
-        data == 'gardern' ? '1' : this.editToSelectedUnit.unit_garden;
-    } else {
-      this.editToSelectedUnit.unit_balcony =
-        data == 'balcony' ? '0' : this.editToSelectedUnit.unit_balcony;
-      this.editToSelectedUnit.unit_garden =
-        data == 'gardern' ? '0' : this.editToSelectedUnit.unit_garden;
-    }
-  }
-
-  // .set('unitid', param.unitid)
-  // .set('leadid', param.leadid)
-  // .set('execid', param.execid);
-
-  uintHistoryData = [];
-  getunithistory(param) {
-    this.sharedService.getunithistory(param).subscribe((resp) => {
-      this.uintHistoryData = resp['data'];
-    });
-  }
-
-  saveAndContinue() {
-    const param = {
-      unitid: '',
-      assignid: '',
-      userid: '',
-      leadid: '',
-      propid: '',
-      unitstatus: '',
-      remarks: '',
-      actiondate: '',
-      actiontime: '',
-      booking_status: '',
-    };
-  }
-  executiveList;
-  getExecutivedata() {
-    this.mandateService
-      .fetchmandateexecutives(this.filteredParams.propid, '')
-      .subscribe((resp) => {
-        this.executiveList = resp['mandateexecutives'];
-      });
-  }
-  login() {}
-  setCustomValidity(event) {
-    const input = event.target;
-
-    const files = input.files;
-    const maxSize = 1110000; // 1.11 MB
-    if (input.validity.patternMismatch) {
-      input.setCustomValidity('Only numbers are valid');
-    } else if (files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        if (files[i].size > maxSize) {
-          input.setCustomValidity(`File "${files[i].name}" exceeds 1.11MB`);
-          return;
-        }
-      }
-    } else {
-      input.setCustomValidity('');
-    }
   }
 
   onFileSelected(event: any) {
@@ -1046,6 +945,16 @@ export class InventoryDashboardComponent implements OnInit {
     // Reset input so same file can be uploaded again if needed
     input.value = '';
   }
+
+  removeDocument(form: FormGroup, index: number) {
+    const files = [...(form.get('documents')?.value || [])];
+
+    files.splice(index, 1);
+
+    form.patchValue({
+      documents: files.length ? files : null,
+    });
+  }
   removeImage(index: number) {
     const files = this.bookingForm.get('documents')?.value || [];
 
@@ -1091,13 +1000,6 @@ export class InventoryDashboardComponent implements OnInit {
     }
   }
 
-  isStageCompleted() {
-    return ['4', '5', '6'].includes(
-      this.editToSelectedUnit?.unitstatus_IDFK + ''
-    );
-  }
-  previewFile(i) {}
-  @ViewChild('popover') popover: IonPopover;
   closePopover() {
     if (this.popover) {
       this.popover.dismiss();
@@ -1111,14 +1013,13 @@ export class InventoryDashboardComponent implements OnInit {
     const date = new Date(value);
     const formatted = date.toLocaleDateString('en-CA');
 
-    // ✅ SET VALUE
+    // SET VALUE
     this.paymentForm.get('receivedDate')?.setValue(formatted);
 
     // close popover
     this.popover.dismiss();
   }
 
-  backstage = 0;
   onBack() {
     if (
       this.editToSelectedUnit.saleagreement_stage == '1' &&
@@ -1214,6 +1115,8 @@ export class InventoryDashboardComponent implements OnInit {
     this.saleAgreementForm.reset();
     this.paymentForm.reset();
     this.registrationForm.reset();
+    this.soldForm.reset();
+    this.unitEditForm.reset();
   }
 
   toggleAddBank() {
@@ -1296,7 +1199,6 @@ export class InventoryDashboardComponent implements OnInit {
     }
   }
   onUpdateUnit() {
-    // selectedUnitForEdit;selectedBHKForEdit;selectedDoreFacing;selectedstatus
     this.isEditUnitStatus = !this.isEditUnitStatus;
     this.unitEditForm.patchValue({
       unitName: this.editToSelectedUnit.unit_name,
@@ -1311,5 +1213,68 @@ export class InventoryDashboardComponent implements OnInit {
       balcony: this.editToSelectedUnit.unit_balcony == '1',
       garden: this.editToSelectedUnit.unit_garden == '1',
     });
+  }
+
+  onUnitNameSearch(event: any) {
+    const searchTerm = event.target.value?.toLowerCase() || '';
+
+    if (!searchTerm) {
+      this.inventoryData1 = [...this.inventoryData];
+      return;
+    }
+    this.inventoryData1 = this.inventoryData.filter((item: any) => {
+      return item.unit_name?.toLowerCase().includes(searchTerm);
+    });
+  }
+
+  onreset() {
+    this.filteredParams = {
+      propid: '1830',
+      towerid: '',
+      size: '',
+      bhk: '',
+      status: '1',
+      viewtype: this.filteredParams.viewtype,
+    };
+    this.addQueryParams();
+  }
+
+  prepareData(data: any[]) {
+    data.forEach((tower) => {
+      tower.floors.forEach((floor) => {
+        const total = +floor.floor_units || 0;
+        const actual = floor.units || [];
+
+        const result = [...actual];
+        const remaining = total - actual.length;
+
+        for (let i = 0; i < remaining; i++) {
+          result.push({
+            isEmpty: true,
+            index: actual.length + i + 1,
+          });
+        }
+
+        floor.unitSlots = result;
+      });
+    });
+  }
+  onEmptyUnitDetailsUpdate(floornum) {
+    this.isEditUnitStatus = true;
+    this.floorNum = this.getOrdinalFloor(floornum);
+    this.editUnitDetailsModal.present();
+  }
+  getOrdinalFloor(floorNum: number): string {
+    if (floorNum === 0) return 'Ground Floor';
+
+    const j = floorNum % 10;
+    const k = floorNum % 100;
+
+    let suffix = 'th';
+    if (j === 1 && k !== 11) suffix = 'st';
+    else if (j === 2 && k !== 12) suffix = 'nd';
+    else if (j === 3 && k !== 13) suffix = 'rd';
+
+    return `${floorNum}${suffix} Floor`;
   }
 }

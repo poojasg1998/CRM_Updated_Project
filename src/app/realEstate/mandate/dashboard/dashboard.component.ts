@@ -619,15 +619,15 @@ export class DashboardComponent {
     if (this.filteredParams1.isLeadsVisitsCalls == 'visits') {
       this.filteredParams1.fromDate = '';
       this.filteredParams1.toDate = '';
-      if (this.filteredParams1.visitedfromdate == '') {
-        this.filteredParams1.visitedfromdate = new Date().toLocaleDateString(
-          'en-CA'
-        );
-        this.filteredParams1.visitedtodate = new Date().toLocaleDateString(
-          'en-CA'
-        );
-        this.filteredParams1.isDateFilter = 'today';
-      }
+      // if (this.filteredParams1.visitedfromdate == '') {
+      //   this.filteredParams1.visitedfromdate = new Date().toLocaleDateString(
+      //     'en-CA'
+      //   );
+      //   this.filteredParams1.visitedtodate = new Date().toLocaleDateString(
+      //     'en-CA'
+      //   );
+      //   this.filteredParams1.isDateFilter = 'today';
+      // }
       if (this.filteredParams1.priority == '') {
         this.filteredParams1.priority = '1';
       }
@@ -635,11 +635,11 @@ export class DashboardComponent {
       this.filteredParams1.priority = '';
       this.filteredParams1.visitedfromdate = '';
       this.filteredParams1.visitedtodate = '';
-      if (this.filteredParams1.fromDate == '') {
-        this.filteredParams1.fromDate = new Date().toLocaleDateString('en-CA');
-        this.filteredParams1.toDate = new Date().toLocaleDateString('en-CA');
-        this.filteredParams1.isDateFilter = 'today';
-      }
+      // if (this.filteredParams1.fromDate == '') {
+      //   this.filteredParams1.fromDate = new Date().toLocaleDateString('en-CA');
+      //   this.filteredParams1.toDate = new Date().toLocaleDateString('en-CA');
+      //   this.filteredParams1.isDateFilter = 'today';
+      // }
     } else {
       this.filteredParams1.priority = '';
     }
@@ -876,6 +876,9 @@ export class DashboardComponent {
                 new Date().toLocaleDateString('en-CA');
               this.filteredParams1.visitedtodate =
                 new Date().toLocaleDateString('en-CA');
+
+              this.filteredParams1.visitedfromdate = '';
+              this.filteredParams1.visitedtodate = '';
             } else {
               this.filteredParams1.fromDate = new Date().toLocaleDateString(
                 'en-CA'
@@ -883,8 +886,11 @@ export class DashboardComponent {
               this.filteredParams1.toDate = new Date().toLocaleDateString(
                 'en-CA'
               );
+
+              this.filteredParams1.fromDate = '';
+              this.filteredParams1.toDate = '';
             }
-            this.filteredParams1.isDateFilter = 'today';
+            this.filteredParams1.isDateFilter = 'alltime';
           }
           this.filteredParams1.weekendfromdate = '';
           this.filteredParams1.weekendtodate = '';
@@ -911,7 +917,7 @@ export class DashboardComponent {
           this.filteredParams1.fromDate = '';
           this.filteredParams1.visitedtodate = '';
           this.filteredParams1.visitedfromdate = '';
-          this.filteredParams1.isDateFilter != 'lastsevenDay'
+          this.filteredParams1.isDateFilter != 'alltime'
             ? this.onPlanDateFilter(this.filteredParams1.isDateFilter)
             : '';
 
@@ -2083,6 +2089,7 @@ export class DashboardComponent {
   canScroll;
   isScrollMoved = false;
   onScroll(event: CustomEvent) {
+    this.sharedService.scrollTop = event.detail.scrollTop;
     this.content.getScrollElement().then((scrollEl) => {
       const scrollTop = scrollEl.scrollTop;
       const scrollHeight = scrollEl.scrollHeight;

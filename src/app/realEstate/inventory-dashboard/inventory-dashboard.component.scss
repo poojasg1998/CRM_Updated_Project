@@ -15,7 +15,6 @@
   width: 22px !important;
 }
 ::ng-deep .details_units_row p-dropdown.exec_css .p-inputwrapper span {
-  padding: 0.4vw 1vw;
   font-size: 3.6vw;
   font-family: "Poppins";
   color: #474747;
@@ -54,29 +53,52 @@
   font-size: 12px;
 }
 
-.total_units_col,
-.available_units_col,
-.resale_col,
-.total_booked_col,
-.cancelled_bookings_col,
-.sale_agreement_col,
-.payment_col,
-.registration_due_col,
-.sold_units_col {
-  height: auto;
-  padding: 0;
-  margin: 0 2px 0 2px;
-  border-radius: 1px !important;
-  margin-bottom: 10px;
-  margin-bottom: 10px;
-  border-radius: 6px !important;
-}
-.card {
-  border-radius: 9px !important;
-  margin: 0 5px !important;
-  box-shadow: 0px 1px 10px 4px #959da533;
+.total_units_col .card {
+  background: linear-gradient(79.36deg, #ffffff 43.68%, #eff9fe 95.61%);
+  border: 1px solid #ffffff;
+  box-shadow: 0px 1px 7px 0px #959da533;
 }
 
+.available_units_col .card {
+  background: linear-gradient(78.44deg, #ffffff 42.18%, #f1ffee 99.11%);
+  border: 1px solid #ffffff;
+  box-shadow: 0px 1px 7px 0px #959da533;
+}
+.total_booked_col .card {
+  background: linear-gradient(77.02deg, #ffffff 43.53%, #e7e4ff 100%);
+  border: 1px solid #ffffff;
+  box-shadow: 0px 1px 7px 0px #959da533;
+}
+.cancelled_bookings_col .card {
+  background: linear-gradient(77.65deg, #ffffff 41.02%, #ffe9e7 99.5%);
+  border: 1px solid #ffffff;
+  box-shadow: 0px 1px 7px 0px #959da533;
+}
+
+.agreement_payment_registration .card {
+  box-shadow: 0px 1px 7px 0px #959da533;
+  border: 1px solid #ffffff !important;
+}
+.agreement_col {
+  background: linear-gradient(180deg, #ffffff 0%, #ffdfac 100%);
+}
+.payment_col {
+  background: linear-gradient(180deg, #ffffff 0%, #ffc79f 100%);
+}
+.registration_col {
+  background: linear-gradient(180deg, #ffffff 0%, #b5deff 100%);
+}
+
+.resale_col .card {
+  background: linear-gradient(77.83deg, #ffffff 41.13%, #fff3ea 99.26%);
+  border: 1px solid #ffffff;
+  box-shadow: 0px 1px 7px 0px #959da533;
+}
+.sold_units_col .card {
+  background: linear-gradient(75.68deg, #ffffff 47.23%, #ffefed 98.44%);
+  border: 1px solid #ffffff;
+  box-shadow: 0px 1px 7px 0px #959da533;
+}
 .card ion-img {
   position: absolute;
   right: 0 !important;
@@ -115,12 +137,12 @@
   font-family: "Poppins";
 }
 
-ion-content.main-content {
-  --padding-top: 10px;
-  --padding-bottom: 10px;
-  --padding-start: 10px;
-  --padding-end: 10px;
-}
+// ion-content.main-content {
+//   --padding-top: 10px;
+//   --padding-bottom: 10px;
+//   --padding-start: 10px;
+//   --padding-end: 10px;
+// }
 .report_download_col div {
   border: 0.5px solid #00476a;
   color: #00476a;
@@ -152,26 +174,30 @@ ion-content.main-content {
   box-shadow: 0px 2px 24px 0px #959da533;
 }
 .detail_units {
-  font-size: 4vw;
+  font-size: 1rem;
   font-family: "Poppins";
 }
 .details_units_row p-dropdown {
   width: 100%;
 }
-.details_units_row ion-col {
-  padding-right: 0;
+.reset-icon ion-icon {
+  background-color: white;
+  font-size: 24px;
+  border-radius: 30px;
+  color: #a1a5ac;
+  padding: 2px;
 }
+
 .serach {
   padding-left: 0;
 }
-.tableBlockView ion-col {
-  padding: 2px;
-}
 .tableView-details-card {
-  margin: 0;
+  margin: 0 6px;
   border: 0.4px solid #e5e5e5;
-  box-shadow: 0px 1px 10px 4px rgba(149, 157, 165, 0.2);
+  box-shadow: 0px 1px 4px 0px #959da533;
+
   margin-bottom: 10px;
+  border: 1px solid #ffffff !important;
 }
 .tableView-details-row ion-col {
   line-height: 0.1;
@@ -250,7 +276,7 @@ ion-content.main-content {
   border: 0.5px solid #006900;
   border-radius: 4px;
   padding: 2px;
-  span {
+  p {
     font-family: "Poppins";
     font-weight: 600;
     font-style: Medium;
@@ -269,7 +295,7 @@ ion-content.main-content {
   border: 0.5px solid #b14a41;
   border-radius: 4px;
   padding: 2px;
-  span {
+  p {
     font-family: "Poppins";
     font-weight: 600;
     font-style: Medium;
@@ -996,4 +1022,60 @@ ion-input {
 
 .editingForm {
   padding: 8px;
+}
+
+ion-content {
+  --background: #f0f2f5 !important;
+}
+.exe_download_btn {
+  background: #f0f2f5 !important;
+}
+
+::ng-deep .searchUnit_row .searchbar-input {
+  border: 0.5px solid #e5e5e5 !important;
+  border-radius: 4px !important;
+}
+
+::ng-deep
+  .searchUnit_row
+  ion-searchbar
+  .searchbar-input.searchbar-input.sc-ion-searchbar-md {
+  font-size: 14px;
+  height: 30px;
+  padding-inline-start: 2.4375rem;
+  padding-inline-end: 2.4375rem;
+}
+
+::ng-deep .searchUnit_row .searchbar-search-icon.sc-ion-searchbar-md {
+  top: 6px;
+}
+.searchUnit_row ion-searchbar {
+  --box-shadow: none;
+  --placeholder-color: #98a2b3;
+  --icon-color: #98a2b3;
+  padding: 0;
+}
+
+::ng-deep .p-dropdown-header {
+  padding: 1px !important;
+}
+::ng-deep .p-dropdown-header searchicon svg {
+  width: 10px !important;
+}
+
+::ng-deep .p-dropdown-items li {
+  padding: 0 2px;
+  font-size: 12px;
+}
+
+.empty-box {
+  font-size: 24px;
+  height: 50px;
+}
+.empty-prop {
+  background: #e0f5ff !important;
+  color: #0b7ab2 !important;
+  border: 1px solid #0b7ab2 !important;
+  border-radius: 4px;
+  font-weight: 500;
 }

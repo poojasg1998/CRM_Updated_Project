@@ -15,9 +15,9 @@
   </ion-row>
 </ion-header>
 
-<ion-row class="m-1">
+<ion-row class="exe_download_btn">
   <ion-col>
-    <p-dropdown class="exec_css" (onChange)="ondropdownFilter('property', $event)" [options]="properties"
+    <p-dropdown class=" exec_css" (onChange)="ondropdownFilter('property', $event)" [options]="properties"
       optionLabel="property_info_name" [(ngModel)]="selectedProp" />
   </ion-col>
   <ion-col class="report_download_col">
@@ -56,18 +56,6 @@
     </ion-col>
   </ion-row>
   <ion-row>
-    <ion-col [ngClass]="filteredParams.status=='9'?'active-col':''" class="resale_col"
-      (click)="filteredParams.status='9';addQueryParams()">
-      <ion-card class="m-0 card">
-        <ion-img src="../../assets/CRMimages/inventory_page_icon/total_booked_icon.svg"></ion-img>
-        <div>
-          <span>
-            <p>Resale Units</p>
-            <h1>{{inventoryDashboardCounts?.resale_units}}</h1>
-          </span>
-        </div>
-      </ion-card>
-    </ion-col>
     <ion-col [ngClass]="filteredParams.status=='3'?'active-col':''" class="total_booked_col"
       (click)="filteredParams.status='3';addQueryParams()">
       <ion-card class="m-0 card">
@@ -80,9 +68,6 @@
         </div>
       </ion-card>
     </ion-col>
-
-  </ion-row>
-  <ion-row>
     <ion-col [ngClass]="filteredParams.status=='7'?'active-col':''" class="cancelled_bookings_col"
       (click)="filteredParams.status='7';addQueryParams()">
       <ion-card class="m-0 card">
@@ -95,47 +80,49 @@
         </div>
       </ion-card>
     </ion-col>
-    <ion-col [ngClass]="filteredParams.status=='4'?'active-col':''" class="sale_agreement_col"
-      (click)="filteredParams.status='4';addQueryParams()">
-      <ion-card class="m-0 card">
-        <ion-img src="../../assets/CRMimages/inventory_page_icon/sale_agreement_icon.svg"></ion-img>
-        <div>
-          <span>
-            <p>Sale Agreement Due</p>
-            <h1>{{inventoryDashboardCounts?.sale_agreement_units}}</h1>
-          </span>
-        </div>
-      </ion-card>
-    </ion-col>
+  </ion-row>
+  <ion-row>
 
+
+    <ion-col [ngClass]="filteredParams.status=='4'?'active-col':''" (click)="filteredParams.status='4';addQueryParams()"
+      class="agreement_payment_registration">
+      <ion-card class="m-0 card border-0">
+        <ion-row>
+          <ion-col class="agreement_col">
+            <span>
+              <p>Agreement</p>
+              <h1>{{inventoryDashboardCounts?.sale_agreement_units}}</h1>
+            </span>
+          </ion-col>
+          <ion-col class="payment_col">
+            <span>
+              <p>Payment</p>
+              <h1>{{inventoryDashboardCounts?.loan_disburse_units}}</h1>
+            </span>
+          </ion-col>
+          <ion-col class="registration_col">
+            <span>
+              <p>Registration</p>
+              <h1>{{inventoryDashboardCounts?.reg_due_units}}</h1>
+            </span>
+          </ion-col>
+        </ion-row>
+      </ion-card>
+    </ion-col>
   </ion-row>
   <ion-row>
-    <ion-col [ngClass]="filteredParams.status=='5'?'active-col':''" class="payment_col"
-      (click)="filteredParams.status='5';addQueryParams()">
+    <ion-col [ngClass]="filteredParams.status=='9'?'active-col':''" class="resale_col"
+      (click)="filteredParams.status='9';addQueryParams()">
       <ion-card class="m-0 card">
-        <ion-img src="../../assets/CRMimages/inventory_page_icon/loan_due_icon.svg"></ion-img>
+        <ion-img src="../../assets/CRMimages/inventory_page_icon/total_booked_icon.svg"></ion-img>
         <div>
           <span>
-            <p>Payment</p>
-            <h1>{{inventoryDashboardCounts?.loan_disburse_units}}</h1>
+            <p>Resale Units</p>
+            <h1>{{inventoryDashboardCounts?.resale_units}}</h1>
           </span>
         </div>
       </ion-card>
     </ion-col>
-    <ion-col [ngClass]="filteredParams.status=='6'?'active-col':''" class="registration_due_col"
-      (click)="filteredParams.status='6';addQueryParams()">
-      <ion-card class="m-0 card">
-        <ion-img src="../../assets/CRMimages/inventory_page_icon/registration_due_icon.svg"></ion-img>
-        <div>
-          <span>
-            <p>Registration Due</p>
-            <h1>{{inventoryDashboardCounts?.reg_due_units}}</h1>
-          </span>
-        </div>
-      </ion-card>
-    </ion-col>
-  </ion-row>
-  <ion-row>
     <ion-col [ngClass]="filteredParams.status=='8'?'active-col':''" class="sold_units_col"
       (click)="filteredParams.status='8';addQueryParams()">
       <ion-card class="m-0 card">
@@ -151,10 +138,10 @@
   </ion-row>
 
   <ion-row>
-    <ion-col size="4" class="content_center p-0">
+    <ion-col size="5" class="content_center p-0">
       <span class="font-weight400 detail_units">Detailed Units</span>
     </ion-col>
-    <ion-col>
+    <ion-col class="pb-0">
       <ion-row class="tableBlockView">
         <ion-col class="content_center" (click)="toggleTableBlockView('1')"
           [ngClass]="filteredParams.viewtype == '1'?'isTableView':''">
@@ -169,25 +156,31 @@
   </ion-row>
 
   <ion-row class="details_units_row">
-    <ion-col size="1.2" class="content_center serach">
-      <ion-img src="../../assets/CRMimages/inventory_page_icon/search_icon.svg"></ion-img>
-    </ion-col>
-    <ion-col size="2.8" class="content_center"><p-dropdown class="exec_css" [(ngModel)]="selectedTower"
+    <ion-col class="content_center"><p-dropdown filter="true" class="exec_css" [(ngModel)]="selectedTower"
         (onChange)="ondropdownFilter('tower',$event)" [options]="towerData" optionLabel="tower_name"
         placeholder="Tower" /></ion-col>
-    <ion-col size="2.5" class="content_center"><p-dropdown (onChange)="ondropdownFilter('bhk',$event)"
+    <ion-col class="content_center"><p-dropdown filter="true" (onChange)="ondropdownFilter('bhk',$event)"
         [options]="bhkData" class="exec_css" optionLabel="bhk" placeholder="BHK" [(ngModel)]="selectedbhk" /></ion-col>
-    <ion-col size="2.5" class="content_center"><p-dropdown (onChange)="ondropdownFilter('size',$event)"
+    <ion-col class="content_center"><p-dropdown filter="true" (onChange)="ondropdownFilter('size',$event)"
         [options]="sizeData" class="exec_css" optionLabel="unit_size" placeholder="Size"
         [(ngModel)]="selectedSize" /></ion-col>
-    <ion-col size="3" class="content_center"><p-dropdown (onChange)="ondropdownFilter('status',$event)"
-        [options]="statusData" class="exec_css" optionLabel="unitstatus" placeholder="Status"
-        [(ngModel)]="selectedstatus" /></ion-col>
+
+    <ion-col (click)="onreset()" class="reset-icon d-flex align-items-center justify-content-center p-2px" size="1.5">
+      <ion-icon name="sync-outline"></ion-icon>
+    </ion-col>
+    <!-- <ion-col class="content_center"><p-dropdown (onChange)="ondropdownFilter('status',$event)" [options]="statusData"
+        class="exec_css" optionLabel="unitstatus" placeholder="Status" [(ngModel)]="selectedstatus" /></ion-col> -->
+  </ion-row>
+
+  <ion-row class="searchUnit_row">
+    <ion-col class="py-0">
+      <ion-searchbar (ionInput)="onUnitNameSearch($event)" placeholder="Search Unit..."></ion-searchbar>
+    </ion-col>
   </ion-row>
 
   <!-- TABLE VIEW -->
-  <span *ngIf="filteredParams.viewtype == '1'">
-    <ion-card class="tableView-details-card" *ngFor=" let data of inventoryData">
+  <div *ngIf="filteredParams.viewtype == '1'" class="mt-1">
+    <ion-card class="tableView-details-card" *ngFor=" let data of inventoryData1">
       <ion-row class="tableView-details-header">
         <ion-col><span>Unit No</span></ion-col>
         <ion-col><span>Floor</span></ion-col>
@@ -220,7 +213,10 @@
           <ion-img src="../../assets/CRMimages/inventory_page_icon/edit_icon.svg"></ion-img></ion-col>
       </ion-row>
     </ion-card>
-  </span>
+    <div *ngIf="inventoryData1?.length === 0" class="d-flex align-items-center justify-content-center">
+      No Data Found...
+    </div>
+  </div>
 
   <!-- BLOCK VIEW -->
   <span *ngIf="filteredParams.viewtype == '2'">
@@ -231,27 +227,34 @@
           {{data.towername}}</div>
       </ion-col>
     </ion-row>
-    <div *ngIf="selectedFloors?.length != 0">
-      <ion-card class="blockView-details-card">
-        <div *ngFor="let floor of selectedFloors" style="padding-bottom: 5px;
+    <div *ngFor="let tower of inventoryData">
+      <ion-card class="blockView-details-card" *ngIf="tower.towerid == filteredParams.towerid">
+        <div *ngFor="let floor of tower.floors" style="padding-bottom: 5px;
     border-bottom: 1px solid #BCBCBC;">
           <ion-row class="floor-summary-row">
-            <ion-col class="summary-title">Ground Floor : {{ floor.floor_units+" Units"}}</ion-col>
+            <ion-col class="summary-title">
+              {{floor.floornum=='0'? 'Ground':floor.floornum}} Floor : {{floor.floor_units+" Units"}}
+            </ion-col>
             <ion-col size="2.5" class="summary-sold">Sold: {{floor.sold_units}}</ion-col>
             <ion-col size="3.5" class="summary-available">Available: {{floor.available_units}}</ion-col>
           </ion-row>
-          <div class="blockViewProp-details" *ngIf="floor.units.length != 0">
+          <div class="blockViewProp-details">
             <ion-row>
-              <ion-col size="3"
-                [ngClass]="unit.unitstatus == 'Sold'?'sold-prop' : unit.unitstatus == 'Available'?'available-prop':'available-prop'"
-                *ngFor="let unit of floor.units">
-                <div class="status-badge">
-                  {{unit.doorfacing == "East"?'E':unit.doorfacing == "West"?'W':unit.doorfacing ==
-                  "South"?'S':unit.doorfacing == "North"?'N':''}}
+              <ion-col size="3" [ngClass]="unit.unitstatus == 'Sold'?'sold-prop' : unit.unitstatus == 'Available'?'available-prop':
+                unit.isEmpty?'empty-prop':'available-prop'" *ngFor="let unit of floor.unitSlots"
+                (click)="!unit.isEmpty?onEditInventoryUintDetails(unit):onEmptyUnitDetailsUpdate(floor.floornum) ">
+                <div *ngIf="!unit.isEmpty">
+                  <div class="status-badge">
+                    {{unit.doorfacing == "East"?'E':unit.doorfacing == "West"?'W':unit.doorfacing ==
+                    "South"?'S':unit.doorfacing == "North"?'N':''}}
+                  </div>
+                  <p>{{unit.unit_name}}</p>
+                  <p>{{unit.bhk}}</p>
+                  <p>{{unit.unit_size}} <span class="sqrt">Sqft</span></p>
                 </div>
-                <span>{{unit.unit_name}}</span>
-                <span>{{unit.bhk}}</span>
-                <span>{{unit.unit_size}} <span class="sqrt">Sqft</span></span>
+                <div *ngIf="unit.isEmpty" class="empty-box d-flex align-items-center justify-content-center">
+                  {{ (unit.index).toString().padStart(2, '0') }}
+                </div>
               </ion-col>
             </ion-row>
           </div>
@@ -271,9 +274,10 @@
       <ion-row class="unit-update-status">
         <ion-col>
           <!-- <span class="font-size20-familyPoppins">Update Unit Status</span> -->
-          <span class="font-size16-familyPoppins">Update Unit Status</span>
+          <span *ngIf="this.floorNum == ''" class="font-size16-familyPoppins">Update Unit Status</span>
+          <span *ngIf="this.floorNum != ''" class="font-size16-familyPoppins">{{floorNum}} Floor Unit Details</span>
         </ion-col>
-        <ion-col (click)="onUpdateUnit()" size="3.5"
+        <ion-col (click)="onUpdateUnit()" size="3.5" *ngIf="this.floorNum == ''"
           class="unit-status-button center-vertically ion-justify-content-end pr-0">
           <span class="font-size12-familyPoppins content_center">Unit Status <ion-icon
               name="arrow-forward-outline"></ion-icon></span>
@@ -478,7 +482,7 @@
                   </ion-col>
                   <ion-col size="1.5" style="padding: 2px;" class="d-flex align-items-center justify-content-center ">
                     <ion-img src="../assets/CRMimages/close_icon.svg" style="width: 14px;margin: 5px;"
-                      (click)="removeImage(i)">
+                      (click)="removeDocument(bookingForm,i)">
                     </ion-img>
                   </ion-col>
                 </ion-row>
@@ -583,7 +587,7 @@
                       <!-- REMOVE -->
                       <ion-col size="1.5" class="d-flex align-items-center justify-content-center  py-0">
                         <ion-img src="../assets/CRMimages/close_icon.svg" style="width: 14px;margin: 5px;"
-                          (click)="removeSaleAgeementDocument(i)">
+                          (click)="removeDocument(saleAgreementForm,i)">
                         </ion-img>
                       </ion-col>
 
@@ -939,7 +943,7 @@
                     <!-- REMOVE -->
                     <ion-col size="1.5" class="d-flex align-items-center justify-content-center  py-0">
                       <ion-img src="../assets/CRMimages/close_icon.svg" style="width: 14px;margin: 5px;"
-                        (click)="removeregistrationDocument(i)">
+                        (click)="removeDocument(registrationForm,i)">
                       </ion-img>
                     </ion-col>
                   </ion-row>
@@ -1038,8 +1042,9 @@
         </div>
       </div>
     </div>
+
+    <!-- EDITING UNIT STATUS DETAILS SECTION -->
     <div *ngIf="isEditUnitStatus">
-      <!-- EDITING UNIT STATUS DETAILS SECTION -->
       <form [formGroup]="unitEditForm" (ngSubmit)="updateUnit()" id="unitEditForm">
 
         <ion-row class="editing-data-header">
@@ -1056,7 +1061,7 @@
 
           <ion-col>
             <p-dropdown [options]="bhkListingData" optionLabel="bhk_numbers" optionValue="bhk_IDPK"
-              formControlName="bhk" class="exec_css">
+              formControlName="bhk" class="exec_css" placeholder="Select BHK">
             </p-dropdown>
           </ion-col>
         </ion-row>
@@ -1069,14 +1074,15 @@
         <ion-row class="editing-data-row">
           <ion-col>
             <div class="d-flex align-items-center">
-              <ion-input formControlName="unitSize" type="number" class="border-0"></ion-input>
+              <ion-input formControlName="unitSize" type="number" class="border-0" placeholder="Enter Size"></ion-input>
               <span class="sqft ms-1">Sqft</span>
             </div>
           </ion-col>
 
           <ion-col>
             <div class="d-flex align-items-center">
-              <ion-input formControlName="builtupArea" type="number" class="border-0"></ion-input>
+              <ion-input formControlName="builtupArea" type="number" class="border-0"
+                placeholder="Enter Area"></ion-input>
               <span class="sqft ms-1">Sqft</span>
             </div>
           </ion-col>
@@ -1090,14 +1096,15 @@
         <ion-row class="editing-data-row">
           <ion-col>
             <div class="d-flex align-items-center">
-              <ion-input formControlName="carpetarea" type="number" class="border-0"></ion-input>
+              <ion-input formControlName="carpetarea" type="number" class="border-0"
+                placeholder="Enter Area"></ion-input>
               <span class="sqft ms-1">Sqft</span>
             </div>
           </ion-col>
 
           <ion-col>
             <div class="d-flex align-items-center">
-              <ion-input formControlName="unitSBA" type="number" class="border-0"></ion-input>
+              <ion-input formControlName="unitSBA" type="number" class="border-0" placeholder="Enter Area"></ion-input>
               <span class="sqft ms-1">Sqft</span>
             </div>
           </ion-col>
@@ -1111,14 +1118,14 @@
         <ion-row class="editing-data-row">
           <ion-col>
             <div class="d-flex align-items-center">
-              <ion-input formControlName="unitUDS" type="number" class="border-0"></ion-input>
+              <ion-input formControlName="unitUDS" type="number" class="border-0" placeholder="Enter Area"></ion-input>
               <span class="sqft ms-1">Sqft</span>
             </div>
           </ion-col>
 
           <ion-col>
             <p-dropdown [options]="doreFacingData" optionLabel="doorfacing_names" optionValue="doorfacing_IDPK"
-              formControlName="doreFacing" class="exec_css">
+              formControlName="doreFacing" class="exec_css" placeholder="Select Facing">
             </p-dropdown>
           </ion-col>
         </ion-row>
@@ -1151,7 +1158,7 @@
 
     <ion-footer class="ion-no-border mt-auto">
       <ion-row class="cancelSold-btn">
-        <ion-col class="cancel-btn" (click)="onModalClose()">
+        <ion-col class="cancel-btn" (click)="editUnitDetailsModal.dismiss()">
           <div class="font-size16-familyPoppins content_center">Cancel</div>
         </ion-col>
         <ion-col class="saveContinue-btn">

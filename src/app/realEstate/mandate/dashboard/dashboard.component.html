@@ -46,6 +46,11 @@
       <ion-col
         style="border: 0.5px solid #e6e6e6; border-radius: 20px; padding: 2px !important;background-color: white;">
         <ion-row>
+          <ion-col (click)="onFilterSelection('dateFilter','alltime')"
+            class="d-flex  align-items-center justify-content-center px-0"
+            [ngClass]="filteredParams1.isDateFilter == 'alltime' ? 'active_btn': ''">
+            <span class="font-size12-familyPoppins">All Time</span>
+          </ion-col>
           <ion-col size="3" (click)="onFilterSelection('dateFilter','today')"
             class="d-flex  align-items-center justify-content-center px-0"
             [ngClass]="filteredParams1.isDateFilter == 'today' ? 'active_btn': ''">
@@ -56,11 +61,11 @@
             [ngClass]="filteredParams1?.isDateFilter == 'yesterday'?'active_btn':''">
             <span class="font-size12-familyPoppins">Yesterday</span>
           </ion-col>
-          <ion-col (click)="onFilterSelection('dateFilter','lastsevenDay')"
+          <!-- <ion-col (click)="onFilterSelection('dateFilter','lastsevenDay')"
             class="d-flex align-items-center justify-content-center px-0"
             [ngClass]="filteredParams1?.isDateFilter == 'lastsevenDay'?'active_btn':''">
             <span class="font-size12-familyPoppins">Last 7 days</span>
-          </ion-col>
+          </ion-col> -->
         </ion-row>
       </ion-col>
       <ion-col style="background-color: white;"
