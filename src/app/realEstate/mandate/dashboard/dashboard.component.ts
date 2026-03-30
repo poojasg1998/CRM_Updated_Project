@@ -155,15 +155,15 @@ export class DashboardComponent {
   }
 
   filteredParams1 = {
-    fromDate: new Date().toLocaleDateString('en-CA'),
-    toDate: new Date().toLocaleDateString('en-CA'),
-    visitedfromdate: new Date().toLocaleDateString('en-CA'),
-    visitedtodate: new Date().toLocaleDateString('en-CA'),
+    fromDate: '',
+    toDate: '',
+    visitedfromdate: '',
+    visitedtodate: '',
     weekendfromdate: '',
     weekendtodate: '',
     isLeadsVisitsCalls: 'leads',
     scheduledTodayOrOverdues: 'scheduledtoday',
-    isDateFilter: 'today',
+    isDateFilter: 'alltime',
     activeExec: '1',
     executid:
       localStorage.getItem('UserId') != '1'
@@ -616,33 +616,36 @@ export class DashboardComponent {
         ? this.filteredParams1.executid
         : this.localStorage.getItem('UserId');
 
-    if (this.filteredParams1.isLeadsVisitsCalls == 'visits') {
-      this.filteredParams1.fromDate = '';
-      this.filteredParams1.toDate = '';
-      // if (this.filteredParams1.visitedfromdate == '') {
-      //   this.filteredParams1.visitedfromdate = new Date().toLocaleDateString(
-      //     'en-CA'
-      //   );
-      //   this.filteredParams1.visitedtodate = new Date().toLocaleDateString(
-      //     'en-CA'
-      //   );
-      //   this.filteredParams1.isDateFilter = 'today';
-      // }
-      if (this.filteredParams1.priority == '') {
-        this.filteredParams1.priority = '1';
-      }
-    } else if (this.filteredParams1.isLeadsVisitsCalls == 'leads') {
-      this.filteredParams1.priority = '';
-      this.filteredParams1.visitedfromdate = '';
-      this.filteredParams1.visitedtodate = '';
-      // if (this.filteredParams1.fromDate == '') {
-      //   this.filteredParams1.fromDate = new Date().toLocaleDateString('en-CA');
-      //   this.filteredParams1.toDate = new Date().toLocaleDateString('en-CA');
-      //   this.filteredParams1.isDateFilter = 'today';
-      // }
-    } else {
-      this.filteredParams1.priority = '';
-    }
+    this.dateUpdation();
+
+    // if (this.filteredParams1.isLeadsVisitsCalls == 'visits') {
+    //   this.filteredParams1.fromDate = '';
+    //   this.filteredParams1.toDate = '';
+    //   // if (this.filteredParams1.visitedfromdate == '') {
+    //   //   this.filteredParams1.visitedfromdate = new Date().toLocaleDateString(
+    //   //     'en-CA'
+    //   //   );
+    //   //   this.filteredParams1.visitedtodate = new Date().toLocaleDateString(
+    //   //     'en-CA'
+    //   //   );
+    //   //   this.filteredParams1.isDateFilter = 'today';
+    //   // }
+    //   if (this.filteredParams1.priority == '') {
+    //     this.filteredParams1.priority = '1';
+    //   }
+    // } else if (this.filteredParams1.isLeadsVisitsCalls == 'leads') {
+    //   this.filteredParams1.priority = '';
+    //   this.filteredParams1.visitedfromdate = '';
+    //   this.filteredParams1.visitedtodate = '';
+    //   // if (this.filteredParams1.fromDate == '') {
+    //   //   this.filteredParams1.fromDate = new Date().toLocaleDateString('en-CA');
+    //   //   this.filteredParams1.toDate = new Date().toLocaleDateString('en-CA');
+    //   //   this.filteredParams1.isDateFilter = 'today';
+    //   // }
+    // } else if (this.filteredParams1.isLeadsVisitsCalls == 'plans') {
+    // } else {
+    //   this.filteredParams1.priority = '';
+    // }
     // Example condition: enable only weekends
     if (this.filteredParams1.plan === '1') {
       this.disabledDays = [0, 6]; // Sunday and Saturday
@@ -654,6 +657,7 @@ export class DashboardComponent {
       this.disabledDays = [1, 2, 3, 4, 5]; // Monday to Friday
       this.setWeekendRange();
     }
+
     this.selectedTeam = this.teamNames.find(
       (x) => x.value === this.filteredParams1.roleId
     );
@@ -850,82 +854,97 @@ export class DashboardComponent {
           ? (this.scheduledTodayOrOverduesData = [])
           : '';
 
+        this.dateUpdation();
         // if (!this.isAdmin) {
         //   this.filteredParams1.propid = '';
         // } else {
         //   this.filteredParams1.propid = this.propertyLists[0].property_idfk;
         // }
-        if (
-          this.filteredParams1.fromDate == '' &&
-          this.filteredParams1.visitedfromdate == ''
-        ) {
-          if (this.filteredParams1.isDateFilter == 'yesterday') {
-            if (value == 'calls' || value == 'leads') {
-              this.filteredParams1.fromDate =
-                this.filteredParams1.weekendfromdate;
-              this.filteredParams1.toDate = this.filteredParams1.weekendtodate;
-            } else if (value == 'visits') {
-              this.filteredParams1.visitedfromdate =
-                this.filteredParams1.weekendfromdate;
-              this.filteredParams1.visitedtodate =
-                this.filteredParams1.weekendtodate;
-            }
-          } else {
-            if (value == 'visits') {
-              this.filteredParams1.visitedfromdate =
-                new Date().toLocaleDateString('en-CA');
-              this.filteredParams1.visitedtodate =
-                new Date().toLocaleDateString('en-CA');
+        // if (
+        //   this.filteredParams1.fromDate == '' &&
+        //   this.filteredParams1.visitedfromdate == ''
+        // ) {
+        //   if (this.filteredParams1.isDateFilter == 'yesterday') {
+        //     if (value == 'calls' || value == 'leads') {
+        //       this.filteredParams1.fromDate =
+        //         this.filteredParams1.weekendfromdate;
+        //       this.filteredParams1.toDate = this.filteredParams1.weekendtodate;
+        //     } else if (value == 'visits') {
+        //       this.filteredParams1.visitedfromdate =
+        //         this.filteredParams1.weekendfromdate;
+        //       this.filteredParams1.visitedtodate =
+        //         this.filteredParams1.weekendtodate;
+        //     }
+        //   } else {
+        //     if (value == 'visits') {
+        //       this.filteredParams1.visitedfromdate =
+        //         new Date().toLocaleDateString('en-CA');
+        //       this.filteredParams1.visitedtodate =
+        //         new Date().toLocaleDateString('en-CA');
 
-              this.filteredParams1.visitedfromdate = '';
-              this.filteredParams1.visitedtodate = '';
-            } else {
-              this.filteredParams1.fromDate = new Date().toLocaleDateString(
-                'en-CA'
-              );
-              this.filteredParams1.toDate = new Date().toLocaleDateString(
-                'en-CA'
-              );
+        //       this.filteredParams1.visitedfromdate = '';
+        //       this.filteredParams1.visitedtodate = '';
+        //     } else {
+        //       this.filteredParams1.fromDate = new Date().toLocaleDateString(
+        //         'en-CA'
+        //       );
+        //       this.filteredParams1.toDate = new Date().toLocaleDateString(
+        //         'en-CA'
+        //       );
 
-              this.filteredParams1.fromDate = '';
-              this.filteredParams1.toDate = '';
-            }
-            this.filteredParams1.isDateFilter = 'alltime';
-          }
-          this.filteredParams1.weekendfromdate = '';
-          this.filteredParams1.weekendtodate = '';
-        } else if (value == 'calls' && this.filteredParams1.visitedfromdate) {
-          this.filteredParams1.fromDate = this.filteredParams1.visitedfromdate
-            ? this.filteredParams1.visitedfromdate
-            : this.filteredParams1.fromDate ||
-              this.filteredParams1.weekendfromdate;
-          this.filteredParams1.toDate = this.filteredParams1.visitedtodate
-            ? this.filteredParams1.visitedtodate
-            : this.filteredParams1.toDate || this.filteredParams1.weekendtodate;
+        //       this.filteredParams1.fromDate = '';
+        //       this.filteredParams1.toDate = '';
+        //     }
+        //     this.filteredParams1.isDateFilter = 'alltime';
+        //   }
+        //   this.filteredParams1.weekendfromdate = '';
+        //   this.filteredParams1.weekendtodate = '';
+        // } else
+        // if (value == 'calls' && this.filteredParams1.visitedfromdate) {
+        //   this.filteredParams1.fromDate = this.filteredParams1.visitedfromdate
+        //     ? this.filteredParams1.visitedfromdate
+        //     : this.filteredParams1.fromDate ||
+        //       this.filteredParams1.weekendfromdate;
+        //   this.filteredParams1.toDate = this.filteredParams1.visitedtodate
+        //     ? this.filteredParams1.visitedtodate
+        //     : this.filteredParams1.toDate || this.filteredParams1.weekendtodate;
 
-          this.filteredParams1.visitedfromdate = '';
-          this.filteredParams1.visitedtodate = '';
-          this.filteredParams1.roleId = '';
-        } else if (value == 'visits') {
-          this.filteredParams1.visitedfromdate =
-            this.filteredParams1.fromDate ||
-            this.filteredParams1.weekendfromdate;
-          this.filteredParams1.visitedtodate =
-            this.filteredParams1.toDate || this.filteredParams1.weekendtodate;
-        } else if (value == 'plans') {
-          this.filteredParams1.toDate = '';
-          this.filteredParams1.fromDate = '';
-          this.filteredParams1.visitedtodate = '';
-          this.filteredParams1.visitedfromdate = '';
-          this.filteredParams1.isDateFilter != 'alltime'
-            ? this.onPlanDateFilter(this.filteredParams1.isDateFilter)
-            : '';
+        //   this.filteredParams1.visitedfromdate = '';
+        //   this.filteredParams1.visitedtodate = '';
+        //   this.filteredParams1.roleId = '';
+        // } else if (value == 'visits') {
+        //   this.filteredParams1.visitedfromdate =
+        //     this.filteredParams1.fromDate ||
+        //     this.filteredParams1.weekendfromdate;
+        //   this.filteredParams1.visitedtodate =
+        //     this.filteredParams1.toDate || this.filteredParams1.weekendtodate;
+        // } else if (value == 'plans') {
+        //   this.filteredParams1.toDate = '';
+        //   this.filteredParams1.fromDate = '';
+        //   this.filteredParams1.visitedtodate = '';
+        //   this.filteredParams1.visitedfromdate = '';
+        //   this.filteredParams1.isDateFilter =
+        //     this.filteredParams1.isDateFilter == 'alltime'
+        //       ? 'today'
+        //       : this.filteredParams1.isDateFilter;
+        //   this.onPlanDateFilter(this.filteredParams1.isDateFilter);
+        //   // this.filteredParams1.isDateFilter != 'alltime'
+        //   //   ? this.onPlanDateFilter(this.filteredParams1.isDateFilter)
+        //   //   : '';
+        //   // if (this.filteredParams1.isDateFilter != 'alltime') {
+        //   //   this.filteredParams1.isDateFilter = 'today';
+        //   //   this.filteredParams1.weekendfromdate =
+        //   //     new Date().toLocaleDateString('en-CA');
+        //   //   this.filteredParams1.weekendtodate = new Date().toLocaleDateString(
+        //   //     'en-CA'
+        //   //   );
+        //   // }
 
-          this.filteredParams1.isDateFilter =
-            this.filteredParams1.isDateFilter == 'custom'
-              ? ''
-              : this.filteredParams1.isDateFilter;
-        }
+        //   this.filteredParams1.isDateFilter =
+        //     this.filteredParams1.isDateFilter == 'custom'
+        //       ? ''
+        //       : this.filteredParams1.isDateFilter;
+        // }
 
         if (
           this.filteredParams1.isLeadsVisitsCalls == 'calls' &&
@@ -1066,6 +1085,83 @@ export class DashboardComponent {
     // }
     // this.showSpinner = true;
     this.addQueryParams();
+  }
+
+  dateUpdation() {
+    if (
+      this.filteredParams1.isLeadsVisitsCalls == 'leads' ||
+      this.filteredParams1.isLeadsVisitsCalls == 'calls'
+    ) {
+      this.filteredParams1.fromDate =
+        this.filteredParams1.fromDate ||
+        this.filteredParams1.weekendfromdate ||
+        this.filteredParams1.visitedfromdate;
+
+      this.filteredParams1.toDate =
+        this.filteredParams1.toDate ||
+        this.filteredParams1.weekendtodate ||
+        this.filteredParams1.visitedtodate;
+
+      if (this.filteredParams1.isDateFilter == 'alltime') {
+        this.filteredParams1.fromDate = '';
+        this.filteredParams1.toDate = '';
+      } else if (this.filteredParams1.isDateFilter == '') {
+        this.filteredParams1.isDateFilter = 'custom';
+      }
+      this.filteredParams1.visitedfromdate = '';
+      this.filteredParams1.visitedtodate = '';
+      this.filteredParams1.weekendfromdate = '';
+      this.filteredParams1.weekendtodate = '';
+      this.filteredParams1.priority = '';
+    } else if (this.filteredParams1.isLeadsVisitsCalls == 'visits') {
+      this.filteredParams1.visitedfromdate =
+        this.filteredParams1.fromDate ||
+        this.filteredParams1.weekendfromdate ||
+        this.filteredParams1.visitedfromdate;
+
+      this.filteredParams1.visitedtodate =
+        this.filteredParams1.toDate ||
+        this.filteredParams1.weekendtodate ||
+        this.filteredParams1.visitedtodate;
+
+      if (this.filteredParams1.isDateFilter == 'alltime') {
+        this.filteredParams1.visitedfromdate = '';
+        this.filteredParams1.visitedtodate = '';
+      }
+      // else if (this.filteredParams1.isDateFilter == '') {
+      //   this.filteredParams1.isDateFilter = 'custom';
+      // }
+
+      this.filteredParams1.fromDate = '';
+      this.filteredParams1.toDate = '';
+      this.filteredParams1.weekendfromdate = '';
+      this.filteredParams1.weekendtodate = '';
+      this.filteredParams1.priority = '1';
+    } else if (this.filteredParams1.isLeadsVisitsCalls == 'plans') {
+      if (
+        this.filteredParams1.isDateFilter == 'alltime' ||
+        this.filteredParams1.isDateFilter == 'custom'
+      ) {
+        this.filteredParams1.isDateFilter = 'today';
+      } else {
+        this.filteredParams1.weekendfromdate =
+          this.filteredParams1.fromDate ||
+          this.filteredParams1.weekendfromdate ||
+          this.filteredParams1.visitedfromdate;
+
+        this.filteredParams1.weekendtodate =
+          this.filteredParams1.toDate ||
+          this.filteredParams1.weekendtodate ||
+          this.filteredParams1.visitedtodate;
+      }
+      this.onPlanDateFilter(this.filteredParams1.isDateFilter);
+
+      this.filteredParams1.visitedfromdate = '';
+      this.filteredParams1.visitedtodate = '';
+      this.filteredParams1.fromDate = '';
+      this.filteredParams1.toDate = '';
+      this.filteredParams1.priority = '';
+    }
   }
 
   navigateToLeadListPage(value) {
@@ -2203,14 +2299,8 @@ export class DashboardComponent {
   getallCallsData(isLoadmore) {
     const params = {
       loginid: localStorage.getItem('UserId'),
-      fromcalldatetime:
-        this.filteredParams1.fromDate == ''
-          ? new Date().toLocaleDateString('en-CA')
-          : this.filteredParams1.fromDate,
-      tocalldatetime:
-        this.filteredParams1.toDate == ''
-          ? new Date().toLocaleDateString('en-CA')
-          : this.filteredParams1.toDate,
+      fromcalldatetime: this.filteredParams1.fromDate,
+      tocalldatetime: this.filteredParams1.toDate,
       execid:
         this.roleid == '1' || this.localStorage.getItem('RoleType') == '1'
           ? this.filteredParams1.executid
@@ -2246,14 +2336,8 @@ export class DashboardComponent {
   getCallCounts() {
     const params = {
       loginid: localStorage.getItem('UserId'),
-      fromcalldatetime:
-        this.filteredParams1.fromDate == ''
-          ? new Date().toLocaleDateString('en-CA')
-          : this.filteredParams1.fromDate,
-      tocalldatetime:
-        this.filteredParams1.toDate == ''
-          ? new Date().toLocaleDateString('en-CA')
-          : this.filteredParams1.toDate,
+      fromcalldatetime: this.filteredParams1.fromDate,
+      tocalldatetime: this.filteredParams1.toDate,
       execid:
         localStorage.getItem('Role') == '1'
           ? this.filteredParams1.executid

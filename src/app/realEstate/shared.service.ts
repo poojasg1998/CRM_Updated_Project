@@ -1379,6 +1379,38 @@ export class SharedService {
       }
     );
   }
+  addUnitsForTower(param: any) {
+    let urlSearchParams = new URLSearchParams();
+    urlSearchParams.append('propid', param.propid);
+    urlSearchParams.append('propname', param.propname);
+    urlSearchParams.append('towerid', param.towerid);
+    urlSearchParams.append('floorid', param.floorid);
+    urlSearchParams.append('units', param.units);
+    let body = urlSearchParams.toString();
+    let headers = new HttpHeaders().set(
+      'Content-Type',
+      'application/x-www-form-urlencoded'
+    );
+    return this.http
+      .post<any>(
+        'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/setpropertyunits',
+        body,
+        { headers: headers }
+      )
+      .pipe(map((response) => response));
+
+    // let body = new HttpParams()
+    //   .set('propid', param.propid)
+    //   .set('propname', param.propname)
+    //   .set('towerid', param.towerid)
+    //   .set('floorid', param.floorid)
+    //   .set('units', JSON.stringify(param.units));
+
+    // return this.http.post(
+    //   'http://192.168.0.121/noncdnsuperadmin-live/admincrm_test/setpropertyunits',
+    //   body.toString()
+    // );
+  }
 
   getLeadsBasedexec(param) {
     let params = new HttpParams()

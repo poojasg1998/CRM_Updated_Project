@@ -66,7 +66,7 @@ export class InventoryDashboardComponent implements OnInit {
   executiveList;
   backstage = 0;
   inventoryData1: any;
-  floorNum = '';
+  unitDetails = '';
   constructor(
     private sharedService: SharedService,
     private menuCtrl: MenuController,
@@ -798,6 +798,7 @@ export class InventoryDashboardComponent implements OnInit {
   }
 
   soldformSubmit() {
+    this.showSpinner = true;
     const formData = new FormData();
     formData.append('unitstatus', '9');
     formData.append('leadid', this.editToSelectedUnit.Lead_IDFK);
@@ -808,9 +809,11 @@ export class InventoryDashboardComponent implements OnInit {
     formData.append('remarks', this.soldForm.get('remark').value);
 
     console.log(this.soldForm.value);
-    this.sharedService.saveUnit(formData).subscribe((res) => {
+    this.sharedService.saveUnit(formData).subscribe(async (res) => {
       if (res['status'] == 'true') {
-        this.onEditInventoryUintDetails(this.editToSelectedUnit);
+        await this.showSuccess();
+        // this.onEditInventoryUintDetails(this.editToSelectedUnit);
+        this.editUnitDetailsModal.dismiss();
       }
     });
   }
@@ -1111,6 +1114,7 @@ export class InventoryDashboardComponent implements OnInit {
   onModalClose() {
     this.backstage = 0;
     this.isEditUnitStatus = false;
+    this.unitDetails = '';
     this.bookingForm.reset();
     this.saleAgreementForm.reset();
     this.paymentForm.reset();
@@ -1254,16 +1258,28 @@ export class InventoryDashboardComponent implements OnInit {
             index: actual.length + i + 1,
           });
         }
-
         floor.unitSlots = result;
       });
     });
   }
-  onEmptyUnitDetailsUpdate(floornum) {
+
+  onEmptyUnitDetailsUpdate(tIndex, fIndex) {
+    const tower = this.inventoryData[tIndex];
+    const floor = tower.floors[fIndex];
+
+    console.log(tower, floor);
     this.isEditUnitStatus = true;
-    this.floorNum = this.getOrdinalFloor(floornum);
+    this.unitDetails = {
+      ...floor,
+      floornum: this.getOrdinalFloor(+floor.floornum),
+      ...tower,
+    };
+    const form = this.unitEditForm;
+    form.get('status')?.setValidators([Validators.required]);
+
     this.editUnitDetailsModal.present();
   }
+
   getOrdinalFloor(floorNum: number): string {
     if (floorNum === 0) return 'Ground Floor';
 
@@ -1276,5 +1292,41 @@ export class InventoryDashboardComponent implements OnInit {
     else if (j === 3 && k !== 13) suffix = 'rd';
 
     return `${floorNum}${suffix} Floor`;
+  }
+  addUnitDetails() {
+    if (this.unitEditForm.invalid) {
+      this.unitEditForm.markAllAsTouched();
+      return;
+    }
+    this.showSpinner = true;
+    const formValue = this.unitEditForm.value;
+    const updateValues = Object.fromEntries(
+      Object.entries({
+        unitno: formValue.unitName,
+        bhk: formValue.bhk,
+        size: formValue.unitSize,
+        builtuparea: formValue.builtupArea,
+        carpetarea: formValue.carpetarea,
+        sba: formValue.unitSBA,
+        uds: formValue.unitUDS,
+        facing: formValue.doreFacing,
+        status: formValue.status,
+        balcony: formValue.balcony ? '1' : '0',
+        garden: formValue.garden ? '1' : '0',
+      }).map(([key, val]) => [key, val != null ? String(val) : ''])
+    );
+    let param = {
+      propid: this.filteredParams.propid,
+      propname: this.selectedProp.property_info_name,
+      towerid: this.unitDetails['towerid'],
+      floorid: this.unitDetails['floorid'],
+      units: JSON.stringify(updateValues),
+    };
+
+    console.log(param);
+    this.sharedService.addUnitsForTower(param).subscribe(async (resp) => {
+      await this.showSuccess();
+      this.editUnitDetailsModal.dismiss();
+    });
   }
 }

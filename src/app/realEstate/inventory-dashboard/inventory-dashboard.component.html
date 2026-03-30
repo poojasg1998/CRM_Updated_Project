@@ -227,9 +227,9 @@
           {{data.towername}}</div>
       </ion-col>
     </ion-row>
-    <div *ngFor="let tower of inventoryData">
+    <div *ngFor="let tower of inventoryData;let t_i=index">
       <ion-card class="blockView-details-card" *ngIf="tower.towerid == filteredParams.towerid">
-        <div *ngFor="let floor of tower.floors" style="padding-bottom: 5px;
+        <div *ngFor="let floor of tower.floors;let f_i=index" style="padding-bottom: 5px;
     border-bottom: 1px solid #BCBCBC;">
           <ion-row class="floor-summary-row">
             <ion-col class="summary-title">
@@ -241,8 +241,8 @@
           <div class="blockViewProp-details">
             <ion-row>
               <ion-col size="3" [ngClass]="unit.unitstatus == 'Sold'?'sold-prop' : unit.unitstatus == 'Available'?'available-prop':
-                unit.isEmpty?'empty-prop':'available-prop'" *ngFor="let unit of floor.unitSlots"
-                (click)="!unit.isEmpty?onEditInventoryUintDetails(unit):onEmptyUnitDetailsUpdate(floor.floornum) ">
+                unit.isEmpty?'empty-prop':'available-prop'" *ngFor="let unit of floor.unitSlots" (click)="!unit.isEmpty && (showSpinner = true) && onEditInventoryUintDetails(unit); 
+         unit.isEmpty && onEmptyUnitDetailsUpdate(t_i,f_i)">
                 <div *ngIf="!unit.isEmpty">
                   <div class="status-badge">
                     {{unit.doorfacing == "East"?'E':unit.doorfacing == "West"?'W':unit.doorfacing ==
@@ -274,10 +274,11 @@
       <ion-row class="unit-update-status">
         <ion-col>
           <!-- <span class="font-size20-familyPoppins">Update Unit Status</span> -->
-          <span *ngIf="this.floorNum == ''" class="font-size16-familyPoppins">Update Unit Status</span>
-          <span *ngIf="this.floorNum != ''" class="font-size16-familyPoppins">{{floorNum}} Floor Unit Details</span>
+          <span *ngIf="unitDetails == ''" class="font-size16-familyPoppins">Update Unit Status</span>
+          <span *ngIf="unitDetails != ''" class="font-size16-familyPoppins">{{unitDetails['floornum']}} Floor Unit
+            Details</span>
         </ion-col>
-        <ion-col (click)="onUpdateUnit()" size="3.5" *ngIf="this.floorNum == ''"
+        <ion-col (click)="onUpdateUnit()" size="3.5" *ngIf="unitDetails == ''"
           class="unit-status-button center-vertically ion-justify-content-end pr-0">
           <span class="font-size12-familyPoppins content_center">Unit Status <ion-icon
               name="arrow-forward-outline"></ion-icon></span>
@@ -537,7 +538,7 @@
                     <ion-col class="pb-0"><span class="font-size12-familyPoppins">Upload Agreement File</span></ion-col>
                   </ion-row>
                   <ion-row class="uploading-file"
-                    [ngClass]="saleAgreementForm.value.status=='1'?'pointer_eventsNone disable-style':''">
+                    [ngClass]="saleAgreementForm.value.status=='1' || saleAgreementForm.value.status=='' || saleAgreementForm.value.status == null || saleAgreementForm.value.status == undefined?'pointer_eventsNone disable-style':''">
                     <ion-col>
                       <input type="file" id="brochureInput" class="custom-file-input"
                         (change)="onAgreementFileSelected($event)" multiple
@@ -893,7 +894,7 @@
                   <ion-col class="pb-0"><span class="font-size12-familyPoppins">Upload Agreement File</span></ion-col>
                 </ion-row>
                 <ion-row class="uploading-file"
-                  [ngClass]="registrationForm.value.status=='1' || registrationForm.value.status==''?'pointer_eventsNone disable-style':''">
+                  [ngClass]="registrationForm.value.status=='1' || registrationForm.value.status=='' || registrationForm.value.status == null || registrationForm.value.status == undefined?'pointer_eventsNone disable-style':''">
                   <ion-col>
                     <input type="file" id="brochureInput" class="custom-file-input"
                       (change)="onRegistrationFileSelected($event)" multiple
@@ -965,7 +966,7 @@
                 <div class="ion-justify-content-start completedStage-bg-text-color p-1 ">
                   <span class="center-vertically font-size12-familyPoppins">
                     <ion-icon name="arrow-back"></ion-icon>
-                    Back to Loan
+                    Back to Payment
                   </span>
                 </div>
               </ion-row>
@@ -1045,7 +1046,7 @@
 
     <!-- EDITING UNIT STATUS DETAILS SECTION -->
     <div *ngIf="isEditUnitStatus">
-      <form [formGroup]="unitEditForm" (ngSubmit)="updateUnit()" id="unitEditForm">
+      <form [formGroup]="unitEditForm" (ngSubmit)="unitDetails == ''?updateUnit():addUnitDetails()" id="unitEditForm">
 
         <ion-row class="editing-data-header">
           <ion-col><span>Unit No</span></ion-col>
@@ -1057,6 +1058,10 @@
             <div>
               <ion-input placeholder="Enter Unit" formControlName="unitName" class="border-0"></ion-input>
             </div>
+            <ion-text color="danger" class="error-text"
+              *ngIf="unitEditForm.get('unitName')?.touched && unitEditForm.get('unitName')?.hasError('required')">
+              Unit No required
+            </ion-text>
           </ion-col>
 
           <ion-col>
@@ -1136,9 +1141,13 @@
 
         <ion-row class="editing-data-row">
           <ion-col size="6">
-            <p-dropdown [options]="statusData" optionLabel="unitstatus" optionValue="unitstatus_IDFK"
-              formControlName="status" class="exec_css">
+            <p-dropdown [options]="statusData" optionLabel="unitstatus" placeholder="Select Status"
+              optionValue="unitstatus_IDFK" formControlName="status" class="exec_css">
             </p-dropdown>
+            <ion-text color="danger" class="error-text"
+              *ngIf="unitEditForm.get('status')?.touched && unitEditForm.get('status')?.hasError('required')">
+              Please Select Status
+            </ion-text>
           </ion-col>
 
           <!-- Balcony -->
@@ -1171,12 +1180,10 @@
              (editToSelectedUnit?.unitstatus_IDFK == '4' || (editToSelectedUnit?.payment_mode == '1' && editToSelectedUnit?.loan_status == '1') || (editToSelectedUnit?.payment_mode == '2' && editToSelectedUnit?.transacmode_status == '1')|| backstage == 4 ) && ![3,2].includes(backstage) && editToSelectedUnit?.saleagreement_stage != '1' ?
             'paymentForm':
             (editToSelectedUnit?.unitstatus_IDFK == '5' || editToSelectedUnit?.registration_status == '1' || backstage == 5) &&
-            ![4,3,2].includes(backstage) ?
-            'registrationForm':
-           '')" type="submit" fill="clear"
+            ![4,3,2].includes(backstage) ? 'registrationForm': '')" type="submit" fill="clear"
             class="textBgColor font-size16-familyPoppins content_center m-0 text-capitalize">
-            {{isEditUnitStatus ? 'Update Unit' :editToSelectedUnit?.unitstatus_IDFK != '8'? 'Save & Continue':
-            'Update Unit'}}
+            {{isEditUnitStatus && unitDetails =='' ? 'Update Unit':isEditUnitStatus && unitDetails !=''?
+            'Add Unit Details': editToSelectedUnit?.unitstatus_IDFK != '8'?'Save & Continue':'Update Unit'}}
           </ion-button>
         </ion-col>
       </ion-row>
