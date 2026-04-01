@@ -1241,11 +1241,11 @@ export class MandateVisitStagesComponent implements OnInit {
       .subscribe((executives) => {
         this.mandateExecutives = executives['mandateexecutives'];
 
-        this.mandateExecutives = [
-          ...(executives['mandateexecutives'] || []).filter(
-            (x) => x.name !== 'Test RM' && x.name !== 'Test CS'
-          ),
-        ];
+        // this.mandateExecutives = [
+        //   ...(executives['mandateexecutives'] || []).filter(
+        //     (x) => x.name !== 'Test RM' && x.name !== 'Test CS'
+        //   ),
+        // ];
         this.mandateExecutives1 = this.mandateExecutives;
 
         this.mandateCSExecutives = this.mandateExecutives.filter((item) => {

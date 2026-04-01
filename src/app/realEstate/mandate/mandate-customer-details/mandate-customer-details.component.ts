@@ -3912,7 +3912,6 @@ export class MandateCustomerDetailsComponent implements OnInit {
   isAfterOneminute;
   isAfterTwominute = false;
   startTimer(checkInTime) {
-    alert(checkInTime);
     this.stopTimer();
     const start =
       typeof checkInTime === 'string'
