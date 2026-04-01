@@ -115,7 +115,7 @@ export class SharedService {
         localStorage.getItem('RcontrllerName') === 'ranav_group'
           ? 'ranav_group' + '/'
           : ''
-      }admincrm`;
+      }admincrm_test`;
     } else {
       this.hoverSubscription = this.authservice.adminControllerState$.subscribe(
         (isHovered) => {
@@ -123,7 +123,7 @@ export class SharedService {
             localStorage.getItem('RcontrllerName')
               ? localStorage.getItem('contrllerName') + '/'
               : ''
-          }admincrm`;
+          }admincrm_test`;
           this.indiaestatesapi = 'https://www.indiaestates.in';
         }
       );
@@ -161,7 +161,7 @@ export class SharedService {
       this.loginMethodname = 'login_mbapp';
     }
     this.loginUrl =
-      'https://superadmin-azure.right2shout.in/admincrm/' +
+      'https://superadmin-azure.right2shout.in/admincrm_test/' +
       this.loginMethodname;
     // }
   }
@@ -176,7 +176,7 @@ export class SharedService {
         : rController === 'ranav_group'
         ? 'ranav_group/'
         : '';
-    return `${base}${controllerPath}admincrm/get_ionic_version`;
+    return `${base}${controllerPath}admincrm_test/get_ionic_version`;
   }
 
   getallactiveexec() {

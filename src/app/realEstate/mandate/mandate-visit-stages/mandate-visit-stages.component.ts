@@ -51,6 +51,8 @@ export class MandateVisitStagesComponent implements OnInit {
     rsv: '',
     fn: '',
     junkvisits: '',
+    untouched_fix: '',
+    untouched_done: '',
     usv_fix: '',
     usv_done: '',
     usv_fixed_overdue: '',
@@ -244,26 +246,51 @@ export class MandateVisitStagesComponent implements OnInit {
     // When Type is All Visits
 
     if (this.filteredParams.visitsuntouched == '1') {
-      const params = {
-        ...this.filteredParams,
-      };
+      // const params = {
+      //   ...this.filteredParams,
+      // };
 
-      requests.push(
-        this.mandateService.getAssignedLeadsCounts(params).pipe(
-          catchError((error) => {
-            console.error(`Error fetching data for status: ${status}`, error);
-            return of(null);
-          })
-        )
-      );
+      // requests.push(
+      //   this.mandateService.getAssignedLeadsCounts(params).pipe(
+      //     catchError((error) => {
+      //       console.error(`Error fetching data for status: ${status}`, error);
+      //       return of(null);
+      //     })
+      //   )
+      // );
+
+      const stagestatus = ['1', '3'];
+      stagestatus.forEach((stagestatus) => {
+        const params = {
+          ...this.filteredParams,
+          stagestatus: stagestatus,
+        };
+
+        requests.push(
+          this.mandateService.getAssignedLeadsCounts(params).pipe(
+            catchError((error) => {
+              console.error(
+                `Error fetching data for status: ${stagestatus}`,
+                error
+              );
+              return of(null);
+            })
+          )
+        );
+      });
 
       forkJoin(requests).subscribe((results) => {
         results.forEach((assignleads, index) => {
           switch (index) {
             case 0:
-              this.mandateLeadsCount.untouched =
+              this.mandateLeadsCount.untouched_fix =
                 assignleads['AssignedLeads'][0]['Uniquee_counts'];
               break;
+            case 1:
+              this.mandateLeadsCount.untouched_done =
+                assignleads['AssignedLeads'][0]['Uniquee_counts'];
+              break;
+
             default:
               break;
           }

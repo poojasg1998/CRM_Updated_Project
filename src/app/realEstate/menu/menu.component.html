@@ -140,6 +140,7 @@ border: 0.5px solid #E4E4E4;border-radius: 4px;">
                 <span class="pl-1">Junk</span>
               </ion-col>
             </ion-row>
+
             <ion-row (click)="sharedService.isBottom = false;resetStoredData()" class="row-height"
               *ngIf="(localStorage.getItem('Role') == '1' || localStorage.getItem('Role') == '50014' || 
                                         localStorage.getItem('Role') == '50013') && !localStorage.getItem('ranavPropId')" routerLink="../feeback-dashboard"
@@ -702,7 +703,7 @@ border: 0.5px solid #E4E4E4;border-radius: 4px;">
           <ion-row>
             <ion-col class="ion-text-center font-size10-familyPoppins font-weight400">
               <p>Version: {{sharedService.versionCode}}</p>
-              © 2026 VSNAP Technology Solutions pvt ltd.<br>
+              <a href="https://vsnaptechnology.com/">© 2026 VSNAP Technology Solutions pvt ltd.</a><br>
               All rights reserved
             </ion-col>
           </ion-row>

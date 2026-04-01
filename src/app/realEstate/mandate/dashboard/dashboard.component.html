@@ -123,7 +123,9 @@
     </ion-row>
   </div>
 
-  <ion-row class="p-2 mb-0" style="background-color: #f0f2f5;"
+  <ion-row
+    *ngIf="((roleid == '1' && filteredParams1.isLeadsVisitsCalls != 'calls' && filteredParams1.isLeadsVisitsCalls != 'plans')||(roleid == '1' || localStorage.getItem('RoleType') == '1')||(filteredParams1.isLeadsVisitsCalls == 'plans'))"
+    class="p-2 mb-0" style="background-color: #f0f2f5;"
     [ngClass]="filteredParams1.isLeadsVisitsCalls == 'plans'?'pt-0':''">
     <ion-col class="p-0 pe-1"
       *ngIf="roleid == '1' && filteredParams1.isLeadsVisitsCalls != 'calls' && filteredParams1.isLeadsVisitsCalls != 'plans'">
@@ -163,7 +165,6 @@
   </ion-refresher>
 
   <div class="main-div">
-
     <!-- FILTERED CHIPS -->
     <ion-row class="filterButtons m-2 mb-0" *ngIf="this.filteredParams1.isDateFilter == 'custom'"
       (click)="removeDateFilter()">
@@ -886,10 +887,9 @@
     </div>
     <ion-row *ngIf="scheduledPlans?.length == 0">
       <ion-col class="d-flex align-items-center justify-content-center">
-        <span>No Data Found...</span>
+        <span class="font-size12-familyPoppins">No Data Found...</span>
       </ion-col>
     </ion-row>
-
   </div>
 
 
@@ -955,7 +955,7 @@
     </ion-row>
   </ion-card> -->
 
-  <div *ngIf="filteredParams1.isLeadsVisitsCalls == 'leads'" class="main_body">
+  <div *ngIf="filteredParams1.isLeadsVisitsCalls == 'leads'" class="main_body mt-0">
     <ion-row class="leads_health_row" style="background: linear-gradient(180deg, #FFFFFF -21.82%, #D0D0D0 294.59%);">
       <ion-col>
         <span>Leads Health Overview</span>
@@ -1425,7 +1425,7 @@
     <div class="modal-container">
       <!-- CONTENT -->
       <div class="date-range-wrapper">
-        <h3 class="title">Select date range{{dateRange?.fromdate!=null && dateRange?.todate!=null}}</h3>
+        <h3 class="title">Select date range</h3>
 
         <div class="date-inputs">
           <div class="date-box" (click)="openFromDate()">
@@ -1456,14 +1456,14 @@
 </ion-modal>
 
 
-<ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+<ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
   <ng-template>
     <ion-datetime presentation="date" [(ngModel)]="dateRange.fromdate"
       (ionChange)="onFilterSelection('dateFilter','customfromDate')"></ion-datetime>
   </ng-template>
 </ion-modal>
-<ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+<ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
   <ng-template>
     <ion-datetime presentation="date" [min]="dateRange.fromdate" [(ngModel)]="dateRange.todate"

@@ -329,7 +329,10 @@ export class MandateCustomerDetailsComponent implements OnInit {
       'database-changes',
       '.DatabaseNotification',
       (message) => {
+        console.log('inside service');
+
         if (localStorage.getItem('UserId') == message.Executive) {
+          console.log('inside if');
           this.callStatus = message.Call_status_new;
           this._sharedservice.callStatus = message.Call_status_new;
           if (message.Call_status_new != 'Call Disconnected') {
@@ -767,6 +770,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
   groupByDate(records: any[]) {
     const grouped = {};
     records?.forEach((call) => {
+      if (!call?.starttime) return;
       const date = call?.starttime?.split(' ')[0]; // extract 'YYYY-MM-DD'
       if (!grouped[date]) {
         grouped[date] = [];
@@ -3316,6 +3320,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
     this.router.navigate([], {
       queryParams: {
         propid: propid,
+        stageForm: 'onleadStatus',
       },
       queryParamsHandling: 'merge',
     });
@@ -3440,6 +3445,7 @@ export class MandateCustomerDetailsComponent implements OnInit {
                 ? response['success'][0].dialstatus
                 : '';
             this.onCallLeadData = response['success'][0];
+            this.startTimer(response.success[0].starttime);
             if (
               leadId != response['success'][0].Lead_IDFK &&
               this.router.url.includes('mandate-customers')
@@ -3860,5 +3866,79 @@ export class MandateCustomerDetailsComponent implements OnInit {
     }
 
     return diffDays > 14;
+  }
+
+  forceToCallDisconnect() {
+    const number = localStorage.getItem('Number');
+    const cleanedNumber =
+      number.startsWith('91') && number.length > 10 ? number.slice(2) : number;
+
+    Swal.fire({
+      title: 'Disconnect Call?',
+      text: 'Are you sure you want to disconnect this call?',
+      icon: 'warning',
+      showCancelButton: true,
+      heightAuto: false,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this._sharedservice
+          .onCallDisconnected(cleanedNumber)
+          .subscribe((response) => {
+            this.onBackButton();
+          });
+      }
+    });
+  }
+  onBackButton() {
+    this.router.navigate([], {
+      queryParams: {
+        isOnCallDetailsPage: null,
+        callStatus: null,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
+  timer: string = '00h:00m:00s';
+  private intervalId: any;
+  isAfterOneminute;
+  isAfterTwominute = false;
+  startTimer(checkInTime) {
+    alert(checkInTime);
+    this.stopTimer();
+    const start =
+      typeof checkInTime === 'string'
+        ? new Date(checkInTime.replace(' ', 'T'))
+        : checkInTime;
+
+    this.intervalId = setInterval(() => {
+      const now = new Date();
+      const diff = Math.floor((now.getTime() - start.getTime()) / 1000); // in seconds
+      this.timer = this.formatTime(diff);
+
+      if (diff >= 60 && this.callStatus == 'Answered') {
+        this.isAfterOneminute = true;
+      } else if (
+        diff >= 120 &&
+        (this.callStatus == 'CONNECTING' || this.callStatus == 'Call Connected')
+      ) {
+        this.isAfterTwominute = true;
+      }
+    }, 1000);
+  }
+  stopTimer() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
+  formatTime(seconds: number): string {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, '0') + 'h'}:${
+      mins.toString().padStart(2, '0') + 'm'
+    }:${secs.toString().padStart(2, '0') + 's'}`;
   }
 }

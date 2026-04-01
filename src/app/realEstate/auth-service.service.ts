@@ -145,7 +145,7 @@ export class AuthServiceService {
     } else {
       this.router.navigate(['home'], {
         queryParams: {
-          isDateFilter: 'today',
+          isDateFilter: 'alltime',
         },
       });
     }

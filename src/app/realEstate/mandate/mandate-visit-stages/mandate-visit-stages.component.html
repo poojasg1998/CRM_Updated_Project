@@ -109,7 +109,8 @@
   filteredParams.stage != 'Deal Closed'" class="accessRemovedCount">
     <ion-col class="d-flex align-items-center justify-content-center">
       <ion-img style="width:18px" src="../../../../assets/CRMimages/access_removed_icon1.svg" class="pr-1"></ion-img>
-      <span>{{mandateLeadsCount.accessRemoved + ' Visit'}}</span> Access Removed Due To Overdue
+      <span>{{mandateLeadsCount.accessRemoved + ' Visit'}}</span>&nbsp;
+      Access Removed Due To Overdue
     </ion-col>
   </ion-row>
 
@@ -649,7 +650,7 @@
                 <div class="assignies-col" *ngIf="i<2">
                   <span class="name">{{ visits.Executivename }}</span>
                   <span class="assign-date" *ngIf="i === 0">
-                    {{ lead.assigneddate | date:'dd MMM, yyyy ,hh:mma' }}
+                    {{ lead.assigneddate | date:'dd MMM , yyyy , hh:mma' }}
                   </span>
                 </div>
 
@@ -677,7 +678,7 @@
 
                     <div class="mt-1" *ngIf="i == lead?.latestvisit?.length-1">
                       <span class="name" style="color: #555555;">
-                        {{ lead.assigneddate | date:'dd MMM, yyyy ,hh:mma' }}</span>
+                        {{ lead.assigneddate | date:'dd MMM , yyyy , hh:mma' }}</span>
                     </div>
                   </ng-container>
                 </ng-template>
@@ -690,7 +691,7 @@
               <div class="assignies-col bg-transparent">
                 <span class="name fs-6">{{ lead.Executivename }}</span>
                 <span class="assign-date">
-                  {{ lead.assigneddate | date:'dd MMM, yyyy ,hh:mma' }}
+                  {{ lead.assigneddate | date:'dd MMM , yyyy , hh:mma' }}
                 </span>
               </div>
             </div>
@@ -980,7 +981,6 @@
       <ion-col size="10" class="paddingZero"
         *ngIf="['USV','RSV','Final Negotiation','Junk Visits','UnTouched'].includes(filteredParams.type)">
         <ion-row class="content_center" *ngIf="!isCheckbox">
-
           <div
             [appCenterActiveButton]="filteredParams.stage && filteredParams.stagestatus?(formatId(filteredParams.stage) +'-'+ filteredParams.stagestatus):formatId(filteredParams.stage)"
             style="display: flex; overflow-x: scroll;padding-left:40px;" #scrollContainer>
@@ -1067,10 +1067,10 @@
               <div style="display: flex; overflow-x: scroll; padding: 3px;">
                 <div fill="clear" (click)="onutouchedstage('1');"
                   [ngClass]=" (filteredParams.visitsuntouched === '1' && filteredParams.stagestatus === '1' ) ?'textBorderColor':''"
-                  class="custom-col center-text font-weight500"> Fix- {{' '+mandateLeadsCount.usv_fix}}</div>
+                  class="custom-col center-text font-weight500"> Fix- {{' '+mandateLeadsCount.untouched_fix}}</div>
                 <div fill="clear" (click)="onutouchedstage('3');"
                   [ngClass]="(filteredParams.visitsuntouched === '1' && filteredParams.stagestatus === '3')?'textBorderColor':''"
-                  class="custom-col center-text font-weight500"> Done- {{' '+mandateLeadsCount.usv_done}}</div>
+                  class="custom-col center-text font-weight500"> Done- {{' '+mandateLeadsCount.untouched_done}}</div>
               </div>
             </div>
 

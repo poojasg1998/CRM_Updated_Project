@@ -58,6 +58,9 @@
     <ion-col size="2" (click)="openEndMenu()" class="content_center">
       <ion-icon name="menu" class="menu_icon"></ion-icon>
     </ion-col>
+    <ion-col *ngIf="isAfterOneminute  || isAfterTwominute ">
+      <ion-icon name="close" style="color: white;font-size: 26px;" (click)="forceToCallDisconnect()"></ion-icon>
+    </ion-col>
   </ion-row>
 </ion-header>
 
@@ -84,10 +87,10 @@
   </ion-img>
 </span>
 
-<ion-card
-  [ngClass]="(onCallLeadData?.direction != 'inbound' && 
-          (callStatus != 'Answered by customer' && callStatus != '' && callStatus != undefined) )?'pointer-event-none opacity4':''"
-  class="lead-card mb-0" *ngIf="(this.stageForm == '') && !isEditProDetails && !isEditFixedPlan && !isActivityHistory">
+<ion-card [ngClass]="(onCallLeadData?.direction != 'inbound' && 
+          (callStatus != 'Answered by customer' && callStatus != '' && callStatus != undefined && 
+          callStatus != 'Call Disconnected') )?'pointer-event-none opacity4':''" class="lead-card mb-0"
+  *ngIf="(this.stageForm == '') && !isEditProDetails && !isEditFixedPlan && !isActivityHistory">
   <ion-grid class="p-0">
     <ion-row class="ion-align-items-start ion-justify-content-between">
       <ion-col size="11">
@@ -164,10 +167,10 @@
 </ion-card>
 
 
-<ion-content
-  [ngClass]="(onCallLeadData?.direction != 'inbound' && 
-          (callStatus != 'Answered by customer' && callStatus != '' && callStatus != undefined) )?'pointer-event-none opacity4':''"
-  style="--background: #f9f9f9;" #scrollContent (ionScroll)="onScroll($event)" scrollEvents="true">
+<ion-content [ngClass]="(onCallLeadData?.direction != 'inbound' && 
+          (callStatus != 'Answered by customer' && callStatus != '' && callStatus != undefined && 
+          callStatus != 'Call Disconnected') )?'pointer-event-none opacity4':''" style="--background: #f9f9f9;"
+  #scrollContent (ionScroll)="onScroll($event)" scrollEvents="true">
 
   <!-- LEAD INFORMATION SECTION -->
   <div *ngIf="(this.stageForm == '') && !isEditProDetails && !isEditFixedPlan && !isActivityHistory">
@@ -255,10 +258,10 @@
   </ion-card>
 
   <!-- ASSIGNE TO SECTION -->
-  <ion-card
-    [ngClass]="(onCallLeadData?.direction != 'inbound' && 
-            (callStatus != 'Answered by customer' && callStatus != '' && callStatus != undefined) )?'pointer-event-none opacity4':''"
-    class="assigned-card" *ngIf="!isCP && !isEditProDetails">
+  <ion-card [ngClass]="(onCallLeadData?.direction != 'inbound' && 
+          (callStatus != 'Answered by customer' && callStatus != '' && callStatus != undefined && 
+          callStatus != 'Call Disconnected') )?'pointer-event-none opacity4':''" class="assigned-card"
+    *ngIf="!isCP && !isEditProDetails">
     <div class="assigned-header">
       Assigned To
       <ion-icon *ngIf="isAdmin" [ngClass]="block?'pointer-event-none opacity4':''" name="add-circle" class="add-icon"
@@ -1445,7 +1448,26 @@
         </div>
       </div>
 
-      <ion-grid class="activity-item" *ngIf="allCallLogs?.length != 0">
+
+      <ion-grid class="activity-item" *ngFor="let allCallLogs of allCallLogs | slice:0:2">
+        <ion-row>
+          <ion-col [ngClass]="{'blurred' : (allCallLogs?.['callstatus'] != 'ANSWER' && 
+            allCallLogs?.['callstatus'] != 'Answered')}" size="2" class="content_center">
+            <audio #audioRef [src]="allCallLogs?.['filename']"></audio>
+            <ion-icon (click)="toggleAudio(audioRef, $event)" name="play" class="play-icon"></ion-icon>
+          </ion-col>
+
+          <ion-col>
+            {{allCallLogs?.['starttime'] | date:'MMM d, y - hh:mm a' }},
+            {{ (+allCallLogs?.['answeredtime']?.split(':')[0] * 60 +
+            +allCallLogs?.['answeredtime']?.split(':')[1]) }} Mins
+            {{ +allCallLogs?.['answeredtime']?.split(':')[2] }} Secs
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+
+      <!-- <ion-grid class="activity-item" *ngIf="allCallLogs?.length != 0">
         <ion-row>
           <ion-col [ngClass]="{'blurred' : (allCallLogs?.[0]?.['callstatus'] != 'ANSWER' && 
             allCallLogs?.[0]?.['callstatus'] != 'Answered')}" size="2" class="content_center">
@@ -1459,7 +1481,7 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-      <ion-grid class="activity-item" *ngIf="allCallLogs?.length != 0">
+      <ion-grid class="activity-item" *ngIf="allCallLogs?.length != 1">
         <ion-row>
           <ion-col [ngClass]="{'blurred' : (allCallLogs?.[1]?.['callstatus'] != 'ANSWER' && 
             allCallLogs?.[1]?.['callstatus'] != 'Answered')}" size="2" class="content_center">
@@ -1472,7 +1494,7 @@
             {{ +allCallLogs?.[1]?.['answeredtime'].split(':')[2] }} Secs
           </ion-col>
         </ion-row>
-      </ion-grid>
+      </ion-grid> -->
 
       <div *ngIf="allCallLogs?.length == 0">
         <ion-row>
@@ -2002,7 +2024,7 @@
 
 <ion-footer *ngIf="isEditProDetails">
   <ion-toolbar>
-    <div class="lead-details">
+    <div class="lead-details mt-0">
       <ion-row>
         <ion-col class="cancel-btn ion-text-center" (click)="_location.back();onBackbutton()">
           <div>Cancel</div>
