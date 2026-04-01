@@ -603,7 +603,8 @@ export class DashboardComponent {
         key != 'teamlead' &&
         key != 'lead_stage' &&
         key != 'plan' &&
-        key != 'lead_status'
+        key != 'lead_status' &&
+        key != 'priority'
       ) {
         result[key] = '';
       }
@@ -2733,7 +2734,7 @@ export class DashboardComponent {
     this.sharedService.page = this.page;
     this.sharedService.hasState = true;
     let propid;
-    lead.suggestedprop.forEach((prop) => {
+    lead.suggestedprop?.forEach((prop) => {
       if (lead.propertyname == prop.name) {
         propid = prop.propid;
       }
@@ -2743,7 +2744,7 @@ export class DashboardComponent {
         leadId: leadId,
         execid: execid,
         status: 'info',
-        propid: propid,
+        propid: propid ? propid : lead.property_id ? lead.property_id : '',
         teamlead:
           localStorage.getItem('RoleType') == '1'
             ? localStorage.getItem('UserId')
@@ -2751,5 +2752,10 @@ export class DashboardComponent {
       },
       queryParamsHandling: 'merge',
     });
+  }
+
+  formatLeadStatus(status: string): string {
+    if (!status) return '';
+    return status.toLowerCase() === 'totalplanned' ? 'total planned' : status;
   }
 }

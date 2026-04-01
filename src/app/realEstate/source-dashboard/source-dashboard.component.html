@@ -75,14 +75,14 @@
       </div>
     </ng-template>
   </ion-modal>
-  <ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+  <ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
     [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
     <ng-template>
       <ion-datetime presentation="date" [(ngModel)]="dateRange.fromdate"
         (ionChange)="dateFilter('customfromDate')"></ion-datetime>
     </ng-template>
   </ion-modal>
-  <ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+  <ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
     [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
     <ng-template>
       <ion-datetime presentation="date" [min]="dateRange.fromdate" [(ngModel)]="dateRange.todate"

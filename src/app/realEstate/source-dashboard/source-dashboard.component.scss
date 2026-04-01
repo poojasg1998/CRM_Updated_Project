@@ -337,6 +337,9 @@ h2 {
   }
 }
 .total_lead_heading {
+  position: sticky;
+  top: -2px;
+  z-index: 9999;
   border: 0.8px solid #ade4ff;
   background: #ebf8ff;
   span {

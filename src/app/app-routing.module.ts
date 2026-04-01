@@ -276,14 +276,14 @@ const routes: Routes = [
     path: 'shreeindustries-dashboard',
     loadChildren: () =>
       import(
-        './constructer/shreeindustries-dashboard/shreeindustries-dashboard.module'
+        './construction/shreeindustries-dashboard/shreeindustries-dashboard.module'
       ).then((m) => m.ShreeindustriesDashboardModule),
     // canActivate: [CanActivateGuard],
   },
   {
     path: 'marketing-calls',
     loadChildren: () =>
-      import('./constructer/marketing-calls/marketing-calls.module').then(
+      import('./construction/marketing-calls/marketing-calls.module').then(
         (m) => m.MarketingCallsModule
       ),
   },

@@ -17,7 +17,7 @@ import { AuthServiceService } from '../realEstate/auth-service.service';
 import { MandateService } from '../realEstate/mandate-service.service';
 import { SharedService } from '../realEstate/shared.service';
 import { BiometricService } from '../realEstate/biometric.service';
-import { ShreeindustriesApiService } from '../constructer/shreeindustries-api.service';
+import { ShreeindustriesApiService } from '../construction/shreeindustries-api.service';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 declare var window: any;
 

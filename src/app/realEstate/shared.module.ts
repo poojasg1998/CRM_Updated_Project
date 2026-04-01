@@ -16,7 +16,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { HighlightPipe } from './highlight.pipe';
 import { LongPressDirective } from './long-press.directive';
 import { LineBreaksPipe } from './lineBreaks.pipe';
-import { MenubarComponent } from '../constructer/menubar/menubar.component';
+import { MenubarComponent } from '../construction/menubar/menubar.component';
 @NgModule({
   declarations: [
     CenterActiveButtonDirective,
