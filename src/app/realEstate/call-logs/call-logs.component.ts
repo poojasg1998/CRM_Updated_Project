@@ -73,7 +73,7 @@ export class CallLogsComponent implements OnInit {
       loginid: localStorage.getItem('UserId'),
       fromcalldatetime: new Date().toLocaleDateString('en-CA'),
       tocalldatetime: new Date().toLocaleDateString('en-CA'),
-      execid: this.isAdmin ? this.execid : '',
+      execid: this.isAdmin ? this.execid : localStorage.getItem('UserId'),
       callstage: this.callStatus == 'dialed' ? 'overall' : this.callStatus,
       limit: 0,
       limitrows: 20,

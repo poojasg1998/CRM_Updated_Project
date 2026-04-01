@@ -25,7 +25,9 @@
 </ion-header>
 <!-- [ngClass]="(callStatus == 'Busy' ||
    callStatus == 'Executive Busy'  ||  callStatus == 'Call Connected' || callStatus == 'CONNECTING' || callStatus == 'Answered by agent'||callStatus =='Ringing') && (liveCallData?.direction != 'inbound' || liveCallData?.direction == null)?'pointer-event-none opacity4':''" -->
-<ion-content style="height: 100vh;">
+<ion-content style="height: 100vh;"
+  [ngClass]="(callStatus == 'Busy' ||
+   callStatus == 'Executive Busy'  ||  callStatus == 'Call Connected' || callStatus == 'CONNECTING' || callStatus == 'Answered by agent'||callStatus =='Ringing') && (liveCallData?.direction != 'inbound' || liveCallData?.direction == null)?'pointer-event-none opacity4':''">
   <ion-row>
     <ion-card class="p-2 shadow-sm on-call-card">
       <div class="d-flex justify-content-between align-items-start"

@@ -621,6 +621,7 @@ export class MenuComponent implements OnInit {
             stagestatus: '3',
             visittype: '3',
             isDropDown: 'false',
+            type: 'UnTouched',
             teamlead:
               localStorage.getItem('RoleType') == '1'
                 ? localStorage.getItem('UserId')

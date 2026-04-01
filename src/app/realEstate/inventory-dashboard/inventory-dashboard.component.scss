@@ -58,21 +58,33 @@
   border: 1px solid #ffffff;
   box-shadow: 0px 1px 7px 0px #959da533;
 }
+.total_units_col.active-col .card {
+  border: 2px solid rgb(2, 171, 255);
+}
 
 .available_units_col .card {
   background: linear-gradient(78.44deg, #ffffff 42.18%, #f1ffee 99.11%);
   border: 1px solid #ffffff;
   box-shadow: 0px 1px 7px 0px #959da533;
 }
+.available_units_col.active-col .card {
+  border: 2px solid rgb(56, 160, 60);
+}
 .total_booked_col .card {
   background: linear-gradient(77.02deg, #ffffff 43.53%, #e7e4ff 100%);
   border: 1px solid #ffffff;
   box-shadow: 0px 1px 7px 0px #959da533;
 }
+.total_booked_col.active-col .card {
+  border: 2px solid #8576ff;
+}
 .cancelled_bookings_col .card {
   background: linear-gradient(77.65deg, #ffffff 41.02%, #ffe9e7 99.5%);
   border: 1px solid #ffffff;
   box-shadow: 0px 1px 7px 0px #959da533;
+}
+.cancelled_bookings_col.active-col .card {
+  border: 2px solid #f15555;
 }
 
 .agreement_payment_registration .card {
@@ -82,11 +94,20 @@
 .agreement_col {
   background: linear-gradient(180deg, #ffffff 0%, #ffdfac 100%);
 }
+.agreement_col.active-col {
+  border: 2px solid #e6ab4c;
+}
 .payment_col {
   background: linear-gradient(180deg, #ffffff 0%, #ffc79f 100%);
 }
+.payment_col.active-col {
+  border: 2px solid #fdb37c;
+}
 .registration_col {
   background: linear-gradient(180deg, #ffffff 0%, #b5deff 100%);
+}
+.registration_col.active-col {
+  border: 2px solid rgb(2, 171, 255);
 }
 
 .resale_col .card {
@@ -94,10 +115,17 @@
   border: 1px solid #ffffff;
   box-shadow: 0px 1px 7px 0px #959da533;
 }
+
+.resale_col.active-col .card {
+  border: 2px solid #f67816;
+}
 .sold_units_col .card {
   background: linear-gradient(75.68deg, #ffffff 47.23%, #ffefed 98.44%);
   border: 1px solid #ffffff;
   box-shadow: 0px 1px 7px 0px #959da533;
+}
+.sold_units_col.active-col .card {
+  border: 2px solid #b14a41;
 }
 .card ion-img {
   position: absolute;

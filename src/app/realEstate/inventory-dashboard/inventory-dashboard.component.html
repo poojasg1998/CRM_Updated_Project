@@ -84,23 +84,25 @@
   <ion-row>
 
 
-    <ion-col [ngClass]="filteredParams.status=='4'?'active-col':''" (click)="filteredParams.status='4';addQueryParams()"
-      class="agreement_payment_registration">
+    <ion-col class="agreement_payment_registration">
       <ion-card class="m-0 card border-0">
         <ion-row>
-          <ion-col class="agreement_col">
+          <ion-col class="agreement_col" (click)="filteredParams.status='4';addQueryParams()"
+            [ngClass]="filteredParams.status=='4'?'active-col':''">
             <span>
               <p>Agreement</p>
               <h1>{{inventoryDashboardCounts?.sale_agreement_units}}</h1>
             </span>
           </ion-col>
-          <ion-col class="payment_col">
+          <ion-col class="payment_col" (click)="filteredParams.status='5';addQueryParams()"
+            [ngClass]="filteredParams.status=='5'?'active-col':''">
             <span>
               <p>Payment</p>
               <h1>{{inventoryDashboardCounts?.loan_disburse_units}}</h1>
             </span>
           </ion-col>
-          <ion-col class="registration_col">
+          <ion-col class="registration_col" (click)="filteredParams.status='6';addQueryParams()"
+            [ngClass]="filteredParams.status=='6'?'active-col':''">
             <span>
               <p>Registration</p>
               <h1>{{inventoryDashboardCounts?.reg_due_units}}</h1>

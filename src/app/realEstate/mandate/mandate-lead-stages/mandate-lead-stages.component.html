@@ -1540,10 +1540,10 @@
       *ngIf="filteredParams.status === 'generalfollowups' || filteredParams.status === 'inactive'" class="paddingZero">
       <div [appCenterActiveButton]="filteredParams.followup"
         [ngClass]="filteredParams.status === 'inactive'?'':'content_center'"
-        style="display: flex; overflow-x: scroll; padding:7px;align-items: center;" #scrollContainer>
+        style="display: flex; overflow-x: scroll; padding:7px;align-items: center;gap:2px" #scrollContainer>
         <div [appCenterActiveButton]="'activeButton'"
           *ngFor="let category of filteredParams.status === 'generalfollowups'? generalFollowctgFilter:followctgFilter"
-          fill="clear" class="custom-col center-text font-weight500" [id]="'id-'+ category.followup_section_IDPK"
+          fill="clear" class="custom-col center-text font-weight500 border" [id]="'id-'+ category.followup_section_IDPK"
           [ngClass]="filteredParams.followup === category.followup_section_IDPK?'textBorderColor center-highlight':''"
           [attr.data-stage]="category.followup_section_IDPK"
           (click)="onGfInaciveSubStage(category.followup_section_IDPK)">

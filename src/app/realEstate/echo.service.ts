@@ -76,6 +76,7 @@ export class EchoService {
     this.echo.channel(channel).listen(event, (data: any) => {
       const userid = localStorage.getItem('UserId');
       console.log(data);
+      console.log(localStorage.getItem('crmcategory_IDFK'));
       if (
         userid == data.Executive &&
         data.categoryid == localStorage.getItem('crmcategory_IDFK') &&

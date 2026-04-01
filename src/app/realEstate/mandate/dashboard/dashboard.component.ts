@@ -468,7 +468,7 @@ export class DashboardComponent {
   fetchmandateexecutives() {
     if (this.localStorage.getItem('RoleType') === '1') {
       this.filteredParams1.team = '2';
-      this.filteredParams1.propid = this.localStorage.getItem('PropertyId');
+      // this.filteredParams1.propid = this.localStorage.getItem('PropertyId');
     }
     if (this.filteredParams1.isLeadsVisitsCalls == 'calls') {
       this.filteredParams1.propid = '';
@@ -616,7 +616,7 @@ export class DashboardComponent {
         ? this.filteredParams1.executid
         : this.localStorage.getItem('UserId');
 
-    this.dateUpdation();
+    // this.dateUpdation();
 
     // if (this.filteredParams1.isLeadsVisitsCalls == 'visits') {
     //   this.filteredParams1.fromDate = '';
@@ -985,7 +985,9 @@ export class DashboardComponent {
         this.filteredParams1.scheduledTodayOrOverdues = value;
         break;
       case 'dateFilter':
-        value != 'customfromDate' && value != 'customtoDate'
+        value != 'customfromDate' &&
+        value != 'customtoDate' &&
+        value != 'custom'
           ? ((this.filteredParams1.isDateFilter = value),
             !this.dateRange.fromdate && !this.dateRange.todate)
           : '';
@@ -1049,6 +1051,7 @@ export class DashboardComponent {
           this.dashboard_fromDate_modal?.dismiss();
           return;
         } else if (value == 'customtoDate') {
+          this.filteredParams1.isDateFilter = 'custom';
           this.filteredParams1.toDate = ('' + this.dateRange.todate).split(
             'T'
           )[0];
@@ -1094,12 +1097,16 @@ export class DashboardComponent {
     ) {
       this.filteredParams1.fromDate =
         this.filteredParams1.fromDate ||
-        this.filteredParams1.weekendfromdate ||
+        (!['today', 'yesterday'].includes(this.filteredParams1.isDateFilter)
+          ? this.filteredParams1.weekendfromdate
+          : '') ||
         this.filteredParams1.visitedfromdate;
 
       this.filteredParams1.toDate =
         this.filteredParams1.toDate ||
-        this.filteredParams1.weekendtodate ||
+        (!['today', 'yesterday'].includes(this.filteredParams1.isDateFilter)
+          ? this.filteredParams1.weekendtodate
+          : '') ||
         this.filteredParams1.visitedtodate;
 
       if (this.filteredParams1.isDateFilter == 'alltime') {
@@ -1127,16 +1134,17 @@ export class DashboardComponent {
       if (this.filteredParams1.isDateFilter == 'alltime') {
         this.filteredParams1.visitedfromdate = '';
         this.filteredParams1.visitedtodate = '';
+      } else if (this.filteredParams1.isDateFilter == '') {
+        this.filteredParams1.isDateFilter = 'custom';
       }
-      // else if (this.filteredParams1.isDateFilter == '') {
-      //   this.filteredParams1.isDateFilter = 'custom';
-      // }
 
       this.filteredParams1.fromDate = '';
       this.filteredParams1.toDate = '';
       this.filteredParams1.weekendfromdate = '';
       this.filteredParams1.weekendtodate = '';
-      this.filteredParams1.priority = '1';
+      this.filteredParams1.priority = this.filteredParams1.priority
+        ? this.filteredParams1.priority
+        : '1';
     } else if (this.filteredParams1.isLeadsVisitsCalls == 'plans') {
       if (
         this.filteredParams1.isDateFilter == 'alltime' ||
@@ -1184,7 +1192,10 @@ export class DashboardComponent {
 
     queryParams = {
       ...queryParams,
-      visits: value == 'touched' || value == 'active' ? '2' : '',
+      visits:
+        value == 'touched' || value == 'active' || value == 'assignedleads'
+          ? '2'
+          : '',
       followup: value == 'inactive' ? '2' : '',
       visittype: value == 'NC' ? '3' : '',
       type:
@@ -1378,15 +1389,15 @@ export class DashboardComponent {
     // };
 
     this.filteredParams1 = {
-      fromDate: new Date().toLocaleDateString('en-CA'),
-      toDate: new Date().toLocaleDateString('en-CA'),
-      visitedfromdate: new Date().toLocaleDateString('en-CA'),
-      visitedtodate: new Date().toLocaleDateString('en-CA'),
+      fromDate: '',
+      toDate: '',
+      visitedfromdate: '',
+      visitedtodate: '',
       weekendfromdate: '',
       weekendtodate: '',
       isLeadsVisitsCalls: this.filteredParams1.isLeadsVisitsCalls,
       scheduledTodayOrOverdues: 'scheduledtoday',
-      isDateFilter: 'today',
+      isDateFilter: 'alltime',
       activeExec: '1',
       executid:
         localStorage.getItem('UserId') == '1' ||
@@ -2199,7 +2210,6 @@ export class DashboardComponent {
 
       if (isQuarterScrolled) {
         this.isScrollMoved = true;
-        console.log('User has moved 25% down the page');
         // You can trigger your logic here (e.g., hide the spinner or show a button)
       } else {
         this.isScrollMoved = false;
@@ -2302,9 +2312,13 @@ export class DashboardComponent {
       fromcalldatetime: this.filteredParams1.fromDate,
       tocalldatetime: this.filteredParams1.toDate,
       execid:
-        this.roleid == '1' || this.localStorage.getItem('RoleType') == '1'
+        this.roleid == '1'
           ? this.filteredParams1.executid
-          : '',
+          : localStorage.getItem('UserId'),
+      // execid:
+      //   this.roleid == '1' || this.localStorage.getItem('RoleType') == '1'
+      //     ? this.filteredParams1.executid
+      //     : '',
       callstage: this.filteredParams1.callstage,
       limit: 0,
       limitrows: 5,
@@ -2312,7 +2326,6 @@ export class DashboardComponent {
 
     this.count = isLoadmore ? (this.count += 5) : 0;
     params.limit = this.count;
-
     return new Promise((resolve, reject) => {
       this.sharedService.fetchAllCallLogs(params).subscribe({
         next: (response: any) => {
@@ -2322,11 +2335,12 @@ export class DashboardComponent {
               : response['success'];
             resolve(true);
           } else {
-            this.allCallsData = [];
+            this.allCallsData = isLoadmore ? this.allCallsData : [];
             resolve(false);
           }
         },
         error: (err) => {
+          this.allCallsData = isLoadmore ? this.allCallsData : [];
           resolve(false);
         },
       });
@@ -2339,9 +2353,13 @@ export class DashboardComponent {
       fromcalldatetime: this.filteredParams1.fromDate,
       tocalldatetime: this.filteredParams1.toDate,
       execid:
-        localStorage.getItem('Role') == '1'
+        this.roleid == '1'
           ? this.filteredParams1.executid
           : localStorage.getItem('UserId'),
+      // execid:
+      //   this.roleid == '1' || this.localStorage.getItem('RoleType') == '1'
+      //     ? this.filteredParams1.executid
+      //     : '',
     };
     this.sharedService.getCallCounts(params).subscribe((resp) => {
       this.allCallCounts = resp['success'][0];
@@ -2355,13 +2373,13 @@ export class DashboardComponent {
       fromdate: null as Date | null,
       todate: null as Date | null,
     };
-    this.filteredParams1.isDateFilter = 'today';
-    this.filteredParams1.fromDate = new Date().toLocaleDateString('en-CA');
-    this.filteredParams1.toDate = new Date().toLocaleDateString('en-CA');
-    this.filteredParams1.visitedfromdate = new Date().toLocaleDateString(
-      'en-CA'
-    );
-    this.filteredParams1.visitedtodate = new Date().toLocaleDateString('en-CA');
+    this.filteredParams1.isDateFilter = 'alltime';
+    this.filteredParams1.fromDate = '';
+    this.filteredParams1.toDate = '';
+    this.filteredParams1.visitedfromdate = '';
+    this.filteredParams1.visitedtodate = '';
+    this.filteredParams1.weekendfromdate = '';
+    this.filteredParams1.weekendtodate = '';
     this.addQueryParams();
   }
 
@@ -2596,9 +2614,13 @@ export class DashboardComponent {
         fromdate: null as Date | null,
         todate: null as Date | null,
       };
-      this.filteredParams1.isDateFilter = 'today';
-      this.filteredParams1.fromDate = new Date().toLocaleDateString('en-CA');
-      this.filteredParams1.toDate = new Date().toLocaleDateString('en-CA');
+      this.filteredParams1.isDateFilter = 'alltime';
+      this.filteredParams1.fromDate = '';
+      this.filteredParams1.toDate = '';
+      this.filteredParams1.visitedfromdate = '';
+      this.filteredParams1.visitedtodate = '';
+      this.filteredParams1.weekendfromdate = '';
+      this.filteredParams1.weekendtodate = '';
       this.addQueryParams();
     }
   }
