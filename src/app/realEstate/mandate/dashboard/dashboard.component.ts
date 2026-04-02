@@ -174,7 +174,7 @@ export class DashboardComponent {
     propertyName: '',
     team: '',
     status: '',
-    priority: '1',
+    priority: '',
     stage: '',
     stagestatus: '',
     visits: '',
@@ -616,6 +616,12 @@ export class DashboardComponent {
       this.localStorage.getItem('RoleType') == '1'
         ? this.filteredParams1.executid
         : this.localStorage.getItem('UserId');
+
+    if (this.filteredParams1.isLeadsVisitsCalls == 'visits') {
+      this.filteredParams1.priority = this.filteredParams1.priority
+        ? this.filteredParams1.priority
+        : '1';
+    }
 
     // this.dateUpdation();
 
