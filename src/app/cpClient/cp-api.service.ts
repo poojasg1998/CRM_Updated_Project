@@ -61,8 +61,8 @@ export class CpApiService {
   getAssignedLeadsCount(param: any) {
     let params = new HttpParams();
     const paramMap = {
-      fromDate: 'FromDate',
-      toDate: 'ToDate',
+      fromdate: 'FromDate',
+      todate: 'ToDate',
       status: 'status',
       stage: 'stage',
       team: 'team',
@@ -136,37 +136,81 @@ export class CpApiService {
 
   // GET TO ASSIGNED LEAD DETAILS
   getAssignedLeadsDetail(param) {
-    let params = new HttpParams()
-      .set('FromDate', param.fromDate)
-      .set('ToDate', param.toDate)
-      .set('status', param.status)
-      .set('stage', param.stage)
-      .set('team', param.team)
-      .set('stagestatus', param.stagestatus)
-      .set('rmid', param.executid)
-      .set('propid', param.propid)
-      .set('enquiredprop', param.enquiredProp)
-      .set('suggestedprop', param.suggestedprop)
-      .set('visitedprop', param.visitedprop)
-      .set('closedprop', param.closedprop)
-      .set('loginid', param.loginid)
-      .set('limit', param.limit)
-      .set('limitrows', param.limitrows)
-      .set('priority', param.priority)
-      .set('followup', param.followup)
-      .set('receivedfromdate', param.receivedFromDate)
-      .set('receivedtodate', param.receivedToDate)
-      .set('visitedfromdate', param.visitedfromdate)
-      .set('visitedtodate', param.visitedtodate)
-      .set('assignedfromdate', param.assignedfromdate)
-      .set('assignedtodate', param.assignedtodate)
-      .set('FromTime', param.fromTime ?? '')
-      .set('ToTime', param.toTime ?? '')
-      .set('visittype', param.visittype ?? '')
-      .set('source', param.source)
-      .set('visitassignedto', param.visitassignedto ?? '')
-      .set('remarks_search', param.remarks_search ?? '');
-    return this.http.get(this.retailcrm + '/assignedleads', { params });
+    let params = new HttpParams();
+    const paramMap = {
+      fromdate: 'FromDate',
+      todate: 'ToDate',
+      status: 'status',
+      stage: 'stage',
+      team: 'team',
+      stagestatus: 'stagestatus',
+      executid: 'rmid',
+      propid: 'propid',
+      loginid: 'loginid',
+      visitedprop: 'visitedprop',
+      enquiredProp: 'enquiredProp',
+      suggestedprop: 'suggestedprop',
+      closedprop: 'closedprop',
+      receivedFromDate: 'receivedFromDate',
+      visitedfromdate: 'visitedfromdate',
+      visitedtodate: 'visitedtodate',
+      assignedfromdate: 'assignedfromdate',
+      assignedtodate: 'assignedtodate',
+      fromTime: 'fromTime',
+      toTime: 'toTime',
+      followup: 'followup',
+      limit: 'limit',
+      limitrows: 'limitrows',
+      priority: 'priority',
+      visittype: 'visittype',
+      visitassignedto: 'visitassignedto',
+      source: 'source',
+      remarks_search: 'remarks_search',
+    };
+
+    Object.keys(paramMap).forEach((key) => {
+      if (
+        param[key] !== undefined &&
+        param[key] !== null &&
+        param[key] !== ''
+      ) {
+        params = params.set(paramMap[key], param[key]);
+      }
+    });
+    return this.http.get<any>(this.retailcrm + '/assignedleads?', {
+      params,
+    });
+    // let params = new HttpParams()
+    //   .set('FromDate', param.fromDate)
+    //   .set('ToDate', param.toDate)
+    //   .set('status', param.status)
+    //   .set('stage', param.stage)
+    //   .set('team', param.team)
+    //   .set('stagestatus', param.stagestatus)
+    //   .set('rmid', param.executid)
+    //   .set('propid', param.propid)
+    //   .set('enquiredprop', param.enquiredProp)
+    //   .set('suggestedprop', param.suggestedprop)
+    //   .set('visitedprop', param.visitedprop)
+    //   .set('closedprop', param.closedprop)
+    //   .set('loginid', param.loginid)
+    //   .set('limit', param.limit)
+    //   .set('limitrows', param.limitrows)
+    //   .set('priority', param.priority)
+    //   .set('followup', param.followup)
+    //   .set('receivedfromdate', param.receivedFromDate)
+    //   .set('receivedtodate', param.receivedToDate)
+    //   .set('visitedfromdate', param.visitedfromdate)
+    //   .set('visitedtodate', param.visitedtodate)
+    //   .set('assignedfromdate', param.assignedfromdate)
+    //   .set('assignedtodate', param.assignedtodate)
+    //   .set('FromTime', param.fromTime ?? '')
+    //   .set('ToTime', param.toTime ?? '')
+    //   .set('visittype', param.visittype ?? '')
+    //   .set('source', param.source)
+    //   .set('visitassignedto', param.visitassignedto ?? '')
+    //   .set('remarks_search', param.remarks_search ?? '');
+    // return this.http.get(this.retailcrm + '/assignedleads', { params });
   }
 
   // Get retail Executives Name

@@ -1,12 +1,12 @@
 <div class="filter-wrapper">
   <ion-row class="leads-visits-container m-2 mb-0">
     <ion-col [ngClass]="filteredParams.isLeadsVisits === 'leads' ? 'active-btn' : 'normal-btn'" class="content-center"
-      (click)="applyFilter('isLeadsVisits', 'leads')">
+      (click)="applyFilter({isLeadsVisits: 'leads',stagestatus:'',stage:'',status:'assignedleads'})">
       <span>Leads</span>
     </ion-col>
 
     <ion-col [ngClass]="filteredParams.isLeadsVisits === 'visits' ? 'active-btn' : 'normal-btn'" class="content-center"
-      (click)="applyFilter('isLeadsVisits', 'visits')">
+      (click)="applyFilter({isLeadsVisits: 'visits',status:'allvisits',stagestatus:'3',stage:''})">
       <span>Visits</span>
     </ion-col>
   </ion-row>
@@ -14,24 +14,24 @@
   <ion-row class="datefilter-main-row m-1 mb-0">
     <ion-col class="presets-container">
       <ion-row>
-        <ion-col (click)="applyFilter('datePreset','all')"
+        <ion-col (click)="applyFilter({datePreset: 'all'})"
           class="d-flex  align-items-center justify-content-center px-0"
           [class.active_btn]="filteredParams.datePreset == 'all'">
           <span class="font-size12-familyPoppins">All Time</span>
         </ion-col>
-        <ion-col size="4" (click)="applyFilter('datePreset','today')"
+        <ion-col size="4" (click)="applyFilter({datePreset: 'today'})"
           class="d-flex  align-items-center justify-content-center px-0"
           [class.active_btn]="filteredParams.datePreset == 'today'">
           <span class="font-size12-familyPoppins">Today</span>
         </ion-col>
-        <ion-col (click)="applyFilter('datePreset','yesterday')"
+        <ion-col (click)="applyFilter({datePreset: 'yesterday'})"
           class="d-flex align-items-center justify-content-center px-0"
           [class.active_btn]="filteredParams.datePreset == 'yesterday'">
           <span class="font-size12-familyPoppins">Yesterday</span>
         </ion-col>
       </ion-row>
     </ion-col>
-    <ion-col [class.active_btn]="filteredParams.datePreset == 'custom'" (click)="applyFilter('datePreset','custom')"
+    <ion-col [class.active_btn]="filteredParams.datePreset == 'custom'" (click)="applyFilter({datePreset: 'custom'})"
       class="d-flex align-items-center justify-content-center  p-2px date-btn" size="1.5">
       <span class="d-flex align-items-center justify-content-center">
         <ion-icon name="calendar-outline"></ion-icon>
@@ -44,16 +44,17 @@
   </ion-row>
 
   <ion-row class="sale-resale-rental-row m-1 mx-2 mb-0">
-    <ion-col (click)="applyFilter('listingType','sale')" class="d-flex  align-items-center justify-content-center px-0"
+    <ion-col (click)="applyFilter({listingType: 'sale'})" class="d-flex  align-items-center justify-content-center px-0"
       [class.active_btn]="filteredParams.listingType == 'sale'">
       <span class="font-size12-familyPoppins">Sale</span>
     </ion-col>
-    <ion-col size="4" (click)="applyFilter('listingType','resale')"
+    <ion-col size="4" (click)="applyFilter({listingType: 'resale'})"
       class="d-flex  align-items-center justify-content-center px-0"
       [class.active_btn]="filteredParams.listingType == 'resale'">
       <span class="font-size12-familyPoppins">Resale</span>
     </ion-col>
-    <ion-col (click)="applyFilter('listingType','rental')" class="d-flex align-items-center justify-content-center px-0"
+    <ion-col (click)="applyFilter({listingType: 'rental'})"
+      class="d-flex align-items-center justify-content-center px-0"
       [class.active_btn]="filteredParams.listingType == 'rental'">
       <span class="font-size12-familyPoppins">Rental</span>
     </ion-col>
@@ -70,16 +71,16 @@
         </div>
         <div class="card-content">
           <div [ngClass]="filteredParams.selectedStage === 'Total Received' ? 'selected-card border-bottom-right' : ''"
-            (click)="applyFilter('selectedStage','Total Received');applyFilter('activeCardKey','totalreceived-card')"
+            (click)="applyFilter({selectedStage: 'Total Received', activeCardKey: 'totalreceived-card',status: 'assignedleads',stage: ''});"
             class="pl-1">
             <p>Total Received</p>
-            <h1>{{'1'}}</h1>
+            <h1>{{leadsCount.total}}</h1>
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Untouched' ? 'selected-card border-top-right' : ''"
-            (click)="applyFilter('selectedStage','Untouched');applyFilter('activeCardKey','totalreceived-card')"
+            (click)="applyFilter({selectedStage: 'Untouched', activeCardKey: 'totalreceived-card',status: 'pending',stage: ''});"
             class="pl-1">
             <p class="mt-2">Untouched</p>
-            <h1>{{'1'}}</h1>
+            <h1>{{leadsCount.untouched}}</h1>
           </div>
         </div>
       </ion-col>
@@ -89,25 +90,25 @@
           <div class="d-flex">
             <div><ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img></div>
             <div [ngClass]="filteredParams.selectedStage === 'Touched' ? 'selected-card border-bottom-right' : ''"
-              (click)="applyFilter('selectedStage','Touched');applyFilter('activeCardKey','touchedLeads-card')"
+              (click)="applyFilter({selectedStage: 'Touched', activeCardKey: 'touchedLeads-card',status: 'touched',stage: ''});"
               class="pl-1">
               <p>Touched</p>
-              <h1>{{'1'}}</h1>
+              <h1>{{leadsCount.touched}}</h1>
             </div>
           </div>
 
           <ion-row class="mt-1 h-100">
             <ion-col [ngClass]="filteredParams.selectedStage === 'Inactive' ? 'selected-card border-top-right' : ''"
               class="py-0 px-1" size="5"
-              (click)="applyFilter('selectedStage','Inactive');applyFilter('activeCardKey','touchedLeads-card')">
+              (click)="applyFilter({selectedStage: 'Inactive', activeCardKey: 'touchedLeads-card',status: 'inactive',stage: ''});">
               <p>Inactive</p>
-              <h1>{{'1'}}</h1>
+              <h1>{{leadsCount.inactive}}</h1>
             </ion-col>
             <ion-col [ngClass]="filteredParams.selectedStage === 'Junk Leads' ? 'selected-card border-top-left' : ''"
               class="py-0 px-1" size="7"
-              (click)="applyFilter('selectedStage','Junk Leads');applyFilter('activeCardKey','touchedLeads-card')">
+              (click)="applyFilter({selectedStage: 'Junk Leads', activeCardKey: 'touchedLeads-card',status: 'junkleads',stage: ''});">
               <p>Junk Leads</p>
-              <h1>{{'1'}}</h1>
+              <h1>{{leadsCount.junkleads}}</h1>
             </ion-col>
           </ion-row>
         </div>
@@ -120,26 +121,26 @@
           <div class="d-flex">
             <div><ion-img src="../assets/CRMimages/activeLeadsicon.svg"></ion-img></div>
             <div [ngClass]="filteredParams.selectedStage === 'Active Leads' ? 'selected-card border-bottom-right' : ''"
-              (click)="applyFilter('selectedStage','Active Leads');applyFilter('activeCardKey','active-card')"
+              (click)="applyFilter({selectedStage: 'Active Leads', activeCardKey: 'active-card',status: 'active',stage: ''});"
               class="pl-1">
               <p>Active Leads</p>
-              <h1>{{'1'}}</h1>
+              <h1>{{leadsCount.activeleads}}</h1>
             </div>
           </div>
 
           <ion-row class="mt-1">
             <ion-col [ngClass]="filteredParams.selectedStage === 'Followups' ? 'selected-card border-top-right' : ''"
               class="py-0 px-1"
-              (click)="applyFilter('selectedStage','Followups');applyFilter('activeCardKey','active-card')">
+              (click)="applyFilter({selectedStage: 'Followups', activeCardKey: 'active-card',status: 'generalfollowups',stage: ''});">
               <p>Followups</p>
-              <h1>{{'1'}}</h1>
+              <h1>{{leadsCount.followups}}</h1>
             </ion-col>
             <ion-col
               [ngClass]="filteredParams.selectedStage === 'Scheduled Visits' ? 'selected-card border-top-left' : ''"
               class="py-0 px-1"
-              (click)="applyFilter('selectedStage','Scheduled Visits');applyFilter('activeCardKey','active-card')">
+              (click)="applyFilter({selectedStage: 'Scheduled Visits', activeCardKey: 'active-card',stage: 'USV',stagestatus:'1',status: ''});">
               <p>Scheduled Visits</p>
-              <h1>{{'1' }}</h1>
+              <h1>{{leadsCount.scheduledVisits }}</h1>
             </ion-col>
           </ion-row>
         </div>
@@ -162,16 +163,16 @@
         </div>
         <div class="card-content">
           <div [ngClass]="filteredParams.selectedStage === 'All Visits' ? 'selected-card border-bottom-right' : ''"
-            (click)="applyFilter('selectedStage','All Visits');applyFilter('activeCardKey','allvisits-card')"
+            (click)="applyFilter({selectedStage: 'All Visits', activeCardKey: 'allvisits-card',status: 'allvisits',stagestatus:'3',stage:''});"
             class="pl-1">
             <p>All Visits</p>
-            <h1>{{'1'}}</h1>
+            <h1>{{visitsCount.allvisits}}</h1>
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Active Visits' ? 'selected-card border-top-right' : ''"
-            (click)="applyFilter('selectedStage','Active Visits');applyFilter('activeCardKey','allvisits-card')"
-            class="pl-1">
+            (click)="applyFilter({selectedStage: 'Active Visits', activeCardKey: 'allvisits-card',status: 'activevisits',stagestatus:3,stage:''})"
+            ; class="pl-1">
             <p class="mt-2">Active Visits</p>
-            <h1>{{'1'}}</h1>
+            <h1>{{visitsCount.active}}</h1>
           </div>
         </div>
       </ion-col>
@@ -180,15 +181,16 @@
         <div><ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img></div>
         <div class="card-content">
           <div [ngClass]="filteredParams.selectedStage === 'FN' ? 'selected-card border-bottom-right' : ''"
-            (click)="applyFilter('selectedStage','FN');applyFilter('activeCardKey','fn-card')" class="pl-1">
+            (click)="applyFilter({selectedStage: 'FN', activeCardKey: 'fn-card',status:'', stage: 'Final Negotiation',stagestatus:'3'})"
+            class="pl-1">
             <p>FN</p>
-            <h1>{{'1'}}</h1>
+            <h1>{{visitsCount.fn}}</h1>
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Booking Cancelled' ? 'selected-card border-top-right' : ''"
-            (click)="applyFilter('selectedStage','Booking Cancelled');applyFilter('activeCardKey','fn-card')"
-            class="pl-1">
+            (click)="applyFilter({selectedStage: 'Booking Cancelled', activeCardKey: 'fn-card',status:'', 
+            stage:'Closing Request Rejected',stagestatus:'3'})" class="pl-1">
             <p class="mt-2">Booking Cancelled</p>
-            <h1>{{'1'}}</h1>
+            <h1>{{visitsCount.bookingCancelled}}</h1>
           </div>
         </div>
       </ion-col>
@@ -198,16 +200,16 @@
         <div><ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img></div>
         <div class="card-content">
           <div [ngClass]="filteredParams.selectedStage === 'Closed Leads' ? 'selected-card border-bottom-right' : ''"
-            (click)="applyFilter('selectedStage','Closed Leads');applyFilter('activeCardKey','closed-card')"
-            class="pl-1">
+            (click)="applyFilter({selectedStage: 'Closed Leads', activeCardKey: 'closed-card',status:'', 
+             stage:'Deal Closed',stagestatus:'3'})" class="pl-1">
             <p>Closed Leads</p>
-            <h1>{{'1'}}</h1>
+            <h1>{{visitsCount.closedLeads}}</h1>
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Junk Visits' ? 'selected-card border-top-right' : ''"
-            (click)="applyFilter('selectedStage','Junk Visits');applyFilter('activeCardKey','closed-card')"
+            (click)="applyFilter({selectedStage: 'Junk Visits', activeCardKey: 'closed-card',status:'junkvisits', stage: '',stagestatus:'3'})"
             class="pl-1">
             <p class="mt-2">Junk Visits</p>
-            <h1>{{'1'}}</h1>
+            <h1>{{visitsCount.junkVisits}}</h1>
           </div>
         </div>
       </ion-col>
