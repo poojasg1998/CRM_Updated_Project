@@ -12,6 +12,8 @@ export class DashboardComponent implements OnInit {
   readonly LEADS_DEFAULTS = {
     fromdate: '',
     todate: '',
+    visitedfromdate: '',
+    visitedtodate: '',
     isLeadsVisits: 'leads',
     datePreset: 'all',
     listingType: 'sale',
@@ -150,21 +152,34 @@ export class DashboardComponent implements OnInit {
 
         switch (value) {
           case 'today':
-            this.filteredParams.fromdate = today;
-            this.filteredParams.todate = today;
+            if (this.filteredParams.isLeadsVisits == 'leads') {
+              this.filteredParams.fromdate = today;
+              this.filteredParams.todate = today;
+            } else {
+              this.filteredParams.visitedfromdate = today;
+              this.filteredParams.visitedtodate = today;
+            }
             break;
 
           case 'yesterday':
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
             const yStr = yesterday.toISOString().split('T')[0];
-            this.filteredParams.fromdate = yStr;
-            this.filteredParams.todate = yStr;
+
+            if (this.filteredParams.isLeadsVisits == 'leads') {
+              this.filteredParams.fromdate = yStr;
+              this.filteredParams.todate = yStr;
+            } else {
+              this.filteredParams.visitedfromdate = yStr;
+              this.filteredParams.visitedtodate = yStr;
+            }
             break;
 
           case 'all':
             this.filteredParams.fromdate = '';
             this.filteredParams.todate = '';
+            this.filteredParams.visitedfromdate = '';
+            this.filteredParams.visitedtodate = '';
             break;
         }
       } else {
