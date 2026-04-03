@@ -1,0 +1,170 @@
+<!-- <ion-content> -->
+<ion-row class="datefilter-main-row m-1 mb-0">
+  <ion-col class="presets-container">
+    <ion-row>
+      <ion-col (click)="applyFilter('datePreset','all')" class="d-flex  align-items-center justify-content-center px-0"
+        [class.active_btn]="filteredParams.datePreset == 'all'">
+        <span class="font-size12-familyPoppins">All Time</span>
+      </ion-col>
+      <ion-col size="4" (click)="applyFilter('datePreset','today')"
+        class="d-flex  align-items-center justify-content-center px-0"
+        [class.active_btn]="filteredParams.datePreset == 'today'">
+        <span class="font-size12-familyPoppins">Today</span>
+      </ion-col>
+      <ion-col (click)="applyFilter('datePreset','yesterday')"
+        class="d-flex align-items-center justify-content-center px-0"
+        [class.active_btn]="filteredParams.datePreset == 'yesterday'">
+        <span class="font-size12-familyPoppins">Yesterday</span>
+      </ion-col>
+    </ion-row>
+  </ion-col>
+  <ion-col [class.active_btn]="filteredParams.datePreset == 'custom'" (click)="applyFilter('datePreset','custom')"
+    class="d-flex align-items-center justify-content-center  p-2px date-btn" size="1.5">
+    <span class="d-flex align-items-center justify-content-center">
+      <ion-icon name="calendar-outline"></ion-icon>
+    </span>
+  </ion-col>
+  <ion-col (click)="resetFilters()" class="refresh-btn d-flex align-items-center justify-content-center p-2px"
+    size="1.2">
+    <ion-icon name="sync-outline"></ion-icon>
+  </ion-col>
+</ion-row>
+
+<!-- LEADS CARD -->
+<ion-card class="leads-card" [class.selected]="filteredParams.activeCardKey == 'leads-card'">
+  <ion-row class="card-content">
+    <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
+    <ion-col
+      [ngClass]="filteredParams.selectedStage === 'Followups' && filteredParams.activeCardKey ==='leads-card'? 'selected-card border-right' : ''"
+      class="py-0 px-1" (click)="applyFilter('selectedStage','Followups');applyFilter('activeCardKey','leads-card')">
+      <p>Followups</p>
+      <h1>{{'1'}}</h1>
+    </ion-col>
+    <ion-col
+      [ngClass]="filteredParams.selectedStage === 'NC' && filteredParams.activeCardKey ==='leads-card' ? 'selected-card border-right-left' : ''"
+      class="py-0 px-1" (click)="applyFilter('selectedStage','NC');applyFilter('activeCardKey','leads-card')">
+      <p>NC</p>
+      <h1>{{'1' }}</h1>
+    </ion-col>
+    <ion-col
+      [ngClass]="filteredParams.selectedStage === 'USV Fix' && filteredParams.activeCardKey ==='leads-card' ? 'selected-card border-left' : ''"
+      class="py-0 px-1" (click)="applyFilter('selectedStage','USV Fix');applyFilter('activeCardKey','leads-card')">
+      <p>USV Fix</p>
+      <h1>{{'1' }}</h1>
+    </ion-col>
+  </ion-row>
+</ion-card>
+
+<!-- VISITS CARD -->
+<ion-card class="usv-card" [class.selected]="filteredParams.activeCardKey == 'usv-card'">
+  <ion-row class="card-content ">
+    <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
+    <ion-col
+      [ngClass]="filteredParams.selectedStage === 'USV Done' && filteredParams.activeCardKey ==='usv-card'? 'selected-card border-right-bottom' : ''"
+      class="py-0 px-1" (click)="applyFilter('selectedStage','USV Done');applyFilter('activeCardKey','usv-card')">
+      <p>USV Done</p>
+      <h1>{{'1'}}</h1>
+    </ion-col>
+    <ion-col
+      [ngClass]="filteredParams.selectedStage === 'RSV Fix' && filteredParams.activeCardKey ==='usv-card' ? 'selected-card border-left-bottom-right' : ''"
+      class="py-0 px-1" (click)="applyFilter('selectedStage','RSV Fix');applyFilter('activeCardKey','usv-card')">
+      <p>RSV Fix</p>
+      <h1>{{'1' }}</h1>
+    </ion-col>
+    <ion-col
+      [ngClass]="filteredParams.selectedStage === 'FN Fix' && filteredParams.activeCardKey ==='usv-card' ? 'selected-card border-left-bottom' : ''"
+      class="py-0 px-1" (click)="applyFilter('selectedStage','FN Fix');applyFilter('activeCardKey','usv-card')">
+      <p>FN Fix</p>
+      <h1>{{'1' }}</h1>
+    </ion-col>
+  </ion-row>
+  <ion-row class="card-content">
+    <ion-col> </ion-col>
+    <ion-col
+      [ngClass]="filteredParams.selectedStage === 'RSV Done' && filteredParams.activeCardKey ==='usv-card' ? 'selected-card border-left-top-right' : ''"
+      class="py-0 px-1" (click)="applyFilter('selectedStage','RSV Done');applyFilter('activeCardKey','usv-card')">
+      <p>RSV Done</p>
+      <h1>{{'1' }}</h1>
+    </ion-col>
+    <ion-col
+      [ngClass]="filteredParams.selectedStage === 'FN Done' && filteredParams.activeCardKey ==='usv-card' ? 'selected-card border-left-top' : ''"
+      class="py-0 px-1" (click)="applyFilter('selectedStage','FN Done');applyFilter('activeCardKey','usv-card')">
+      <p>FN Done</p>
+      <h1>{{'1' }}</h1>
+    </ion-col>
+  </ion-row>
+</ion-card>
+
+<!-- BOOKED CARD -->
+<ion-card class="booked-card" [class.selected]="filteredParams.activeCardKey == 'booked-card'">
+  <ion-row class="card-content">
+    <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
+    <ion-col
+      [ngClass]="filteredParams.selectedStage === 'Deal Pending' && filteredParams.activeCardKey ==='booked-card'? 'selected-card border-right' : ''"
+      class="py-0 px-1"
+      (click)="applyFilter('selectedStage','Deal Pending');applyFilter('activeCardKey','booked-card')">
+      <p>Deal Pending</p>
+      <h1>{{'1'}}</h1>
+    </ion-col>
+    <ion-col
+      [ngClass]="filteredParams.selectedStage === 'Deal Request' && filteredParams.activeCardKey ==='booked-card' ? 'selected-card border-left' : ''"
+      class="py-0 px-1"
+      (click)="applyFilter('selectedStage','Deal Request');applyFilter('activeCardKey','booked-card')">
+      <p>Deal Request</p>
+      <h1>{{'1' }}</h1>
+    </ion-col>
+
+  </ion-row>
+</ion-card>
+
+<div class="m-2">
+  <ion-row [class]="filteredParams.activeCardKey" class="rounded-0">
+    <ion-col class="d-flex align-items-center justify-content-center selected-card">
+      <h1 class="text-capitalize">
+        {{filteredParams.selectedStage}}
+      </h1>
+    </ion-col>
+  </ion-row>
+
+  <ion-item-sliding #sliding>
+    <ion-item lines="none">
+      <ion-card class="leads-card w-100">
+        <div class="card-count">
+          <span>{{ "i + 1 | number:'2.0' "}}
+          </span>
+        </div>
+        <ion-grid class="p-0">
+          <div>
+            <ion-row style="line-height: 1.4;">
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Lead Name</p>
+                  <p class="value">{{'lead.CustomerName'}}</p>
+                </div>
+              </ion-col>
+
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Number </p>
+                  <p class="value">{{'lead.number'}}</p>
+                </div>
+              </ion-col>
+
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Property</p>
+                  <p class="value">{{'lead.propertyname'}} </p>
+                </div>
+              </ion-col>
+            </ion-row>
+          </div>
+        </ion-grid>
+      </ion-card>
+    </ion-item>
+
+  </ion-item-sliding>
+</div>
+
+
+
+<!-- </ion-content> -->

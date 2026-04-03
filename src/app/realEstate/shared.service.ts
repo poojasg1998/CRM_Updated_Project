@@ -190,7 +190,10 @@ export class SharedService {
       'Content-Type': 'application/x-www-form-urlencoded',
     });
     const postUrl =
-      this.getVersionUrl() + `?ExecId=${execid}&X-Session-Id=${session_id}`;
+      this.getVersionUrl() +
+      `?ExecId=${execid}&categoryid=${localStorage.getItem(
+        'crmcategory_IDFK'
+      )}&X-Session-Id=${session_id}`;
     return this.http.post(postUrl, body.toString(), {
       headers: headers,
     });

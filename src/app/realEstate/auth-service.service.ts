@@ -65,6 +65,8 @@ export class AuthServiceService {
       });
     } else if (localStorage.getItem('Role') == null) {
       this.router.navigate['/'];
+    } else if (localStorage.getItem('contrllerName')) {
+      this.router.navigate(['cp-dashboard']);
     } else {
       this.router.navigate(['home'], {
         queryParams: {

@@ -14,9 +14,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { IonicStorageModule } from '@ionic/storage-angular';
 import { SharedModule } from './realEstate/shared.module';
 import { EchoService } from './realEstate/echo.service';
+import { CpHeaderComponent } from './cpClient/cp-header/cp-header.component';
+import { CpMenubarComponent } from './cpClient/cp-menubar/cp-menubar.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, CpHeaderComponent, CpMenubarComponent],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),

@@ -52,6 +52,7 @@ export class AppComponent implements OnInit {
     // this.platform.ready().then(() => {
     //   this.initNetworkListener();
     // });
+
     const categoryId = localStorage.getItem('crmcategory_IDFK');
     this.routerOutletId =
       categoryId === '2' ? 'app-content' : 'shreeindustries-menu';

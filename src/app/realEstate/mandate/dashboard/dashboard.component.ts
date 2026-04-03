@@ -843,8 +843,6 @@ export class DashboardComponent {
       }
     };
 
-    console.log(setDates);
-
     switch (type) {
       case 'property':
         this.filteredParams1.lead_stage = '';
@@ -861,6 +859,10 @@ export class DashboardComponent {
           ? (this.scheduledTodayOrOverduesData = [])
           : '';
 
+        this.dateRange = {
+          fromdate: null as Date | null,
+          todate: null as Date | null,
+        };
         this.dateUpdation();
         // if (!this.isAdmin) {
         //   this.filteredParams1.propid = '';
@@ -1102,18 +1104,28 @@ export class DashboardComponent {
       this.filteredParams1.isLeadsVisitsCalls == 'leads' ||
       this.filteredParams1.isLeadsVisitsCalls == 'calls'
     ) {
+      // this.filteredParams1.fromDate =
+      //   this.filteredParams1.fromDate ||
+      //   (!['today', 'yesterday'].includes(this.filteredParams1.isDateFilter)
+      //     ? this.filteredParams1.weekendfromdate
+      //     : '') ||
+      //   this.filteredParams1.visitedfromdate;
+
+      // this.filteredParams1.toDate =
+      //   this.filteredParams1.toDate ||
+      //   (!['today', 'yesterday'].includes(this.filteredParams1.isDateFilter)
+      //     ? this.filteredParams1.weekendtodate
+      //     : '') ||
+      //   this.filteredParams1.visitedtodate;
+
       this.filteredParams1.fromDate =
         this.filteredParams1.fromDate ||
-        (!['today', 'yesterday'].includes(this.filteredParams1.isDateFilter)
-          ? this.filteredParams1.weekendfromdate
-          : '') ||
+        this.filteredParams1.weekendfromdate ||
         this.filteredParams1.visitedfromdate;
 
       this.filteredParams1.toDate =
         this.filteredParams1.toDate ||
-        (!['today', 'yesterday'].includes(this.filteredParams1.isDateFilter)
-          ? this.filteredParams1.weekendtodate
-          : '') ||
+        this.filteredParams1.weekendtodate ||
         this.filteredParams1.visitedtodate;
 
       if (this.filteredParams1.isDateFilter == 'alltime') {
@@ -1127,7 +1139,9 @@ export class DashboardComponent {
       this.filteredParams1.weekendfromdate = '';
       this.filteredParams1.weekendtodate = '';
       this.filteredParams1.priority = '';
+      this.filteredParams1.plan = '';
     } else if (this.filteredParams1.isLeadsVisitsCalls == 'visits') {
+      this.filteredParams1.plan = '';
       this.filteredParams1.visitedfromdate =
         this.filteredParams1.fromDate ||
         this.filteredParams1.weekendfromdate ||
@@ -1417,7 +1431,7 @@ export class DashboardComponent {
       team: '',
       status: '',
       stage: '',
-      priority: '1',
+      priority: '',
       stagestatus: '',
       lead_stage: 'USV',
       lead_status: 'totalplanned',
@@ -1439,6 +1453,12 @@ export class DashboardComponent {
       fromdate: null as Date | null,
       todate: null as Date | null,
     };
+    if (this.filteredParams1.isLeadsVisitsCalls == 'visits') {
+      this.filteredParams1.priority = this.filteredParams1.priority
+        ? this.filteredParams1.priority
+        : '1';
+    }
+
     this.onPlanDateFilter(this.filteredParams1.isDateFilter);
 
     // event.target.complete();

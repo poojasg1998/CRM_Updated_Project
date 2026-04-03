@@ -1,0 +1,51 @@
+.active-dashboard,
+.logout span {
+  color: #0b7ab2 !important;
+}
+.logOut div {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 400;
+  font-family: "Poppins";
+  background: linear-gradient(180deg, #2196f3 0%, #0968b4 100%);
+  width: 145px;
+  height: 86%;
+  border-radius: 4px;
+}
+
+.logOut ion-col {
+  height: 45px;
+}
+
+.logOut ion-col ion-img {
+  padding-right: 5px;
+}
+.img-height-width {
+  width: 25px;
+  height: 25px;
+  padding-right: 5px;
+}
+.row-height {
+  height: 40px;
+}
+.activedashboard {
+  ion-col {
+    color: #ffffff !important;
+  }
+  font-weight: 400;
+  background: #0b7ab2;
+}
+.activebottomText {
+  background: #b9e5fb !important;
+  ion-col {
+    color: #006293 !important;
+  }
+}
+.subdrop-row-height {
+  height: 40px;
+}
+.activeSec {
+  background: #ffff !important;
+  color: #006293 !important;
+  border-bottom: 4px solid #b9e5fb;
+}

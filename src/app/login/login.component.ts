@@ -300,11 +300,11 @@ export class LoginComponent implements OnInit {
               var logindata = success['success'][0];
               localStorage.setItem('isLoggedIn', 'true');
 
-              if (success['success'][0]['department_IDFK'] == '10006') {
+              if (success['success']?.[0]?.['department_IDFK'] == '10006') {
                 this.getVersionCode();
                 localStorage.setItem(
                   'Department',
-                  success['success'][0].department_IDFK
+                  success['success']?.[0]?.department_IDFK
                 );
                 localStorage.setItem('Mail', success['success'][0].email);
                 localStorage.setItem(

@@ -1,0 +1,213 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+}
+ion-content {
+  --background: #f0f2f5;
+}
+* {
+  font-family: "Poppins";
+}
+.leads-visits-container {
+  display: flex;
+  gap: 4px; // Small gap between the "buttons"
+
+  ion-col {
+    --padding-start: 0;
+    --padding-end: 0;
+    --inner-padding-end: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 6px 6px 0 0;
+    transition: all 0.2s ease-in-out;
+
+    span {
+      font-size: 0.875rem;
+      font-family: "Poppins", sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+  }
+
+  // Active State: Blue Gradient
+  .active-btn {
+    --background: linear-gradient(180deg, #2196f3 -17.31%, #004d74 96.15%);
+    --color: #ffffff;
+    background: linear-gradient(
+      180deg,
+      #2196f3 -17.31%,
+      #004d74 96.15%
+    ) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    span {
+      color: #ffffff;
+    }
+  }
+
+  // Normal State: Gray/White Gradient
+  .normal-btn {
+    --background: linear-gradient(180deg, #ffffff 0%, #d2d2d2 100%);
+    --color: #444444;
+    background: linear-gradient(180deg, #ffffff 0%, #d2d2d2 100%) !important;
+    border: 1px solid #e0e0e0;
+    border-bottom: none;
+
+    span {
+      color: #444444;
+    }
+  }
+}
+.datefilter-main-row {
+  gap: 6px;
+  .presets-container {
+    border: 0.5px solid #e6e6e6;
+    border-radius: 20px;
+    padding: 2px !important;
+    background-color: white;
+  }
+  .active_btn {
+    border-radius: 20px;
+  }
+  .date-btn,
+  .refresh-btn {
+    background-color: white;
+    border-radius: 20px;
+    font-size: 1.4rem;
+    ion-icon {
+      color: #ababab !important;
+    }
+  }
+}
+
+//card backgrounds
+.fresh-card.selected {
+  border-color: rgb(198, 137, 132);
+  .selected-card {
+    border-color: rgb(198, 137, 132);
+  }
+}
+.usvdone-card.selected {
+  border-color: rgb(2, 171, 255);
+  .selected-card {
+    border-color: rgb(2, 171, 255) !important;
+  }
+}
+
+.fresh-card {
+  background: linear-gradient(81.85deg, #ffffff 48.93%, #ffe4e1 106.84%);
+  .selected-card {
+    background: #ffdad5;
+  }
+  h1 {
+    color: #73322d;
+  }
+}
+.usvdone-card {
+  background: linear-gradient(84.03deg, #ffffff 32.95%, #e5f6fe 104.6%);
+  .selected-card {
+    background: #c3ebff;
+  }
+  h1 {
+    color: #004e76;
+  }
+}
+
+.fresh-card,
+.usvdone-card {
+  border: 2px solid #ffffff;
+  border-radius: 7px;
+  position: relative;
+  overflow: hidden;
+  // margin: 0 2px;
+  padding: 0;
+  .selected-card {
+    border-radius: 0;
+    padding-left: 4px;
+  }
+
+  ion-img {
+    width: 26px;
+    height: 26px;
+    position: absolute;
+    right: 3px;
+    top: 3px;
+    z-index: 2;
+  }
+
+  .card-content {
+    p {
+      font-size: 0.8rem;
+      font-weight: 400;
+      margin: 0;
+      color: #666;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+}
+.border-right-bottom {
+  border-radius: 0 0 6px 0 !important;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+}
+.border-left-bottom {
+  border-radius: 0 0 0 6px !important;
+  border-left: 1px solid;
+  border-bottom: 1px solid;
+}
+.border-left-top {
+  border-radius: 6px 0 0 0 !important;
+  border-left: 1px solid;
+  border-top: 1px solid;
+}
+
+.border-right-top {
+  border-radius: 0 6px 0 0 !important;
+  border-right: 1px solid;
+  border-top: 1px solid;
+}
+
+.border-left-top-right {
+  border-radius: 6px 6px 0 0 !important;
+  border-left: 1px solid;
+  border-top: 1px solid;
+  border-right: 1px solid;
+}
+.border-left-bottom-right {
+  border-radius: 0 0 6px 6px !important;
+  border-left: 1px solid;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+.leads-card {
+  background: linear-gradient(81.85deg, #ffffff 48.93%, #ffe4e1 106.84%);
+}
+.card-count {
+  position: absolute;
+  right: 0px;
+  background: #9d9d9d;
+  padding: 0px 4px;
+  color: white;
+  font-size: 0.8rem;
+}
+ion-item::part(native) {
+  --inner-padding-end: 0 !important;
+  --padding-start: 0 !important;
+}
+.label {
+  margin-bottom: 0;
+  color: #8a8a8a !important;
+  font-size: 0.714rem;
+}
+.value {
+  color: rgba(0, 0, 0, 0.8);
+}
