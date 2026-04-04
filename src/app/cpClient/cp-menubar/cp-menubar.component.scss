@@ -1,3 +1,13 @@
+:host {
+  background-color: #f0f2f5;
+}
+ion-content {
+  --background: #f0f2f5;
+}
+* {
+  font-family: "Poppins";
+}
+
 .active-dashboard,
 .logout span {
   color: #0b7ab2 !important;
@@ -44,8 +54,12 @@
 .subdrop-row-height {
   height: 40px;
 }
-.activeSec {
+.activeSubSec {
   background: #ffff !important;
   color: #006293 !important;
   border-bottom: 4px solid #b9e5fb;
+}
+.activeSec {
+  background: #0b7ab2 !important;
+  color: #ffffff !important;
 }

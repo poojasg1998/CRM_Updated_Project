@@ -1,0 +1,26 @@
+:host {
+  background-color: #f0f2f5;
+}
+ion-content {
+  --background: #f0f2f5;
+}
+* {
+  font-family: "Poppins";
+}
+.custom-row {
+  border-bottom: 1px solid rgba(100, 100, 111, 0.05);
+  box-shadow: 1px -2px 7.3px 0px rgba(157, 126, 126, 0.2588235294);
+  padding: 4px !important;
+}
+
+.custom-col {
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 400 !important;
+  font-family: "Poppins";
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.custom-col {
+  border-radius: 30px !important;
+}

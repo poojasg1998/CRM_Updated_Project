@@ -35,14 +35,14 @@
       <!-- Conditional Content (Only shown when true) -->
       <div *ngIf="accordionOpen" [ngClass]="accordionOpen?'activebottomText':''">
         <ion-row class="subdrop-row-height" (click)="onDashboard('leads');resetStoredData()"
-          [class.activeSec]="router.url.indexOf('isLeadsVisits=leads') >-1  && sharedService.isActiveRoute('cp-dashboard')">
+          [class.activeSubSec]="router.url.indexOf('isLeadsVisits=leads') >-1  && sharedService.isActiveRoute('cp-dashboard')">
           <ion-col class="center-vertically">
             <ion-img style="width: 20px;" src="../../../assets/CRMimages/menubaricons/active_leads.svg"></ion-img>
             <span class="pl-1">Leads</span>
           </ion-col>
         </ion-row>
         <ion-row class="subdrop-row-height" (click)="onDashboard('visits');resetStoredData()"
-          [class.activeSec]="router.url.indexOf('isLeadsVisits=visits') >-1  && sharedService.isActiveRoute('cp-dashboard')">
+          [class.activeSubSec]="router.url.indexOf('isLeadsVisits=visits') >-1  && sharedService.isActiveRoute('cp-dashboard')">
           <ion-col class="center-vertically">
             <ion-img style="width: 20px;" src="../../../assets/CRMimages/menubaricons/active_visits.svg"></ion-img>
             <span class="pl-1">Visits</span>
@@ -50,14 +50,14 @@
         </ion-row>
 
         <ion-row (click)="resetStoredData()" class="subdrop-row-height" routerLink="../cp-today-activity"
-          [class.activeSec]="sharedService.isActiveRoute('cp-today-activity')">
+          [class.activeSubSec]="sharedService.isActiveRoute('cp-today-activity')">
           <ion-col class="center-vertically">
             <ion-img style="width: 20px;" src="../../../assets/CRMimages/menubaricons/active_scheduled.svg"></ion-img>
             <span class="pl-1">Today’s Scheduled</span>
           </ion-col>
         </ion-row>
         <ion-row (click)="resetStoredData()" class="subdrop-row-height" routerLink="../cp-overdue-dashboard"
-          [class.activeSec]="sharedService.isActiveRoute('cp-overdue-dashboard')">
+          [class.activeSubSec]="sharedService.isActiveRoute('cp-overdue-dashboard')">
           <ion-col class="center-vertically">
             <ion-img style="width: 20px;" src="../../../assets/CRMimages/menubaricons/active_scheduled.svg"></ion-img>
             <span class="pl-1">Missed Dashboard</span>
@@ -65,7 +65,7 @@
         </ion-row>
 
         <ion-row (click)="resetStoredData()" class="subdrop-row-height" routerLink="../cp-junk-dashboard"
-          [class.activeSec]="sharedService.isActiveRoute('cp-junk-dashboard')">
+          [class.activeSubSec]="sharedService.isActiveRoute('cp-junk-dashboard')">
           <ion-col class="center-vertically">
             <ion-img style="width: 20px;" src="../../../assets/CRMimages/menubaricons/active_junk.svg"></ion-img>
             <span class="pl-1">Junk Dashboard</span>
@@ -73,30 +73,10 @@
         </ion-row>
       </div>
 
-      <!-- LEAD BTN -->
-      <ion-row (click)="visitsAccordion=false; reportAccordion=false;accordionOpen= false; sharedService.isBottom = false;
-        resetStoredData()" class="row-height" routerLink="../mandate-lead-stages"
-        [queryParams]="{ status:'pending',type:'Untouched',isDropDown:false,teamlead:roletype == '1'?userid:null}"
-        [class.activedashboard]="sharedService.isActiveRoute('mandate-lead-stages')&& !accordionOpen && !reportAccordion && !visitsAccordion">
-        <ion-col class="center-vertically">
-          <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
-          {{roleid == '1' || roletype == '1'?'Track Leads':
-          'My Leads'}}
-        </ion-col>
-      </ion-row>
 
-      <ion-row (click)="reportAccordion=false;visitsAccordion= false; sharedService.isBottom = false;resetStoredData()"
-        class="row-height"
-        [class.activeSec]="sharedService.isActiveRoute('mandate-visit-stages')&& !accordionOpen && !reportAccordion">
-        <ion-col class="center-vertically">
-          <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
-          Track Visits
-        </ion-col>
-      </ion-row>
-
-      <ion-row (click)="reportAccordion=false;visitsAccordion= false; sharedService.isBottom = false;resetStoredData()"
-        class="row-height"
-        [class.activeSec]="sharedService.isActiveRoute('mandate-visit-stages')&& !accordionOpen && !reportAccordion">
+      <ion-row routerLink="../cp-bookings"
+        (click)="accordionOpen=false; sharedService.isBottom = false;resetStoredData()" class="row-height"
+        [class.activeSec]="sharedService.isActiveRoute('cp-bookings')&& !accordionOpen">
         <ion-col class="center-vertically">
           <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
           All Bookings

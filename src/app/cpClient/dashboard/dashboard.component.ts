@@ -16,7 +16,7 @@ export class DashboardComponent implements OnInit {
     visitedtodate: '',
     isLeadsVisits: 'leads',
     datePreset: 'all',
-    listingType: 'sale',
+    category: '1',
     selectedStage: 'Total Received',
     activeCardKey: 'totalreceived-card',
     stagestatus: '',
@@ -97,102 +97,83 @@ export class DashboardComponent implements OnInit {
    * @param key - The parameter name (e.g., 'propid', 'execId', 'fromdate')
    * @param value - The new value to set
    */
-  // applyFilter(key: string, value: any): void {
-  //   const today = new Date().toISOString().split('T')[0];
-
-  //   if (key === 'isLeadsVisits') this.resetDefaultValues(value);
-
-  //   //2. Date preset logic
-  //   if (key === 'datePreset') {
-  //     this.filteredParams.datePreset = value;
-
-  //     switch (value) {
-  //       case 'today':
-  //         this.filteredParams.fromdate = today;
-  //         this.filteredParams.todate = today;
-  //         break;
-
-  //       case 'yesterday':
-  //         const yesterday = new Date();
-  //         yesterday.setDate(yesterday.getDate() - 1);
-  //         const yStr = yesterday.toISOString().split('T')[0];
-  //         this.filteredParams.fromdate = yStr;
-  //         this.filteredParams.todate = yStr;
-  //         break;
-
-  //       case 'all':
-  //         this.filteredParams.fromdate = '';
-  //         this.filteredParams.todate = '';
-  //         break;
-  //     }
-  //   } else {
-  //     // ✅ 3. Normal updates
-  //     this.filteredParams[key] = value;
-  //   }
-
-  //   // ✅ 4. Sync URL
-  //   this.router.navigate([], {
-  //     relativeTo: this.activeroute,
-  //     queryParams: this.filteredParams,
-  //     queryParamsHandling: 'merge',
-  //   });
-  // }
-
   applyFilter(filters: Record<string, any>): void {
-    const today = new Date().toISOString().split('T')[0];
-
     Object.keys(filters).forEach((key) => {
       const value = filters[key];
-
       if (key === 'isLeadsVisits') {
-        this.resetFilters();
         this.resetDefaultValues(value);
+        this.dateupdation(this.filteredParams.datePreset);
       } else if (key === 'datePreset') {
         this.filteredParams.datePreset = value;
-
-        switch (value) {
-          case 'today':
-            if (this.filteredParams.isLeadsVisits == 'leads') {
-              this.filteredParams.fromdate = today;
-              this.filteredParams.todate = today;
-            } else {
-              this.filteredParams.visitedfromdate = today;
-              this.filteredParams.visitedtodate = today;
-            }
-            break;
-
-          case 'yesterday':
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yStr = yesterday.toISOString().split('T')[0];
-
-            if (this.filteredParams.isLeadsVisits == 'leads') {
-              this.filteredParams.fromdate = yStr;
-              this.filteredParams.todate = yStr;
-            } else {
-              this.filteredParams.visitedfromdate = yStr;
-              this.filteredParams.visitedtodate = yStr;
-            }
-            break;
-
-          case 'all':
-            this.filteredParams.fromdate = '';
-            this.filteredParams.todate = '';
-            this.filteredParams.visitedfromdate = '';
-            this.filteredParams.visitedtodate = '';
-            break;
-        }
+        this.dateupdation(value);
       } else {
         this.filteredParams[key] = value;
       }
     });
 
-    // ✅ Navigate ONLY ONCE
+    // Navigate ONLY ONCE
     this.router.navigate([], {
       relativeTo: this.activeroute,
       queryParams: this.filteredParams,
       queryParamsHandling: 'merge',
     });
+  }
+
+  dateupdation(value) {
+    const today = new Date().toISOString().split('T')[0];
+    switch (value) {
+      case 'today':
+        if (this.filteredParams.isLeadsVisits == 'leads') {
+          this.filteredParams.fromdate = today;
+          this.filteredParams.todate = today;
+          this.filteredParams.visitedfromdate = '';
+          this.filteredParams.visitedtodate = '';
+        } else {
+          this.filteredParams.visitedfromdate = today;
+          this.filteredParams.visitedtodate = today;
+          this.filteredParams.fromdate = '';
+          this.filteredParams.todate = '';
+        }
+        break;
+      case 'yesterday':
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yStr = yesterday.toISOString().split('T')[0];
+
+        if (this.filteredParams.isLeadsVisits == 'leads') {
+          this.filteredParams.fromdate = yStr;
+          this.filteredParams.todate = yStr;
+          this.filteredParams.visitedfromdate = '';
+          this.filteredParams.visitedtodate = '';
+        } else {
+          this.filteredParams.visitedfromdate = yStr;
+          this.filteredParams.visitedtodate = yStr;
+          this.filteredParams.fromdate = '';
+          this.filteredParams.todate = '';
+        }
+        break;
+      case 'all':
+        this.filteredParams.fromdate = '';
+        this.filteredParams.todate = '';
+        this.filteredParams.visitedfromdate = '';
+        this.filteredParams.visitedtodate = '';
+        break;
+      case 'custom':
+        if (this.filteredParams.isLeadsVisits == 'visits') {
+          this.filteredParams.visitedfromdate = this.filteredParams.fromdate;
+          this.filteredParams.visitedtodate = this.filteredParams.todate;
+          this.filteredParams.fromdate = '';
+          this.filteredParams.todate = '';
+        } else {
+          this.filteredParams.fromdate = this.filteredParams.visitedfromdate;
+          this.filteredParams.todate = this.filteredParams.visitedtodate;
+          this.filteredParams.visitedfromdate = '';
+          this.filteredParams.visitedtodate = '';
+        }
+        break;
+      default:
+        break;
+    }
   }
   resetDefaultValues(value) {
     this.filteredParams.isLeadsVisits = value;
@@ -377,13 +358,13 @@ export class DashboardComponent implements OnInit {
   }
 
   getLeadetails(isLoadmore) {
-    this.count = isLoadmore ? (this.count += 30) : 0;
+    this.count = isLoadmore ? (this.count += 5) : 0;
     this.filteredParams.limit = this.count;
     return new Promise((resolve, reject) => {
       this.api
         .getAssignedLeadsDetail(this.filteredParams)
         .subscribe((response) => {
-          if (response['status'] === 'True') {
+          if (response['status'] == 'True') {
             this.leads_detail = isLoadmore
               ? this.leads_detail.concat(response['AssignedLeads'])
               : response['AssignedLeads'];

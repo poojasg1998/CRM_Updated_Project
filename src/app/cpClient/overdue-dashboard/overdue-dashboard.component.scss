@@ -1,12 +1,12 @@
 :host {
-  display: block;
-  min-height: 100vh;
   background-color: #f0f2f5;
+}
+ion-content {
+  --background: #f0f2f5;
 }
 * {
   font-family: "Poppins";
 }
-
 .datefilter-main-row {
   gap: 6px;
   .presets-container {
@@ -161,6 +161,37 @@ ion-item::part(native) {
   color: #8a8a8a !important;
   font-size: 0.714rem;
 }
+
 .value {
   color: rgba(0, 0, 0, 0.8);
+  font-size: 0.7rem;
+}
+
+.latestRemark ion-label {
+  color: #000000b5;
+  font-size: 12px;
+  font-family: Poppins;
+  font-weight: 500;
+  word-wrap: break-word;
+}
+
+.latestRemark p {
+  color: black;
+  font-family: Poppins;
+  font-size: 9px;
+}
+.custom-ion-item {
+  --inner-item-padding-top: 0;
+  --inner-item-padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding-left: 10px;
+}
+::ng-deep ion-icon.ion-accordion-toggle-icon.md.hydrated {
+  width: 15px;
+  margin: 5px;
 }

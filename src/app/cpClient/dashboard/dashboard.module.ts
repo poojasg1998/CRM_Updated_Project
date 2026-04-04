@@ -9,6 +9,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { DashboardComponent } from './dashboard.component';
 import { IonRangeCalendarModule } from '@googlproxer/ion-range-calendar';
+import { CpSharedModule } from '../cp-shared/cp-shared.module';
 
 @NgModule({
   imports: [
@@ -25,6 +26,7 @@ import { IonRangeCalendarModule } from '@googlproxer/ion-range-calendar';
     MultiSelectModule,
     IonRangeCalendarModule,
     CalendarModule,
+    CpSharedModule,
     NgMultiSelectDropDownModule,
   ],
 

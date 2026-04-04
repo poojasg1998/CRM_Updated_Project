@@ -88,6 +88,7 @@ export class CpApiService {
       visittype: 'visittype',
       visitassignedto: 'visitassignedto',
       source: 'source',
+      category: 'category',
       remarks_search: 'remarks_search',
     };
 
@@ -165,6 +166,7 @@ export class CpApiService {
       visittype: 'visittype',
       visitassignedto: 'visitassignedto',
       source: 'source',
+      category: 'category',
       remarks_search: 'remarks_search',
     };
 

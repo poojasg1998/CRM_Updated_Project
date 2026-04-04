@@ -16,9 +16,10 @@ import { SharedModule } from './realEstate/shared.module';
 import { EchoService } from './realEstate/echo.service';
 import { CpHeaderComponent } from './cpClient/cp-header/cp-header.component';
 import { CpMenubarComponent } from './cpClient/cp-menubar/cp-menubar.component';
+import { CpSharedModule } from './cpClient/cp-shared/cp-shared.module';
 
 @NgModule({
-  declarations: [AppComponent, CpHeaderComponent, CpMenubarComponent],
+  declarations: [AppComponent, CpMenubarComponent],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),

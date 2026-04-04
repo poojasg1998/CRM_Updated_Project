@@ -1,0 +1,101 @@
+<app-cp-header></app-cp-header>
+
+<ion-row class="sale-resale-rental-row m-1 mx-2 mb-0">
+  <ion-col (click)="applyFilter({category: '1'})" class="d-flex  align-items-center justify-content-center px-0"
+    [class.active_btn]="filteredParams.category == '1'">
+    <span class="font-size12-familyPoppins">Sale</span>
+  </ion-col>
+  <ion-col size="4" (click)="applyFilter({category: '2'})"
+    class="d-flex  align-items-center justify-content-center px-0" [class.active_btn]="filteredParams.category == '2'">
+    <span class="font-size12-familyPoppins">Resale</span>
+  </ion-col>
+  <ion-col (click)="applyFilter({category: '3'})" class="d-flex align-items-center justify-content-center px-0"
+    [class.active_btn]="filteredParams.category == '3'">
+    <span class="font-size12-familyPoppins">Rental</span>
+  </ion-col>
+</ion-row>
+<ion-row class="p-1 prop-row px-0" style="background-color: #f0f2f5;">
+  <ion-col class="custom-row p-0" [appCenterActiveButton]="replaceSpace(filteredParams.stage)"
+    style="display: flex; overflow-x: scroll;scrollbar-width:none">
+    <div class="custom-col center-text fw-light mx-1 " [id]="'id-Deal_Closing_Requested'"
+      (click)="applyFilter({stage: 'Deal Closing Requested'})">
+      {{'Booking Requests - ' + leadsCount.request}}
+    </div>
+    <div class="custom-col center-text fw-light mx-1 " [id]="'id-Closing_Request_Rejected'"
+      (click)="applyFilter({stage: 'Closing Request Rejected'})">
+      {{'Request Rejected - '+leadsCount.rejected}}
+    </div>
+    <div class="custom-col center-text fw-light mx-1 " [id]="'id-Deal_Closed'"
+      (click)="applyFilter({stage: 'Deal Closed'})">
+      {{'Booked - '+leadsCount.booked}}
+    </div>
+  </ion-col>
+</ion-row>
+<ion-content>
+
+  <ion-item-sliding #sliding *ngFor="let lead of leads_detail,let i= index">
+    <ion-item lines="none">
+      <ion-card class="leads-card w-100 mt-0">
+        <div class="card-count">
+          <span>{{ i + 1 | number:'2.0'}}
+          </span>
+        </div>
+        <ion-grid class="p-0">
+          <div>
+            <ion-row style="line-height: 1.4;">
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Lead Name</p>
+                  <p class="value">{{lead.CustomerName}}</p>
+                </div>
+              </ion-col>
+
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Number </p>
+                  <p class="value">{{lead.number}}</p>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Lead Date </p>
+                  <p class="value">{{lead.Date|date: 'dd-MMM-yyyy hh:mm a' }}</p>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Priority </p>
+                  <p class="value">{{lead.number}}</p>
+                </div>
+              </ion-col>
+            </ion-row>
+          </div>
+        </ion-grid>
+        <div>
+          <ion-row>
+            <ion-accordion-group class="w-100">
+              <ion-accordion *ngIf="(lead.manualremarks || lead.visitremarks)" value="second"
+                style="border-top: 0.75px #ECECEC solid;" class="latestRemark">
+                <ion-item slot="header" color="light" class="custom-ion-item" style="--inner-padding-end:0;padding: 0;">
+                  <ion-label style="flex-grow: 1;margin: 5px">
+                    Latest Remark
+                  </ion-label>
+                </ion-item>
+                <div style="border-top: 0.75px #ECECEC solid;" class="p-2" slot="content">
+                  <p>{{lead.visitremarks}}</p>
+                  <p>{{lead.manualremarks}}</p>
+                  <p *ngIf="lead.manualremarks === null">{{lead.remarks}}</p>
+                </div>
+              </ion-accordion>
+            </ion-accordion-group>
+          </ion-row>
+        </div>
+      </ion-card>
+    </ion-item>
+  </ion-item-sliding>
+
+  <ion-row *ngIf="(leads_detail?.length==0)" class="textStyle ion-justify-content-center ion-align-items-center">
+    <ion-col class="ion-text-center"><span>No Leads Found...</span></ion-col>
+  </ion-row>
+
+</ion-content>

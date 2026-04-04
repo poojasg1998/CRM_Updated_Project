@@ -9,6 +9,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { IonRangeCalendarModule } from '@googlproxer/ion-range-calendar';
 import { TodayActivityComponent } from './today-activity.component';
+import { CpSharedModule } from '../cp-shared/cp-shared.module';
 
 @NgModule({
   imports: [
@@ -26,6 +27,7 @@ import { TodayActivityComponent } from './today-activity.component';
     IonRangeCalendarModule,
     CalendarModule,
     NgMultiSelectDropDownModule,
+    CpSharedModule,
   ],
 
   declarations: [TodayActivityComponent],

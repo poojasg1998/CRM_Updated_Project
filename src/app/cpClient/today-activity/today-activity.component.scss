@@ -1,7 +1,8 @@
 :host {
-  display: block;
-  min-height: 100vh;
   background-color: #f0f2f5;
+}
+ion-content {
+  --background: #f0f2f5;
 }
 * {
   font-family: "Poppins";
@@ -59,30 +60,8 @@
     }
   }
 }
-.datefilter-main-row {
-  gap: 6px;
-  .presets-container {
-    border: 0.5px solid #e6e6e6;
-    border-radius: 20px;
-    padding: 2px !important;
-    background-color: white;
-  }
-  .active_btn {
-    border-radius: 20px;
-  }
-  .date-btn,
-  .refresh-btn {
-    background-color: white;
-    border-radius: 20px;
-    font-size: 1.4rem;
-    ion-icon {
-      color: #ababab !important;
-    }
-  }
-}
 
 // Card Backgrounds
-
 .scheduled-visits-card.selected {
   border-color: rgb(2, 171, 255);
   .selected-card {
@@ -216,6 +195,7 @@ ion-item::part(native) {
   --inner-padding-end: 0 !important;
   --padding-start: 0 !important;
 }
+
 .label {
   margin-bottom: 0;
   color: #8a8a8a !important;
@@ -223,4 +203,41 @@ ion-item::part(native) {
 }
 .value {
   color: rgba(0, 0, 0, 0.8);
+  font-size: 0.7rem;
+}
+
+.latestRemark ion-label {
+  color: #000000b5;
+  font-size: 12px;
+  font-family: Poppins;
+  font-weight: 500;
+  word-wrap: break-word;
+}
+
+.latestRemark p {
+  color: black;
+  font-family: Poppins;
+  font-size: 9px;
+}
+.custom-ion-item {
+  --inner-item-padding-top: 0;
+  --inner-item-padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding-left: 10px;
+}
+::ng-deep ion-icon.ion-accordion-toggle-icon.md.hydrated {
+  width: 15px;
+  margin: 5px;
+}
+.refresh-btn {
+  border-radius: 20px;
+  font-size: 1.4rem;
+  ion-icon {
+    color: #004d74 !important;
+  }
 }

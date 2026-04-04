@@ -310,6 +310,13 @@ const routes: Routes = [
         (m) => m.JunkDashboardModule
       ),
   },
+  {
+    path: 'cp-bookings',
+    loadChildren: () =>
+      import('./cpClient/all-bookings/all-bookings.module').then(
+        (m) => m.AllBookingsModule
+      ),
+  },
 ];
 
 @NgModule({

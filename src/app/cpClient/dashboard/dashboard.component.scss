@@ -1,13 +1,27 @@
-:host {
-  display: block;
-  min-height: 100vh;
-  background-color: #f0f2f5;
-}
+// :host {
+//   background-color: #f0f2f5;
+// }
 ion-content {
   --background: #f0f2f5;
 }
 * {
   font-family: "Poppins";
+}
+.sale-resale-rental-row {
+  span {
+    font-size: 14px;
+  }
+  .active_btn {
+    background: linear-gradient(180deg, #ffffff 0%, #d3ebff 100%) !important;
+    border-bottom: 1px solid #1366a5 !important;
+    box-shadow: none;
+    span {
+      color: #005d8c !important;
+    }
+  }
+}
+.active_btn {
+  background-color: #1265a5 !important;
 }
 .leads-visits-container {
   display: flex;
@@ -76,11 +90,18 @@ ion-content {
   .date-btn,
   .refresh-btn {
     background-color: white;
+    border: 1px solid #ababab;
     border-radius: 20px;
     font-size: 1.4rem;
     ion-icon {
       color: #ababab !important;
     }
+  }
+}
+
+.selected-card-head {
+  .totalreceived-card {
+    border-color: #51c3fe;
   }
 }
 
@@ -167,23 +188,27 @@ ion-content {
 
   .card-content {
     p {
-      font-size: 0.8rem;
+      font-size: 0.68rem;
       font-weight: 400;
       margin: 0;
       color: #666;
     }
 
     h1 {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 600;
       margin: 0;
     }
   }
 
   .visitConvert-row {
-    background-color: #503b0b;
-
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     p {
+      background-color: #503b0b;
+      padding: 4px 0;
+      border-radius: 2px 0 7px 0;
       color: white;
       font-size: 11px;
       font-weight: 500;
@@ -245,4 +270,41 @@ ion-item::part(native) {
 }
 .value {
   color: rgba(0, 0, 0, 0.8);
+  font-size: 0.7rem;
+}
+
+.latestRemark ion-label {
+  color: #000000b5;
+  font-size: 12px;
+  font-family: Poppins;
+  font-weight: 500;
+  word-wrap: break-word;
+}
+
+.latestRemark p {
+  color: black;
+  font-family: Poppins;
+  font-size: 9px;
+}
+.custom-ion-item {
+  --inner-item-padding-top: 0;
+  --inner-item-padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding-left: 10px;
+}
+::ng-deep ion-icon.ion-accordion-toggle-icon.md.hydrated {
+  width: 15px;
+  margin: 5px;
+}
+.selected-card-head {
+  ion-row {
+    border-width: 1px;
+    border-left: none;
+    border-right: none;
+  }
 }

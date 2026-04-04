@@ -179,15 +179,10 @@
     <app-menubar></app-menubar>
   </div>
 
-  <ion-header *ngIf="localStorage.getItem('contrllerName') && !router.url.includes('/login')">
-    <app-cp-header></app-cp-header>
-  </ion-header>
-
-
   <div *ngIf="localStorage.getItem('contrllerName')">
     <app-cp-menubar></app-cp-menubar>
   </div>
-  <ion-content>
-    <ion-router-outlet id="app-content"></ion-router-outlet>
-  </ion-content>
+  <!-- <ion-content> -->
+  <ion-router-outlet id="app-content"></ion-router-outlet>
+  <!-- </ion-content> -->
 </ion-app>
