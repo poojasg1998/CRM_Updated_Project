@@ -55,6 +55,7 @@ export class TodayActivityComponent implements OnInit {
     u_fn: '',
   };
   leads_detail: any;
+  showInfiniteScroll: boolean = true;
 
   constructor(
     private activeroute: ActivatedRoute,
@@ -266,6 +267,7 @@ export class TodayActivityComponent implements OnInit {
    * @param value - The new value to set
    */
   applyFilter(filters: Record<string, any>): void {
+    this.resetInfiniteScroll();
     Object.keys(filters).forEach((key) => {
       const value = filters[key];
       if (key === 'isLeadsVisits') {
@@ -309,5 +311,24 @@ export class TodayActivityComponent implements OnInit {
       relativeTo: this.activeroute,
       queryParams: this.filteredParams,
     });
+  }
+
+  //TO RESET THE INFINITE SRCOLL
+  resetInfiniteScroll() {
+    this.showInfiniteScroll = false;
+    setTimeout(() => {
+      this.showInfiniteScroll = true;
+    }, 10);
+  }
+  async loadData(event) {
+    const hasData = await this.getLeadetails(true);
+    setTimeout(async () => {
+      event.target.complete();
+
+      if (!hasData) {
+        event.target.disabled = true;
+        return;
+      }
+    }, 200);
   }
 }

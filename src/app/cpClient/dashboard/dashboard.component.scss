@@ -25,7 +25,7 @@ ion-content {
 }
 .leads-visits-container {
   display: flex;
-  gap: 4px; // Small gap between the "buttons"
+  gap: 4px;
 
   ion-col {
     --padding-start: 0;
@@ -99,29 +99,83 @@ ion-content {
   }
 }
 
+.visitscount {
+  gap: 2px;
+  color: #0b7ab2;
+  border: none !important;
+  margin: 4px;
+  ion-col {
+    background-color: white;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+}
 .selected-card-head {
-  .totalreceived-card {
+  .totalreceived-card .allvisits-card {
     border-color: #51c3fe;
   }
 }
-
-.totalreceived-card.selected,
-.allvisits-card.selected {
-  border-color: rgb(2, 171, 255);
+.selected-card-head {
+  .allvisits-card {
+    border-color: #180d6e;
+  }
+}
+.selected-card-head {
+  .touchedLeads-card {
+    border-color: rgb(198, 137, 132);
+  }
+}
+.selected-card-head {
+  .closed-card {
+    border-color: #38a03c;
+  }
+}
+.selected-card-head {
+  .fn-card {
+    border-color: #f3883d;
+  }
+}
+.selected-card-head {
+  .active-card {
+    border-color: rgb(253, 177, 0) !important;
+  }
+}
+.selected-card-head {
+  .totalreceived-card {
+    border-color: rgb(2, 171, 255) !important;
+  }
+}
+.totalreceived-card.selected {
+  // border-color: rgb(2, 171, 255);
   .selected-card {
     border-color: rgb(2, 171, 255);
   }
 }
-.touchedLeads-card.selected,
-.fn-card.selected,
-.closed-card.selected {
-  border-color: rgb(198, 137, 132);
+
+.allvisits-card.selected {
+  .selected-card {
+    border-color: #bab2ff;
+  }
+}
+.touchedLeads-card.selected {
+  // border-color: rgb(198, 137, 132);
   .selected-card {
     border-color: rgb(198, 137, 132);
   }
 }
+.closed-card.selected {
+  .selected-card {
+    border-color: #184c1a;
+  }
+}
+.fn-card.selected {
+  .selected-card {
+    border-color: #f3883d;
+  }
+}
 .active-card.selected {
-  border-color: rgb(253, 177, 0);
+  // border-color: rgb(253, 177, 0);
   .selected-card {
     border-color: rgb(253, 177, 0) !important;
   }
@@ -134,19 +188,55 @@ ion-content {
   .selected-card {
     background: #c3ebff;
   }
-  h1 {
+  h1,
+  p {
     color: #004e76;
   }
 }
-.touchedLeads-card,
-.fn-card,
-.closed-card {
+
+.allvisits-card {
+  background: linear-gradient(83.66deg, #ffffff 32.79%, #d8d3ff 156.84%);
+  .selected-card {
+    background: #efedff;
+  }
+  h1,
+  p {
+    color: #180d6e !important;
+  }
+}
+
+.touchedLeads-card {
   background: linear-gradient(81.85deg, #ffffff 48.93%, #ffe4e1 106.84%);
   .selected-card {
     background: #ffdad5;
   }
-  h1 {
+  h1,
+  p {
     color: #73322d;
+  }
+}
+
+.fn-card {
+  background: linear-gradient(261.88deg, #ffb884 -252.69%, #ffffff 52.51%);
+
+  .selected-card {
+    background: #fdd2b3;
+  }
+  h1,
+  p {
+    color: #6e401f;
+  }
+}
+
+.closed-card {
+  background: linear-gradient(254.46deg, #d3ffc9 -140.92%, #ffffff 54.02%);
+
+  .selected-card {
+    background: #cdf3c5;
+  }
+  h1,
+  p {
+    color: #184c1a;
   }
 }
 .active-card {
@@ -155,7 +245,8 @@ ion-content {
     background: #ffeea8;
   }
 
-  h1 {
+  h1,
+  p {
     color: #503b0b !important;
   }
 }
@@ -191,7 +282,6 @@ ion-content {
       font-size: 0.68rem;
       font-weight: 400;
       margin: 0;
-      color: #666;
     }
 
     h1 {
@@ -209,7 +299,7 @@ ion-content {
       background-color: #503b0b;
       padding: 4px 0;
       border-radius: 2px 0 7px 0;
-      color: white;
+      color: white !important;
       font-size: 11px;
       font-weight: 500;
     }
@@ -239,7 +329,7 @@ ion-content {
   border-right: 1px solid;
 }
 .leads-card {
-  background: linear-gradient(81.85deg, #ffffff 48.93%, #ffe4e1 106.84%);
+  background: #ffffff;
 
   h2 {
     color: #73322d;
@@ -302,9 +392,489 @@ ion-item::part(native) {
   margin: 5px;
 }
 .selected-card-head {
-  ion-row {
+  div {
     border-width: 1px;
     border-left: none;
     border-right: none;
   }
+}
+.scroll-row {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  gap: 4px;
+}
+
+.scroll-row::-webkit-scrollbar {
+  display: none; /* Hide scrollbar (Chrome) */
+}
+
+.scroll-col {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
+  padding: 4px 10px;
+}
+.all-visits-style {
+  padding: 0;
+  width: 30%;
+  p {
+    padding: 4px 12px !important;
+    background: #07003a !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    border-radius: 0 4px 4px 0 !important;
+    margin: 6px 0 !important;
+  }
+}
+
+ion-modal.addPriorityModal {
+  --height: auto;
+  --border-radius: 6px;
+  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  padding: 20px;
+}
+
+ion-modal.addPriorityModal::part(backdrop) {
+  background: rgb(43 44 45);
+  opacity: 0.9 !important;
+}
+
+ion-modal.addPriorityModal ion-toolbar {
+  --background: rgb(14 116 144);
+  --color: white;
+}
+::ng-deep ion-modal.addPriorityModal .ion-delegate-host {
+  padding: 6px;
+}
+.priority {
+  span,
+  div {
+    font-size: 0.7rem;
+    font-family: "Poppins";
+  }
+  ion-img {
+    padding-left: 2px;
+  }
+  display: flex;
+  flex-direction: column;
+}
+.hot_txt {
+  background: #ffe2d7;
+  border: 0.6px solid #f2591f;
+  width: fit-content;
+  color: #f2591f;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+.warm_txt {
+  background: #fff5d4 !important;
+  border: 0.6px solid #f5bd00 !important;
+  width: fit-content;
+  color: #f5bd00;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+.cold_txt {
+  background: #e4f6ff;
+  border: 0.6px solid #008cd2;
+  width: fit-content;
+  color: #008cd2;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+.addPriority {
+  display: flex;
+  align-items: center;
+  color: #960035 !important;
+  font-weight: 0.8rem;
+  ion-icon {
+    color: #960035;
+  }
+}
+
+.priority-data-row {
+  gap: 2px;
+  ion-col {
+    border: 2px solid lightgrey;
+    color: #808080;
+    font-size: 0.9rem;
+    padding: 2px;
+  }
+}
+.edit_priority {
+  background: #2196f3;
+  color: white;
+  border-radius: 30px;
+  padding: 3px;
+  font-size: 10px;
+  margin-left: 4px;
+}
+.addPriority {
+  display: flex;
+  align-items: center;
+  color: #0b7ab2 !important;
+}
+.update-btn-row {
+  span {
+    color: white;
+    background-color: #0b7ab2 !important;
+    border-color: #0b7ab2 !important;
+    padding: 2px 5px;
+    border-radius: 2px;
+  }
+}
+
+ion-modal.cp_dashboard_custDate_modal::part(content) {
+  border-radius: 20px 20px 0 0 !important;
+  overflow: hidden;
+}
+ion-modal {
+  --backdrop-opacity: 1.4;
+  // --height: auto;
+}
+
+.date-range-wrapper {
+  padding: 20px 10px;
+}
+
+.title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.date-inputs {
+  display: flex;
+  gap: 12px;
+}
+
+.date-box {
+  flex: 1;
+  background: #f6f9fc;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.date-box label {
+  font-size: 12px;
+  color: #8a8a8a;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.date-box span {
+  font-size: 14px;
+  color: #000;
+}
+
+.confirm-btn {
+  --border-radius: 24px;
+  --background: #0b7ab2;
+  min-height: 5px !important;
+  width: 100%;
+  padding: 0 10px;
+}
+
+::ng-deep.confirm-btn::part(native) {
+  padding: 12px;
+}
+.error-text {
+  font-size: 12px;
+  font-family: "Poppins";
+  color: red;
+}
+
+ion-datetime {
+  width: 100%;
+  max-width: 100%;
+  --background: #ffffff;
+}
+.filterButtons ion-button {
+  color: #0b7ab2;
+  font-size: 12px;
+  font-family: "Poppins";
+  font-weight: 400;
+  word-wrap: break-word;
+  border: 0.5px #0b7ab2 solid;
+  border-radius: 4px;
+  height: 26px;
+  min-height: 26px;
+}
+//FILTTER MODAL
+.filter-modal::part(content) {
+  border-radius: 16px;
+}
+
+.filter-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+/* Header */
+.filter-header {
+  font-size: 22px;
+  font-weight: 500;
+  padding: 6px 13px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Body */
+.filter-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Menu */
+.filter-left {
+  width: 40%;
+  background: #f5f5f5;
+  overflow-y: auto;
+}
+
+.menu-item {
+  padding: 10px;
+  font-size: 14px;
+  color: #444;
+}
+
+.menu-item.active {
+  background: #0b7ab2;
+  color: #fff;
+  font-weight: 400;
+}
+
+/* Right Content */
+.filter-right {
+  width: 60%;
+  padding: 10px;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+/* Footer */
+.filter-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  border-top: 1px solid #eee;
+}
+
+.clear-btn {
+  flex: 1;
+  margin-right: 8px;
+  border-radius: 20px;
+  --border-color: #838383;
+  background: #ffffff;
+  color: #838383;
+  text-transform: none;
+  --border-radius: 29px !important;
+}
+
+.apply-btn {
+  flex: 1;
+  --border-radius: 29px !important;
+  --background: #0b7ab2;
+  text-transform: none;
+  color: #ffffff;
+}
+
+.custom-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+.filter-right ion-checkbox {
+  --size: 16px; /* default is bigger */
+  margin-right: 6px;
+  --border-color-checked: #0b7ab2;
+  --checkbox-background-checked: #0b7ab2;
+}
+
+.filter-right ion-label {
+  font-size: 14px;
+}
+.search-style {
+  position: sticky;
+  top: -10px;
+  padding: 0;
+  z-index: 999;
+}
+ion-modal.filter_modal::part(content) {
+  border-radius: 20px 20px 0 0 !important;
+  overflow: hidden;
+  --background: #f5f7fa;
+}
+ion-modal.filter_modal {
+  --backdrop-opacity: 0.7;
+  padding-top: 72px;
+}
+.filterIcon label {
+  background: #ececec;
+  width: 20px;
+  border-radius: 8px;
+  opacity: 0.4;
+}
+
+.date_range {
+  display: flex;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 8px 4px;
+  border-radius: 5px;
+  border: 1px solid #474444;
+}
+.date_range span {
+  color: #141313;
+  font-size: 3.4vw;
+  font-family: "Poppins";
+}
+
+::ng-deep .p-datepicker table td > span.p-highlight {
+  color: #e6eaed !important;
+  background: rgb(11 122 178) !important;
+}
+
+.date_range.border_color_red {
+  border: 1px solid red !important;
+  span {
+    color: red !important;
+  }
+}
+::ng-deep p-calendar input {
+  top: 15px;
+  left: 10px;
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  display: none !important;
+}
+
+//END
+
+.floatting-icon {
+  position: absolute;
+  width: 50px;
+  right: 0;
+  bottom: 0;
+  border-radius: 35px;
+  padding: 5px;
+  --ionicon-stroke-width: 60px;
+}
+
+.addLeadForm {
+  margin: 4px;
+  ion-row > ion-col:first-child {
+    div:first-child {
+      font-size: 14px;
+      color: #666666;
+      font-weight: 400;
+    }
+    ion-row:nth-child(2) {
+      ion-col {
+        border-radius: 4px;
+        border: 0.6px solid #dfdfdf;
+        color: #595454;
+        background: #ffffff;
+        font-size: 14px;
+      }
+    }
+  }
+  ion-textarea,
+  ion-input {
+    border: 0.5px solid #e5e7eb;
+    border-radius: 4px;
+    width: 100%;
+    padding-left: 4px !important;
+    background-color: #ffffff;
+    font-size: 14px;
+  }
+  ion-input {
+    height: 30px;
+    font-size: 0.9rem;
+    color: #595454;
+  }
+  p-dropdown {
+    width: 100%;
+  }
+  .active,
+  .save-row ion-button {
+    background: #0b7ab2 !important;
+    color: #ffffff !important;
+  }
+}
+
+::ng-deep .addLeadForm p-dropdown .p-inputwrapper span {
+  font-size: 14px !important;
+  font-weight: 400;
+  color: #595454;
+  padding: 4px;
+}
+::ng-deep .addLeadForm .p-dropdown-header {
+  padding: 1px !important;
+}
+::ng-deep .addLeadForm .p-dropdown-header searchicon svg {
+  width: 10px !important;
+}
+
+::ng-deep .addLeadForm .p-dropdown-items li {
+  padding: 0 2px;
+  font-size: 12px;
+}
+
+::ng-deep .addLeadForm p-dropdown .p-inputwrapper {
+  width: 100% !important;
+  border: 0.6px solid #dfdfdf;
+}
+::ng-deep
+  .addLeadForm
+  p-dropdown
+  .p-inputwrapper
+  .p-dropdown-trigger
+  chevrondownicon {
+  width: 12px;
+  color: #474747;
+}
+::ng-deep .addLeadForm p-dropdown .p-inputwrapper .p-dropdown-trigger {
+  width: 22px !important;
+}
+::ng-deep .addLeadForm .p-element .p-dropdown-item {
+  padding: 5px !important;
+  font-size: 12px;
+}
+
+.error-field {
+  border: 1px solid red !important;
+}
+
+::ng-deep .addLeadForm p-dropdown.error-field .p-inputwrapper {
+  width: 100% !important;
+  border: 1px solid red !important;
+}
+
+.error-text {
+  font-size: 0.68rem;
+  color: red;
+}
+::ng-deep .native-wrapper textarea {
+  padding: 4px 0 14px 0 !important;
 }

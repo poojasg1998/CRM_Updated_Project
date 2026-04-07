@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import { CpApiService } from '../cp-api.service';
+import { IonModal } from '@ionic/angular';
 
 @Component({
   selector: 'app-overdue-dashboard',
@@ -9,6 +10,11 @@ import { CpApiService } from '../cp-api.service';
   styleUrls: ['./overdue-dashboard.component.scss'],
 })
 export class OverdueDashboardComponent implements OnInit {
+  @ViewChild('cp_dashboard_custDate_modal')
+  cp_dashboard_custDate_modal: IonModal;
+  @ViewChild('cp_dashboard_fromDate_modal')
+  cp_dashboard_fromDate_modal: IonModal;
+  @ViewChild('cp_dashboard_toDate_modal') cp_dashboard_toDate_modal: IonModal;
   readonly DEFAULT_PARAMS = {
     fromdate: '',
     todate: '',
@@ -25,6 +31,10 @@ export class OverdueDashboardComponent implements OnInit {
   };
   filteredParams = { ...this.DEFAULT_PARAMS };
   count = 0;
+  dateRange = {
+    fromdate: null as Date | null,
+    todate: null as Date | null,
+  };
 
   leadsCount = {
     followups: '',
@@ -39,6 +49,7 @@ export class OverdueDashboardComponent implements OnInit {
     request: '',
   };
   leads_detail: any;
+  showSpinner = false;
 
   constructor(
     private activeroute: ActivatedRoute,
@@ -223,6 +234,14 @@ export class OverdueDashboardComponent implements OnInit {
             this.filteredParams.fromdate = '';
             this.filteredParams.todate = '';
             break;
+          case 'custom':
+            this.filteredParams.fromdate = ('' + this.dateRange.fromdate).split(
+              'T'
+            )[0];
+            this.filteredParams.todate = ('' + this.dateRange.todate).split(
+              'T'
+            )[0];
+            break;
         }
       } else {
         this.filteredParams[key] = value;
@@ -242,5 +261,64 @@ export class OverdueDashboardComponent implements OnInit {
       relativeTo: this.activeroute,
       queryParams: this.DEFAULT_PARAMS,
     });
+  }
+  // To open from date modal
+  async openFromDate() {
+    await this.cp_dashboard_toDate_modal?.dismiss();
+    await this.cp_dashboard_fromDate_modal.present();
+  }
+
+  // To open to date modal
+  async openToDate() {
+    await this.cp_dashboard_fromDate_modal?.dismiss();
+    await this.cp_dashboard_toDate_modal.present();
+  }
+  onmodaldismiss() {
+    this.cp_dashboard_fromDate_modal?.dismiss();
+    this.cp_dashboard_toDate_modal?.dismiss();
+  }
+  showFromDateError = false;
+  handleToDateClick() {
+    if (!this.dateRange.fromdate) {
+      this.showFromDateError = true;
+      return;
+    }
+
+    this.showFromDateError = false;
+    this.openToDate();
+  }
+  onFromDateSelected(event) {
+    this.dateRange.fromdate = event.detail.value;
+    this.cp_dashboard_fromDate_modal.dismiss();
+  }
+  onToDateSelected(event) {
+    this.dateRange.todate = event.detail.value;
+    this.cp_dashboard_toDate_modal.dismiss();
+  }
+
+  removeDateFilter() {
+    this.dateRange = {
+      fromdate: null as Date | null,
+      todate: null as Date | null,
+    };
+    this.filteredParams.datePreset = 'all';
+    this.filteredParams.fromdate = '';
+    this.filteredParams.todate = '';
+
+    // Navigate ONLY ONCE
+    this.router.navigate([], {
+      relativeTo: this.activeroute,
+      queryParams: this.filteredParams,
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  onCustomDateModalDismiss(event) {
+    if (this.dateRange.fromdate && !this.dateRange.todate) {
+      this.dateRange = {
+        fromdate: null as Date | null,
+        todate: null as Date | null,
+      };
+    }
   }
 }

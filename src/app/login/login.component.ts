@@ -559,16 +559,13 @@ export class LoginComponent implements OnInit {
                   localStorage.setItem('Password', 'xxxxxxx');
                   localStorage.setItem(
                     'Mail',
-                    success['details'][0].client_email
+                    success['details'][0].client_username
                   );
                   localStorage.setItem('Role', success['details'][0].role_IDFK);
-                  localStorage.setItem(
-                    'Department',
-                    success['details'][0].department_IDFK
-                  );
+
                   localStorage.setItem(
                     'PropertyId',
-                    success['details'][0].mandate_propidfk
+                    success['details'][0].client_propid
                   );
                   localStorage.setItem(
                     'RoleType',

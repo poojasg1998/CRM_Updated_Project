@@ -13,8 +13,6 @@ export class CpApiService {
   private hoverSubject = new BehaviorSubject<string>('');
   hoverState$ = this.hoverSubject.asObservable();
   isAdmin = false;
-  // private adminControllerState = new BehaviorSubject<string>('');
-  // adminControllerState$ = this.adminControllerState.asObservable();
 
   constructor(private http: HttpClient, private service: AuthServiceService) {
     this.hoverSubscription = this.service.hoverState$.subscribe((isHovered) => {
@@ -74,7 +72,8 @@ export class CpApiService {
       enquiredProp: 'enquiredProp',
       suggestedprop: 'suggestedprop',
       closedprop: 'closedprop',
-      receivedFromDate: 'receivedFromDate',
+      receivedfromdate: 'receivedfromdate',
+      receivedtodate: 'receivedtodate',
       visitedfromdate: 'visitedfromdate',
       visitedtodate: 'visitedtodate',
       assignedfromdate: 'assignedfromdate',
@@ -90,6 +89,7 @@ export class CpApiService {
       source: 'source',
       category: 'category',
       remarks_search: 'remarks_search',
+      visited_count: 'visited_count',
     };
 
     Object.keys(paramMap).forEach((key) => {
@@ -152,7 +152,8 @@ export class CpApiService {
       enquiredProp: 'enquiredProp',
       suggestedprop: 'suggestedprop',
       closedprop: 'closedprop',
-      receivedFromDate: 'receivedFromDate',
+      receivedfromdate: 'receivedfromdate',
+      receivedtodate: 'receivedtodate',
       visitedfromdate: 'visitedfromdate',
       visitedtodate: 'visitedtodate',
       assignedfromdate: 'assignedfromdate',
@@ -168,6 +169,7 @@ export class CpApiService {
       source: 'source',
       category: 'category',
       remarks_search: 'remarks_search',
+      visited_count: 'visited_count',
     };
 
     Object.keys(paramMap).forEach((key) => {
@@ -1513,5 +1515,46 @@ export class CpApiService {
       params.toString(),
       { headers: headers }
     );
+  }
+  updatehotwarmcold(priority, leadid) {
+    let params = new HttpParams()
+      .set('priority', priority)
+      .set('leadid', leadid);
+
+    let headers = new HttpHeaders().set(
+      'Content-Type',
+      'application/x-www-form-urlencoded'
+    );
+    return this.http.post(
+      this.retailcrm + '/updatehotwarmcold',
+      params.toString(),
+      {
+        headers: headers,
+      }
+    );
+  }
+
+  getSource() {
+    return this.http.get(this.retailcrm + '/sources');
+  }
+
+  addLead(param) {
+    let params = new HttpParams()
+      .set('Name', param.Name)
+      .set('Number', param.Number)
+      .set('Mail', param.Mail)
+      .set('Source', param.Source)
+      .set('PropertyType', param.PropertyType)
+      .set('Timeline', param.Timeline)
+      .set('Varient', param.Varient)
+      .set('Budget', param.Budget)
+      .set('Address', param.Address)
+      .set('addedby', param.addedby)
+      .set('leadpriority', param.leadpriority)
+      .set('preferdlocation', param.preferdlocation)
+      .set('localityid', param.localityid)
+      .set('categoryid', param.categoryid)
+      .set('loginid', param.loginid);
+    return this.http.post(this.retailcrm + '/addenquiry', params);
   }
 }

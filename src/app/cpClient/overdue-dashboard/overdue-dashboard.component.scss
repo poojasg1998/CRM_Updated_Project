@@ -1,11 +1,24 @@
-:host {
-  background-color: #f0f2f5;
-}
 ion-content {
-  --background: #f0f2f5;
+  --background: #f8fafd;
 }
 * {
   font-family: "Poppins";
+}
+.sale-resale-rental-row {
+  span {
+    font-size: 14px;
+  }
+  .active_btn {
+    background: linear-gradient(180deg, #ffffff 0%, #d3ebff 100%) !important;
+    border-bottom: 1px solid #1366a5 !important;
+    box-shadow: none;
+    span {
+      color: #005d8c !important;
+    }
+  }
+}
+.active_btn {
+  background-color: #1265a5 !important;
 }
 .datefilter-main-row {
   gap: 6px;
@@ -142,7 +155,7 @@ ion-content {
   border-top: 1px solid;
 }
 .leads-card {
-  background: linear-gradient(81.85deg, #ffffff 48.93%, #ffe4e1 106.84%);
+  background: #ffffff;
 }
 .card-count {
   position: absolute;
@@ -194,4 +207,91 @@ ion-item::part(native) {
 ::ng-deep ion-icon.ion-accordion-toggle-icon.md.hydrated {
   width: 15px;
   margin: 5px;
+}
+.update-btn-row {
+  span {
+    color: white;
+    background-color: #0b7ab2 !important;
+    border-color: #0b7ab2 !important;
+    padding: 2px 5px;
+    border-radius: 2px;
+  }
+}
+
+ion-modal.cp_dashboard_custDate_modal::part(content) {
+  border-radius: 20px 20px 0 0 !important;
+  overflow: hidden;
+}
+ion-modal {
+  --backdrop-opacity: 1.4;
+  // --height: auto;
+}
+
+.date-range-wrapper {
+  padding: 20px 10px;
+}
+
+.title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.date-inputs {
+  display: flex;
+  gap: 12px;
+}
+
+.date-box {
+  flex: 1;
+  background: #f6f9fc;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.date-box label {
+  font-size: 12px;
+  color: #8a8a8a;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.date-box span {
+  font-size: 14px;
+  color: #000;
+}
+
+.confirm-btn {
+  --border-radius: 24px;
+  --background: #0b7ab2;
+  min-height: 5px !important;
+  width: 100%;
+  padding: 0 10px;
+}
+
+::ng-deep.confirm-btn::part(native) {
+  padding: 12px;
+}
+.error-text {
+  font-size: 12px;
+  font-family: "Poppins";
+  color: red;
+}
+
+ion-datetime {
+  width: 100%;
+  max-width: 100%;
+  --background: #ffffff;
+}
+.filterButtons ion-button {
+  color: #0b7ab2;
+  font-size: 12px;
+  font-family: "Poppins";
+  font-weight: 400;
+  word-wrap: break-word;
+  border: 0.5px #0b7ab2 solid;
+  border-radius: 4px;
+  height: 26px;
+  min-height: 26px;
 }

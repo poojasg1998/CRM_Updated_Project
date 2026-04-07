@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
@@ -26,6 +26,7 @@ import { CpSharedModule } from '../cp-shared/cp-shared.module';
     MultiSelectModule,
     IonRangeCalendarModule,
     CalendarModule,
+    ReactiveFormsModule,
     CpSharedModule,
     NgMultiSelectDropDownModule,
   ],

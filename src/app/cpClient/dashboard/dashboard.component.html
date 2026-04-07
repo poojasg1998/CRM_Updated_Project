@@ -1,19 +1,25 @@
 <app-cp-header></app-cp-header>
+<div class="content_center loader" *ngIf="showSpinner">
+  <ion-img style="width: 300px; height: 70px" src="../assets/CRMimages/animation/loader.gif"></ion-img>
+</div>
 <ion-row class="sale-resale-rental-row mb-0">
   <ion-col (click)="applyFilter({category: '1'})" class="d-flex  align-items-center justify-content-center px-0"
     [class.active_btn]="filteredParams.category == '1'">
     <span>Sale</span>
-    <ion-img src="../../../assets/cp/sale.svg"></ion-img>
+    <ion-img *ngIf="filteredParams.category != '1'" src="../../../assets/cp/sale.svg"></ion-img>
+    <ion-img *ngIf="filteredParams.category == '1'" src="../../../assets/cp/active-sale.svg"></ion-img>
   </ion-col>
   <ion-col size="4" (click)="applyFilter({category: '2'})"
     class="d-flex  align-items-center justify-content-center px-0" [class.active_btn]="filteredParams.category == '2'">
     <span>Resale</span>
-    <ion-img src="../../../assets/cp/resale.svg"></ion-img>
+    <ion-img *ngIf="filteredParams.category != '2'" src="../../../assets/cp/resale.svg"></ion-img>
+    <ion-img *ngIf="filteredParams.category == '2'" src="../../../assets/cp/active-resale.svg"></ion-img>
   </ion-col>
   <ion-col (click)="applyFilter({category: '3'})" class="d-flex align-items-center justify-content-center px-0"
     [class.active_btn]="filteredParams.category == '3'">
     <span>Rental</span>
-    <ion-img src="../../../assets/cp/rental.svg"></ion-img>
+    <ion-img *ngIf="filteredParams.category != '3'" src="../../../assets/cp/rental.svg"></ion-img>
+    <ion-img *ngIf="filteredParams.category == '3'" src="../../../assets/cp/active-rental.svg"></ion-img>
   </ion-col>
 </ion-row>
 
@@ -38,7 +44,7 @@
         </ion-col>
       </ion-row>
     </ion-col>
-    <ion-col [class.active_btn]="filteredParams.datePreset == 'custom'" (click)="applyFilter({datePreset: 'custom'})"
+    <ion-col [class.active_btn]="filteredParams.datePreset == 'custom'" (click)="cp_dashboard_custDate_modal.present()"
       class="d-flex align-items-center justify-content-center  p-2px date-btn" size="1.3">
       <span class="d-flex align-items-center justify-content-center">
         <ion-icon name="calendar-outline"></ion-icon>
@@ -52,18 +58,36 @@
   <ion-row class="leads-visits-container m-2 mb-0">
     <ion-col [ngClass]="filteredParams.isLeadsVisits === 'leads' ? 'active-btn' : 'normal-btn'" class="content-center"
       (click)="applyFilter({isLeadsVisits: 'leads',stagestatus:'',stage:'',status:'assignedleads'})">
-      <ion-img src="../../../assets/cp/lead.svg" class="pr-1"></ion-img> <span>Leads</span>
+      <ion-img *ngIf="filteredParams.isLeadsVisits === 'leads'" src="../../../assets/cp/lead-active-btn.svg"
+        class="pr-1"></ion-img>
+      <ion-img *ngIf="filteredParams.isLeadsVisits !== 'leads'" src="../../../assets/cp/lead.svg"
+        class="pr-1"></ion-img>
+      <span>Leads</span>
     </ion-col>
 
     <ion-col [ngClass]="filteredParams.isLeadsVisits === 'visits' ? 'active-btn' : 'normal-btn'" class="content-center"
-      (click)="applyFilter({isLeadsVisits: 'visits',status:'allvisits',stagestatus:'3',stage:''})">
-      <ion-img src="../../../assets/cp/visit.svg" class="pr-1"></ion-img> <span>Visits</span>
+      (click)="applyFilter({isLeadsVisits: 'visits',status:'activevisits',stagestatus:'3',stage:''})">
+      <ion-img *ngIf="filteredParams.isLeadsVisits != 'visits'" src="../../../assets/cp/visit.svg"
+        class="pr-1"></ion-img>
+      <ion-img *ngIf="filteredParams.isLeadsVisits === 'visits'"
+        src="../../../assets/cp/visits-active-btn.svg"></ion-img>
+
+      <span>Visits</span>
     </ion-col>
   </ion-row>
-
-
 </div>
-<ion-content>
+
+<ion-row class="filterButtons m-2 mb-0" *ngIf="this.filteredParams.datePreset == 'custom'" (click)="removeDateFilter()">
+  <ion-button fill="clear" class="m-0">
+    <span *ngIf="filteredParams.isLeadsVisits == 'leads' || filteredParams.isLeadsVisits == 'calls'">{{
+      this.filteredParams.fromdate }}{{ " to " +
+      this.filteredParams.todate }}</span>
+    <span *ngIf="filteredParams.isLeadsVisits == 'visits'">{{ this.filteredParams.visitedfromdate }}{{ " to "
+      + this.filteredParams.visitedtodate }}</span>
+    <ion-icon slot="end" name="close"></ion-icon>
+  </ion-button>
+</ion-row>
+<ion-content #scrollContent scrollEvents="true" (ionScroll)="onScroll($event)">
   <!-- LEADS CARD -->
   <div class="p-1" *ngIf="filteredParams.isLeadsVisits == 'leads'">
     <ion-row class="mb-2 gap-2">
@@ -145,7 +169,7 @@
               <p>Scheduled Visits</p>
               <h1>{{leadsCount.scheduledVisits }}</h1>
             </ion-col>
-            <ion-col class="text-center visitConvert-row p-1">
+            <ion-col class="text-center visitConvert-row p-0">
               <p class="m-0">Visit Converted {{'0'}}</p>
             </ion-col>
           </ion-row>
@@ -163,28 +187,26 @@
   <!-- VISITS CARD -->
   <div class="p-1" *ngIf="filteredParams.isLeadsVisits == 'visits'">
     <ion-row class="mb-2 gap-2">
-      <ion-col class="allvisits-card d-flex" [class.selected]="filteredParams.activeCardKey == 'allvisits-card'">
+      <ion-col class="allvisits-card " [class.selected]="filteredParams.activeCardKey == 'allvisits-card'">
         <div>
-          <ion-img src="../assets/CRMimages/assignedLeadsicon.svg"></ion-img>
+          <ion-img src="../assets/cp/allVisits-card-icon.svg"></ion-img>
         </div>
         <div class="card-content">
-          <div [ngClass]="filteredParams.selectedStage === 'All Visits' ? 'selected-card border-bottom-right' : ''"
-            (click)="applyFilter({selectedStage: 'All Visits', activeCardKey: 'allvisits-card',status: 'allvisits',stagestatus:'3',stage:''});"
-            class="pl-1">
-            <p>All Visits</p>
-            <h1>{{visitsCount.allvisits}}</h1>
+          <div class="pl-1 all-visits-style">
+            <p>All Visits {{visitsCount.allvisits}}</p>
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Active Visits' ? 'selected-card border-top-right' : ''"
             (click)="applyFilter({selectedStage: 'Active Visits', activeCardKey: 'allvisits-card',status: 'activevisits',stagestatus:3,stage:''})"
-            ; class="pl-1">
+            ; class="pl-1 w-25">
             <p class="mt-2">Active Visits</p>
             <h1>{{visitsCount.active}}</h1>
           </div>
         </div>
       </ion-col>
-
+    </ion-row>
+    <ion-row class="gap-2">
       <ion-col class="fn-card d-flex" [class.selected]="filteredParams.activeCardKey == 'fn-card'">
-        <div><ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img></div>
+        <div><ion-img src="../assets/cp/fn-card-icon.svg"></ion-img></div>
         <div class="card-content">
           <div [ngClass]="filteredParams.selectedStage === 'FN' ? 'selected-card border-bottom-right' : ''"
             (click)="applyFilter({selectedStage: 'FN', activeCardKey: 'fn-card',status:'', stage: 'Final Negotiation',stagestatus:'3'})"
@@ -194,16 +216,14 @@
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Booking Cancelled' ? 'selected-card border-top-right' : ''"
             (click)="applyFilter({selectedStage: 'Booking Cancelled', activeCardKey: 'fn-card',status:'', 
-            stage:'Closing Request Rejected',stagestatus:'3'})" class="pl-1">
+                  stage:'Closing Request Rejected',stagestatus:'3'})" class="pl-1">
             <p class="mt-2">Booking Cancelled</p>
             <h1>{{visitsCount.bookingCancelled}}</h1>
           </div>
         </div>
       </ion-col>
-    </ion-row>
-    <ion-row>
       <ion-col class="closed-card d-flex" [class.selected]="filteredParams.activeCardKey == 'closed-card'">
-        <div><ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img></div>
+        <div><ion-img src="../assets/cp/closed-card-icon.svg"></ion-img></div>
         <div class="card-content">
           <div [ngClass]="filteredParams.selectedStage === 'Closed Leads' ? 'selected-card border-bottom-right' : ''"
             (click)="applyFilter({selectedStage: 'Closed Leads', activeCardKey: 'closed-card',status:'', 
@@ -222,125 +242,724 @@
     </ion-row>
   </div>
 
-  <div class="selected-card-head">
-    <ion-row [class]="filteredParams.activeCardKey" class="rounded-0">
-      <ion-col class="d-flex align-items-center justify-content-center selected-card">
-        <h1 class="text-capitalize">
-          {{filteredParams.selectedStage}}
-        </h1>
+  <div class="selected-card-head pb-1">
+    <div [class]="filteredParams.activeCardKey" class="rounded-0">
+      <ion-row>
+        <ion-col class="d-flex align-items-center justify-content-center selected-card">
+          <h1 class="text-capitalize">
+            {{filteredParams.selectedStage}}
+          </h1>
+        </ion-col>
+      </ion-row>
+
+    </div>
+    <ion-row class="visitscount scroll-row selected-card m-0 p-1" [class]="filteredParams.activeCardKey"
+      *ngIf="filteredParams.isLeadsVisits == 'visits' && filteredParams.status =='activevisits'">
+      <ion-col class="scroll-col" *ngFor="let visit of Visitscounts"
+        [ngClass]="filteredParams.visited_count == visit.visit_order?'active_btn':''"
+        (click)="applyFilter({visited_count:visit.visit_order });">
+        <!-- {{ getVisitLabel(visit.visit_order) }} Visit - {{ visit.visited_count }} -->
+        Visit {{visit.visit_order}} - {{ visit.visited_count }}
       </ion-col>
     </ion-row>
-
-    <ion-item-sliding #sliding *ngFor="let lead of leads_detail,let i= index">
-      <ion-item lines="none">
-        <ion-card class="leads-card w-100 mt-0">
-          <div class="card-count">
-            <span>{{ i + 1 | number:'2.0'}}
-            </span>
-          </div>
-          <ion-grid class="p-0">
-            <div>
-              <ion-row style="line-height: 1.4;">
-                <ion-col size="6">
-                  <div class="section">
-                    <p class="label">Lead Name</p>
-                    <p class="value">{{lead.CustomerName}}</p>
-                  </div>
-                </ion-col>
-
-                <ion-col size="6">
-                  <div class="section">
-                    <p class="label">Number </p>
-                    <p class="value">{{lead.number}}</p>
-                  </div>
-                </ion-col>
-                <ion-col size="6">
-                  <div class="section">
-                    <p class="label">Lead Date </p>
-                    <p class="value">{{lead.Date|date: 'dd-MMM-yyyy hh:mm a' }}</p>
-                  </div>
-                </ion-col>
-                <ion-col size="6">
-                  <div class="section">
-                    <p class="label">Priority </p>
-                    <p class="value">{{lead.number}}</p>
-                  </div>
-                </ion-col>
-
-                <ion-col size="6" *ngIf="filteredParams.isLeadsVisits == 'visits'">
-                  <div class="section">
-                    <p class="label">Next Action </p>
-                    <p class="value">{{ lead.nextactiondate | date: 'dd-MMM-yyyy'}}
-                      {{ lead.nextactiontime}}</p>
-                  </div>
-                </ion-col>
-                <ion-col size="6" *ngIf="filteredParams.isLeadsVisits == 'visits' && lead.visiteddate">
-                  <div class="section">
-                    <p class="label">Visited on </p>
-                    <p class="value">{{" "+ lead?.visiteddate | date: 'dd-MMM-yyyy'}}
-                      {{lead.visitedtime}}</p>
-                  </div>
-                </ion-col>
-
-              </ion-row>
-            </div>
-          </ion-grid>
+  </div>
+  <ion-item-sliding #sliding *ngFor="let lead of leads_detail,let i= index">
+    <ion-item lines="none">
+      <ion-card class="leads-card w-100 mt-0">
+        <div class="card-count">
+          <span>{{ i + 1 | number:'2.0'}}
+          </span>
+        </div>
+        <ion-grid class="p-0">
           <div>
-            <ion-row>
-              <ion-accordion-group class="w-100">
-                <ion-accordion value="first" class="latestRemark"
-                  *ngIf="filteredParams.status !== 'pending' && filteredParams.status !== 'generalfollowups' && lead.suggestedprop?.length > 0 && lead.Leadphase !== 'Fresh' && filteredParams.stage != 'DCRR' && filteredParams.stage != 'Closing Request Rejected' && filteredParams.stage != 'Deal Closing Requested' && filteredParams.stage != 'Deal Closed'">
-                  <ion-item style="--inner-padding-end:0;padding: 0;" slot="header" color="light"
-                    class="custom-ion-item suggestProp">
-                    <ion-label style="flex-grow: 1;margin: 5px">
-                      {{lead.suggestedprop.length != 0 && (lead.visitedprop.length != 0)
-                      ?'Suggested / Visited Properties':lead.suggestedprop.length != 0 ?
-                      'Suggested Properties':lead.visitedprop.length != 0?'Visited Properties':''}}
-                    </ion-label>
-                  </ion-item>
-                  <div slot="content" style="border-top: 0.75px #ECECEC solid; padding:5px">
-                    <span *ngIf="lead.suggestedprop?.length > 0">
-                      <div>
-                        <h4 class="mt-0 p-0 font-size14-familyPoppins" *ngIf="lead.visitedprop.length != 0">Suggested
-                          Property:
-                        </h4>
-                        <p *ngFor="let suggest of lead.suggestedprop; let i = index" style="display: inline-block;"
-                          class="mr-1 suggested_proj">
-                          {{suggest.name +","}}</p>
-                      </div>
-                      <div *ngIf="lead.visitedprop.length != 0">
-                        <h4 class="mt-0 p-0 font-size14-familyPoppins">Visited Property:</h4>
-                        <p *ngFor="let visited of lead.visitedprop; let i = index" style="display: inline-block;"
-                          class="suggested_proj">
-                          {{visited.name +","}}</p>
-                      </div>
-                    </span>
-                  </div>
-                </ion-accordion>
+            <ion-row style="line-height: 1.4;">
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Lead Name</p>
+                  <p class="value">{{lead.CustomerName}}</p>
+                </div>
+              </ion-col>
 
-                <ion-accordion *ngIf="(lead.manualremarks || lead.visitremarks) && filteredParams.status != 'pending'"
-                  value="second" style="border-top: 0.75px #ECECEC solid;" class="latestRemark">
-                  <ion-item slot="header" color="light" class="custom-ion-item"
-                    style="--inner-padding-end:0;padding: 0;">
-                    <ion-label style="flex-grow: 1;margin: 5px">
-                      Latest Remark
-                    </ion-label>
-                  </ion-item>
-                  <div style="border-top: 0.75px #ECECEC solid;" class="p-2" slot="content">
-                    <p>{{lead.visitremarks}}</p>
-                    <p>{{lead.manualremarks}}</p>
-                    <p *ngIf="lead.manualremarks === null">{{lead.remarks}}</p>
-                  </div>
-                </ion-accordion>
-              </ion-accordion-group>
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Number </p>
+                  <p class="value">{{lead.number}}</p>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Lead Date </p>
+                  <p class="value">{{lead.Date|date: 'dd-MMM-yyyy hh:mm a' }}</p>
+                </div>
+              </ion-col>
+              <ion-col size="6" *ngIf="filteredParams.isLeadsVisits == 'leads'">
+                <div class="section">
+                  <p class="label">Enquired Property</p>
+                  <p class="value" *ngIf="lead.propertyname">{{lead.propertyname}}</p>
+                  <p class="value fst-italic" *ngIf="!lead.propertyname">--</p>
+                </div>
+              </ion-col>
+
+
+              <ion-col size="6" *ngIf="filteredParams.isLeadsVisits == 'visits'">
+                <div class="section">
+                  <p class="label">Next Action </p>
+                  <p class="value">{{ lead.nextactiondate | date: 'dd-MMM-yyyy'}}
+                    {{ lead.nextactiontime}}</p>
+                </div>
+              </ion-col>
+              <ion-col size="6" *ngIf="filteredParams.isLeadsVisits == 'visits' && lead.visiteddate">
+                <div class="section">
+                  <p class="label">Visited on </p>
+                  <p class="value">{{" "+ lead?.visiteddate | date: 'dd-MMM-yyyy'}}
+                    {{lead.visitedtime}}</p>
+                </div>
+              </ion-col>
+
+            </ion-row>
+            <ion-row style="line-height: 1.4;">
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Source</p>
+                  <p class="value">{{lead.source}}
+                </div>
+              </ion-col>
+              <ion-col size="6" class="priority d-flex "
+                (click)="lead.lead_priority == '0'?onSetPriority(lead,false):priority_id = lead.lead_priority;onSetPriority(lead,true) ">
+                <span class="label pr-1" style="color:rgba(0, 0, 0, 0.6)">Priority</span>
+                <div style="margin-bottom:2px" class="d-flex align-items-center">
+                  <span
+                    [ngClass]="lead.lead_priority == '1'?'hot_txt':lead.lead_priority == '2'?'warm_txt':lead.lead_priority == '3'?'cold_txt':'set_priority'"
+                    class="d-flex value">
+                    {{lead.lead_priority ==
+                    '1'?'Hot':lead.lead_priority ==
+                    '2'?'Warm':lead.lead_priority == '3'?'Cold':'' }}
+                    <ion-img *ngIf="lead.lead_priority == '1'"
+                      src="../../../assets/CRMimages/hot_orrange_icon.svg"></ion-img>
+                    <ion-img *ngIf="lead.lead_priority =='2'"
+                      src="../../../assets/CRMimages/warm-color-icon.svg"></ion-img>
+                    <ion-img *ngIf="lead.lead_priority == '3'"
+                      src="../../../assets/CRMimages/cold-color-icon.svg"></ion-img>
+                  </span>
+                  <ion-icon *ngIf="lead.lead_priority != 0" name="pencil" class="edit_priority"></ion-icon>
+                  <span *ngIf="lead.lead_priority == 0" class="addPriority">
+                    <ion-icon name="add"></ion-icon> Add Priority</span>
+                </div>
+              </ion-col>
             </ion-row>
           </div>
-        </ion-card>
-      </ion-item>
-    </ion-item-sliding>
-  </div>
+        </ion-grid>
+        <div>
+          <ion-row>
+            <ion-accordion-group class="w-100">
+              <ion-accordion value="first" class="latestRemark" *ngIf="filteredParams.isLeadsVisits == 'visits'">
+                <ion-item style="--inner-padding-end:0;padding: 0;" slot="header" color="light"
+                  class="custom-ion-item suggestProp">
+                  <ion-label style="flex-grow: 1;margin: 5px">
+                    {{lead.suggestedprop.length != 0 && (lead.visitedprop.length != 0)
+                    ?'Suggested / Visited Properties':lead.suggestedprop.length != 0 ?
+                    'Suggested Properties':lead.visitedprop.length != 0?'Visited Properties':''}}
+                  </ion-label>
+                </ion-item>
+                <div slot="content" style="border-top: 0.75px #ECECEC solid; padding:5px">
+                  <span *ngIf="lead.suggestedprop?.length > 0">
+                    <div>
+                      <h4 class="mt-0 p-0 font-size14-familyPoppins" *ngIf="lead.visitedprop.length != 0">Suggested
+                        Property:
+                      </h4>
+                      <p *ngFor="let suggest of lead.suggestedprop; let i = index" style="display: inline-block;"
+                        class="mr-1 suggested_proj">
+                        {{suggest.name +","}}</p>
+                    </div>
+                    <div *ngIf="lead.visitedprop.length != 0">
+                      <h4 class="mt-0 p-0 font-size14-familyPoppins">Visited Property:</h4>
+                      <p *ngFor="let visited of lead.visitedprop; let i = index" style="display: inline-block;"
+                        class="suggested_proj">
+                        {{visited.name +","}}</p>
+                    </div>
+                  </span>
+                </div>
+              </ion-accordion>
+
+              <ion-accordion *ngIf="(lead.manualremarks || lead.visitremarks)" value="second"
+                style="border-top: 0.75px #ECECEC solid;" class="latestRemark">
+                <ion-item slot="header" color="light" class="custom-ion-item" style="--inner-padding-end:0;padding: 0;">
+                  <ion-label style="flex-grow: 1;margin: 5px">
+                    Latest Remark
+                  </ion-label>
+                </ion-item>
+                <div style="border-top: 0.75px #ECECEC solid;" class="p-2" slot="content">
+                  <p>{{lead.visitremarks}}</p>
+                  <p>{{lead.manualremarks}}</p>
+                  <p *ngIf="lead.manualremarks === null">{{lead.remarks}}</p>
+                </div>
+              </ion-accordion>
+            </ion-accordion-group>
+          </ion-row>
+        </div>
+      </ion-card>
+    </ion-item>
+  </ion-item-sliding>
 
   <ion-row *ngIf="(leads_detail?.length==0)" class="textStyle ion-justify-content-center ion-align-items-center">
     <ion-col class="ion-text-center"><span>No Leads Found...</span></ion-col>
   </ion-row>
+
+  <!-- INFINITE SCROLL -->
+  <ion-infinite-scroll *ngIf="showInfiniteScroll" [disabled]="false" threshold="100px" #infiniteScroll
+    (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>
+
+
+<ion-modal #addPriorityModal class="addPriorityModal">
+  <ng-template>
+    <ion-row>
+      <ion-col><span>Priority</span></ion-col>
+    </ion-row>
+    <ion-row class="priority-data-row">
+      <ion-col [ngClass]="priority_id == '1'?'active_btn':''" class="d-flex align-item-center justify-content-center"
+        (click)="priority_id = '1'"><span>Hot</span></ion-col>
+      <ion-col [ngClass]="priority_id == '2'?'active_btn':''" class="d-flex align-item-center justify-content-center"
+        (click)="priority_id = '2'"><span>Warm</span></ion-col>
+      <ion-col [ngClass]="priority_id == '3'?'active_btn':''" class="d-flex align-item-center justify-content-center"
+        (click)="priority_id = '3'"><span>Cold</span></ion-col>
+    </ion-row>
+    <ion-row class="update-btn-row">
+      <ion-col class="d-flex align-item-center justify-content-end pe-0" (click)="onUpdatePriority()">
+        <span>Update</span>
+      </ion-col>
+    </ion-row>
+  </ng-template>
+</ion-modal>
+
+<ion-modal #cp_dashboard_custDate_modal [breakpoints]="[0.3]" [initialBreakpoint]="0.3"
+  [backdropDismiss]="!(dateRange?.fromdate && dateRange?.todate)" class="cp_dashboard_custDate_modal"
+  (ionModalDidDismiss)="onCustomDateModalDismiss($event)">
+  <ng-template>
+    <div class="modal-container">
+      <div class="date-range-wrapper">
+        <h3 class="title">Select date range</h3>
+
+        <div class="date-inputs">
+          <div class="date-box" (click)="openFromDate()">
+            <label>From</label>
+            <span>{{ dateRange?.fromdate ? ('' + dateRange.fromdate).split('T')[0] : '' }}</span>
+          </div>
+
+          <div class="date-box" (click)="handleToDateClick()" [class.disabled]="!dateRange?.fromdate">
+            <label>To</label>
+            <span>{{ dateRange?.todate ? ('' + dateRange.todate).split('T')[0] : '' }}</span>
+          </div>
+        </div>
+
+        <p class="error-text" *ngIf="showFromDateError">
+          Please select From date first
+        </p>
+      </div>
+      <div>
+        <ion-button expand="block" class="confirm-btn" [disabled]="!(dateRange?.fromdate && dateRange?.todate)"
+          (click)="applyFilter({datePreset:'custom'}); cp_dashboard_custDate_modal.dismiss()">
+          Confirm
+        </ion-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+
+<ion-modal #cp_dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
+  [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()" (ionChange)="onFromDateSelected($event)">
+  <ng-template>
+    <ion-datetime presentation="date" [(ngModel)]="dateRange.fromdate"></ion-datetime>
+  </ng-template>
+</ion-modal>
+<ion-modal #cp_dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
+  [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()" (ionChange)="onToDateSelected($event)">
+  <ng-template>
+    <ion-datetime presentation="date" [min]="dateRange.fromdate" [(ngModel)]="dateRange.todate"></ion-datetime>
+  </ng-template>
+</ion-modal>
+
+
+<ion-modal #filter_modal class="filter_modal">
+  <ng-template>
+    <div class="filter-container">
+      <!-- Header -->
+      <div class="filter-header">Filter by</div>
+      <!-- Body -->
+      <div class="filter-body">
+        <!-- Left Menu -->
+        <div class="filter-left">
+          <div class="menu-item" [class.active]="activeTab === 'priority'" (click)="setActiveTab('priority')">
+            Priority
+          </div>
+          <div *ngIf="filteredParams.isLeadsVisits == 'visits'" class="menu-item"
+            [class.active]="activeTab === 'property'" (click)="setActiveTab('property')">
+            Property
+          </div>
+
+          <div class="menu-item" [class.active]="activeTab === 'source'" (click)="setActiveTab('source')">
+            Source
+          </div>
+
+          <div class="menu-item" [class.active]="activeTab === 'enquired'" (click)="setActiveTab('enquired')">
+            Enquired
+          </div>
+
+          <div class="menu-item" *ngIf="filteredParams.isLeadsVisits == 'visits'"
+            [class.active]="activeTab === 'nextaction'" (click)="setActiveTab('nextaction')">
+            Next Action
+          </div>
+
+          <div class="menu-item" [class.active]="activeTab === 'leaddate'" (click)="setActiveTab('leaddate')">
+            Lead Date
+          </div>
+        </div>
+
+        <!-- Right Content -->
+        <div class="filter-right">
+
+          <!-- PRIORITY -->
+          <ng-container *ngIf="activeTab === 'priority'">
+            <ion-radio-group [(ngModel)]="tempFilteredValues.priority">
+              <div class="custom-row" *ngFor="let item of priorityList">
+                <ion-radio slot="start" [value]="item.id"></ion-radio>
+                <ion-label>{{ item.name }}</ion-label>
+              </div>
+            </ion-radio-group>
+          </ng-container>
+
+          <!-- PROPERTY -->
+          <ng-container *ngIf="activeTab === 'property'">
+            <ion-searchbar class="search-style" placeholder="Search source..." [(ngModel)]="searchText"
+              (ionInput)="searchData()">
+            </ion-searchbar>
+            <ion-radio-group [(ngModel)]="tempFilteredValues.visitedprop">
+              <div class="custom-row overflow-auto" *ngFor="let item of filteredProperty">
+                <ion-radio slot="start" [value]="item.propid"></ion-radio>
+                <ion-label>{{ item.name }}</ion-label>
+              </div>
+            </ion-radio-group>
+          </ng-container>
+
+          <!-- SOURCE -->
+          <ng-container *ngIf="activeTab === 'source'">
+            <ion-searchbar class="search-style" placeholder="Search source..." [(ngModel)]="searchText"
+              (ionInput)="searchData()">
+            </ion-searchbar>
+            <div class="custom-row overflow-auto" *ngFor="let item of filteredSource">
+              <ion-checkbox slot="start" [checked]="tempFilteredValues.source?.includes(item.source)"
+                (ionChange)="applyTemFilter('source',item)"></ion-checkbox>
+              <ion-label><span>{{ item.source }}</span></ion-label>
+            </div>
+          </ng-container>
+
+
+
+          <!-- ENQUIRED -->
+          <ng-container *ngIf="activeTab === 'enquired'">
+            <ion-searchbar class="search-style" placeholder="Search source..." [(ngModel)]="searchText"
+              (ionInput)="searchData()">
+            </ion-searchbar>
+
+            <ion-radio-group [(ngModel)]="filteredParams.propid" (ionChange)="applyTemFilter('enquired',$event)">
+              <div class="custom-row overflow-auto" *ngFor="let item of filteredEnquiry">
+                <ion-radio slot="start" [value]="item.propid"></ion-radio>
+                <ion-label>{{ item.name }}</ion-label>
+              </div>
+            </ion-radio-group>
+          </ng-container>
+
+          <!-- NEXT ACTION -->
+          <ng-container *ngIf="activeTab === 'nextaction'">
+            <ion-row style="width: 100%;">
+              <ion-col class=" filterIcon height35px">
+                <label for="cpNextActionFromDate" style="width: 100%;">
+                  <div class="date_range">
+                    <div><span>{{tempFilteredValues.fromdate?tempFilteredValues.fromdate:
+                        'Select from date'}}</span></div>
+                    <div>
+                      <ion-img src="../assets/CRMimages/calendar-edit-outline.png"></ion-img>
+                    </div>
+                  </div>
+                </label>
+              </ion-col>
+            </ion-row>
+
+            <ion-row style="width: 100%;">
+              <ion-col class="filterIcon height35px"
+                (click)="tempFilteredValues.fromdate =='' || ! tempFilteredValues.fromdate || tempFilteredValues.fromdate == null || tempFilteredValues.fromdate == undefined?warningMessage():''">
+                <label [for]="tempFilteredValues.fromdate !=='' ? 'cpNextActionToDate' : ''" style="width: 100%;">
+                  <div class="date_range"
+                    [ngClass]="this.tempFilteredValues.fromdate !='' && this.tempFilteredValues.actiontodate == ''?'border_color_red':''">
+                    <div><span>{{tempFilteredValues.todate?tempFilteredValues.todate:
+                        'Select to date'}}</span></div>
+                    <div>
+                      <ion-img src="../assets/CRMimages/calendar-edit-outline.png"></ion-img>
+                    </div>
+                  </div>
+                </label>
+              </ion-col>
+              <!-- <p *ngIf="tempFilteredValues.fromdate ==''">Please select from date</p> -->
+            </ion-row>
+
+            <p-calendar inputId="cpNextActionFromDate" appendTo="body" [dateFormat]="'yy-mm-dd'"
+              (onSelect)="applyTemFilter('nextactionfromdate', $event)"></p-calendar>
+
+            <p-calendar inputId="cpNextActionToDate" [minDate]="minDate" appendTo="body" [dateFormat]="'yy-mm-dd'"
+              (onSelect)="applyTemFilter('nextactiontodate', $event)">
+            </p-calendar>
+          </ng-container>
+
+          <!-- ASSIGNED DATE -->
+          <ng-container *ngIf="activeTab === 'leaddate'">
+            <ion-row style="width: 100%;">
+              <ion-col class=" filterIcon height35px">
+                <label for="cpreceivedFromDate" style="width: 100%;">
+                  <div class="date_range">
+                    <div><span>{{tempFilteredValues.receivedfromdate?tempFilteredValues.receivedfromdate:
+                        'Select from date'}}</span></div>
+                    <div>
+                      <ion-img src="../assets/CRMimages/calendar-edit-outline.png"></ion-img>
+                    </div>
+                  </div>
+                </label>
+              </ion-col>
+            </ion-row>
+
+            <ion-row style="width: 100%;">
+              <ion-col class="filterIcon height35px"
+                (click)="tempFilteredValues.receivedfromdate =='' || ! tempFilteredValues.receivedfromdate || tempFilteredValues.receivedfromdate == null || tempFilteredValues.receivedfromdate == undefined?warningMessage():''">
+                <label [for]="tempFilteredValues.receivedfromdate !=='' ? 'cpreceivedToDate' : ''" style="width: 100%;">
+                  <div class="date_range"
+                    [ngClass]="this.tempFilteredValues.receivedfromdate !='' && this.tempFilteredValues.actiontodate == ''?'border_color_red':''">
+                    <div><span>{{tempFilteredValues.receivedtodate?tempFilteredValues.receivedtodate:
+                        'Select to date'}}</span></div>
+                    <div>
+                      <ion-img src="../assets/CRMimages/calendar-edit-outline.png"></ion-img>
+                    </div>
+                  </div>
+                </label>
+              </ion-col>
+              <!-- <p *ngIf="tempFilteredValues.fromdate ==''">Please select from date</p> -->
+            </ion-row>
+
+            <p-calendar inputId="cpreceivedFromDate" appendTo="body" [dateFormat]="'yy-mm-dd'"
+              (onSelect)="applyTemFilter('receivedfromdate', $event)"></p-calendar>
+
+            <p-calendar inputId="cpreceivedToDate" [minDate]="minDate" appendTo="body" [dateFormat]="'yy-mm-dd'"
+              (onSelect)="applyTemFilter('receivedtodate', $event)">
+            </p-calendar>
+          </ng-container>
+
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="filter-footer">
+        <ion-button fill="outline" class="clear-btn" (click)="onClearFiltered()">Clear All</ion-button>
+        <ion-button class="apply-btn" (click)="onConfirmedFilter()">Apply</ion-button>
+      </div>
+
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- ADD LEAD MODAL -->
+<ion-modal #add_lead class="add_lead">
+  <ng-template>
+    <ion-header>
+      <ion-row>
+        <ion-col>Add Lead</ion-col>
+        <ion-col (click)="add_lead.dismiss()" size="2" class="d-flex align-items-center justify-content-center">
+          <ion-icon name="close"></ion-icon>
+        </ion-col>
+      </ion-row>
+    </ion-header>
+    <ion-content>
+      <div>
+        <form [formGroup]="addleadForm" (ngSubmit)="addLead()" class="addLeadForm">
+          <ion-row>
+            <ion-col>
+              <div>Client Name</div>
+              <div>
+                <ion-input [placeholder]="hasError('name','required') ? 'Please Enter Name' : 'Enter Name'"
+                  [ngClass]="hasError('name','required') ? 'error-field' : ''" style="min-height:20px" type="text"
+                  formControlName="name">
+                </ion-input>
+              </div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <div>Client Number</div>
+              <div>
+                <ion-input [placeholder]="hasError('number','required') ? 'Please Enter Number' : 'Enter Number'"
+                  [ngClass]="hasError('number','required') ? 'error-field' : ''" style="min-height:20px" type="text"
+                  formControlName="number">
+                </ion-input>
+              </div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <div>Client Email</div>
+              <div><ion-input [placeholder]="hasError('email','required') ? 'Please Enter Email' : 'Enter Email'"
+                  [ngClass]="hasError('number','required') ? 'error-field' : ''" style="min-height:20px" type="text"
+                  formControlName="email">
+                </ion-input></div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <div>Source</div>
+              <div><p-dropdown [placeholder]="hasError('source','required') ? 'Please Select Source' : 'Select Source'"
+                  [ngClass]="hasError('source','required') ? 'error-field' : ''" formControlName="source"
+                  [options]="source" optionValue="source" optionLabel="source" required />
+              </div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <div>Prefered Location</div>
+              <div><p-dropdown
+                  [placeholder]="hasError('location','required') ? 'Please Select Location' : 'Select Location'"
+                  [ngClass]="hasError('location','required') ? 'error-field' : ''" formControlName="location"
+                  [options]="localityList" optionLabel="locality" required />
+              </div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <div>Priority</div>
+              <ion-row class="gap-2">
+                <ion-col class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({priority: addleadForm.value.priority === '1' ? null : '1'})"
+                  [ngClass]="addleadForm.value.priority=='1'?'':''" [class.active]="addleadForm.value.priority=='1'">
+                  Hot
+                </ion-col>
+                <ion-col class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({priority: addleadForm.value.priority === '2' ? null : '2'})"
+                  [class.active]="addleadForm.value.priority=='2'">
+                  Warm
+                </ion-col>
+                <ion-col class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({priority: addleadForm.value.priority === '3' ? null : '3'})"
+                  [class.active]="addleadForm.value.priority=='3'">
+                  Cold
+                </ion-col>
+              </ion-row>
+              <span class="error-text">{{hasError('priority','required') ? 'Please Select Priority' : ''}}</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <div>Type</div>
+              <ion-row class="gap-2">
+                <ion-col class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({type: addleadForm.value.type === '1' ? null : '1'})"
+                  [class.active]="addleadForm.value.type=='1'">
+                  Apartment
+                </ion-col>
+                <ion-col class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({type: addleadForm.value.type === '2' ? null : '2'})"
+                  [class.active]="addleadForm.value.type=='2'">
+                  Villa
+                </ion-col>
+                <ion-col class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({type: addleadForm.value.type === '3' ? null : '3'})"
+                  [class.active]="addleadForm.value.type=='3'">
+                  Plot
+                </ion-col>
+                <ion-col class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({type: addleadForm.value.type === '4' ? null : '4'})"
+                  [class.active]="addleadForm.value.type=='4'">
+                  Villament
+                </ion-col>
+              </ion-row>
+              <span class="error-text">{{hasError('type','required') ? 'Please Select Type' : ''}}</span>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col>
+              <div>Possession With</div>
+              <ion-row class="gap-2">
+                <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({possession: addleadForm.value.possession === '2' ? null : '2'})"
+                  [class.active]="addleadForm.value.possession=='2'">
+                  < 6Months </ion-col>
+                    <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                      (click)="addleadForm.patchValue({possession: addleadForm.value.possession === '3' ? null : '3'})"
+                      [class.active]="addleadForm.value.possession=='3'">
+                      1 Year
+                    </ion-col>
+                    <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                      (click)="addleadForm.patchValue({possession: addleadForm.value.possession === '4' ? null : '4'})"
+                      [class.active]="addleadForm.value.possession=='4'">
+                      1-2 Year
+                    </ion-col>
+                    <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                      (click)="addleadForm.patchValue({ possession: addleadForm.value.possession === '5' ? null : '5'})"
+                      [class.active]="addleadForm.value.possession=='5'">
+                      > 2 Year
+                    </ion-col>
+              </ion-row>
+              <span class="error-text">{{hasError('possession','required') ? 'Please Select Possession' : ''}}</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <div>Lead Segment</div>
+              <ion-row class="gap-2">
+                <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="toggleLeadSegment('1')"
+                  [class.active]="addleadForm.value.leadSegment?.includes('1')">
+                  Sale </ion-col>
+                <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="toggleLeadSegment('2')"
+                  [class.active]="addleadForm.value.leadSegment?.includes('2')">
+                  Resale
+                </ion-col>
+                <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="toggleLeadSegment('3')"
+                  [class.active]="addleadForm.value.leadSegment?.includes('3')">
+                  Rental
+                </ion-col>
+              </ion-row>
+              <span class="error-text">{{hasError('leadSegment','required') ? 'Please Select LeadSegment' : ''}}</span>
+            </ion-col>
+          </ion-row>
+
+          <ion-row *ngIf="addleadForm.value.type != '3'">
+            <ion-col>
+              <div>Select Size</div>
+              <ion-row class="gap-2">
+                <ion-col size="3" *ngIf="addleadForm.value.type == '1'"
+                  class="d-flex align-items-center justify-content-center p-1"
+                  (click)=" addleadForm.patchValue({size: addleadForm.value.size === '1' ? null : '1'})"
+                  [class.active]="addleadForm.value.size=='1'">
+                  1 BHK </ion-col>
+                <ion-col size="3" *ngIf="addleadForm.value.type == '1'"
+                  class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({ size: addleadForm.value.size === '2' ? null : '2'})"
+                  [class.active]="addleadForm.value.size=='2'">
+                  2 BHK
+                </ion-col>
+                <ion-col size="3" class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({ size: addleadForm.value.size === '3' ? null : '3'})"
+                  [class.active]="addleadForm.value.size=='3'">
+                  3 BHK
+                </ion-col>
+                <ion-col size="3" *ngIf="['2','4'].includes(addleadForm.value.type)"
+                  class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({size: addleadForm.value.size === '3.5' ? null : '3.5'})"
+                  [class.active]="addleadForm.value.size=='3.5'">
+                  3.5 BHK
+                </ion-col>
+                <ion-col size="3" class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({ size: addleadForm.value.size === '4' ? null : '4'})"
+                  [class.active]="addleadForm.value.size=='4'">
+                  4 BHK
+                </ion-col>
+                <ion-col size="3" *ngIf="['2','4'].includes(addleadForm.value.type)"
+                  class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({ size: addleadForm.value.size === '4.5' ? null : '4.5'})"
+                  [class.active]="addleadForm.value.size=='4.5'">
+                  4.5 BHK
+                </ion-col>
+                <ion-col size="3" class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({ size: addleadForm.value.size === '5' ? null : '5'})"
+                  [class.active]="addleadForm.value.size=='5'">
+                  5 BHK
+                </ion-col>
+                <ion-col size="3" *ngIf="['2','4'].includes(addleadForm.value.type)"
+                  class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({ size: addleadForm.value.size === '5.5' ? null : '5.5'})"
+                  [class.active]="addleadForm.value.size=='5.5'">
+                  5.5 BHK
+                </ion-col>
+              </ion-row>
+              <span> {{hasError('size','required') ? 'Please Select Size' : ''}}</span>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="addleadForm.value.type">
+            <ion-col>
+              <div>Budget</div>
+              <ion-row class="gap-2" *ngIf="['1','3'].includes(addleadForm.value.type)">
+                <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '< 60L' ? null : '< 60L'})"
+                  [class.active]="addleadForm.value.budget=='< 60L'">
+                  < 60L </ion-col>
+                    <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                      (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '60L - 80L' ? null : '60L - 80L'})"
+                      [class.active]="addleadForm.value.budget=='60L - 80L'">
+                      60L-80L
+                    </ion-col>
+                    <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                      (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '80L - 1Cr' ? null : '80L - 1Cr'})"
+                      [class.active]="addleadForm.value.budget=='80L - 1Cr'">
+                      80L - 1Cr
+                    </ion-col>
+                    <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1" (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '1Cr - 1.2Cr' ? null :
+                      '1Cr - 1.2Cr'})" [class.active]="addleadForm.value.budget=='1Cr - 1.2Cr'">
+                      1Cr - 1.2Cr
+                    </ion-col>
+                    <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                      (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '> 1.2Cr' ? null : '> 1.2Cr'})"
+                      [class.active]="addleadForm.value.budget=='> 1.2Cr'">
+                      > 1.2Cr
+                    </ion-col>
+              </ion-row>
+              <ion-row class="gap-2" *ngIf="['2','4'].includes(addleadForm.value.type)">
+                <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '1.5Cr - 2Cr' ? null : '1.5Cr - 2Cr'})"
+                  [class.active]="addleadForm.value.budget=='1.5Cr - 2Cr'">
+                  1.5Cr - 2Cr </ion-col>
+                <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '2Cr - 3Cr' ? null : '2Cr - 3Cr'})"
+                  [class.active]="addleadForm.value.budget=='2Cr - 3Cr'">
+                  2Cr - 3Cr
+                </ion-col>
+                <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '3Cr - 4Cr' ? null : '3Cr - 4Cr'})"
+                  [class.active]="addleadForm.value.budget=='3Cr - 4Cr'">
+                  3Cr - 4Cr
+                </ion-col>
+                <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                  (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '> 4Cr' ? null : '> 4Cr'})"
+                  [class.active]="addleadForm.value.budget=='> 4Cr'">
+                  >4Cr
+                </ion-col>
+              </ion-row>
+              <span class="error-text">{{hasError('budget','required') ? 'Please Select Budget' : ''}}</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <div>
+                Address
+              </div>
+              <div>
+                <ion-textarea formControlName="address"
+                  [placeholder]="hasError('address','required') ? 'Please Enter Address' : 'Enter Address'"
+                  [ngClass]="hasError('address','required') ? 'error-field' : ''"></ion-textarea>
+              </div>
+            </ion-col>
+          </ion-row>
+
+          <ion-row class="save-row">
+            <ion-col class="d-flex  align-items-center justify-content-end">
+              <ion-button type="submit" fill="clear">Save</ion-button>
+            </ion-col>
+          </ion-row>
+        </form>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<div class="floatting-icon" *ngIf="!sharedService.isBottom">
+  <ion-img src="../../../assets/cp/addlead-icon.svg" (click)="add_lead.present()"></ion-img>
+  <ion-img src="../../../assets/cp/filter-icon.svg" (click)="filter_modal.present()"></ion-img>
+</div>

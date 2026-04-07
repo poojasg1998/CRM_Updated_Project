@@ -1,11 +1,42 @@
-:host {
-  background-color: #f0f2f5;
-}
 ion-content {
-  --background: #f0f2f5;
+  --background: #f8fafd;
 }
 * {
   font-family: "Poppins";
+}
+.toggle-btn {
+  font-size: 11px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  .active {
+    border: 1px solid #005d8c;
+    margin: 2px;
+    border-radius: 20px;
+    background-color: #005d8c;
+    color: #ffffff;
+  }
+  ion-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.sale-resale-rental-row {
+  span {
+    font-size: 14px;
+  }
+  .active_btn {
+    background: linear-gradient(180deg, #ffffff 0%, #d3ebff 100%) !important;
+    border-bottom: 1px solid #1366a5 !important;
+    box-shadow: none;
+    span {
+      color: #005d8c !important;
+    }
+  }
+}
+.active_btn {
+  background-color: #1265a5 !important;
 }
 .leads-visits-container {
   display: flex;
@@ -172,7 +203,10 @@ ion-content {
 }
 
 .leads-card {
-  background: linear-gradient(81.85deg, #ffffff 48.93%, #ffe4e1 106.84%);
+  --ion-item-background: none;
+  ion-card {
+    background: #ffffff;
+  }
 
   h2 {
     color: #73322d;

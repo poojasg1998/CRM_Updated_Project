@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CpApiService } from '../cp-api.service';
 import { catchError, forkJoin, of } from 'rxjs';
+import Swal from 'sweetalert2';
+import { IonContent, IonModal } from '@ionic/angular';
+import { SharedService } from 'src/app/realEstate/shared.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,11 +13,21 @@ import { catchError, forkJoin, of } from 'rxjs';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
+  @ViewChild('cp_dashboard_custDate_modal')
+  cp_dashboard_custDate_modal: IonModal;
+  @ViewChild('cp_dashboard_fromDate_modal')
+  cp_dashboard_fromDate_modal: IonModal;
+  @ViewChild('cp_dashboard_toDate_modal') cp_dashboard_toDate_modal: IonModal;
+  @ViewChild('scrollContent', { static: false }) scrollContent!: IonContent;
+  @ViewChild('filter_modal') filter_modal;
+  @ViewChild('add_lead') add_lead;
   readonly LEADS_DEFAULTS = {
     fromdate: '',
     todate: '',
     visitedfromdate: '',
     visitedtodate: '',
+    receivedfromdate: '',
+    receivedtodate: '',
     isLeadsVisits: 'leads',
     datePreset: 'all',
     category: '1',
@@ -22,16 +36,26 @@ export class DashboardComponent implements OnInit {
     stagestatus: '',
     status: 'assignedleads',
     stage: '',
+    source: [],
+    priority: '',
+    visited_count: '',
+    visitedprop: '',
+    propid: '',
     loginid: localStorage.getItem('UserId'),
     limit: 0,
     limitrows: 5,
   };
+  dateRange = {
+    fromdate: null as Date | null,
+    todate: null as Date | null,
+  };
   readonly VISITS_DEFAULTS = {
     ...this.LEADS_DEFAULTS,
     isLeadsVisits: 'visits',
-    selectedStage: 'All Visits',
+    selectedStage: 'Active Visits',
     activeCardKey: 'allvisits-card',
-    status: 'allvisits',
+    status: 'activevisits',
+    visited_count: '1',
     stagestatus: '3',
   };
   filteredParams = { ...this.LEADS_DEFAULTS };
@@ -57,17 +81,110 @@ export class DashboardComponent implements OnInit {
   };
   leads_detail: any;
   count = 0;
+  Visitscounts: any;
+  showInfiniteScroll = true;
+  showSpinner = false;
+  activeTab: string = 'priority';
+  priorityList = [
+    { id: '1', name: 'Hot' },
+    { id: '2', name: 'Warm' },
+    { id: '3', name: 'Cold' },
+  ];
+  sourceList = ['Website', 'Call', 'Walk-in'];
+  enquiredList = ['GR Samskruthi', 'GR Sitara', 'Ranav Tranquil Haven'];
+  source: any;
+  filteredSource: any;
+  searchText;
+  suggestedProperty: any;
+  enquiredProperty: any;
+  filteredEnquiry: any;
+  filteredProperty: any;
+  tempFilteredValues: any;
+  minDate;
+  canScroll;
+  addleadForm!: FormGroup;
+  localityList;
 
   constructor(
     private activeroute: ActivatedRoute,
     private router: Router,
-    private api: CpApiService
+    private api: CpApiService,
+    private fb: FormBuilder,
+    public sharedService: SharedService
   ) {}
 
   ngOnInit() {
+    this.addleadForm = this.fb.group({
+      name: ['', Validators.required],
+      number: [
+        '',
+        [Validators.required, Validators.pattern(/^(\+91[\-\s]?)?[0-9]{10}$/)],
+      ],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(
+            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+          ),
+        ],
+      ],
+      source: ['', Validators.required],
+      location: ['', [Validators.required]],
+      priority: ['', [Validators.required]],
+      type: ['', [Validators.required]],
+      possession: ['', Validators.required],
+      leadSegment: [[], Validators.required],
+      size: [''],
+      budget: ['', Validators.required],
+      address: ['', Validators.required],
+    });
+
+    this.addleadForm.get('type')?.valueChanges.subscribe((value) => {
+      const documentsControl = this.addleadForm.get('size');
+      if (value == '3') {
+        documentsControl?.clearValidators(); // NOT required
+      } else {
+        documentsControl?.setValidators([Validators.required]); // required
+      }
+      documentsControl?.updateValueAndValidity();
+    });
+    this.getSource();
+    this.getLocalities();
     this.activeroute.queryParams.subscribe(() => {
       this.getQueryParams();
       this.getLeadsCount();
+    });
+  }
+
+  getLocalities() {
+    this.api.localitylist().subscribe((resp) => {
+      this.localityList = resp['Localities'];
+    });
+  }
+
+  onScroll(event: CustomEvent) {
+    const scrollTop = event.detail.scrollTop;
+    this.scrollContent.getScrollElement().then((scrollEl) => {
+      const scrollTop = scrollEl.scrollTop;
+      const scrollHeight = scrollEl.scrollHeight;
+      const clientHeight = scrollEl.offsetHeight;
+
+      this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
+
+      if (!this.canScroll) {
+        this.sharedService.isBottom = false;
+      } else {
+        this.sharedService.isBottom =
+          scrollTop + clientHeight >= scrollHeight - 10;
+      }
+    });
+  }
+
+  getSource() {
+    this.api.getSource().subscribe((resp) => {
+      this.source = resp['Sources'];
+      this.filteredSource = resp['Sources'];
     });
   }
 
@@ -89,6 +206,7 @@ export class DashboardComponent implements OnInit {
     });
     //Final sync
     this.filteredParams = updatedParams;
+    this.tempFilteredValues = this.filteredParams;
     console.log(this.filteredParams);
   }
 
@@ -98,6 +216,7 @@ export class DashboardComponent implements OnInit {
    * @param value - The new value to set
    */
   applyFilter(filters: Record<string, any>): void {
+    this.resetInfiniteScroll();
     Object.keys(filters).forEach((key) => {
       const value = filters[key];
       if (key === 'isLeadsVisits') {
@@ -121,6 +240,12 @@ export class DashboardComponent implements OnInit {
 
   dateupdation(value) {
     const today = new Date().toISOString().split('T')[0];
+    if (value != 'custom') {
+      this.dateRange = {
+        fromdate: null as Date | null,
+        todate: null as Date | null,
+      };
+    }
     switch (value) {
       case 'today':
         if (this.filteredParams.isLeadsVisits == 'leads') {
@@ -159,14 +284,23 @@ export class DashboardComponent implements OnInit {
         this.filteredParams.visitedtodate = '';
         break;
       case 'custom':
+        console.log(this.dateRange);
         if (this.filteredParams.isLeadsVisits == 'visits') {
-          this.filteredParams.visitedfromdate = this.filteredParams.fromdate;
-          this.filteredParams.visitedtodate = this.filteredParams.todate;
+          this.filteredParams.visitedfromdate = (
+            '' + this.dateRange.fromdate
+          ).split('T')[0];
+          this.filteredParams.visitedtodate = (
+            '' + this.dateRange.todate
+          ).split('T')[0];
           this.filteredParams.fromdate = '';
           this.filteredParams.todate = '';
         } else {
-          this.filteredParams.fromdate = this.filteredParams.visitedfromdate;
-          this.filteredParams.todate = this.filteredParams.visitedtodate;
+          this.filteredParams.fromdate = ('' + this.dateRange.fromdate).split(
+            'T'
+          )[0];
+          this.filteredParams.todate = ('' + this.dateRange.todate).split(
+            'T'
+          )[0];
           this.filteredParams.visitedfromdate = '';
           this.filteredParams.visitedtodate = '';
         }
@@ -179,10 +313,13 @@ export class DashboardComponent implements OnInit {
     this.filteredParams.isLeadsVisits = value;
     //Reset ONLY card-related fields from defaults
     this.filteredParams.selectedStage =
-      value === 'leads' ? this.LEADS_DEFAULTS.selectedStage : 'All Visits';
+      value === 'leads' ? this.LEADS_DEFAULTS.selectedStage : 'Active Visits';
 
     this.filteredParams.activeCardKey =
       value === 'leads' ? this.LEADS_DEFAULTS.activeCardKey : 'allvisits-card';
+
+    this.filteredParams.visited_count =
+      value === 'leads' ? this.LEADS_DEFAULTS.visited_count : '1';
   }
 
   resetFilters(): void {
@@ -192,7 +329,10 @@ export class DashboardComponent implements OnInit {
         : this.VISITS_DEFAULTS),
       isLeadsVisits: this.filteredParams.isLeadsVisits,
     };
-
+    this.dateRange = {
+      fromdate: null as Date | null,
+      todate: null as Date | null,
+    };
     this.router.navigate([], {
       relativeTo: this.activeroute,
       queryParams: this.filteredParams,
@@ -200,6 +340,7 @@ export class DashboardComponent implements OnInit {
   }
 
   getLeadsCount() {
+    this.showSpinner = true;
     if (this.filteredParams.isLeadsVisits == 'leads') {
       const requests = [];
       const status = [
@@ -212,7 +353,12 @@ export class DashboardComponent implements OnInit {
         'generalfollowups',
       ];
       status.forEach((status) => {
-        const params = { ...this.filteredParams, status: status, stage: '' };
+        const params = {
+          ...this.filteredParams,
+          status: status,
+          stage: '',
+          visited_count: '',
+        };
         requests.push(
           this.api.getAssignedLeadsCount(params).pipe(
             catchError((error) => {
@@ -230,6 +376,7 @@ export class DashboardComponent implements OnInit {
           stage: stage,
           status: '',
           stagestatus: '1',
+          visited_count: '',
         };
         requests.push(
           this.api.getAssignedLeadsCount(params).pipe(
@@ -288,6 +435,7 @@ export class DashboardComponent implements OnInit {
           status: status,
           stage: '',
           stagestatus: '3',
+          visited_count: '',
         };
         requests.push(
           this.api.getAssignedLeadsCount(params).pipe(
@@ -310,6 +458,7 @@ export class DashboardComponent implements OnInit {
           stage: stage,
           status: '',
           stagestatus: '3',
+          visited_count: '',
         };
         requests.push(
           this.api.getAssignedLeadsCount(params).pipe(
@@ -327,10 +476,12 @@ export class DashboardComponent implements OnInit {
             case 0:
               this.visitsCount.allvisits =
                 assignleads['AssignedLeads'][0]['Uniquee_counts'];
+
               break;
             case 1:
               this.visitsCount.active =
                 assignleads['AssignedLeads'][0]['Uniquee_counts'];
+              this.Visitscounts = assignleads['Visitscounts'];
               break;
             case 2:
               this.visitsCount.junkVisits =
@@ -368,12 +519,301 @@ export class DashboardComponent implements OnInit {
             this.leads_detail = isLoadmore
               ? this.leads_detail.concat(response['AssignedLeads'])
               : response['AssignedLeads'];
+            this.showSpinner = false;
+
+            this.enquiredProperty = response['EnquiredPropertyLists'];
+            this.suggestedProperty = response['SuggestedPropertyLists'];
+            this.filteredEnquiry = this.enquiredProperty;
+            this.filteredProperty = this.suggestedProperty;
             resolve(true);
           } else {
             this.leads_detail = isLoadmore ? this.leads_detail : [];
+            this.showSpinner = false;
             resolve(false);
           }
         });
     });
+  }
+  getVisitLabel(order: number): string {
+    if (order === 1) return '1st';
+    if (order === 2) return '2nd';
+    if (order === 3) return '3rd';
+    return order + 'th';
+  }
+  priority_id;
+  priorityUpdateLead;
+  @ViewChild('addPriorityModal') addPriorityModal;
+  onSetPriority(lead, isEdit) {
+    this.priorityUpdateLead = lead;
+    if (!isEdit) {
+      this.priority_id = '';
+    }
+    this.addPriorityModal.present();
+  }
+
+  onUpdatePriority() {
+    this.api
+      .updatehotwarmcold(this.priority_id, this.priorityUpdateLead.LeadID)
+      .subscribe((resp) => {
+        Swal.fire({
+          title: 'Updated Successfully',
+          text: 'Priority type Successfully updated',
+          icon: 'success',
+          heightAuto: false,
+          confirmButtonText: 'OK',
+        }).then(() => {
+          this.addPriorityModal.dismiss();
+          location.reload();
+        });
+      });
+  }
+
+  //TO RESET THE INFINITE SRCOLL
+  resetInfiniteScroll() {
+    this.showInfiniteScroll = false;
+    setTimeout(() => {
+      this.showInfiniteScroll = true;
+    }, 10);
+  }
+
+  async loadData(event) {
+    const hasData = await this.getLeadetails(true);
+    setTimeout(async () => {
+      event.target.complete();
+
+      if (!hasData) {
+        event.target.disabled = true;
+        return;
+      }
+    }, 200);
+  }
+  // To open from date modal
+  async openFromDate() {
+    await this.cp_dashboard_toDate_modal?.dismiss();
+    await this.cp_dashboard_fromDate_modal.present();
+  }
+
+  // To open to date modal
+  async openToDate() {
+    await this.cp_dashboard_fromDate_modal?.dismiss();
+    await this.cp_dashboard_toDate_modal.present();
+  }
+  onmodaldismiss() {
+    this.cp_dashboard_fromDate_modal?.dismiss();
+    this.cp_dashboard_toDate_modal?.dismiss();
+  }
+  showFromDateError = false;
+  handleToDateClick() {
+    if (!this.dateRange.fromdate) {
+      this.showFromDateError = true;
+      return;
+    }
+
+    this.showFromDateError = false;
+    this.openToDate();
+  }
+  onFromDateSelected(event) {
+    this.dateRange.fromdate = event.detail.value;
+    this.cp_dashboard_fromDate_modal.dismiss();
+  }
+  onToDateSelected(event) {
+    this.dateRange.todate = event.detail.value;
+    this.cp_dashboard_toDate_modal.dismiss();
+  }
+
+  removeDateFilter() {
+    this.dateRange = {
+      fromdate: null as Date | null,
+      todate: null as Date | null,
+    };
+    this.filteredParams.datePreset = 'all';
+    this.filteredParams.fromdate = '';
+    this.filteredParams.todate = '';
+    this.filteredParams.visitedfromdate = '';
+    this.filteredParams.visitedtodate = '';
+
+    // Navigate ONLY ONCE
+    this.router.navigate([], {
+      relativeTo: this.activeroute,
+      queryParams: this.filteredParams,
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  onCustomDateModalDismiss(event) {
+    if (this.dateRange.fromdate && !this.dateRange.todate) {
+      this.dateRange = {
+        fromdate: null as Date | null,
+        todate: null as Date | null,
+      };
+    }
+  }
+
+  setActiveTab(tab: string) {
+    this.activeTab = tab;
+    this.searchText = '';
+    this.searchData();
+  }
+
+  searchData() {
+    const val = this.searchText?.toLowerCase();
+    if (this.activeTab === 'source') {
+      this.filteredSource = !val
+        ? [...this.source]
+        : this.source.filter((item) =>
+            (item?.source || '').toLowerCase().includes(val)
+          );
+    }
+
+    if (this.activeTab === 'property') {
+      this.filteredProperty = !val
+        ? [...this.suggestedProperty]
+        : this.suggestedProperty.filter((item) =>
+            item.name.toLowerCase().includes(val)
+          );
+    }
+
+    if (this.activeTab === 'enquiry') {
+      this.filteredEnquiry = !val
+        ? [...this.enquiredProperty]
+        : this.enquiredProperty.filter((item) =>
+            item.name.toLowerCase().includes(val)
+          );
+    }
+  }
+
+  applyTemFilter(data, value) {
+    console.log(value);
+    if (data == 'nextactionfromdate') {
+      const fromdate = new Date(value);
+      this.tempFilteredValues.fromdate = fromdate.toLocaleDateString('en-CA');
+    } else if (data == 'nextactiontodate') {
+      const todate = new Date(value);
+      this.tempFilteredValues.todate = todate.toLocaleDateString('en-CA');
+    } else if (data == 'receivedfromdate') {
+      const fromdate = new Date(value);
+      this.tempFilteredValues.receivedfromdate =
+        fromdate.toLocaleDateString('en-CA');
+    } else if (data == 'receivedtodate') {
+      const todate = new Date(value);
+      this.tempFilteredValues.receivedtodate =
+        todate.toLocaleDateString('en-CA');
+    } else if (data == 'source') {
+      console.log(value);
+      const val = value.source;
+
+      if (!this.tempFilteredValues.source) {
+        this.tempFilteredValues.source = [];
+      }
+
+      const index = this.tempFilteredValues.source.indexOf(val);
+
+      if (index > -1) {
+        //remove
+        this.tempFilteredValues.source.splice(index, 1);
+      } else {
+        //add
+        this.tempFilteredValues.source.push(val);
+      }
+    }
+    console.log(this.tempFilteredValues);
+  }
+
+  onConfirmedFilter() {
+    this.filteredParams = this.tempFilteredValues;
+    this.filter_modal.dismiss();
+    this.router.navigate([], {
+      relativeTo: this.activeroute,
+      queryParams: this.filteredParams,
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  warningMessage() {
+    if (this.tempFilteredValues.fromDate == '') {
+      Swal.fire({
+        title: 'Please select a From Date',
+        text: 'From Date is required to apply the filter',
+        confirmButtonText: 'OK',
+        heightAuto: false,
+        allowOutsideClick: false,
+      }).then((result) => {});
+    }
+  }
+  onClearFiltered() {
+    this.tempFilteredValues = {};
+  }
+  addLead() {
+    if (this.addleadForm.invalid) {
+      this.addleadForm.markAllAsTouched();
+      this.scrollToFirstError();
+      return;
+    }
+
+    const params = {
+      Name: this.addleadForm.value.name,
+      Number: this.addleadForm.value.number,
+      Mail: this.addleadForm.value.email,
+      Source: this.addleadForm.value.source,
+      PropertyType: this.addleadForm.value.type,
+      Timeline: this.addleadForm.value.possession,
+      Varient: this.addleadForm.value.size,
+      Budget: this.addleadForm.value.budget,
+      Address: this.addleadForm.value.address,
+      addedby: localStorage.getItem('Name'),
+      leadpriority: this.addleadForm.value.priority,
+      preferdlocation: this.addleadForm.value.location.locality,
+      localityid: this.addleadForm.value.location.id,
+      categoryid: this.addleadForm.value.leadSegment,
+      loginid: localStorage.getItem('UserId'),
+    };
+    console.log(params);
+    this.api.addLead(params).subscribe((resp) => {
+      console.log(resp);
+      if (resp['status'] == 'True') {
+        Swal.fire({
+          title: 'Lead Added Successfully',
+          text: 'added new Lead',
+          confirmButtonText: 'OK',
+          heightAuto: false,
+          icon: 'success',
+        }).then(() => {
+          this.add_lead.dismiss();
+          this.getLeadsCount();
+        });
+      }
+    });
+    console.log(this.addleadForm.value);
+  }
+
+  scrollToFirstError() {
+    const element = document.querySelector(
+      'ion-input.ng-invalid, ion-select.ng-invalid, ion-textarea.ng-invalid'
+    );
+
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  hasError(controlName: string, error: string): boolean {
+    const control = this.addleadForm.get(controlName);
+    return !!(control && control.touched && control.hasError(error));
+  }
+
+  toggleLeadSegment(value: string) {
+    const current = this.addleadForm.value.leadSegment || [];
+
+    if (current.includes(value)) {
+      // remove
+      this.addleadForm.patchValue({
+        leadSegment: current.filter((v: string) => v !== value),
+      });
+    } else {
+      // add
+      this.addleadForm.patchValue({
+        leadSegment: [...current, value],
+      });
+    }
   }
 }
