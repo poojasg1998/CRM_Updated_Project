@@ -40,6 +40,7 @@ export class DashboardComponent implements OnInit {
     priority: '',
     visited_count: '',
     visitedprop: '',
+    visitedpropName: '',
     propid: '',
     loginid: localStorage.getItem('UserId'),
     limit: 0,
@@ -201,7 +202,11 @@ export class DashboardComponent implements OnInit {
     // This replaces "manual" keys—it only updates what exists in LEADS_DEFAULTS
     urlParams.forEach((value, key) => {
       if (key in updatedParams) {
-        updatedParams[key] = value;
+        if (key === 'source') {
+          updatedParams[key] = urlParams.getAll('source');
+        } else {
+          updatedParams[key] = value;
+        }
       }
     });
     //Final sync
@@ -525,9 +530,25 @@ export class DashboardComponent implements OnInit {
             this.suggestedProperty = response['SuggestedPropertyLists'];
             this.filteredEnquiry = this.enquiredProperty;
             this.filteredProperty = this.suggestedProperty;
+            this.filteredParams.propid = this.suggestedProperty.filter(
+              (item) => {
+                return this.filteredParams.visitedpropName == item.name;
+              }
+            );
+            this.filteredParams.propid = this.filteredParams.propid[0];
+            this.tempFilteredValues.propid = this.filteredParams.propid;
             resolve(true);
           } else {
             this.leads_detail = isLoadmore ? this.leads_detail : [];
+            this.suggestedProperty = isLoadmore
+              ? response['SuggestedPropertyLists']
+              : [];
+            this.filteredProperty = this.suggestedProperty;
+
+            this.enquiredProperty = isLoadmore
+              ? response['EnquiredPropertyLists']
+              : [];
+            this.filteredEnquiry = this.enquiredProperty;
             this.showSpinner = false;
             resolve(false);
           }
@@ -698,29 +719,34 @@ export class DashboardComponent implements OnInit {
       const todate = new Date(value);
       this.tempFilteredValues.receivedtodate =
         todate.toLocaleDateString('en-CA');
-    } else if (data == 'source') {
-      console.log(value);
+    } else if (data === 'source') {
       const val = value.source;
 
-      if (!this.tempFilteredValues.source) {
-        this.tempFilteredValues.source = [];
+      if (!Array.isArray(this.tempFilteredValues.source)) {
+        this.tempFilteredValues.source = this.tempFilteredValues.source
+          ? [this.tempFilteredValues.source]
+          : [];
       }
 
       const index = this.tempFilteredValues.source.indexOf(val);
 
       if (index > -1) {
-        //remove
         this.tempFilteredValues.source.splice(index, 1);
       } else {
-        //add
         this.tempFilteredValues.source.push(val);
       }
+
+      console.log(this.tempFilteredValues.source);
     }
     console.log(this.tempFilteredValues);
   }
 
   onConfirmedFilter() {
-    this.filteredParams = this.tempFilteredValues;
+    this.filteredParams = {
+      ...this.tempFilteredValues,
+      propid: this.tempFilteredValues.propid?.propid || null,
+      visitedpropName: this.tempFilteredValues.propid?.name || null,
+    };
     this.filter_modal.dismiss();
     this.router.navigate([], {
       relativeTo: this.activeroute,
@@ -740,8 +766,10 @@ export class DashboardComponent implements OnInit {
       }).then((result) => {});
     }
   }
+
   onClearFiltered() {
     this.tempFilteredValues = {};
+    this.resetFilters();
   }
   addLead() {
     if (this.addleadForm.invalid) {
@@ -815,5 +843,22 @@ export class DashboardComponent implements OnInit {
         leadSegment: [...current, value],
       });
     }
+  }
+
+  removeSource(val: string) {
+    const arr = this.tempFilteredValues.source || [];
+    this.tempFilteredValues.source = arr.filter((v) => v !== val);
+
+    if (this.tempFilteredValues.source.length === 0) {
+      this.tempFilteredValues.source = null;
+    }
+    this.filteredParams = {
+      ...this.tempFilteredValues,
+    };
+    this.router.navigate([], {
+      relativeTo: this.activeroute,
+      queryParams: this.filteredParams,
+      queryParamsHandling: 'merge',
+    });
   }
 }

@@ -295,3 +295,25 @@ ion-datetime {
   height: 26px;
   min-height: 26px;
 }
+.visits-row {
+  ion-card {
+    background: linear-gradient(83.66deg, #ffffff 32.79%, #d8d3ff 156.84%);
+    padding: 4px;
+    border: 2px solid #ffffff;
+  }
+  ion-img {
+    width: 20px;
+    position: absolute;
+    right: 0;
+  }
+  p {
+    font-weight: 400 !important;
+    font-size: 0.68rem;
+    color: #180d6e;
+  }
+  h1 {
+    font-weight: 500;
+    font-size: 18px;
+    color: #180d6e;
+  }
+}

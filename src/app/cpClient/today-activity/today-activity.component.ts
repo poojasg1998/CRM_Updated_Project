@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import { CpApiService } from '../cp-api.service';
+import { SharedService } from 'src/app/realEstate/shared.service';
 
 @Component({
   selector: 'app-today-activity',
@@ -9,6 +10,8 @@ import { CpApiService } from '../cp-api.service';
   styleUrls: ['./today-activity.component.scss'],
 })
 export class TodayActivityComponent implements OnInit {
+  @ViewChild('filter_modal') filter_modal;
+  showSpinner = false;
   readonly LEADS_DEFAULTS = {
     fromdate: new Date().toISOString().split('T')[0],
     todate: new Date().toISOString().split('T')[0],
@@ -20,6 +23,10 @@ export class TodayActivityComponent implements OnInit {
     stage: '',
     category: '1',
     loginid: localStorage.getItem('UserId'),
+    visitedprop: '',
+    propid: '',
+    visitedpropName: '',
+    source: [],
     limit: 0,
     limitrows: 5,
   };
@@ -33,6 +40,7 @@ export class TodayActivityComponent implements OnInit {
     activeCardKey: 'scheduled-visits-card',
     status: 'scheduledtoday',
   };
+  activeTab: string = 'source';
 
   filteredParams;
   count = 0;
@@ -56,17 +64,30 @@ export class TodayActivityComponent implements OnInit {
   };
   leads_detail: any;
   showInfiniteScroll: boolean = true;
+  searchText: any;
+  source: any;
+  filteredSource: any;
+  tempFilteredValues;
+  filteredProperty;
+  suggestedProperty: any;
 
   constructor(
     private activeroute: ActivatedRoute,
     private router: Router,
-    private api: CpApiService
+    private api: CpApiService,
+    public sharedService: SharedService
   ) {}
 
   ngOnInit() {
     this.activeroute.queryParams.subscribe(() => {
       this.getQueryParams();
       this.getLeadsCount();
+    });
+  }
+  getSource() {
+    this.api.getSource().subscribe((resp) => {
+      this.source = resp['Sources'];
+      this.filteredSource = resp['Sources'];
     });
   }
 
@@ -83,15 +104,27 @@ export class TodayActivityComponent implements OnInit {
     // This replaces "manual" keys—it only updates what exists in LEADS_DEFAULTS
     urlParams.forEach((value, key) => {
       if (key in updatedParams) {
-        updatedParams[key] = value;
+        if (key === 'source') {
+          updatedParams[key] = urlParams.getAll('source');
+        } else {
+          updatedParams[key] = value;
+        }
       }
     });
+
     //Final sync
     this.filteredParams = updatedParams;
+    this.tempFilteredValues = {
+      ...this.filteredParams,
+      source: Array.isArray(this.filteredParams.source)
+        ? [...this.filteredParams.source]
+        : [],
+    };
     console.log(this.filteredParams);
   }
 
   getLeadsCount() {
+    this.showSpinner = true;
     if (this.filteredParams.isLeadsVisits == 'leads') {
       const requests = [];
       const followupsStage = ['', 'Fresh', 'NC'];
@@ -252,9 +285,24 @@ export class TodayActivityComponent implements OnInit {
             this.leads_detail = isLoadmore
               ? this.leads_detail.concat(response['AssignedLeads'])
               : response['AssignedLeads'];
+            this.suggestedProperty = response['SuggestedPropertyLists'];
+            this.filteredProperty = this.suggestedProperty;
+            this.filteredParams.propid = this.suggestedProperty.filter(
+              (item) => {
+                return this.filteredParams.visitedpropName == item.name;
+              }
+            );
+            this.filteredParams.propid = this.filteredParams.propid[0];
+            this.tempFilteredValues.propid = this.filteredParams.propid;
+            this.showSpinner = false;
             resolve(true);
           } else {
             this.leads_detail = isLoadmore ? this.leads_detail : [];
+            this.suggestedProperty = isLoadmore
+              ? response['SuggestedPropertyLists']
+              : [];
+            this.filteredProperty = this.suggestedProperty;
+            this.showSpinner = false;
             resolve(false);
           }
         });
@@ -330,5 +378,100 @@ export class TodayActivityComponent implements OnInit {
         return;
       }
     }, 200);
+  }
+
+  setActiveTab(tab: string) {
+    this.activeTab = tab;
+    this.searchText = '';
+    this.searchData();
+  }
+
+  searchData() {
+    const val = this.searchText?.toLowerCase();
+    if (this.activeTab === 'source') {
+      this.filteredSource = !val
+        ? [...this.source]
+        : this.source.filter((item) =>
+            (item?.source || '').toLowerCase().includes(val)
+          );
+    }
+
+    if (this.activeTab === 'property') {
+      this.filteredProperty = !val
+        ? [...this.suggestedProperty]
+        : this.suggestedProperty.filter((item) =>
+            item.name.toLowerCase().includes(val)
+          );
+    }
+  }
+  applyTemFilter(data, value) {
+    if (data === 'source') {
+      const val = value.source;
+
+      if (!Array.isArray(this.tempFilteredValues.source)) {
+        this.tempFilteredValues.source = this.tempFilteredValues.source
+          ? [this.tempFilteredValues.source]
+          : [];
+      }
+
+      const index = this.tempFilteredValues.source.indexOf(val);
+
+      if (index > -1) {
+        this.tempFilteredValues.source = this.tempFilteredValues.source.filter(
+          (v) => v !== val
+        );
+      } else {
+        this.tempFilteredValues.source = [
+          ...this.tempFilteredValues.source,
+          val,
+        ];
+      }
+    }
+  }
+
+  onClearFiltered() {
+    this.tempFilteredValues = {};
+    this.resetFilters();
+  }
+
+  onConfirmedFilter() {
+    this.filteredParams = {
+      ...this.tempFilteredValues,
+      propid: this.tempFilteredValues.propid?.propid || null,
+      visitedpropName: this.tempFilteredValues.propid?.name || null,
+    };
+    this.filter_modal.dismiss();
+    this.router.navigate([], {
+      relativeTo: this.activeroute,
+      queryParams: this.filteredParams,
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  onFilterModal() {
+    this.activeTab = 'source';
+    this.getSource();
+    this.filter_modal.present();
+  }
+
+  removeSource(val: string) {
+    const arr = this.tempFilteredValues.source || [];
+    this.tempFilteredValues.source = arr.filter((v) => v !== val);
+
+    if (this.tempFilteredValues.source.length === 0) {
+      this.tempFilteredValues.source = null;
+    }
+    this.filteredParams = {
+      ...this.tempFilteredValues,
+    };
+    this.router.navigate([], {
+      relativeTo: this.activeroute,
+      queryParams: this.filteredParams,
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  onRadioSelect(event) {
+    console.log(event);
   }
 }

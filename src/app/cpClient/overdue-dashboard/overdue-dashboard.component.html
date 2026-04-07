@@ -59,7 +59,7 @@
 
 <ion-content>
   <!-- LEADS CARD -->
-  <ion-card class="leads-card" [class.selected]="filteredParams.activeCardKey == 'leads-card'">
+  <!-- <ion-card class="leads-card" [class.selected]="filteredParams.activeCardKey == 'leads-card'">
     <ion-row class="card-content">
       <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
       <ion-col
@@ -84,10 +84,10 @@
         <h1>{{leadsCount.usvfix}}</h1>
       </ion-col>
     </ion-row>
-  </ion-card>
+  </ion-card> -->
 
   <!-- VISITS CARD -->
-  <ion-card class="usv-card" [class.selected]="filteredParams.activeCardKey == 'usv-card'">
+  <!-- <ion-card class="usv-card" [class.selected]="filteredParams.activeCardKey == 'usv-card'">
     <ion-row class="card-content ">
       <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
       <ion-col
@@ -129,10 +129,10 @@
         <h1>{{leadsCount.fndone}}</h1>
       </ion-col>
     </ion-row>
-  </ion-card>
+  </ion-card> -->
 
   <!-- BOOKED CARD -->
-  <ion-card class="booked-card" [class.selected]="filteredParams.activeCardKey == 'booked-card'">
+  <!-- <ion-card class="booked-card" [class.selected]="filteredParams.activeCardKey == 'booked-card'">
     <ion-row class="card-content">
       <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
       <ion-col
@@ -150,7 +150,38 @@
         <h1>{{leadsCount.request}}</h1>
       </ion-col>
     </ion-row>
+  </ion-card> -->
+
+  <ion-card class="booked-card mb-0" [class.selected]="filteredParams.activeCardKey == 'booked-card'">
+    <ion-row class="card-content">
+      <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
+      <ion-col
+        [ngClass]="filteredParams.selectedStage === 'Followups' && filteredParams.activeCardKey ==='booked-card'? 'selected-card border-right' : ''"
+        class="py-0 px-1"
+        (click)="applyFilter({selectedStage: 'Followups',activeCardKey:'booked-card',stage:'Fresh',stagestatus:''})">
+        <p>Followups</p>
+        <h1>{{leadsCount.followups}}</h1>
+      </ion-col>
+      <ion-col
+        [ngClass]="filteredParams.selectedStage === 'Scheduled Visits' && filteredParams.activeCardKey ==='booked-card' ? 'selected-card border-left' : ''"
+        class="py-0 px-1"
+        (click)="applyFilter({selectedStage: 'Scheduled Visits',activeCardKey:'booked-card',stage:'USV',stagestatus:'1'})">
+        <p>Scheduled visits</p>
+        <h1>{{leadsCount.usvfix}}</h1>
+      </ion-col>
+    </ion-row>
   </ion-card>
+
+  <ion-row class="visits-row mx-1">
+    <ion-col *ngFor="let visit of visits" size="4">
+      <ion-card class="m-0">
+        <ion-img src="../assets/cp/allVisits-card-icon.svg"></ion-img>
+        <p>Visits {{visit.visit_order}}</p>
+        <h1>{{visit.visited_count}}</h1>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+
 
   <div class="m-2">
     <ion-row [class]="filteredParams.activeCardKey" class="rounded-0">

@@ -50,6 +50,7 @@ export class OverdueDashboardComponent implements OnInit {
   };
   leads_detail: any;
   showSpinner = false;
+  visits: any;
 
   constructor(
     private activeroute: ActivatedRoute,
@@ -149,6 +150,7 @@ export class OverdueDashboardComponent implements OnInit {
           case 0:
             this.leadsCount.followups =
               assignleads['AssignedLeads'][0]['counts'];
+            this.visits = assignleads['Visitscounts'];
             break;
           case 1:
             this.leadsCount.nc = assignleads['AssignedLeads'][0]['counts'];
@@ -161,6 +163,7 @@ export class OverdueDashboardComponent implements OnInit {
             break;
           case 4:
             this.leadsCount.usvfix = assignleads['AssignedLeads'][0]['counts'];
+            this.visits = assignleads['Visitscounts'];
             break;
           case 5:
             this.leadsCount.rsvfix = assignleads['AssignedLeads'][0]['counts'];

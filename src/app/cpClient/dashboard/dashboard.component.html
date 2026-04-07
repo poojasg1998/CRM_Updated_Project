@@ -77,6 +77,19 @@
   </ion-row>
 </div>
 
+<!--FILTERED CHIPS -->
+<ion-row class="scroll-row filterButtons m-0 p-1">
+  <ion-col class="scroll-col" *ngFor="let src of filteredParams.source" (click)="removeSource(src)">
+    {{ src }}
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
+  <ion-col class="scroll-col" *ngIf="filteredParams.visitedpropName"
+    (click)="tempFilteredValues.visitedpropName = '';tempFilteredValues.propid='';onConfirmedFilter()">
+    {{filteredParams.visitedpropName }}
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
+</ion-row>
+
 <ion-row class="filterButtons m-2 mb-0" *ngIf="this.filteredParams.datePreset == 'custom'" (click)="removeDateFilter()">
   <ion-button fill="clear" class="m-0">
     <span *ngIf="filteredParams.isLeadsVisits == 'leads' || filteredParams.isLeadsVisits == 'calls'">{{
@@ -539,7 +552,7 @@
             </ion-searchbar>
             <ion-radio-group [(ngModel)]="tempFilteredValues.visitedprop">
               <div class="custom-row overflow-auto" *ngFor="let item of filteredProperty">
-                <ion-radio slot="start" [value]="item.propid"></ion-radio>
+                <ion-radio slot="start" [value]="item"></ion-radio>
                 <ion-label>{{ item.name }}</ion-label>
               </div>
             </ion-radio-group>

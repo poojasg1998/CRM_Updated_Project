@@ -61,7 +61,6 @@ ion-content {
       letter-spacing: 0.02em;
     }
   }
-
   // Active State: Blue Gradient
   .active-btn {
     --background: linear-gradient(180deg, #2196f3 -17.31%, #004d74 96.15%);
@@ -90,116 +89,6 @@ ion-content {
       color: #444444;
     }
   }
-}
-
-// Card Backgrounds
-.scheduled-visits-card.selected {
-  border-color: rgb(2, 171, 255);
-  .selected-card {
-    border-color: rgb(2, 171, 255);
-  }
-}
-.upcoming-visits-card.selected,
-.upcoming-followups-card.selected,
-.todays-followups-card.selected {
-  border-color: rgb(198, 137, 132);
-  .selected-card {
-    border-color: rgb(198, 137, 132);
-  }
-}
-.scheduled-visits-card {
-  background: linear-gradient(84.03deg, #ffffff 32.95%, #e5f6fe 104.6%);
-  .selected-card {
-    background: #c3ebff;
-  }
-  h1 {
-    color: #004e76;
-  }
-}
-
-.upcoming-visits-card,
-.todays-followups-card,
-.upcoming-followups-card {
-  background: linear-gradient(81.85deg, #ffffff 48.93%, #ffe4e1 106.84%);
-  .selected-card {
-    background: #ffdad5;
-  }
-  h1 {
-    color: #73322d;
-  }
-}
-
-.scheduled-visits-card,
-.upcoming-visits-card,
-.todays-followups-card,
-.upcoming-followups-card {
-  border: 2px solid #ffffff;
-  border-radius: 7px;
-  position: relative;
-  overflow: hidden;
-  // margin: 0 2px;
-  padding: 0;
-  .selected-card {
-    border-radius: 0;
-    padding-left: 4px;
-  }
-
-  ion-img {
-    width: 26px;
-    height: 26px;
-    position: absolute;
-    right: 3px;
-    top: 3px;
-    z-index: 2;
-  }
-
-  .card-content {
-    p {
-      font-size: 0.8rem;
-      font-weight: 400;
-      margin: 0;
-      color: #666;
-    }
-
-    h1 {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 0;
-    }
-  }
-
-  .visitConvert-row {
-    background-color: #503b0b;
-
-    p {
-      color: white;
-      font-size: 11px;
-      font-weight: 500;
-    }
-  }
-}
-
-.border-bottom-right {
-  border-radius: 0 0 6px 0 !important;
-  border-bottom: 1px solid;
-  border-right: 1px solid;
-}
-
-.border-top-right {
-  border-radius: 0 6px 0 0 !important;
-  border-top: 1px solid;
-  border-right: 1px solid;
-}
-.border-top-left {
-  border-radius: 6px 0 0 0 !important;
-  border-top: 1px solid;
-  border-left: 1px solid;
-}
-.border-bottom-none {
-  border-radius: 6px 6px 0 0 !important;
-  border-top: 1px solid;
-  border-left: 1px solid;
-  border-right: 1px solid;
 }
 
 .leads-card {
@@ -240,19 +129,6 @@ ion-item::part(native) {
   font-size: 0.7rem;
 }
 
-.latestRemark ion-label {
-  color: #000000b5;
-  font-size: 12px;
-  font-family: Poppins;
-  font-weight: 500;
-  word-wrap: break-word;
-}
-
-.latestRemark p {
-  color: black;
-  font-family: Poppins;
-  font-size: 9px;
-}
 .custom-ion-item {
   --inner-item-padding-top: 0;
   --inner-item-padding-bottom: 0;
@@ -274,4 +150,197 @@ ion-item::part(native) {
   ion-icon {
     color: #004d74 !important;
   }
+}
+.latestRemark ion-label {
+  color: #000000b5;
+  font-size: 12px;
+  font-family: Poppins;
+  font-weight: 500;
+  word-wrap: break-word;
+}
+
+.latestRemark p {
+  color: black;
+  font-family: Poppins;
+  font-size: 9px;
+}
+
+.filter-modal::part(content) {
+  border-radius: 16px;
+}
+
+.filter-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+/* Header */
+.filter-header {
+  font-size: 22px;
+  font-weight: 500;
+  padding: 6px 13px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Body */
+.filter-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Menu */
+.filter-left {
+  width: 40%;
+  background: #f5f5f5;
+  overflow-y: auto;
+}
+
+.menu-item {
+  padding: 10px;
+  font-size: 14px;
+  color: #444;
+}
+
+.menu-item.active {
+  background: #0b7ab2;
+  color: #fff;
+  font-weight: 400;
+}
+
+/* Right Content */
+.filter-right {
+  width: 60%;
+  padding: 10px;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+/* Footer */
+.filter-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  border-top: 1px solid #eee;
+}
+
+.clear-btn {
+  flex: 1;
+  margin-right: 8px;
+  border-radius: 20px;
+  --border-color: #838383;
+  background: #ffffff;
+  color: #838383;
+  text-transform: none;
+  --border-radius: 29px !important;
+}
+
+.apply-btn {
+  flex: 1;
+  --border-radius: 29px !important;
+  --background: #0b7ab2;
+  text-transform: none;
+  color: #ffffff;
+}
+
+.custom-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+.filter-right ion-checkbox {
+  --size: 16px; /* default is bigger */
+  margin-right: 6px;
+  --border-color-checked: #0b7ab2;
+  --checkbox-background-checked: #0b7ab2;
+}
+
+.filter-right ion-label {
+  font-size: 14px;
+}
+.search-style {
+  position: sticky;
+  top: -10px;
+  padding: 0;
+  z-index: 999;
+}
+ion-modal.filter_modal::part(content) {
+  border-radius: 20px 20px 0 0 !important;
+  overflow: hidden;
+  --background: #f5f7fa;
+}
+ion-modal.filter_modal {
+  --backdrop-opacity: 0.7;
+  padding-top: 72px;
+}
+.filterIcon label {
+  background: #ececec;
+  width: 20px;
+  border-radius: 8px;
+  opacity: 0.4;
+}
+
+//END
+.floatting-icon {
+  position: absolute;
+  width: 50px;
+  right: 0;
+  bottom: 0;
+  border-radius: 35px;
+  padding: 5px;
+  --ionicon-stroke-width: 60px;
+}
+.scroll-row {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  gap: 4px;
+}
+
+.scroll-row::-webkit-scrollbar {
+  display: none; /* Hide scrollbar (Chrome) */
+}
+
+.scroll-col {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
+  padding: 4px 10px;
+}
+
+.filterButtons ion-col {
+  color: #0b7ab2;
+  font-size: 12px;
+  font-weight: 400;
+  word-wrap: break-word;
+  border: 0.5px #0b7ab2 solid;
+  border-radius: 4px;
+  height: 26px;
+  min-height: 26px;
+}
+.scroll-col {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  padding: 4px 10px;
+}
+
+.filterButtons ion-col {
+  color: #0b7ab2;
+  font-size: 12px;
+  border: 0.5px #0b7ab2 solid;
+  border-radius: 4px; /* 🔥 better chip look */
+  height: 26px;
 }
