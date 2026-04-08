@@ -741,6 +741,9 @@ ion-item.lead-item {
     span {
       font-size: 12px;
     }
+    position: sticky;
+    top: 0;
+    z-index: 9999;
   }
 
   .allMissedlive-calls ion-col:nth-child(2) {

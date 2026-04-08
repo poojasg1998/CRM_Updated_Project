@@ -14,7 +14,7 @@
 </ion-row>
 
 <!-- EXECUTIVE DROPDOWN -->
-<ion-row style="margin: 6px 6px 0;gap:6px" *ngIf="!isOnCallDetailsPage">
+<ion-row style="padding:6px;gap:6px" *ngIf="!isOnCallDetailsPage">
   <ion-col class=" p-0 exec" size="5" *ngIf="roleid == '1' || roletype == '1'">
     <p-dropdown [options]="executiveNames" class="exec_css" (onChange)="onFilterSelection('exec', selectedExecu)"
       [(ngModel)]="selectedExecu" optionLabel="name" placeholder="Executive" />

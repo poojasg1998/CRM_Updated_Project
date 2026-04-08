@@ -78,7 +78,6 @@
     (click)="onAssign_btn('leads')">
   </ion-img>
 
-
   <!-- VISIT ASSIGN ICON -->
   <ion-img
     *ngIf="(roleid == '1' || roleid == '2' || roleid == '50003' || roleid == '50004')  && fixedPropertiesList?.length > 0"
@@ -1348,8 +1347,8 @@
     <ion-card [ngClass]="block?'pointer-event-none opacity4':''" class="plan-card" id="fixedPlanSection"
       [hidden]="fixedPropertiesList?.length == 0 ">
       <!-- Header -->
-      <div class="plan-header">
-        <div class="content_center">
+      <div class="plan-header" (click)="onFixingPlan()">
+        <div class=" content_center">
           <span
             *ngIf="assignedrm && (assignedrm[0]?.leadstage == 'USV' || assignedrm[0]?.leadstage == 'RSV' || assignedrm[0]?.leadstage == 'Final Negotiation')">
             <span

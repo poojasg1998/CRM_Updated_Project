@@ -170,14 +170,19 @@
     </ng-template>
   </ion-modal>
 
-  <div
-    *ngIf="sharedService.isMenuOpen && (localStorage.getItem('Department') != '10005' && localStorage.getItem('Department') != '10006') && !router.url.includes('/shreeindustries-dashboard') && !router.url.includes('/marketing-calls')">
+  <div *ngIf="sharedService.isMenuOpen && (localStorage.getItem('Department') != '10005' && localStorage.getItem('Department') != '10006') && !router.url.includes('/shreeindustries-dashboard') && !router.url.includes('/marketing-calls') && 
+    !localStorage.getItem('contrllerName')">
     <app-menu></app-menu>
   </div>
 
-  <div *ngIf="router.url.includes('/shreeindustries-dashboard') ||router.url.includes('/marketing-calls')">
+  <div *ngIf="router.url.includes('/shreeindustries-dashboard') || router.url.includes('/marketing-calls')">
     <app-menubar></app-menubar>
   </div>
 
+  <div *ngIf="localStorage.getItem('contrllerName')">
+    <app-cp-menubar></app-cp-menubar>
+  </div>
+  <!-- <ion-content> -->
   <ion-router-outlet id="app-content"></ion-router-outlet>
+  <!-- </ion-content> -->
 </ion-app>

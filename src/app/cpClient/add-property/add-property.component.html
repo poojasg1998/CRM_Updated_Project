@@ -1,0 +1,192 @@
+<app-cp-header></app-cp-header>
+<div class="content_center loader" *ngIf="showSpinner">
+  <ion-img style="width: 300px; height: 70px" src="../assets/CRMimages/animation/loader.gif"></ion-img>
+</div>
+<div class="data-div">
+  <ion-row class="gap-2 data-row m-2 ">
+    <ion-col [ngClass]="isPropSourceLocality == 'property'?'active':''"
+      (click)="onPropSourceLocality('property')"><span>Properties</span></ion-col>
+    <ion-col [ngClass]="isPropSourceLocality == 'source'?'active':''"
+      (click)="onPropSourceLocality('source')"><span>Source</span></ion-col>
+    <ion-col [ngClass]="isPropSourceLocality == 'locality'?'active':''"
+      (click)="onPropSourceLocality('locality')"><span>Localities</span></ion-col>
+  </ion-row>
+</div>
+
+<ion-row class="sale-resale-rental-row mb-0">
+  <ion-col (click)="onCategory('Sale')" class="d-flex  align-items-center justify-content-center px-0"
+    [class.active_btn]="category == 'Sale'">
+    <span>Sale</span>
+    <ion-img *ngIf="category != 'Sale'" src="../../../assets/cp/sale.svg"></ion-img>
+    <ion-img *ngIf="category == 'Sale'" src="../../../assets/cp/active-sale.svg"></ion-img>
+  </ion-col>
+  <ion-col size="4" (click)="onCategory('Rental')" class="d-flex  align-items-center justify-content-center px-0"
+    [class.active_btn]="category == 'Rental'">
+    <span>Resale</span>
+    <ion-img *ngIf="category != 'Rental'" src="../../../assets/cp/resale.svg"></ion-img>
+    <ion-img *ngIf="category == 'Rental'" src="../../../assets/cp/active-resale.svg"></ion-img>
+  </ion-col>
+  <ion-col (click)="onCategory('Resale')" class="d-flex align-items-center justify-content-center px-0"
+    [class.active_btn]="category == 'Resale'">
+    <span>Rental</span>
+    <ion-img *ngIf="category != 'Resale'" src="../../../assets/cp/rental.svg"></ion-img>
+    <ion-img *ngIf="category == 'Resale'" src="../../../assets/cp/active-rental.svg"></ion-img>
+  </ion-col>
+</ion-row>
+
+<ion-content>
+  <ion-card
+    *ngFor="let data of isPropSourceLocality == 'property'?filterPropertyList:isPropSourceLocality == 'source'?source:localityList;,let i= index">
+    <div class="card-count">
+      <span>{{ i + 1 | number:'2.0'}}
+      </span>
+    </div>
+    <div *ngIf="isPropSourceLocality == 'property'">
+      <ion-row>
+        <ion-col class="pb-0 label">Property</ion-col>
+        <ion-col class="pb-0 label">Catagary</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="pt-0 value">{{data.name}}</ion-col>
+        <ion-col class="pt-0 value">{{data.listing_category}}</ion-col>
+      </ion-row>
+    </div>
+    <div *ngIf="isPropSourceLocality == 'source'">
+      <ion-row>
+        <ion-col class="label pb-0">Source</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="value pt-0">{{data.source}}</ion-col>
+      </ion-row>
+    </div>
+    <div *ngIf="isPropSourceLocality == 'locality'">
+      <ion-row>
+        <ion-col class="label pb-0">Locality Name</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="value pt-0">{{data.locality}}</ion-col>
+      </ion-row>
+    </div>
+  </ion-card>
+</ion-content>
+
+<ion-modal class="addProperty" #addProperty>
+  <ng-template>
+    <ion-header>
+      <ion-row>
+        <ion-col>Add Property</ion-col>
+        <ion-col (click)="addProperty.dismiss()" size="2" class="d-flex align-items-center justify-content-center">
+          <ion-icon name="close"></ion-icon>
+        </ion-col>
+      </ion-row>
+    </ion-header>
+    <form [formGroup]="addPropertyForm" (ngSubmit)="propertyAdd()" class="addPropertyForm">
+      <ion-row>
+        <ion-col>
+          <div>Property Name</div>
+          <div>
+            <ion-input [placeholder]="hasError('name','required') ? 'Please Enter Property' : 'Enter Property'"
+              [ngClass]="hasError('name','required') ? 'error-field' : ''" style="min-height:20px" type="text"
+              formControlName="name">
+            </ion-input>
+          </div>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="catagary-row">
+        <ion-col>
+          <div>Lead Segment</div>
+          <ion-row class="gap-2 ">
+            <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="togglecategory('1')"
+              [class.active]="addPropertyForm.value.category?.includes('1')">
+              Sale </ion-col>
+            <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="togglecategory('2')"
+              [class.active]="addPropertyForm.value.category?.includes('2')">
+              Resale
+            </ion-col>
+            <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="togglecategory('3')"
+              [class.active]="addPropertyForm.value.category?.includes('3')">
+              Rental
+            </ion-col>
+          </ion-row>
+          <span class="error-text">{{hasError('category','required') ? 'Please Select Category' : ''}}</span>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col class="d-flex align-items-center justify-content-end">
+          <ion-button fill="clear" type="submit" class="save-btn">Save</ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
+  </ng-template>
+</ion-modal>
+
+<ion-modal class="addSource" #addSource>
+  <ng-template>
+    <ion-header>
+      <ion-row>
+        <ion-col>Add Source</ion-col>
+        <ion-col (click)="addSource.dismiss()" size="2" class="d-flex align-items-center justify-content-center">
+          <ion-icon name="close"></ion-icon>
+        </ion-col>
+      </ion-row>
+    </ion-header>
+    <form [formGroup]="addSourceForm" (ngSubmit)="sourceAdd()" class="addSourceForm">
+      <ion-row>
+        <ion-col>
+          <div>Source Name</div>
+          <div>
+            <ion-input [placeholder]="hasError('name','required') ? 'Please Enter Property' : 'Enter Property'"
+              [ngClass]="hasError('name','required') ? 'error-field' : ''" style="min-height:20px" type="text"
+              formControlName="name">
+            </ion-input>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="d-flex align-items-center justify-content-end">
+          <ion-button fill="clear" class="save-btn" type="submit">Save</ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
+  </ng-template>
+</ion-modal>
+
+<ion-modal class="addLocality" #addLocality>
+  <ng-template>
+    <ion-header>
+      <ion-row>
+        <ion-col>Add Locality</ion-col>
+        <ion-col (click)="addLocality.dismiss()" size="2" class="d-flex align-items-center justify-content-center">
+          <ion-icon name="close"></ion-icon>
+        </ion-col>
+      </ion-row>
+    </ion-header>
+    <form [formGroup]="addLocalityForm" (ngSubmit)="localityAdd()" class="addLocalityForm">
+      <ion-row>
+        <ion-col>
+          <div>Locality Name</div>
+          <div>
+            <ion-input [placeholder]="hasError('name','required') ? 'Please Enter Property' : 'Enter Property'"
+              [ngClass]="hasError('name','required') ? 'error-field' : ''" style="min-height:20px" type="text"
+              formControlName="name">
+            </ion-input>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="d-flex align-items-center justify-content-end">
+          <ion-button fill="clear" class="save-btn" type="submit">Save</ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
+  </ng-template>
+</ion-modal>
+
+
+
+<div class="floatting-icon" *ngIf="!sharedService.isBottom"
+  (click)="isPropSourceLocality == 'property'? addProperty.present(): isPropSourceLocality == 'source'?addSource.present():addLocality.present()">
+  <ion-icon name="add"></ion-icon>
+</div>

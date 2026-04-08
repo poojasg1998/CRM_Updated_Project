@@ -189,9 +189,6 @@
             <p>Assigned</p>
             <h1>{{leads_count.assigned}}</h1>
           </span>
-          <!-- <p (click)="navigateToLeadListPage('pending');">Untouched-
-              <span> {{leads_count.untouched}} </span>
-            </p> -->
 
           <div class="m-0 pt-1 assignedLeads-sub-data" (click)="navigateToLeadListPage('pending');">
             <p>Untouched</p>
@@ -267,7 +264,7 @@
           <ion-img src="../assets/CRMimages/visit-details-icon.svg"></ion-img>
           <div>
             <span>
-              <span (click)="navigateToVisitsListPage('allvisits')">
+              <span (click)="filteredParams1.priority = ''; navigateToVisitsListPage('allvisits')">
                 <p>All Visits</p>
                 <h1>{{visits_count.allVisits}}</h1>
               </span>
@@ -275,19 +272,22 @@
           </div>
           <ion-row>
             <ion-col>
-              <div (click)="navigateToVisitsListPage('USV')" class="allVisits-sub-data m-0">
+              <div (click)="filteredParams1.priority = '';navigateToVisitsListPage('USV')"
+                class="allVisits-sub-data m-0">
                 <p>USV</p>
                 <h1>{{visits_count.usv}}</h1>
               </div>
             </ion-col>
             <ion-col>
-              <div (click)="navigateToVisitsListPage('RSV')" class="allVisits-sub-data m-0 ">
+              <div (click)="filteredParams1.priority = '';navigateToVisitsListPage('RSV')"
+                class="allVisits-sub-data m-0 ">
                 <p>RSV</p>
                 <h1>{{visits_count.rsv}}</h1>
               </div>
             </ion-col>
             <ion-col>
-              <div class="allVisits-sub-data m-0 " (click)="navigateToVisitsListPage('Final Negotiation')">
+              <div class="allVisits-sub-data m-0 "
+                (click)="filteredParams1.priority = '';navigateToVisitsListPage('Final Negotiation')">
                 <p>FN</p>
                 <h1>{{visits_count.fn}}</h1>
               </div>
@@ -300,11 +300,12 @@
         <ion-col class="booking-request-card">
           <ion-img src="../assets/CRMimages/booking-request-icon.svg"></ion-img>
           <div>
-            <span (click)="navigateToVisitsListPage('Deal Closing Requested')">
+            <span (click)="filteredParams1.priority = '';navigateToVisitsListPage('Deal Closing Requested')">
               <p>Booking Request</p>
               <h1>{{visits_count.bookingRequest}}</h1>
             </span>
-            <div class="booking-request-sub-data m-0 " (click)="navigateToVisitsListPage('Closing Request Rejected');">
+            <div class="booking-request-sub-data m-0 "
+              (click)="filteredParams1.priority = '';navigateToVisitsListPage('Closing Request Rejected');">
               <p>Rejected</p>
               <h1>{{visits_count.rejected}}</h1>
             </div>
@@ -313,11 +314,12 @@
         <ion-col class="closed-card">
           <ion-img src="../assets/CRMimages/closed-icon.svg"></ion-img>
           <div>
-            <span (click)="navigateToVisitsListPage('Deal Closed')">
+            <span (click)="filteredParams1.priority = '';navigateToVisitsListPage('Deal Closed')">
               <p>Closed</p>
               <h1>{{visits_count.closed}}</h1>
             </span>
-            <div class="closed-sub-data m-0 " (click)="navigateToVisitsListPage('junkvisits');">
+            <div class="closed-sub-data m-0 "
+              (click)="filteredParams1.priority = '';navigateToVisitsListPage('junkvisits');">
               <p>Junk Visits</p>
               <h1>{{visits_count.junk}}</h1>
             </div>
@@ -386,7 +388,7 @@
             </div>
 
             <ion-row class="info-row-heading">
-              <ion-col size="6">
+              <ion-col size="6" (click)="navigateToMandateCustomerPage(row.LeadID,row.ExecId,row)">
                 <div><span>Lead Name</span></div>
                 <div>
                   <span class="info-row-value">
@@ -432,10 +434,14 @@
               <ion-col size="6" *ngIf="row.nextactiondate">
                 <div><span>Next Action</span></div>
                 <div>
-                  <span class="info-row-value"
+                  <!-- <span class="info-row-value"
                     [ngClass]="(row.reassign_visibility == '2' || row.reassign_visibility == '3')?'access-removed':''"
                     *ngIf="row.nextactiondate && toDate(row.nextactiondate) <= todaysDate">
                     {{calculateDiff(row?.nextactiondate) == 0?'':(calculateDiff(row?.nextactiondate)+' days')}}
+                    {{row.nextactiondate +","+row.nextactiontime }}
+                  </span> -->
+
+                  <span class="info-row-value">
                     {{row.nextactiondate +","+row.nextactiontime }}
                   </span>
                 </div>
@@ -542,7 +548,9 @@
       <div [ngClass]="allCallsData.length==0?'emptydata':'notemptydata'" class="mt-1">
         <ion-item-sliding *ngFor="let call of allCallsData" #sliding (ionSwipe)="onSwipe($event,call)">
           <ion-item style="--border-style:none;" class="custom-ion-item p-0">
-            <ion-card class="mx-0 my-2" style="width: 100%;">
+            <ion-card class="mx-0 my-2" style="width: 100%;"
+              (click)="navigateToMandateCustomerPage(call.leadid,call.Exec_IDFK,call)">
+
               <div class="p-1">
                 <ion-row>
                   <ion-col class="text-value"><span>{{call.leadname}}</span></ion-col>
@@ -801,19 +809,20 @@
   </span> -->
 
     <div class="plan-details-div" #leadsSection>
-      <ion-row class="m-0 rounded-0"
-        [ngClass]="(filteredParams1.lead_stage == 'USV' ||filteredParams1.lead_stage == 'RSV') && filteredParams1.lead_status == 'rescheduled'?'resheduledPlan-card':(filteredParams1.lead_stage == 'USV' ||filteredParams1.lead_stage == 'RSV') && filteredParams1.lead_status == 'overdue'?'overduePlan-card':(filteredParams1.lead_stage == 'USV' ||filteredParams1.lead_stage == 'RSV') && filteredParams1.lead_status == 'unplanned'?'uplanned-card':(filteredParams1.lead_stage == 'USV' ||filteredParams1.lead_stage == 'RSV') && filteredParams1.lead_status == 'done'?'donePlan-card':(filteredParams1.lead_stage == 'USV' ||filteredParams1.lead_stage == 'RSV') && filteredParams1.lead_status == 'totalplanned'?'totalPlan-card':''">
+      <ion-row class="m-0 rounded-0" style="position: sticky; top: 0;  z-index: 9999;"
+        [ngClass]="(filteredParams1.lead_stage == 'USV' ||filteredParams1.lead_stage == 'RSV') && filteredParams1.lead_status == 'rescheduled'?'resheduledPlan-card':(filteredParams1.lead_stage == 'USV' ||filteredParams1.lead_stage == 'RSV') && filteredParams1.lead_status == 'overdue'?'overduePlan-card':(filteredParams1.lead_stage == 'USV' ||filteredParams1.lead_stage == 'RSV') && filteredParams1.lead_status == 'unplanned'?'uplanned-card':(filteredParams1.lead_stage == 'USV' || filteredParams1.lead_stage == 'RSV') && filteredParams1.lead_status == 'done'?'donePlan-card':(filteredParams1.lead_stage == 'USV' || filteredParams1.lead_stage == 'RSV') && filteredParams1.lead_status == 'totalplanned'?'totalPlan-card':''">
         <ion-col class="text-capitalize d-flex align-items-center justify-content-center">
           <!-- Planned vs Done Summary -->
           {{filteredParams1.lead_stage == 'USV'?'USV':'RSV'}}
-          {{filteredParams1.lead_status}}
+          {{filteredParams1.lead_status=='totalplanned'?formatLeadStatus(filteredParams1.lead_status):filteredParams1.lead_status}}
         </ion-col>
       </ion-row>
 
 
       <ion-item-sliding *ngFor="let row of scheduledPlans,let i=index" #sliding (ionSwipe)="onSwipe($event,row)">
         <ion-item style="--border-style:none;    --background: #f0f2f5;">
-          <ion-card class="lead-info scheduledPlan-card">
+          <ion-card class="lead-info scheduledPlan-card"
+            (click)="navigateToMandateCustomerPage(row.lead_id,row.exec_id,row)">
             <div class="card-count">
               <span>{{ i + 1 | number:'2.0' }}
               </span>

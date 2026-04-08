@@ -17,9 +17,7 @@ export class MandateCloseFormComponent implements OnInit {
   @Input() onCallLeadDetails: any;
 
   closedTime;
-
   feedbackId = '';
-
   minTime = DateTime.fromObject({ hour: 8, minute: 0 });
   maxTime = DateTime.fromObject({ hour: 20, minute: 0 });
   closeddate: string;
@@ -919,7 +917,7 @@ export class MandateCloseFormComponent implements OnInit {
                                               },
                                               queryParamsHandling: 'merge',
                                             });
-                                            location.reload();
+                                            // location.reload();
                                           }
                                         });
                                       } else if (
@@ -1895,16 +1893,18 @@ export class MandateCloseFormComponent implements OnInit {
                                               confirmButtonText: 'OK!',
                                             }).then((result) => {
                                               if (result.value) {
-                                                //      const currentParams = this.activeroute.snapshot.queryParams;
-                                                // this.router.navigate([], {
-                                                // relativeTo: this.activeroute,
-                                                // queryParams: {
-                                                //   ...currentParams,
-                                                //   stageForm: 'onleadStatus'
-                                                // },
-                                                // queryParamsHandling: 'merge'
-                                                // });
-                                                location.reload();
+                                                const currentParams =
+                                                  this.activeroute.snapshot
+                                                    .queryParams;
+                                                this.router.navigate([], {
+                                                  relativeTo: this.activeroute,
+                                                  queryParams: {
+                                                    ...currentParams,
+                                                    stageForm: 'onleadStatus',
+                                                  },
+                                                  queryParamsHandling: 'merge',
+                                                });
+                                                // location.reload();
                                               }
                                             });
                                           } else if (
@@ -2189,16 +2189,18 @@ export class MandateCloseFormComponent implements OnInit {
                                             confirmButtonText: 'OK!',
                                           }).then((result) => {
                                             if (result.value) {
-                                              //      const currentParams = this.activeroute.snapshot.queryParams;
-                                              // this.router.navigate([], {
-                                              // relativeTo: this.activeroute,
-                                              // queryParams: {
-                                              //   ...currentParams,
-                                              //   stageForm: 'onleadStatus'
-                                              // },
-                                              // queryParamsHandling: 'merge'
-                                              // });
-                                              location.reload();
+                                              const currentParams =
+                                                this.activeroute.snapshot
+                                                  .queryParams;
+                                              this.router.navigate([], {
+                                                relativeTo: this.activeroute,
+                                                queryParams: {
+                                                  ...currentParams,
+                                                  stageForm: 'onleadStatus',
+                                                },
+                                                queryParamsHandling: 'merge',
+                                              });
+                                              // location.reload();
                                             }
                                           });
                                         } else if (

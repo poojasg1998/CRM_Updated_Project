@@ -20,36 +20,47 @@ export class CanActivateGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean | UrlTree {
-    if (this.authService.isAuthenticated()) {
-      // User is logged in, allow navigation
-      const department = localStorage.getItem('Department'); // or from service
+    const department = localStorage.getItem('Department');
+    if (!this.authService.isAuthenticated()) {
+      return this.router.createUrlTree(['/login']);
+    }
+    if (department == '10005') {
+      return this.router.createUrlTree(['/source-dashboard'], {
+        queryParams: {
+          fromDate: new Date().toLocaleDateString('en-CA'),
+          toDate: new Date().toLocaleDateString('en-CA'),
+          isDateFilter: 'today',
+          status: 'Total',
+          activeCardKey: 'total_card',
+          leads: '1',
+        },
+      });
+    }
 
-      if (department == '10006') {
-        this.router.navigate(['/employeeAttendance'], {
-          queryParams: {
-            fromdate: new Date().toLocaleDateString('en-CA'),
-            todate: new Date().toLocaleDateString('en-CA'),
-            execid: localStorage.getItem('UserId'),
-            isDateFilter: 'today',
-          },
-        });
-        return false; // stop loading dashboard module
-      } else if (localStorage.getItem('crmcategory_IDFK') == '2') {
-        this.router.navigate(['shreeindustries-dashboard'], {
-          queryParams: {
-            isDateFilter: 'allTime',
-            activeCardKey: 'total_card',
-            tabid: '1',
-            status: '0',
-          },
-        });
-        return false;
-      }
-      return true;
-    } else {
-      // User is not logged in, redirect to login
-      this.router.navigate(['/login']);
-      return false;
+    if (department == '10006') {
+      return this.router.createUrlTree(['/employeeAttendance'], {
+        queryParams: {
+          fromdate: new Date().toLocaleDateString('en-CA'),
+          todate: new Date().toLocaleDateString('en-CA'),
+          execid: localStorage.getItem('UserId'),
+          isDateFilter: 'today',
+        },
+      });
+    }
+
+    if (localStorage.getItem('crmcategory_IDFK') == '2') {
+      return this.router.createUrlTree(['/shreeindustries-dashboard'], {
+        queryParams: {
+          isDateFilter: 'allTime',
+          activeCardKey: 'total_card',
+          tabid: '1',
+          status: '0',
+        },
+      });
+    }
+
+    if (localStorage.getItem('contrllerName')) {
+      return this.router.createUrlTree(['/cp-dashboard']);
     }
 
     // if (!this.authService.isAuthenticated()) {

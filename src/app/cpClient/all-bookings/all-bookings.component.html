@@ -1,0 +1,242 @@
+<app-cp-header></app-cp-header>
+
+<div class="content_center loader" *ngIf="showSpinner">
+  <ion-img style="width: 300px; height: 70px" src="../assets/CRMimages/animation/loader.gif"></ion-img>
+</div>
+
+<ion-row class="sale-resale-rental-row mb-0">
+  <ion-col (click)="applyFilter({category: '1'})" class="d-flex  align-items-center justify-content-center px-0"
+    [class.active_btn]="filteredParams.category == '1'">
+    <span>Sale</span>
+    <ion-img *ngIf="filteredParams.category != '1'" src="../../../assets/cp/sale.svg"></ion-img>
+    <ion-img *ngIf="filteredParams.category == '1'" src="../../../assets/cp/active-sale.svg"></ion-img>
+  </ion-col>
+  <ion-col size="4" (click)="applyFilter({category: '2'})"
+    class="d-flex  align-items-center justify-content-center px-0" [class.active_btn]="filteredParams.category == '2'">
+    <span>Resale</span>
+    <ion-img *ngIf="filteredParams.category != '2'" src="../../../assets/cp/resale.svg"></ion-img>
+    <ion-img *ngIf="filteredParams.category == '2'" src="../../../assets/cp/active-resale.svg"></ion-img>
+  </ion-col>
+  <ion-col (click)="applyFilter({category: '3'})" class="d-flex align-items-center justify-content-center px-0"
+    [class.active_btn]="filteredParams.category == '3'">
+    <span>Rental</span>
+    <ion-img *ngIf="filteredParams.category != '3'" src="../../../assets/cp/rental.svg"></ion-img>
+    <ion-img *ngIf="filteredParams.category == '3'" src="../../../assets/cp/active-rental.svg"></ion-img>
+  </ion-col>
+</ion-row>
+<ion-row class="p-1 prop-row px-0" style="background-color: #f0f2f5;">
+  <ion-col class="custom-row p-0" [appCenterActiveButton]="replaceSpace(filteredParams.stage)"
+    style="display: flex; overflow-x: scroll;scrollbar-width:none">
+    <div class="custom-col center-text fw-light mx-1 " [id]="'id-Deal_Closing_Requested'"
+      (click)="applyFilter({stage: 'Deal Closing Requested'})">
+      {{'Booking Requests - ' + leadsCount.request}}
+    </div>
+    <div class="custom-col center-text fw-light mx-1 " [id]="'id-Closing_Request_Rejected'"
+      (click)="applyFilter({stage: 'Closing Request Rejected'})">
+      {{'Request Rejected - '+leadsCount.rejected}}
+    </div>
+    <div class="custom-col center-text fw-light mx-1 " [id]="'id-Deal_Closed'"
+      (click)="applyFilter({stage: 'Deal Closed'})">
+      {{'Booked - '+leadsCount.booked}}
+    </div>
+  </ion-col>
+</ion-row>
+
+<!--FILTERED CHIPS -->
+<ion-row class="scroll-row filterButtons m-0 p-1"
+  *ngIf="filteredParams.source?.length > 0 || filteredParams.closedpropName || filteredParams.assignedfromdate">
+  <ion-col class="scroll-col" *ngFor="let src of filteredParams.source" (click)="removeSource(src)">
+    {{ src }}
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
+  <ion-col class="scroll-col" *ngIf="filteredParams.closedpropName"
+    (click)="tempFilteredValues.closedpropName = '';tempFilteredValues.propid='';onConfirmedFilter()">
+    {{filteredParams.closedpropName }}
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
+
+  <ion-col class="scroll-col" *ngIf="filteredParams.assignedfromdate"
+    (click)="tempFilteredValues.assignedfromdate = '';tempFilteredValues.assignedtodate='';onConfirmedFilter()">
+    {{filteredParams.assignedfromdate +" To "+filteredParams.assignedtodate }}
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
+</ion-row>
+
+<ion-content>
+  <ion-item-sliding #sliding *ngFor="let lead of leads_detail,let i= index">
+    <ion-item lines="none">
+      <ion-card class="leads-card w-100 mt-0">
+        <div class="card-count">
+          <span>{{ i + 1 | number:'2.0'}}
+          </span>
+        </div>
+        <ion-grid class="p-0">
+          <div>
+            <ion-row style="line-height: 1.4;">
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Lead Name</p>
+                  <p class="value">{{lead.CustomerName}}</p>
+                </div>
+              </ion-col>
+
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Number </p>
+                  <p class="value">{{lead.number}}</p>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Lead Date </p>
+                  <p class="value">{{lead.Date|date: 'dd-MMM-yyyy hh:mm a' }}</p>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Priority </p>
+                  <p class="value">{{lead.number}}</p>
+                </div>
+              </ion-col>
+            </ion-row>
+          </div>
+        </ion-grid>
+        <div>
+          <ion-row>
+            <ion-accordion-group class="w-100">
+              <ion-accordion *ngIf="(lead.manualremarks || lead.visitremarks)" value="second"
+                style="border-top: 0.75px #ECECEC solid;" class="latestRemark">
+                <ion-item slot="header" color="light" class="custom-ion-item" style="--inner-padding-end:0;padding: 0;">
+                  <ion-label style="flex-grow: 1;margin: 5px">
+                    Latest Remark
+                  </ion-label>
+                </ion-item>
+                <div style="border-top: 0.75px #ECECEC solid;" class="p-2" slot="content">
+                  <p>{{lead.visitremarks}}</p>
+                  <p>{{lead.manualremarks}}</p>
+                  <p *ngIf="lead.manualremarks === null">{{lead.remarks}}</p>
+                </div>
+              </ion-accordion>
+            </ion-accordion-group>
+          </ion-row>
+        </div>
+      </ion-card>
+    </ion-item>
+  </ion-item-sliding>
+
+  <ion-row *ngIf="(leads_detail?.length==0)" class="textStyle ion-justify-content-center ion-align-items-center">
+    <ion-col class="ion-text-center"><span>No Leads Found...</span></ion-col>
+  </ion-row>
+
+  <!-- INFINITE SCROLL -->
+  <ion-infinite-scroll *ngIf="showInfiniteScroll" [disabled]="false" threshold="100px" #infiniteScroll
+    (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>
+
+<!-- FILTER MODAL -->
+<ion-modal #filter_modal class="filter_modal">
+  <ng-template>
+    <div class="filter-container">
+      <!-- Header -->
+      <div class="filter-header">Filter by</div>
+      <!-- Body -->
+      <div class="filter-body">
+        <!-- Left Menu -->
+        <div class="filter-left">
+          <div class="menu-item" [class.active]="activeTab === 'source'" (click)="setActiveTab('source')">
+            Source
+          </div>
+          <div class="menu-item" [class.active]="activeTab === 'property'" (click)="setActiveTab('property')">
+            Closed Prop
+          </div>
+          <div class="menu-item" [class.active]="activeTab === 'leaddate'" (click)="setActiveTab('leaddate')">
+            Lead Date
+          </div>
+        </div>
+
+        <!-- Right Content -->
+        <div class="filter-right">
+          <!-- PROPERTY -->
+          <ng-container *ngIf="activeTab === 'property'">
+            <ion-searchbar class="search-style" placeholder="Search source..." [(ngModel)]="searchText"
+              (ionInput)="searchData()">
+            </ion-searchbar>
+            <ion-radio-group [(ngModel)]="tempFilteredValues.selectedclosedProp">
+              <div class="custom-row overflow-auto" *ngFor="let item of filteredclosedProperty">
+                <ion-radio slot="start" [value]="item"></ion-radio>
+                <ion-label>{{ item.name }}</ion-label>
+              </div>
+            </ion-radio-group>
+          </ng-container>
+
+          <!-- SOURCE -->
+          <ng-container *ngIf="activeTab === 'source'">
+            <ion-searchbar class="search-style" placeholder="Search source..." [(ngModel)]="searchText"
+              (ionInput)="searchData()">
+            </ion-searchbar>
+            <div class="custom-row overflow-auto" *ngFor="let item of filteredSource">
+              <ion-checkbox slot="start" [checked]="tempFilteredValues.source?.includes(item.source)"
+                (ionChange)="applyTemFilter('source',item)"></ion-checkbox>
+              <ion-label><span>{{ item.source }}</span></ion-label>
+            </div>
+          </ng-container>
+
+          <!-- ASSIGNED DATE -->
+          <ng-container *ngIf="activeTab === 'leaddate'">
+            <ion-row style="width: 100%;">
+              <ion-col class=" filterIcon height35px">
+                <label for="bookingFromDate" style="width: 100%;">
+                  <div class="date_range">
+                    <div><span>{{tempFilteredValues.assignedfromdate?tempFilteredValues.assignedfromdate:
+                        'Select from date'}}</span></div>
+                    <div>
+                      <ion-img src="../assets/CRMimages/calendar-edit-outline.png"></ion-img>
+                    </div>
+                  </div>
+                </label>
+              </ion-col>
+            </ion-row>
+
+            <ion-row style="width: 100%;">
+              <ion-col class="filterIcon height35px"
+                (click)="tempFilteredValues.assignedfromdate =='' || ! tempFilteredValues.assignedfromdate || tempFilteredValues.assignedfromdate == null || tempFilteredValues.assignedfromdate == undefined?warningMessage():''">
+                <label [for]="tempFilteredValues.assignedfromdate !=='' ? 'bookingToDate' : ''" style="width: 100%;">
+                  <div class="date_range"
+                    [ngClass]="this.tempFilteredValues.assignedfromdate !='' && this.tempFilteredValues.assignedtodate == ''?'border_color_red':''">
+                    <div><span>{{tempFilteredValues.assignedtodate?tempFilteredValues.assignedtodate:
+                        'Select to date'}}</span></div>
+                    <div>
+                      <ion-img src="../assets/CRMimages/calendar-edit-outline.png"></ion-img>
+                    </div>
+                  </div>
+                </label>
+              </ion-col>
+            </ion-row>
+
+            <p-calendar inputId="bookingFromDate" appendTo="body" [dateFormat]="'yy-mm-dd'"
+              (onSelect)="applyTemFilter('bookingfromdate', $event)"></p-calendar>
+
+            <p-calendar inputId="bookingToDate" [minDate]="minDate" appendTo="body" [dateFormat]="'yy-mm-dd'"
+              (onSelect)="applyTemFilter('bookingtodate', $event)">
+            </p-calendar>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="filter-footer">
+        <ion-button fill="outline" class="clear-btn" (click)="onClearFiltered()">Clear All</ion-button>
+        <ion-button class="apply-btn" (click)="onConfirmedFilter()"
+          [disabled]="this.tempFilteredValues.assignedfromdate !='' && this.tempFilteredValues.assignedtodate == ''">Apply</ion-button>
+      </div>
+
+    </div>
+  </ng-template>
+</ion-modal>
+
+<div class="floatting-icon" *ngIf="!sharedService.isBottom">
+  <ion-img src="../../../assets/cp/filter-icon.svg" (click)="onFilterModal()"></ion-img>
+</div>

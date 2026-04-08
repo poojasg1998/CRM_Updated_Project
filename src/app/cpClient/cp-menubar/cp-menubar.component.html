@@ -1,0 +1,113 @@
+<ion-menu side="end" contentId="app-content">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title><ion-img src="../../../assets/CRMimages/SITE CRM Logo_1.png"></ion-img></ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+    <ion-menu-toggle auto-hide="true">
+      <ion-row class="row-height" style="border-bottom: 1px solid #ECECEC;">
+        <ion-col class="d-flex align-items-center" size="10">
+          <ion-img class="img-height-width" src="../../assets/CRMimages/finger print.svg"></ion-img>
+          Authentication
+        </ion-col>
+        <ion-col class="d-flex align-items-center" size="2">
+          <ion-toggle [checked]="isFingureprintEnabled" [(ngModel)]="isFingureprintEnabled"
+            (ionChange)="enableFingerprint($event)"></ion-toggle>
+        </ion-col>
+      </ion-row>
+      <!-- DASHBOARD DROPDOWN -->
+      <ion-row class="row-height"
+        [ngClass]="(accordionOpen || sharedService.isActiveRoute('cp-dashboard') || sharedService.isActiveRoute('cp-today-activity') || sharedService.isActiveRoute('cp-junk-dashboard') || sharedService.isActiveRoute('cp-overdue-dashboard') ) ?'activedashboard ':''"
+        (click)="toggleAccordion();$event.stopPropagation();resetStoredData()">
+        <ion-col class="center-vertically py-0">
+          <ion-img style="padding-right: 8px;"
+            *ngIf="!(accordionOpen || sharedService.isActiveRoute('cp-dashboard') ||sharedService.isActiveRoute('today-dashboard') || sharedService.isActiveRoute('cp-junk-dashboard') || sharedService.isActiveRoute('cp-overdue-dashboard'))"
+            class="img-height-width" src="../../assets/CRMimages/menubaricons/inactive_dashboard.svg"></ion-img>
+          <ion-img style="padding-right: 8px;"
+            *ngIf="(accordionOpen || sharedService.isActiveRoute('cp-dashboard') || sharedService.isActiveRoute('today-dashboard') || sharedService.isActiveRoute('cp-junk-dashboard') || sharedService.isActiveRoute('cp-overdue-dashboard') || sharedService.isActiveRoute('priority-dashboard'))"
+            class="img-height-width" src="../../assets/CRMimages/menubaricons/active_dashboard.svg"></ion-img>
+          <span> Dashboards</span>
+          <ion-icon [name]="accordionOpen ? 'chevron-up' : 'chevron-down'" style="margin-left: auto;"></ion-icon>
+        </ion-col>
+      </ion-row>
+      <!-- Conditional Content (Only shown when true) -->
+      <div *ngIf="accordionOpen" [ngClass]="accordionOpen?'activebottomText':''">
+        <ion-row class="subdrop-row-height" (click)="onDashboard('leads');resetStoredData()"
+          [class.activeSubSec]="router.url.indexOf('isLeadsVisits=leads') >-1  && sharedService.isActiveRoute('cp-dashboard')">
+          <ion-col class="center-vertically">
+            <ion-img style="width: 20px;" src="../../../assets/CRMimages/menubaricons/active_leads.svg"></ion-img>
+            <span class="pl-1">Leads</span>
+          </ion-col>
+        </ion-row>
+        <ion-row class="subdrop-row-height" (click)="onDashboard('visits');resetStoredData()"
+          [class.activeSubSec]="router.url.indexOf('isLeadsVisits=visits') >-1  && sharedService.isActiveRoute('cp-dashboard')">
+          <ion-col class="center-vertically">
+            <ion-img style="width: 20px;" src="../../../assets/CRMimages/menubaricons/active_visits.svg"></ion-img>
+            <span class="pl-1">Visits</span>
+          </ion-col>
+        </ion-row>
+
+        <ion-row (click)="resetStoredData()" class="subdrop-row-height" routerLink="../cp-today-activity"
+          [class.activeSubSec]="sharedService.isActiveRoute('cp-today-activity')">
+          <ion-col class="center-vertically">
+            <ion-img style="width: 20px;" src="../../../assets/CRMimages/menubaricons/active_scheduled.svg"></ion-img>
+            <span class="pl-1">Today’s Scheduled</span>
+          </ion-col>
+        </ion-row>
+        <ion-row (click)="resetStoredData()" class="subdrop-row-height" routerLink="../cp-overdue-dashboard"
+          [class.activeSubSec]="sharedService.isActiveRoute('cp-overdue-dashboard')">
+          <ion-col class="center-vertically">
+            <ion-img style="width: 20px;" src="../../../assets/CRMimages/menubaricons/active_scheduled.svg"></ion-img>
+            <span class="pl-1">Missed Dashboard</span>
+          </ion-col>
+        </ion-row>
+      </div>
+
+      <ion-row routerLink="../cp-bookings"
+        (click)="accordionOpen=false; sharedService.isBottom = false;resetStoredData()" class="row-height"
+        [class.activeSec]="sharedService.isActiveRoute('cp-bookings')&& !accordionOpen">
+        <ion-col class="center-vertically">
+          <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
+          All Bookings
+        </ion-col>
+      </ion-row>
+
+      <ion-row routerLink="../add-property"
+        (click)="accordionOpen=false; sharedService.isBottom = false;resetStoredData()" class="row-height"
+        [class.activeSec]="sharedService.isActiveRoute('add-property')&& !accordionOpen">
+        <ion-col class="center-vertically">
+          <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
+          Add Properties
+        </ion-col>
+      </ion-row>
+      <ion-row routerLink="../my-executives"
+        (click)="accordionOpen=false; sharedService.isBottom = false;resetStoredData()" class="row-height"
+        [class.activeSec]="sharedService.isActiveRoute('my-executives')&& !accordionOpen">
+        <ion-col class="center-vertically">
+          <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
+          My Executives
+        </ion-col>
+      </ion-row>
+    </ion-menu-toggle>
+  </ion-content>
+
+  <ion-footer>
+    <ion-row class="content_center logOut">
+      <ion-col class="content_center" style="padding-bottom: 0;">
+        <div (click)="logout()" class="content_center">
+          <ion-img src="../../assets/CRMimages/logout.svg"></ion-img> LOG OUT
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col class="ion-text-center font-size10-familyPoppins font-weight400">
+        <p>Version: {{mainSharedService.versionCode}}</p>
+        <a href="https://vsnaptechnology.com/">© {{currentYear}} VSNAP Technology Solutions pvt ltd.</a><br>
+        All rights reserved
+      </ion-col>
+    </ion-row>
+  </ion-footer>
+
+</ion-menu>

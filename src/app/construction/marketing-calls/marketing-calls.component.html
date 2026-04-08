@@ -1,0 +1,323 @@
+<div class="content_center loader" *ngIf="showSpinner">
+  <ion-img style="width: 300px; height: 70px" src="../../../assets/CRMimages/animation/loader.gif"></ion-img>
+</div>
+
+<ion-header>
+  <ion-row>
+    <ion-col size="2"><ion-img class="logo" src="../../assets/CRMimages/logo.png">
+      </ion-img></ion-col>
+    <ion-col class="d-flex align-items-center justify-content-center"><span>Incoming Calls -
+        {{filteredParams.callCount['total_count']}}</span></ion-col>
+    <ion-col size="2"><ion-menu-button style="height: 18px;" autoHide="false"></ion-menu-button></ion-col>
+  </ion-row>
+</ion-header>
+
+<!-- DATE FILTER SECTION -->
+<div class="mb-0 datefilter-div m-1">
+  <ion-row>
+    <ion-col style="border: 0.5px solid #e6e6e6; border-radius: 20px; padding: 2px !important;">
+      <ion-row>
+        <ion-col (click)="dateFilter('allTime')" class="d-flex align-items-center justify-content-center"
+          [ngClass]="filteredParams?.isDateFilter == 'allTime'?'active_btn':''">
+          <span>All Time</span>
+        </ion-col>
+        <ion-col size="3" (click)="dateFilter('today')" class="d-flex  align-items-center justify-content-center"
+          [ngClass]="filteredParams.isDateFilter == 'today' ? 'active_btn': ''">
+          <span>Today </span><i class="fi fi-tr-calendar"></i>
+        </ion-col>
+        <ion-col (click)="dateFilter('yesterday')" class="d-flex align-items-center justify-content-center"
+          [ngClass]="filteredParams?.isDateFilter == 'yesterday'?'active_btn':''">
+          <span>Yesterday</span>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <ion-col [ngClass]="filteredParams?.isDateFilter == 'custom'?'active_btn':'normal_btn'"
+      (click)="dateFilter('custom')"
+      class="d-flex align-items-center justify-content-center custom-datefilterIcon normal_btn p-2px" size="1.5">
+      <span class="d-flex align-items-center justify-content-center">
+        <ion-icon name="calendar-outline"></ion-icon>
+      </span>
+    </ion-col>
+    <ion-col (click)="reset()" class="refresh-icon normal_btn d-flex align-items-center justify-content-center p-0"
+      size="1.2">
+      <ion-icon name="sync-outline"></ion-icon>
+    </ion-col>
+  </ion-row>
+</div>
+
+<ion-row>
+  <ion-col *ngIf="roleid == '1'">
+    <p-multiSelect [(ngModel)]="selectedCallLanded" #materialMultiSelect class="m-1"
+      (onChange)="onCallLandedChange($event)" placeholder="Call Landed" [options]="callLandedData" optionLabel="name"
+      optionValue="executiveid" display="chip" appendTo="body">
+    </p-multiSelect>
+  </ion-col>
+  <ion-col>
+    <p-dropdown [(ngModel)]="selectedCallStatus" #jobRoleDropdown placeholder="Call Status"
+      (onChange)="OnCallStatusChange($event)" [options]="callStatusData" optionLabel="callstatus"
+      optionValue="callstatus" class="jobrole_dropdown m-1">
+    </p-dropdown>
+  </ion-col>
+</ion-row>
+
+
+<ion-content>
+  <ion-item-sliding *ngFor="let call of callDetails;let i = index" #sliding (ionSwipe)="onSwipe($event,call)">
+    <ion-item lines="none">
+      <ion-card class="lead-card w-100">
+        <div class="card-count">
+          <span>{{ i + 1 | number:'2.0' }}
+          </span>
+        </div>
+        <ion-grid class="p-0">
+          <ion-row style="line-height: 1.4;">
+            <ion-col size="6">
+              <div class="section">
+                <p class="label">Call From</p>
+                <p class="value">{{call.callto}}</p>
+              </div>
+            </ion-col>
+
+            <ion-col size="6">
+              <div class="section">
+                <p class="label">Call Landed </p>
+                <p class="value">{{call.name}}</p>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <div class="section">
+                <p class="label">Call Status</p>
+                <p class="value">{{call.dialstatus}} </p>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <div class="section">
+                <p class="label">Start Time</p>
+                <p class="value">{{call?.starttime | date: 'dd-MMM-yyyy, hh:mm a'}}
+                </p>
+              </div>
+            </ion-col>
+          </ion-row>
+
+          <ion-row class="contact_icons ion-justify-content-end">
+            <!-- <ion-col size="1.5" class="d-flex align-item-center justify-content-center">
+              <a (click)="this.outboundCall(call)" class="ion-text-start call-icon">
+                <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
+              </a>
+            </ion-col> -->
+            <ion-col size="1.5" class="d-flex align-item-center justify-content-center">
+              <a href="https://wa.me/+91{{call.callto}}" class="whatsapp-icon">
+                <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
+              </a>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        <div class="bg-light p-2 d-flex align-items-center rounded-bottom"
+          style="background: rgb(183 216 233) !important;">
+          <audio controls style="width: 100% !important; height: 32px !important;">
+            <source [src]="call.filename" type="audio/wav">
+          </audio>
+        </div>
+      </ion-card>
+    </ion-item>
+
+    <!-- <ion-item-options side="end">
+      <ion-img src="../../assets/CRMimages/phone-call.svg" style="width:45px;padding: 10px;"
+        class="call-icon"></ion-img>
+    </ion-item-options> -->
+    <ion-item-options side="start">
+      <ion-img src="../../assets/CRMimages/whatsapp_icon.svg" style="width:52px;padding: 10px;"
+        class="call-icon"></ion-img>
+    </ion-item-options>
+  </ion-item-sliding>
+
+  <ion-row *ngIf="callDetails?.length == 0">
+    <ion-col class="d-flex align-item-center justify-content-center"><span>No Data Found...</span></ion-col>
+  </ion-row>
+
+  <ion-infinite-scroll *ngIf="showInfiniteScroll" threshold="100px" #infiniteScroll
+    (ionInfinite)="loadMoreData($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>
+
+
+<ion-modal #custDate_modal [breakpoints]="[0.3]" [initialBreakpoint]="0.3"
+  [backdropDismiss]="!(dateRange?.fromdate && dateRange?.todate)  "
+  (ionModalDidDismiss)="onCustomDateModalDismiss($event)" class="custDate_modal">
+  <ng-template>
+    <div class="modal-container">
+      <!-- CONTENT -->
+      <div class="date-range-wrapper">
+        <h3 class="title">Select date range</h3>
+
+        <div class="date-inputs">
+          <div class="date-box" (click)="openFromDate()">
+            <label>From</label>
+            <span>{{ dateRange?.fromdate ? ('' + dateRange.fromdate).split('T')[0] : '' }}</span>
+          </div>
+
+          <div class="date-box" (click)="handleToDateClick()" [class.disabled]="!dateRange?.fromdate">
+            <label>To</label>
+            <span>{{ dateRange?.todate ? ('' + dateRange.todate).split('T')[0] : '' }}</span>
+          </div>
+        </div>
+
+        <p class="error-text" *ngIf="showFromDateError">
+          Please select From date first
+        </p>
+      </div>
+
+      <!-- STICKY FOOTER -->
+      <div>
+        <ion-button expand="block" class="confirm-btn" [disabled]="!(dateRange?.fromdate && dateRange?.todate)"
+          (click)=" this.filteredParams.isDateFilter = 'custom';addQueryParams(); custDate_modal.dismiss()">
+          Confirm
+        </ion-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+<ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
+  [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
+  <ng-template>
+    <ion-datetime presentation="date" [(ngModel)]="dateRange.fromdate"
+      (ionChange)="dateFilter('customfromDate')"></ion-datetime>
+  </ng-template>
+</ion-modal>
+<ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
+  [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
+  <ng-template>
+    <ion-datetime presentation="date" [min]="dateRange.fromdate" [(ngModel)]="dateRange.todate"
+      (ionChange)="dateFilter('customtoDate')"></ion-datetime>
+  </ng-template>
+</ion-modal>
+
+<!-- CALL CONFIRMATION MODAL -->
+<ion-modal #callConfirmationModal class="callConfirmationModal">
+  <ng-template>
+    <ion-header>
+      <ion-row class="activeSaveButton">
+        <ion-col size="1"></ion-col>
+        <ion-col size="9" class="ion-text-center d-flex ion-justify-content-center">
+          <h3>Initiate Outbound Call</h3>
+        </ion-col>
+        <ion-col size="2" (click)="callConfirmationModal.dismiss()"
+          class="ion-text-center d-flex ion-justify-content-center paddingZero"> <ion-icon class="paddingZero"
+            name="close"></ion-icon></ion-col>
+      </ion-row>
+    </ion-header>
+    <ion-content>
+      <ion-row>
+        <ion-col class="ion-text-center">
+          <p style="font-size:20px;color: rgba(65, 65, 65, 1);">Do you want to place a call to
+            {{lead.name}}
+            <span>
+              {{"("+lead.callto+")"}}</span> ?
+          </p>
+        </ion-col>
+      </ion-row>
+    </ion-content>
+    <ion-footer>
+      <ion-row>
+        <ion-col class="ion-text-center" (click)="callConfirmationModal.dismiss()"> <ion-button fill="clear"
+            class="active_text_borederColor"> Cancel</ion-button> </ion-col>
+        <ion-col class="ion-text-center" (click)="outboundCall(true)"> <ion-button fill="clear"
+            class="activeSaveButton"> Call </ion-button> </ion-col>
+      </ion-row>
+    </ion-footer>
+  </ng-template>
+</ion-modal>
+
+<!-- ON Call Modal -->
+<ion-modal class="onCallModal" [isOpen]="filteredParams.isOnCallDetailsPage == 'true'">
+  <ng-template>
+    <ion-header>
+      <ion-row
+        [ngClass]="this.callStatus == 'Call Disconnected'?'callDisconnectedBg_color':callStatus != ''&& callStatus != undefined &&(callStatus == 'Answered by agent' || callStatus == 'Ringing') ?'callRingingBg_color': 'callConnectedBg_color'">
+        <ion-col size="2" class="content_center"
+          [ngClass]="!isfromOnCallModal && (filteredParams.isOnCallDetailsPage == 'true' && callStatus != 'Call Disconnected' &&  callStatus !='' &&  callStatus != undefined) ?'pointer-event-none opacity4':''">
+          <ion-icon style="font-size: 24px;color: white;" name="arrow-back" (click)="onBackButton()"></ion-icon>
+        </ion-col>
+        <ion-col class="content_center call_icon">
+          <ion-img style="width: 24px;" class="pr-2"
+            [src]="this.callStatus == 'Call Disconnected' ?'../../assets/CRMimages/call-disconnected-icon.svg':'../../assets/CRMimages/on-call-icon.svg'"></ion-img>
+          <span>
+            {{this.callStatus == 'Call Disconnected' ? 'Disconnected':(callStatus == 'Answered by agent' ||
+            callStatus == 'Ringing')?'Ringing': 'On Call'}}
+          </span>
+        </ion-col>
+        <ion-col size="2" class="content_center">
+          <ion-icon name="close" style="color: white;font-size: 26px;" (click)="forceToCallDisconnect()"
+            *ngIf="isAfterOneminute  || isAfterTwominute "></ion-icon>
+        </ion-col>
+      </ion-row>
+    </ion-header>
+    <ion-content>
+      <ion-card class="p-2 shadow-sm on-call-card">
+        <div class="d-flex justify-content-between align-items-start"
+          style=" border-bottom: 0.5px solid rgba(218, 218, 218, 1)">
+          <div>
+            <h5 class="mb-1 leadName">{{lead?.leadname?lead?.leadname:liveCallData?.leadname}}</h5>
+            <p class="mb-0 ">
+              +91 {{lead?.callto?lead?.callto:liveCallData?.callto}}
+            </p>
+            <p class="mb-1 text-capitalize">{{liveCallData?.direction?liveCallData?.direction:direction + "
+              Call"}}</p>
+          </div>
+          <div class="text-end">
+            <p class="mb-0">Call Duration</p>
+            <h5 class="mb-1 callTimer">{{timer}}</h5>
+            <p class="mb-0">Call Started on {{ liveCallData?.starttime | date: 'hh:mma' }}</p>
+          </div>
+        </div>
+      </ion-card>
+      <form
+        [ngClass]="callStatus != 'Answered by customer'&& (callStatus == ' CONNECTING'  ||  callStatus == 'Call Connected' || callStatus == 'Answered by agent') ?'pointer-event-none opacity4':''"
+        [formGroup]="updateStatusForm" (ngSubmit)="updateStatus()" class="updateStatus">
+        <!-- CARD 1 -->
+        <ion-card>
+          <ion-row>
+            <ion-col>
+              <span>Lead's Details</span>
+            </ion-col>
+          </ion-row>
+
+          <ion-row class="interested_notInterested">
+            <ion-col class="d-flex align-items-center justify-content-center interested"
+              (click)="updateStatusForm.patchValue({status: '1'})"
+              [class.interestedactive]="updateStatusForm.get('status')?.value === '1'">
+
+              <span class="pr-1">
+                <ion-img src="../../../assets/CRMimages/shreeindustries_interested_icon.svg"></ion-img>
+              </span>
+              <span>Interested</span>
+            </ion-col>
+
+            <ion-col class="d-flex align-items-center justify-content-center not_interested"
+              (click)="updateStatusForm.patchValue({status: '2'})"
+              [class.notInterestedActive]="updateStatusForm.get('status')?.value === '2'">
+
+              <span class="pr-1">
+                <ion-img src="../../../assets/CRMimages/shreeindustries_notInterested_icon.svg"></ion-img>
+              </span>
+              <span>Not Interested</span>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="d-flex flex-column">
+              <span class="label">Remarks</span>
+              <ion-textarea rows="3" formControlName="message">
+              </ion-textarea>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-button tyle="submit">Submit</ion-button>
+          </ion-row>
+        </ion-card>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>

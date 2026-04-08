@@ -1,0 +1,23 @@
+.card-count {
+  position: absolute;
+  right: 0px;
+  background: #9d9d9d;
+  padding: 0px 4px;
+  color: white;
+  font-size: 0.68rem;
+}
+.label {
+  margin-bottom: 0;
+  color: #8a8a8a !important;
+  font-size: 0.714rem;
+}
+.value {
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 0.7rem;
+}
+ion-content {
+  --background: #f0f2f5;
+}
+* {
+  font-family: "Poppins";
+}

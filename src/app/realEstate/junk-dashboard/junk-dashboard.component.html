@@ -45,7 +45,7 @@
   </ion-row>
 </div>
 <!-- EXECUTIVE DROPDOWN -->
-<ion-row style="margin: 6px 6px 0;" *ngIf="!isOnCallDetailsPage">
+<ion-row style="padding: 6px;" *ngIf="!isOnCallDetailsPage">
   <ion-col class=" p-0 exec" size="6" *ngIf="roleid == '1' || roleType == '1'">
     <p-dropdown [options]="executiveNames" class="exec_css" (onChange)="onFilterSelection('exec', selectedExecu)"
       [(ngModel)]="selectedExecu" optionLabel="name" placeholder="Executive" />
@@ -616,14 +616,14 @@
 </ion-modal>
 
 
-<ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+<ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
   <ng-template>
     <ion-datetime presentation="date" [(ngModel)]="dateRange.fromdate"
       (ionChange)="dateFilter('customfromDate')"></ion-datetime>
   </ng-template>
 </ion-modal>
-<ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+<ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
   <ng-template>
     <ion-datetime presentation="date" [min]="dateRange.fromdate" [(ngModel)]="dateRange.todate"
@@ -670,14 +670,14 @@
   </ng-template>
 </ion-modal>
 
-<ion-modal #received_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+<ion-modal #received_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
   <ng-template>
     <ion-datetime [(ngModel)]="receiveddateRange.fromdate" (ionChange)="receivedDateFilter('customfromDate')"
       [max]="todayISO"></ion-datetime>
   </ng-template>
 </ion-modal>
-<ion-modal #received_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+<ion-modal #received_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
   <ng-template>
     <ion-datetime [min]="receiveddateRange.fromdate" [(ngModel)]="receiveddateRange.todate"

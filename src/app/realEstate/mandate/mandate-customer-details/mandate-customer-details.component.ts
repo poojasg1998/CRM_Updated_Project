@@ -583,8 +583,6 @@ export class MandateCustomerDetailsComponent implements OnInit {
 
           this.suggestedPropertiesweekplan =
             this.assignedrm?.[0]?.suggestedprop;
-          console.log(this.assignedrm?.[0]?.suggestedprop);
-          console.log(this.suggestedPropertiesweekplan);
 
           this.assignedrm?.[0]?.suggestedprop?.forEach((prop, index) => {
             console.log(this.propid == prop.propid);
@@ -596,6 +594,11 @@ export class MandateCustomerDetailsComponent implements OnInit {
               // this.selectedSuggestedProp = {};
             }
           });
+
+          console.log(this.assignedrm);
+          if (this.propid == '') {
+            this.propid = this.assignedrm?.[0]?.['suggestedprop']?.[0]?.propid;
+          }
 
           if (this.assignedrm) {
             if (
@@ -3320,7 +3323,10 @@ export class MandateCustomerDetailsComponent implements OnInit {
     this.router.navigate([], {
       queryParams: {
         propid: propid,
-        stageForm: 'onleadStatus',
+        stageForm:
+          !this.isEditFixedPlan && !this.isActivityHistory
+            ? 'onleadStatus'
+            : '',
       },
       queryParamsHandling: 'merge',
     });
@@ -3906,7 +3912,6 @@ export class MandateCustomerDetailsComponent implements OnInit {
   isAfterOneminute;
   isAfterTwominute = false;
   startTimer(checkInTime) {
-    alert(checkInTime);
     this.stopTimer();
     const start =
       typeof checkInTime === 'string'

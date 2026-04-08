@@ -27,8 +27,8 @@
     <ion-col size="2"></ion-col>
   </ion-row> -->
 
-<ion-toolbar class="ion-text-center header" *ngIf="!isOnCallDetailsPage">
-  <ion-row>
+<div class="ion-text-center header" *ngIf="!isOnCallDetailsPage">
+  <!-- <ion-row>
     <div class="stage_scetion" #scrollContainer>
       <div [ngClass]="filteredParams.status == 'generalfollowups'?'textBorderColor':''"
         (click)="changeOption('generalfollowups','General Followup')">General Followup- {{activityReport_count.gf}}
@@ -52,8 +52,64 @@
       <div [ngClass]="filteredParams.status == 'junkvisits'?'textBorderColor':''"
         (click)="changeOption('junkvisits','Junk Visits')">Junk Visits- {{activityReport_count.junkVisits}}</div>
     </div>
+  </ion-row> -->
+
+  <ion-row class="p-1 prop-row px-0" style="background-color: #f0f2f5;">
+    <ion-col class="stage_scetion p-0 " [appCenterActiveButton]="filteredParams.status"
+      style="display: flex; overflow-x: scroll;scrollbar-width:none">
+      <div class="custom-col center-text fw-light mx-1 "
+        [ngClass]="filteredParams.status == 'generalfollowups' ?'textBorderColor':''"
+        (click)="changeOption('generalfollowups','General Followup')" [id]="'id-generalfollowups'">
+        General Followup- {{activityReport_count.gf}}</div>
+
+      <div class="custom-col center-text fw-light mx-1 " [ngClass]="filteredParams.status == 'NC'?'textBorderColor':''"
+        (click)="changeOption('NC','NC')" [id]="'id-NC'">
+        NC- {{
+        activityReport_count.nc }}</div>
+
+      <div class="custom-col center-text fw-light mx-1 " [ngClass]="filteredParams.status == 'USV'?'textBorderColor':''"
+        (click)="changeOption('USV','USV')" [id]="'id-USV'">
+        USV- {{
+        activityReport_count.usv}}</div>
+
+      <div class="custom-col center-text fw-light mx-1 " [ngClass]="filteredParams.status == 'RSV'?'textBorderColor':''"
+        (click)="changeOption('RSV','RSV')" [id]="'id-RSV'">
+        RSV- {{
+        activityReport_count.rsv}}</div>
+
+      <div class="custom-col center-text fw-light mx-1 "
+        [ngClass]="filteredParams.status == 'Final Negotiation'?'textBorderColor':''"
+        (click)="changeOption('Final Negotiation','FN')" [id]="'id-Final Negotiation'">
+        FN- {{ activityReport_count.fn}}</div>
+
+      <div class="custom-col center-text fw-light mx-1 "
+        [ngClass]="filteredParams.status == 'DCRR'?'textBorderColor':''"
+        (click)="changeOption('DCRR','Booking Requests')" [id]="'id-DCRR'">
+        Booking Requests- {{ activityReport_count.dcrr}}</div>
+
+      <div class="custom-col center-text fw-light mx-1 "
+        [ngClass]="filteredParams.status == 'Deal Closed'?'textBorderColor':''"
+        (click)="changeOption('Deal Closed','Booked')" [id]="'id-Deal Closed'">
+        Booked- {{ activityReport_count.dealClosed}}</div>
+
+      <div class="custom-col center-text fw-light mx-1 "
+        [ngClass]="filteredParams.status == 'inactive'?'textBorderColor':''"
+        (click)="changeOption('inactive','Inactive')" [id]="'id-inactive'">
+        Inactive- {{activityReport_count.inactive}}</div>
+
+      <div class="custom-col center-text fw-light mx-1 "
+        [ngClass]="filteredParams.status == 'junkleads'?'textBorderColor':''"
+        (click)="changeOption('junkleads','Junk Leads')" [id]="'id-junkleads'">
+        Junk Leads- {{activityReport_count.junkLeads}}</div>
+
+      <div class="custom-col center-text fw-light mx-1 "
+        [ngClass]="filteredParams.status == 'junkvisits'?'textBorderColor':''"
+        (click)="changeOption('junkvisits','Junk Visits')" [id]="'id-junkvisits'">
+        Junk Visits- {{activityReport_count.junkVisits}}</div>
+    </ion-col>
+
   </ion-row>
-</ion-toolbar>
+</div>
 <ion-content *ngIf="!isOnCallDetailsPage" #mainscrollContainer (ionScroll)="onScroll($event)" scrollEvents="true">
   <!-- FILTERED CHIPS -->
   <div class="m-2 mb-0 datefilter-div">
@@ -1202,14 +1258,14 @@
 </ion-modal>
 
 
-<ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+<ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
   <ng-template>
     <ion-datetime presentation="date" [(ngModel)]="dateRange.fromdate"
       (ionChange)="dateFilter('customfromDate')"></ion-datetime>
   </ng-template>
 </ion-modal>
-<ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+<ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
   <ng-template>
     <ion-datetime presentation="date" [min]="dateRange.fromdate" [(ngModel)]="dateRange.todate"
@@ -1218,14 +1274,14 @@
 </ion-modal>
 
 
-<ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+<ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
   <ng-template>
     <ion-datetime presentation="date" [(ngModel)]="dateRange.fromdate"
       (ionChange)="dateFilter('customfromDate')"></ion-datetime>
   </ng-template>
 </ion-modal>
-<ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.50" mode="ios"
+<ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
   <ng-template>
     <ion-datetime presentation="date" [min]="dateRange.fromdate" [(ngModel)]="dateRange.todate"

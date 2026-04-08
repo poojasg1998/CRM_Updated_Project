@@ -1,0 +1,303 @@
+.sale-resale-rental-row {
+  border-top: 1px solid #dddddd;
+  span {
+    font-size: 14px;
+  }
+  .active_btn {
+    background: linear-gradient(180deg, #ffffff 0%, #d3ebff 100%) !important;
+    border-bottom: 1px solid #1366a5 !important;
+    box-shadow: none;
+    span {
+      color: #005d8c !important;
+    }
+  }
+}
+//LEAD CARD
+.lead-card {
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: #e0f1ff;
+}
+.name-tag-row {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  font-size: 16px;
+  font-family: "Poppins";
+}
+
+.hot_txt {
+  background: #ffe2d7;
+  border: 0.6px solid #f2591f;
+  width: fit-content;
+  color: #f2591f;
+  border-radius: 20px;
+  padding: 0px 8px;
+  font-size: 0.8rem;
+  ion-img {
+    width: 12px;
+    padding-left: 2px;
+  }
+}
+.warm_txt {
+  background: #fff5d4 !important;
+  border: 0.6px solid #f5bd00 !important;
+  width: fit-content;
+  color: #f5bd00;
+  border-radius: 20px;
+  padding: 2px 4px;
+  font-size: 0.6rem;
+  ion-img {
+    width: 12px;
+    padding-left: 2px;
+  }
+}
+.cold_txt {
+  background: #e4f6ff;
+  border: 0.6px solid #008cd2;
+  width: fit-content;
+  color: #008cd2;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  padding: 0px 4px;
+  ion-img {
+    width: 12px;
+    padding-left: 2px;
+  }
+}
+.subtext {
+  color: gray;
+  font-size: 12px;
+  font-family: "Poppins";
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0%;
+  font-family: "Poppins";
+}
+.edit-lead-details {
+  display: flex;
+}
+.edit-lead-details-popover {
+  --max-width: 150px;
+  padding: 10px;
+  z-index: 20024;
+}
+.edit-lead-details-popover ion-content::part(scroll) {
+  padding: 5px;
+  background-color: 0.5px solid rgba(164, 215, 255, 1);
+}
+.lead-name {
+  font-size: 1.16rem;
+  font-family: "Poppins";
+  color: rgba(0, 0, 0, 1);
+  font-weight: 500;
+  font-family: "Poppins";
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+//INFO
+.info-item {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-family: "Poppins";
+  color: #333;
+  line-height: 1.23;
+}
+.merge-badge {
+  float: right;
+  border-radius: 25px;
+  padding: 3px 6px;
+  font-size: 10px;
+  font-family: "Poppins";
+  border: 1px solid #0b7ab2 !important;
+  color: #0b7ab2 !important;
+  background-color: rgba(11, 122, 178, 0.2705882353);
+  display: flex;
+  align-items: center;
+}
+.lead-label {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.68rem;
+}
+.lead-value {
+  font-size: 0.76rem;
+}
+
+//SOURCE
+.sourceList {
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 12px;
+}
+.assigned-header {
+  font-weight: 500;
+  color: rgba(11, 122, 178, 1);
+  font-size: 16px;
+  font-family: "Poppins";
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #f1f1f1;
+}
+.info-card,
+.lead_source_card {
+  border-radius: 4px;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.1);
+  font-family: "Poppins", sans-serif;
+}
+.assigned-card {
+  border-radius: 4px;
+  padding: 5px;
+  font-family: "Poppins", sans-serif;
+}
+.assigned-header {
+  font-weight: 500;
+  color: rgba(11, 122, 178, 1);
+  font-size: 16px;
+  font-family: "Poppins";
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #f1f1f1;
+}
+.exec-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.execName {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  white-space: nowrap;
+  border-radius: 35px;
+  font-size: 0.8rem;
+  border: 1px solid #d8d8d8;
+}
+.all-executive {
+  padding: 0px 12px;
+}
+.active_text_borederColor {
+  color: red;
+}
+.suggested-card {
+  border-radius: 4px;
+  font-family: "Poppins", sans-serif;
+  margin-bottom: 0;
+}
+
+.suggested-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  font-family: "Poppins";
+  font-weight: 500;
+  color: rgba(11, 122, 178, 1);
+  margin-bottom: 4px;
+  padding: 2px 6px;
+}
+.sugg_prop_add {
+  background-color: #0b7ab2;
+  color: #ffffff;
+  border-radius: 30px;
+  margin-left: 2px;
+}
+.property-row {
+  background-color: #fff7ed;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: "Poppins";
+  color: #333;
+  margin-bottom: 10px;
+}
+.prop-name {
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+.accompanied span:nth-child(1) {
+  font-weight: 300;
+  font-style: Light;
+  text-transform: capitalize;
+  color: #4a4a4a;
+  font-size: 10px;
+}
+.accompanied span:nth-child(2) {
+  font-weight: 400;
+  font-style: Light;
+  text-transform: capitalize;
+  color: #4a4a4a;
+  font-size: 10px;
+}
+.prop-accomp {
+  line-height: 1.1;
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+  justify-content: center;
+}
+.status {
+  font-size: 12px;
+  display: flex;
+  align-items: end;
+  flex-direction: column;
+}
+ion-modal#suggested-modal {
+  padding: 10px;
+  --height: auto;
+  --border-radius: 4px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
+
+ion-modal#suggested-modal .wrapper {
+  margin-bottom: 10px;
+}
+.headSuggProp {
+  font-size: 18px;
+  font-family: "Poppins";
+  font-weight: 400;
+}
+::ng-deep ng-multiselect-dropdown .multiselect-dropdown .dropdown-list {
+  position: relative;
+  padding: 0;
+  margin: 0;
+}
+
+::ng-deep ng-multiselect-dropdown .multiselect-dropdown .selected-item {
+  font-size: 0.7rem;
+  margin: 2px;
+  max-width: none !important;
+}
+::ng-deep
+  ng-multiselect-dropdown
+  .multiselect-dropdown
+  .dropdown-multiselect__caret {
+  padding: 0;
+}
+.leads-status-header {
+  font-size: 16px;
+  padding: 2px 6px;
+  font-family: "Poppins";
+  font-weight: 500;
+  color: rgba(11, 122, 178, 1);
+}
+.status-btn {
+  font-family: "Poppins";
+  font-weight: 400;
+  font-size: 14px;
+  font-family: "Poopins";
+  line-height: 100%;
+  letter-spacing: 0%;
+  text-transform: capitalize;
+  background: rgba(241, 248, 254, 1);
+  border: 0.5px solid rgba(11, 122, 178, 1);
+  border-radius: 2px;
+  margin: 5px;
+  color: rgba(11, 122, 178, 1);
+}

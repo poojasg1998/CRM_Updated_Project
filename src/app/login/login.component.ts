@@ -17,7 +17,7 @@ import { AuthServiceService } from '../realEstate/auth-service.service';
 import { MandateService } from '../realEstate/mandate-service.service';
 import { SharedService } from '../realEstate/shared.service';
 import { BiometricService } from '../realEstate/biometric.service';
-import { ShreeindustriesApiService } from '../constructer/shreeindustries-api.service';
+import { ShreeindustriesApiService } from '../construction/shreeindustries-api.service';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 declare var window: any;
 
@@ -300,11 +300,11 @@ export class LoginComponent implements OnInit {
               var logindata = success['success'][0];
               localStorage.setItem('isLoggedIn', 'true');
 
-              if (success['success'][0]['department_IDFK'] == '10006') {
+              if (success['success']?.[0]?.['department_IDFK'] == '10006') {
                 this.getVersionCode();
                 localStorage.setItem(
                   'Department',
-                  success['success'][0].department_IDFK
+                  success['success']?.[0]?.department_IDFK
                 );
                 localStorage.setItem('Mail', success['success'][0].email);
                 localStorage.setItem(
@@ -559,16 +559,13 @@ export class LoginComponent implements OnInit {
                   localStorage.setItem('Password', 'xxxxxxx');
                   localStorage.setItem(
                     'Mail',
-                    success['details'][0].client_email
+                    success['details'][0].client_username
                   );
                   localStorage.setItem('Role', success['details'][0].role_IDFK);
-                  localStorage.setItem(
-                    'Department',
-                    success['details'][0].department_IDFK
-                  );
+
                   localStorage.setItem(
                     'PropertyId',
-                    success['details'][0].mandate_propidfk
+                    success['details'][0].client_propid
                   );
                   localStorage.setItem(
                     'RoleType',

@@ -1,0 +1,32 @@
+<app-cp-header></app-cp-header>
+<div class="content_center loader" *ngIf="showSpinner">
+  <ion-img style="width: 300px; height: 70px" src="../assets/CRMimages/animation/loader.gif"></ion-img>
+</div>
+
+<ion-content>
+  <ion-card *ngFor="let exe of executiveList,let i= index">
+    <div class="card-count">
+      <span>{{ i + 1 | number:'2.0'}}
+      </span>
+    </div>
+    <div>
+      <ion-row>
+        <ion-col class="pb-0 label">Name</ion-col>
+        <ion-col class="pb-0 label">Number</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="pt-0 value">{{exe.Name}}</ion-col>
+        <ion-col class="pt-0 value">{{exe.Number}}</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="pb-0 label">Email</ion-col>
+        <ion-col class="pb-0 label">Designation</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="pt-0 value">{{exe.Email}}</ion-col>
+        <ion-col class="pt-0 value">{{exe.Designation}}</ion-col>
+      </ion-row>
+    </div>
+
+  </ion-card>
+</ion-content>

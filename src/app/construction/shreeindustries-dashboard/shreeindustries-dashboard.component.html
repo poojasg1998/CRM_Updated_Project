@@ -1,0 +1,725 @@
+<app-header></app-header>
+<div class="content_center loader" *ngIf="showSpinner">
+    <ion-img style="width: 300px; height: 70px" src="../../../assets/CRMimages/animation/loader.gif"></ion-img>
+</div>
+<span>
+    <!-- DATE FILTER SECTION -->
+    <div class="mb-0 datefilter-div m-1">
+        <ion-row>
+            <ion-col style="border: 0.5px solid #e6e6e6; border-radius: 20px; padding: 2px !important;">
+                <ion-row>
+                    <ion-col (click)="dateFilter('allTime')" class="d-flex align-items-center justify-content-center"
+                        [ngClass]="filteredParams?.isDateFilter == 'allTime'?'active_btn':''">
+                        <span>All Time</span>
+                    </ion-col>
+                    <ion-col size="3" (click)="dateFilter('today')"
+                        class="d-flex  align-items-center justify-content-center"
+                        [ngClass]="filteredParams.isDateFilter == 'today' ? 'active_btn': ''">
+                        <span>Today </span><i class="fi fi-tr-calendar"></i>
+                    </ion-col>
+                    <ion-col (click)="dateFilter('yesterday')" class="d-flex align-items-center justify-content-center"
+                        [ngClass]="filteredParams?.isDateFilter == 'yesterday'?'active_btn':''">
+                        <span>Yesterday</span>
+                    </ion-col>
+                </ion-row>
+            </ion-col>
+            <ion-col [ngClass]="filteredParams?.isDateFilter == 'custom'?'active_btn':'normal_btn'"
+                (click)="dateFilter('custom')"
+                class="d-flex align-items-center justify-content-center custom-datefilterIcon normal_btn p-2px"
+                size="1.5">
+                <span class="d-flex align-items-center justify-content-center">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                </span>
+            </ion-col>
+            <ion-col (click)="reset()"
+                class="refresh-icon normal_btn d-flex align-items-center justify-content-center p-0" size="1.2">
+                <ion-icon name="sync-outline"></ion-icon>
+            </ion-col>
+        </ion-row>
+    </div>
+    <ion-row class="m-1" *ngIf="filteredParams.isDateFilter == 'custom'">
+        <div class="filterButtons d-flex align-items-center" (click)="onDateFilterRemove() ">
+            <span>{{this.filteredParams.fromDate+" To "+this.filteredParams.toDate}}</span>
+            <ion-icon style="font-size: 20px;" name="close"></ion-icon>
+        </div>
+    </ion-row>
+    <ion-row>
+        <ion-col>
+            <ion-card [ngClass]="filteredParams.activeCardKey == 'total_card' ?'active-card':'opacity50'"
+                class="total_card m-0 p-1" (click)="onStage('total_card','0')">
+                <p class="mb-0">Total Leads</p>
+                <h2>{{leadsCount?.fresh_count}}</h2>
+                <ion-img src="../assets/CRMimages/assignedLeadsicon.svg"></ion-img>
+            </ion-card>
+        </ion-col>
+        <ion-col>
+            <ion-card [ngClass]="filteredParams.activeCardKey == 'interested_card' ?'active-card':'opacity50'"
+                class="interested_card m-0 p-1 " (click)="onStage('interested_card','1')">
+                <p class="mb-0">Interested</p>
+                <h2>{{leadsCount?.interested_count}}</h2>
+                <ion-img src="../assets/CRMimages/shree_interested_icon.svg"></ion-img>
+            </ion-card>
+        </ion-col>
+    </ion-row>
+    <ion-row>
+        <ion-col>
+            <ion-card [ngClass]="filteredParams.activeCardKey == 'notInterested_card' ?'active-card':'opacity50'"
+                class="notInterested_card m-0 p-1" (click)="onStage('notInterested_card','2')">
+                <p class="mb-0">Not Interested</p>
+                <h2>{{leadsCount?.notinterested_count}}</h2>
+                <ion-img src="../assets/CRMimages/shree_notinterested_icon.svg"></ion-img>
+            </ion-card>
+        </ion-col>
+        <ion-col>
+            <ion-card [ngClass]="filteredParams.activeCardKey == 'notConnected_card' ?'active-card':'opacity50'"
+                class="notConnected_card m-0 p-1" (click)="onStage('notConnected_card','3')">
+                <p class="mb-0">Not Connected</p>
+                <h2>{{leadsCount?.notconnected_count}}</h2>
+                <ion-img src="../assets/CRMimages/shree_notconnected_icon.svg"></ion-img>
+            </ion-card>
+        </ion-col>
+    </ion-row>
+</span>
+<ion-row class="card_heading active-card mt-1" [ngClass]="filteredParams.activeCardKey">
+    <ion-col>
+        <span>{{filteredParams.status == '0'?'Total Leads ' + leadsCount?.fresh_count:
+            filteredParams.status == '1'?'Interested ' + leadsCount?.interested_count:filteredParams.status == '2'?
+            'Not Interested '+ leadsCount?.notinterested_count:filteredParams.status == '3'?'Not Connected '+
+            leadsCount?.notconnected_count:''}}
+        </span>
+    </ion-col>
+    <ion-col (click)="filteredParams.tabid == '1'?onAddLead():  onAddJob_btn();"
+        class="d-flex align-items-center justify-content-end addLead">
+        <div class="d-flex align-items-center justify-content-end"><ion-icon name="add"> </ion-icon>
+            <span *ngIf="filteredParams.tabid == '1'">Add Lead</span>
+            <span *ngIf="filteredParams.tabid == '2'">Add Job</span>
+        </div>
+    </ion-col>
+</ion-row>
+<p-multiSelect [(ngModel)]="selectedMaterials" #materialMultiSelect class="m-1" *ngIf="filteredParams.tabid == '1'"
+    (onChange)="onMaterialSelect($event)" placeholder="Material" [options]="material" optionLabel="materials_name"
+    optionValue="materials_IDPK" display="chip" appendTo="body">
+</p-multiSelect>
+
+<p-dropdown [(ngModel)]="selectedJobRole" #jobRoleDropdown placeholder="Jobrole" *ngIf="filteredParams.tabid == '2'"
+    (onChange)="onJobRoleSelect($event)" [options]="jobRoles" optionLabel="jobrole" optionValue="jobid"
+    class="jobrole_dropdown m-1">
+</p-dropdown>
+
+
+<ion-content #content (ionScroll)="onScroll($event)" scrollEvents="true">
+    <ion-item-sliding *ngFor="let lead of leadDetails;let i = index" #sliding (ionSwipe)="onSwipe($event,lead)">
+        <ion-item lines="none">
+            <ion-card class="lead-card w-100">
+                <div class="card-count">
+                    <span>{{ i + 1 | number:'2.0' }}
+                    </span>
+                </div>
+                <ion-grid class="p-0">
+                    <ion-row style="line-height: 1.4;">
+                        <ion-col size="6">
+                            <div class="section">
+                                <p class="label">Lead Name</p>
+                                <p class="value">{{lead.name}}</p>
+                            </div>
+                        </ion-col>
+
+                        <ion-col size="6">
+                            <div class="section">
+                                <p class="label">Number </p>
+                                <p class="value">{{lead.number}}</p>
+                            </div>
+                        </ion-col>
+                        <ion-col size="6">
+                            <div class="section">
+                                <p class="label">Source</p>
+                                <p class="value">{{'Campaign'}} </p>
+                            </div>
+                        </ion-col>
+                        <ion-col size="6" *ngIf="filteredParams.tabid == '1'">
+                            <div class="section">
+                                <p class="label">Received on</p>
+                                <p class="value">{{lead?.created_date | date: 'dd-MMM-yyyy, hh:mm a'}}
+                                </p>
+                            </div>
+                        </ion-col>
+                        <ion-col size="6" *ngIf="filteredParams.tabid == '1' && lead?.materials">
+                            <div class="section">
+                                <p class="label">Requirements</p>
+                                <p class="value">{{lead?.materials}}
+                                </p>
+                            </div>
+                        </ion-col>
+                        <ion-col size="6" *ngIf="filteredParams.tabid == '2' && lead?.jobrole">
+                            <div class="section">
+                                <p class="label">Job Role</p>
+                                <p class="value">{{lead?.jobrole}}
+                                </p>
+                            </div>
+                        </ion-col>
+                        <ion-col size="6"
+                            *ngIf="(filteredParams.status != '0' || filteredParams.tabid == '2') && lead.updated_date">
+                            <div class="section">
+                                <p class="label">Update on </p>
+                                <p class="value">{{lead.updated_date| date: 'dd-MMM-yyyy, hh:mm a' }} </p>
+                            </div>
+                        </ion-col>
+                    </ion-row>
+
+                    <ion-row class="contact_icons">
+                        <ion-col [id]="'shree-latest-remark-trigger-' + i"
+                            class="d-flex align-item-center justify-content-center latest_remark_col">
+                            <span>Message</span>
+                            <ion-img class="pl-1" src="../../assets/CRMimages/chat-bubble.svg"></ion-img>
+                        </ion-col>
+                        <ion-popover [trigger]="'shree-latest-remark-trigger-' + i" triggerAction="click"
+                            class="latest-remark-popover">
+                            <ng-template>
+                                <div
+                                    style="padding: 4px;border: 1px solid #546D7E;border-radius: 4px;font-size: 0.8rem;">
+                                    <p> {{lead.message?lead.message:'No message Found'}}</p>
+                                </div>
+                            </ng-template>
+                        </ion-popover>
+
+                        <ion-col size="2" class="d-flex align-item-center justify-content-center">
+                            <a (click)="this.outboundCall(lead)" class="ion-text-start call-icon">
+                                <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
+                            </a>
+                        </ion-col>
+                        <ion-col size="2" class="d-flex align-item-center justify-content-center">
+                            <a href="https://wa.me/+91{{lead.number}}" class="whatsapp-icon">
+                                <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
+                            </a>
+                        </ion-col>
+                        <ion-col size="2" class="d-flex align-item-center justify-content-center">
+                            <a (click)="onplayButton(lead)" class="play_icon">
+                                <ion-img src="../../assets/CRMimages/play-icon.svg"></ion-img>
+                            </a>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-card>
+        </ion-item>
+
+        <ion-item-options side="end">
+            <ion-img src="../../assets/CRMimages/phone-call.svg" style="width:45px;padding: 10px;"
+                class="call-icon"></ion-img>
+        </ion-item-options>
+        <ion-item-options side="start">
+            <ion-img src="../../assets/CRMimages/whatsapp_icon.svg" style="width:52px;padding: 10px;"
+                class="call-icon"></ion-img>
+        </ion-item-options>
+    </ion-item-sliding>
+
+    <ion-row *ngIf="leadDetails?.length == 0">
+        <ion-col class="d-flex align-item-center justify-content-center"><span>No Data Found...</span></ion-col>
+    </ion-row>
+
+    <ion-infinite-scroll *ngIf="showInfiniteScroll" threshold="100px" #infiniteScroll
+        (ionInfinite)="loadMoreData($event)">
+        <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+        </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+</ion-content>
+
+<ion-modal #custDate_modal [breakpoints]="[0.3]" [initialBreakpoint]="0.3"
+    [backdropDismiss]="!(dateRange?.fromdate && dateRange?.todate)  "
+    (ionModalDidDismiss)="onCustomDateModalDismiss($event)" class="custDate_modal">
+    <ng-template>
+        <div class="modal-container">
+            <!-- CONTENT -->
+            <div class="date-range-wrapper">
+                <h3 class="title">Select date range</h3>
+
+                <div class="date-inputs">
+                    <div class="date-box" (click)="openFromDate()">
+                        <label>From</label>
+                        <span>{{ dateRange?.fromdate ? ('' + dateRange.fromdate).split('T')[0] : '' }}</span>
+                    </div>
+
+                    <div class="date-box" (click)="handleToDateClick()" [class.disabled]="!dateRange?.fromdate">
+                        <label>To</label>
+                        <span>{{ dateRange?.todate ? ('' + dateRange.todate).split('T')[0] : '' }}</span>
+                    </div>
+                </div>
+
+                <p class="error-text" *ngIf="showFromDateError">
+                    Please select From date first
+                </p>
+            </div>
+
+            <!-- STICKY FOOTER -->
+            <div>
+                <ion-button expand="block" class="confirm-btn" [disabled]="!(dateRange?.fromdate && dateRange?.todate)"
+                    (click)=" this.filteredParams.isDateFilter = 'custom';addQueryParams(); custDate_modal.dismiss()">
+                    Confirm
+                </ion-button>
+            </div>
+        </div>
+    </ng-template>
+</ion-modal>
+<ion-modal #dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
+    [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
+    <ng-template>
+        <ion-datetime presentation="date" [(ngModel)]="dateRange.fromdate"
+            (ionChange)="dateFilter('customfromDate')"></ion-datetime>
+    </ng-template>
+</ion-modal>
+<ion-modal #dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
+    [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()">
+    <ng-template>
+        <ion-datetime presentation="date" [min]="dateRange.fromdate" [(ngModel)]="dateRange.todate"
+            (ionChange)="dateFilter('customtoDate')"></ion-datetime>
+    </ng-template>
+</ion-modal>
+
+<!-- ADD LEAD MODAL -->
+<ion-modal #addLeadModal class="addLead">
+    <ng-template>
+        <ion-header>
+            <ion-row>
+                <ion-col *ngIf="roleid == '1'"><span>Add Lead</span></ion-col>
+                <ion-col size="2" class="d-flex align-items-center justify-content-center"
+                    (click)="newleadForm.reset(); addLeadModal.dismiss()"><ion-icon name="close"></ion-icon></ion-col>
+            </ion-row>
+        </ion-header>
+        <!-- <ion-content> -->
+        <form [formGroup]="newleadForm" (ngSubmit)="addLead()" class="m-2">
+            <ion-row>
+                <ion-col>
+                    <span class="label">Enter the Name <span class="text_color_red">*</span></span>
+
+                    <ion-input class="value" formControlName="name" placeholder="Name">
+                    </ion-input>
+
+                    <ion-text color="danger" class="error-text" *ngIf="newleadForm.get('name')?.touched &&
+                         newleadForm.get('name')?.hasError('required')">
+                        Name is required
+                    </ion-text>
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+                <ion-col>
+                    <span class="label">Enter the Number <span class="text_color_red">*</span></span>
+                    <ion-input class="value" formControlName="number" placeholder="Number">
+                    </ion-input>
+                    <!-- Required error -->
+                    <ion-text color="danger" class="error-text" *ngIf="newleadForm.get('number')?.touched &&
+                                         newleadForm.get('number')?.hasError('required')">
+                        Number is required
+                    </ion-text>
+                    <!-- Pattern error -->
+                    <ion-text color="danger" class="error-text" *ngIf="newleadForm.get('number')?.touched &&
+                                 newleadForm.get('number')?.hasError('pattern')">
+                        Enter a valid 10-digit number
+                    </ion-text>
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+                <ion-col class="d-flex flex-column">
+                    <span class="label">Material</span>
+                    <p-multiSelect [autoOptionFocus]="false" placeholder="Material" formControlName="materials"
+                        [options]="material" optionLabel="materials_name" display="chip" appendTo="body"
+                        [filter]="false">
+                    </p-multiSelect>
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+                <ion-col class="d-flex flex-column">
+                    <span class="label">Remarks</span>
+                    <ion-textarea rows="3" formControlName="remarks">
+                    </ion-textarea>
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+                <ion-col>
+                    <ion-button expand="block" type="submit">
+                        Submit
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </form>
+        <!-- </ion-content> -->
+    </ng-template>
+</ion-modal>
+
+<!-- CALL CONFIRMATION MODAL -->
+<ion-modal #callConfirmationModal class="callConfirmationModal">
+    <ng-template>
+        <ion-header>
+            <ion-row class="activeSaveButton">
+                <ion-col size="1"></ion-col>
+                <ion-col size="9" class="ion-text-center d-flex ion-justify-content-center">
+                    <h3>Initiate Outbound Call</h3>
+                </ion-col>
+                <ion-col size="2" (click)="callConfirmationModal.dismiss()"
+                    class="ion-text-center d-flex ion-justify-content-center paddingZero"> <ion-icon class="paddingZero"
+                        name="close"></ion-icon></ion-col>
+            </ion-row>
+        </ion-header>
+        <ion-content>
+            <ion-row>
+                <ion-col class="ion-text-center">
+                    <p style="font-size:20px;color: rgba(65, 65, 65, 1);">Do you want to place a call to
+                        {{lead.name}}
+                        <span>
+                            {{"("+lead.number+")"}}</span> ?
+                    </p>
+                </ion-col>
+            </ion-row>
+        </ion-content>
+        <ion-footer>
+            <ion-row>
+                <ion-col class="ion-text-center" (click)="callConfirmationModal.dismiss()"> <ion-button fill="clear"
+                        class="active_text_borederColor"> Cancel</ion-button> </ion-col>
+                <ion-col class="ion-text-center" (click)="outboundCall(true)"> <ion-button fill="clear"
+                        class="activeSaveButton"> Call </ion-button> </ion-col>
+            </ion-row>
+        </ion-footer>
+    </ng-template>
+</ion-modal>
+
+<!-- ON CALL LEAD UPDATE MODAL -->
+<ion-modal class="onCallModal" [isOpen]="filteredParams.isOnCallDetailsPage == 'true'">
+    <ng-template>
+        <ion-header>
+            <ion-row
+                [ngClass]="this.callStatus == 'Call Disconnected'?'callDisconnectedBg_color':callStatus != ''&& callStatus != undefined &&(callStatus == 'Answered by agent' || callStatus == 'Ringing') ?'callRingingBg_color': 'callConnectedBg_color'">
+                <ion-col size="2" class="content_center"
+                    [ngClass]="!isfromOnCallModal && (filteredParams.isOnCallDetailsPage == 'true' && callStatus != 'Call Disconnected' &&  callStatus !='' &&  callStatus != undefined) ?'pointer-event-none opacity4':''">
+                    <ion-icon style="font-size: 24px;color: white;" name="arrow-back"
+                        (click)="onBackButton()"></ion-icon>
+                </ion-col>
+                <ion-col class="content_center call_icon">
+                    <ion-img style="width: 24px;" class="pr-2"
+                        [src]="this.callStatus == 'Call Disconnected' ?'../../assets/CRMimages/call-disconnected-icon.svg':'../../assets/CRMimages/on-call-icon.svg'"></ion-img>
+                    <span>
+                        {{this.callStatus == 'Call Disconnected' ? 'Disconnected':(callStatus == 'Answered by agent' ||
+                        callStatus == 'Ringing')?'Ringing': 'On Call'}}
+                    </span>
+                </ion-col>
+                <ion-col size="2" class="content_center">
+                    <ion-icon name="close" style="color: white;font-size: 26px;" (click)="forceToCallDisconnect()"
+                        *ngIf="isAfterOneminute  || isAfterTwominute "></ion-icon>
+                </ion-col>
+            </ion-row>
+        </ion-header>
+        <ion-content>
+            <ion-card class="p-2 shadow-sm on-call-card">
+                <div class="d-flex justify-content-between align-items-start"
+                    style=" border-bottom: 0.5px solid rgba(218, 218, 218, 1)">
+                    <div>
+                        <h5 class="mb-1 leadName">{{lead?.name}}</h5>
+                        <p class="mb-0 ">
+                            +91 {{lead?.number}}
+                        </p>
+                        <p class="mb-1 text-capitalize">{{liveCallData?.direction?liveCallData?.direction:direction + "
+                            Call"}}</p>
+                    </div>
+                    <div class="text-end">
+                        <p class="mb-0">Call Duration</p>
+                        <h5 class="mb-1 callTimer">{{timer}}</h5>
+                        <p class="mb-0">Call Started on {{ liveCallData?.starttime | date: 'hh:mma' }}</p>
+                    </div>
+                </div>
+            </ion-card>
+            <form
+                [ngClass]="callStatus != 'Answered by customer'&& (callStatus == ' CONNECTING'  ||  callStatus == 'Call Connected' || callStatus == 'Answered by agent') ?'pointer-event-none opacity4':''"
+                [formGroup]="updateStatusForm" (ngSubmit)="updateStatus()" class="updateStatus">
+                <!-- CARD 1 -->
+                <ion-card>
+                    <ion-row>
+                        <ion-col>
+                            <span>Lead's Details</span>
+                        </ion-col>
+                    </ion-row>
+
+                    <ion-row class="interested_notInterested">
+                        <ion-col class="d-flex align-items-center justify-content-center interested"
+                            (click)="updateStatusForm.patchValue({status: '1'})"
+                            [class.interestedactive]="updateStatusForm.get('status')?.value === '1'">
+
+                            <span class="pr-1">
+                                <ion-img src="../../../assets/CRMimages/shreeindustries_interested_icon.svg"></ion-img>
+                            </span>
+                            <span>Interested</span>
+                        </ion-col>
+
+                        <ion-col class="d-flex align-items-center justify-content-center not_interested"
+                            (click)="updateStatusForm.patchValue({status: '2'})"
+                            [class.notInterestedActive]="updateStatusForm.get('status')?.value === '2'">
+
+                            <span class="pr-1">
+                                <ion-img
+                                    src="../../../assets/CRMimages/shreeindustries_notInterested_icon.svg"></ion-img>
+                            </span>
+                            <span>Not Interested</span>
+                        </ion-col>
+                    </ion-row>
+                    <!-- CARD 2 (Only if Interested) -->
+                    <div *ngIf="updateStatusForm.get('status')?.value == '1'">
+
+                        <ion-row *ngIf="filteredParams.tabid == '1'">
+                            <ion-col class="d-flex flex-column">
+                                <span class="label">Material</span>
+                                <p-multiSelect placeholder="Material" formControlName="jobrole_materials"
+                                    [options]="material" optionLabel="materials_name" optionValue="materials_IDPK"
+                                    display="chip" appendTo="body">
+                                </p-multiSelect>
+
+                            </ion-col>
+                        </ion-row>
+
+                        <span *ngIf="filteredParams.tabid == '2'">
+                            <ion-row class="email_row">
+                                <ion-col>
+                                    <span class="label">Enter the Mail</span>
+                                    <ion-input class="value" formControlName="mail" placeholder="Mail">
+                                    </ion-input>
+                                    <ion-text color="danger" class="error-text"
+                                        *ngIf="updateStatusForm.get('mail')?.touched && updateStatusForm.get('mail')?.hasError('pattern')">
+                                        Please enter a valid Mail
+                                    </ion-text>
+                                </ion-col>
+                            </ion-row>
+
+                            <ion-row>
+                                <ion-col class="d-flex flex-column">
+                                    <span class="label">Job Role</span>
+                                    <p-dropdown class="jobrole_dropdown" placeholder="jobRoles"
+                                        formControlName="jobrole_materials" [options]="jobRoles" optionLabel="jobrole"
+                                        optionValue="jobid" display="chip" appendTo="body">
+                                    </p-dropdown>
+
+                                </ion-col>
+                            </ion-row>
+                        </span>
+                        <ion-row>
+                            <ion-col class="d-flex flex-column">
+                                <span class="label">Remarks</span>
+                                <ion-textarea rows="3" formControlName="message">
+                                </ion-textarea>
+                            </ion-col>
+                        </ion-row>
+                    </div>
+                    <ion-row *ngIf="updateStatusForm.get('status')?.value" class="ion-justify-content-end">
+                        <ion-col size="6">
+                            <ion-button expand="block" type="submit">
+                                Submit
+                            </ion-button>
+                        </ion-col>
+                    </ion-row>
+                </ion-card>
+            </form>
+        </ion-content>
+    </ng-template>
+</ion-modal>
+
+<!-- CALL RECODING DETAILS MODAL -->
+<ion-modal class="callRecords" [isOpen]="filteredParams.clientnum?true:false">
+    <ng-template>
+        <ion-header>
+            <ion-row>
+                <ion-col class="d-flex align-items-center justify-content-center" size="2"
+                    (click)="filteredParams.clientnum = '';addQueryParams()"><ion-icon
+                        name="arrow-back"></ion-icon></ion-col>
+                <ion-col class="d-flex align-items-center justify-content-center">Call Records</ion-col>
+                <ion-col size="2"></ion-col>
+            </ion-row>
+        </ion-header>
+        <ion-content>
+            <div class="content_center loader" *ngIf="showSpinner">
+                <ion-img style="width: 300px; height: 70px"
+                    src="../../../assets/CRMimages/animation/loader.gif"></ion-img>
+            </div>
+            <ion-card style="border: 0.8px solid #198CC7">
+                <ion-grid>
+                    <ion-row>
+                        <ion-col size="6" class="p-0">
+                            <p class="mb-0 font-size12-familyPoppins"
+                                style="color: rgba(47, 47, 47, 1); font-weight: 400;">
+                                Lead Name
+                            </p>
+                            <p class="small font-size12-familyPoppins font-colorBlue"> {{filteredParams.name}}
+                            </p>
+
+                            <!-- <p class="mt-2 mb-0 font-size12-familyPoppins"
+                                style="color: rgba(47, 47, 47, 1); font-weight: 400;">Last
+                                Updated</p>
+                            <p class="small font-size12-familyPoppins font-colorBlue"
+                                style="color: rgba(47, 47, 47, 1); font-weight: 400;">{{callrecordsData.lastUpdate|
+                                date:'dd-MMM-yyyy'}}
+                            </p> -->
+                        </ion-col>
+                        <ion-col sizesize="6" class="text-end p-0">
+                            <p class="mb-0 font-size12-familyPoppins "
+                                style="color: rgba(47, 47, 47, 1); font-weight: 400;">
+                                Mobile Number
+                            </p>
+                            <p class="small font-size12-familyPoppins font-colorBlue">{{filteredParams.clientnum}}
+                            </p>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-card>
+
+            <ion-card class="shadow-sm rounded-2xl" *ngFor="let callLogs of callrecordsData, let i = index">
+                <ion-card-content class="p-0">
+                    <ion-grid>
+                        <ion-row>
+                            <!-- Left section -->
+                            <ion-col size="6" class="p-0">
+                                <p class="mb-0 font-size12-familyPoppins"
+                                    style="color: rgba(47, 47, 47, 1); font-weight: 400;">
+                                    {{callLogs.leadname}}</p>
+                                <p class="small font-size12-familyPoppins">{{callLogs.callto}}</p>
+
+                                <p class="mt-2 mb-0 font-size12-familyPoppins">Start Time</p>
+                                <p class="small font-size12-familyPoppins"
+                                    style="color: rgba(47, 47, 47, 1); font-weight: 400;">
+                                    {{callLogs.starttime}}</p>
+
+                                <p class="mt-2 mb-0 font-size12-familyPoppins">Call Duration</p>
+                                <p class="small font-size12-familyPoppins"
+                                    style="color: rgba(47, 47, 47, 1); font-weight: 400;">
+                                    {{ callLogs.answeredtime }}
+                                </p>
+                            </ion-col>
+
+                            <!-- Right section -->
+                            <ion-col size="6" class="text-end p-0">
+                                <p class="mb-0 font-size12-familyPoppins"
+                                    style="color: rgba(47, 47, 47, 1); font-weight: 400;">
+                                    {{callLogs.name}}</p>
+                                <p class="small font-size12-familyPoppins">RM Executive</p>
+
+                                <span>
+                                    <p class="mt-2 mb-0 font-size12-familyPoppins">End Time</p>
+                                    <p class="small font-size12-familyPoppins"
+                                        style="color: rgba(47, 47, 47, 1); font-weight: 400;">
+                                        {{callLogs.endtime}}</p>
+                                </span>
+
+                                <span>
+                                    <p class="mt-2 mb-0 font-size12-familyPoppins">Mode of Call</p>
+                                    <p class="small font-size12-familyPoppins"
+                                        style="color: rgba(47, 47, 47, 1); font-weight: 400;">
+                                        {{callLogs.modeofcall}}</p>
+                                </span>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-card-content>
+
+                <div class="bg-light p-2 d-flex align-items-center rounded-bottom"
+                    style="background: rgb(183 216 233) !important;">
+                    <audio controls style="width: 100% !important; height: 32px !important;">
+                        <source [src]="callLogs.filename" type="audio/wav">
+                    </audio>
+                </div>
+            </ion-card>
+
+            <ion-row *ngId="callrecordsData.length == 0">
+                <ion-col>
+                    <span>
+                        No Recods Found...
+                    </span>
+                </ion-col>
+            </ion-row>
+        </ion-content>
+    </ng-template>
+</ion-modal>
+
+
+<!-- ADD JOB MODAL -->
+<ion-modal #addJobModal class="addJob">
+    <ng-template>
+        <ion-header>
+            <ion-row>
+                <ion-col><span>Add Job</span></ion-col>
+                <ion-col size="2" class="d-flex align-items-center justify-content-center"
+                    (click)="jobForm.reset();addJobModal.dismiss();"><ion-icon name="close"></ion-icon></ion-col>
+            </ion-row>
+        </ion-header>
+        <form [formGroup]="jobForm" (ngSubmit)="addJobFormSubmit()" class="m-2">
+            <ion-row>
+                <ion-col>
+                    <span class="label">Enter the Name <span class="text_color_red">*</span></span>
+
+                    <ion-input class="value" formControlName="name" placeholder="Name">
+                    </ion-input>
+
+                    <ion-text color="danger" class="error-text" *ngIf="jobForm.get('name')?.touched &&
+                                 jobForm.get('name')?.hasError('required')">
+                        Name is required
+                    </ion-text>
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+                <ion-col>
+                    <span class="label">Enter the Number <span class="text_color_red">*</span></span>
+                    <ion-input class="value" formControlName="number" placeholder="Number">
+                    </ion-input>
+                    <!-- Required error -->
+                    <ion-text color="danger" class="error-text" *ngIf="jobForm.get('number')?.touched &&
+                                                 jobForm.get('number')?.hasError('required')">
+                        Number is required
+                    </ion-text>
+                    <!-- Pattern error -->
+                    <ion-text color="danger" class="error-text" *ngIf="jobForm.get('number')?.touched &&
+                                         jobForm.get('number')?.hasError('pattern')">
+                        Enter a valid 10-digit number
+                    </ion-text>
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+                <ion-col>
+                    <span class="label">Enter the Mail</span>
+                    <ion-input class="value" formControlName="mail" placeholder="Mail">
+                    </ion-input>
+                    <!-- Pattern error -->
+                    <ion-text color="danger" class="error-text" *ngIf="jobForm.get('mail')?.touched &&
+                                                     jobForm.get('mail')?.hasError('pattern')">
+                        Please enter a valid Mail
+                    </ion-text>
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+                <ion-col class="d-flex flex-column">
+                    <span class="label">Job Role <span class="text_color_red">*</span></span>
+                    <p-dropdown placeholder="Jobrole" formControlName="jobrole" [options]="jobRoles"
+                        optionLabel="jobrole" optionValue="jobid" class="jobrole_dropdown"></p-dropdown>
+                    <!-- Required error -->
+                    <ion-text color="danger" class="error-text mt-1" *ngIf="jobForm.get('jobrole')?.touched &&
+                    jobForm.get('jobrole')?.hasError('required')">
+                        Job Role is required
+                    </ion-text>
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+                <ion-col class="d-flex flex-column">
+                    <span class="label">Remarks</span>
+                    <ion-textarea rows="3" formControlName="message">
+                    </ion-textarea>
+                </ion-col>
+            </ion-row>
+
+            <ion-row>
+                <ion-col>
+                    <ion-button expand="block" type="submit">
+                        Submit
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </form>
+    </ng-template>
+</ion-modal>

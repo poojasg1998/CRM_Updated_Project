@@ -8,21 +8,6 @@ const routes: Routes = [
     redirectTo: 'home',
     pathMatch: 'full',
   },
-
-  // {
-  //   path: '',
-  //   canActivate: [CanActivateGuard],
-  //   children: [
-  //     {
-  //       path: '',
-  //       loadChildren: () =>
-  //         import('./realEstate/mandate/dashboard/dashboard.module').then(
-  //           (m) => m.DashboardModule
-  //         ),
-  //     },
-  //   ],
-  // },
-
   {
     path: 'login',
     loadChildren: () =>
@@ -176,9 +161,6 @@ const routes: Routes = [
         (m) => m.AttendanceModule
       ),
   },
-  // { path: 'mandate-lead-details',
-  //   loadChildren: () => import('./mandate-lead-details/mandtae-lead-details.module').then(m => m.MandateLeadDetailsModule),
-  // },
   {
     path: 'mandate-customers',
     loadChildren: () =>
@@ -276,14 +258,13 @@ const routes: Routes = [
     path: 'shreeindustries-dashboard',
     loadChildren: () =>
       import(
-        './constructer/shreeindustries-dashboard/shreeindustries-dashboard.module'
+        './construction/shreeindustries-dashboard/shreeindustries-dashboard.module'
       ).then((m) => m.ShreeindustriesDashboardModule),
-    // canActivate: [CanActivateGuard],
   },
   {
     path: 'marketing-calls',
     loadChildren: () =>
-      import('./constructer/marketing-calls/marketing-calls.module').then(
+      import('./construction/marketing-calls/marketing-calls.module').then(
         (m) => m.MarketingCallsModule
       ),
   },
@@ -299,6 +280,62 @@ const routes: Routes = [
     loadChildren: () =>
       import('./realEstate/feedback-dashboard/feedback-dashboard.module').then(
         (m) => m.FeedbackDashboardModule
+      ),
+  },
+  {
+    path: 'cp-dashboard',
+    loadChildren: () =>
+      import('./cpClient/dashboard/dashboard.module').then(
+        (m) => m.DashboardModule
+      ),
+  },
+  {
+    path: 'cp-today-activity',
+    loadChildren: () =>
+      import('./cpClient/today-activity/today-activity.module').then(
+        (m) => m.TodayActivityModule
+      ),
+  },
+  {
+    path: 'cp-overdue-dashboard',
+    loadChildren: () =>
+      import('./cpClient/overdue-dashboard/overdue-dashboard.module').then(
+        (m) => m.OverdueDashboardModule
+      ),
+  },
+  {
+    path: 'cp-junk-dashboard',
+    loadChildren: () =>
+      import('./cpClient/junk-dashboard/junk-dashboard.module').then(
+        (m) => m.JunkDashboardModule
+      ),
+  },
+  {
+    path: 'cp-bookings',
+    loadChildren: () =>
+      import('./cpClient/all-bookings/all-bookings.module').then(
+        (m) => m.AllBookingsModule
+      ),
+  },
+  {
+    path: 'add-property',
+    loadChildren: () =>
+      import('./cpClient/add-property/add-property.module').then(
+        (m) => m.AddPropertyModule
+      ),
+  },
+  {
+    path: 'cp-lead-details',
+    loadChildren: () =>
+      import('./cpClient/cp-lead-details/cp-lead-detail.module').then(
+        (m) => m.CpLeadDetailsModule
+      ),
+  },
+  {
+    path: 'my-executives',
+    loadChildren: () =>
+      import('./cpClient/my-executive/my-executive.module').then(
+        (m) => m.MyExecutiveModule
       ),
   },
 ];

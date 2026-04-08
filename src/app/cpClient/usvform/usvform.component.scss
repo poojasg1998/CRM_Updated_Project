@@ -1,0 +1,291 @@
+.doneRefix div{
+span{
+  font-size: 12px;
+  font-family: 'Poppins';
+  font-weight: 400;
+}
+padding: 5px 15px;
+border: 0.8px solid #D9D9D9;
+border-radius: 2px;
+}
+.interestedNot div{
+span{
+font-size: 11px;
+font-family: 'Poppins';
+font-weight: 400;
+}
+border: 0.8px solid #D9D9D9;
+border-radius: 2px;
+}
+
+.interestedNot label{
+width: 100%;
+padding: 5px;
+}
+
+.bg_border_color{
+border: 1px solid #959DA533;
+background: #fff;
+border-radius: 4px;
+padding: 5px;
+}
+
+.headingdesign .heads {
+padding-bottom: 5px;
+font-family: 'Poppins';
+font-size: 14px;
+font-weight: 400;
+line-height: 24px;
+text-align: left;
+color: #647285;
+}
+.addsuggProp{
+padding-bottom: 5px;
+display: flex;
+align-items: center;
+text-align: right;
+color: #004060;
+}
+.addsuggProp span{
+font-family: 'Poppins';
+font-size: 14px;
+color: #004060;
+font-weight: 500;
+}
+
+.main_suggested_div{
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 13px;
+  margin: 0;
+  padding: 0;
+}
+ion-row.ks-cboxtags {
+  list-style: none;
+  padding: 0px;
+}
+ion-row.ks-cboxtags ion-col{
+display: inline;
+padding: 0;
+}
+
+ion-row.ks-cboxtags ion-col label{
+  background-color: rgba(255, 255, 255, .9);
+  border: 2px solid rgba(139, 139, 139, .3);
+  color: #adadad;
+  border-radius: 25px;
+  white-space: nowrap;
+  margin: 3px 0px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: all .2s;
+}
+
+ion-row.ks-cboxtags ion-col label {
+padding: 4px 1px;
+cursor: pointer;
+font-size: 11px;
+font-family: 'Poppins';
+width: 100%;
+}
+
+ion-row.ks-cboxtags ion-col label::after {
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  font-size: 12px;
+  padding: 2px 6px 2px 2px;
+  content: "\f067";
+  transition: transform .3s ease-in-out;
+}
+
+ion-row.ks-cboxtags ion-col input[type="checkbox"]:checked + label::after {
+  content: "\f00c";
+  transform: rotate(-360deg);
+  transition: transform .3s ease-in-out;
+}
+
+ion-row.ks-cboxtags ion-col input[type="checkbox"]:checked + label {
+  border: 1px solid #0B7AB25c;
+  background-color: #0B7AB25c;
+  color: #0B7AB2;
+  font-weight: 500;
+  transition: all .2s;
+}
+
+ion-row.ks-cboxtags ion-col input[type="checkbox"] {
+display: absolute;
+}
+ion-row.ks-cboxtags ion-col input[type="checkbox"] {
+position: absolute;
+opacity: 0;
+}
+ion-row.ks-cboxtags ion-col input[type="checkbox"]:focus + label {
+border: 2px solid #0B7AB2;
+}
+ion-row.ks-cboxtags ion-col.disabled{
+pointer-events:none;
+opacity:0.6;   
+}
+
+
+
+
+
+.selector-card {
+padding: 0;
+border-right: 1px solid #ccc;
+}
+
+.tab-content-card {
+margin-top: 10px;
+}
+
+.check-circle {
+color: green;
+margin-right: 10px;
+}
+
+.x-circle {
+color: red;
+margin-right: 10px;
+}
+
+.ion-item.active {
+background-color: #f0f0f0;
+}
+
+ion-content::part(scroll) {
+padding: 5px;
+}
+.content{
+border: 1px solid #ccc;
+}
+input.radiocheck{
+display: none;
+}
+#option-1-0:checked:checked ~ .option-1-0, 
+#option-1-1:checked:checked ~ .option-1-1, 
+#option-1-2:checked:checked ~ .option-1-2,
+#option-1-3:checked:checked ~ .option-1-3,
+#option-1-4:checked:checked ~ .option-1-4,
+#option-1-5:checked:checked ~ .option-1-5,
+#option-1-6:checked:checked ~ .option-1-6,
+#option-1-7:checked:checked ~ .option-1-7,
+#option-1-8:checked:checked ~ .option-1-8,
+#option-1-9:checked:checked ~ .option-1-9,
+#option-1-10:checked:checked ~ .option-1-10,
+#option-2-0:checked:checked ~ .option-2-0, 
+#option-2-1:checked:checked ~ .option-2-1, 
+#option-2-2:checked:checked ~ .option-2-2,
+#option-2-3:checked:checked ~ .option-2-3,
+#option-2-4:checked:checked ~ .option-2-4,
+#option-2-5:checked:checked ~ .option-2-5,
+#option-2-6:checked:checked ~ .option-2-6,
+#option-2-7:checked:checked ~ .option-2-7,
+#option-2-8:checked:checked ~ .option-2-8,
+#option-2-9:checked:checked ~ .option-2-9,
+#option-2-10:checked:checked ~ .option-2-10,
+#option-3-0:checked:checked ~ .option-3-0, 
+#option-3-1:checked:checked ~ .option-3-1, 
+#option-3-2:checked:checked ~ .option-3-2,
+#option-3-3:checked:checked ~ .option-3-3,
+#option-3-4:checked:checked ~ .option-3-4,
+#option-3-5:checked:checked ~ .option-3-5,
+#option-3-6:checked:checked ~ .option-3-6,
+#option-3-7:checked:checked ~ .option-3-7,
+#option-3-8:checked:checked ~ .option-3-8,
+#option-3-9:checked:checked ~ .option-3-9,
+#option-3-10:checked:checked ~ .option-3-10
+{
+  border-color: #0B7AB2;
+  background: #0B7AB2;
+  color: #fff;
+}
+.visitupdatecommon {
+  font-size: 12px;
+  font-family: 'Poppins';
+  color: #727272;
+  border-radius: 2px;
+}
+.visitupdatecommon{
+  display: none;
+}
+.nexrActionCss span{
+  font-size: 14px;
+  font-family: 'Poppins';
+  color: #000000;
+  font-weight: 400;
+}
+.stages span{
+  border: 0.8px solid #D9D9D9;
+  border-radius: 2px;
+  margin-right: 10px;
+  padding: 5px 15px;
+  font-size: 12px;
+  font-family: 'Poppins';
+  font-weight: 400;
+}
+
+.stages{
+  margin:5px 5px 5px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius:35px;
+  height: 30px;
+}
+
+.donevisitUpdate{
+  --ion-color-base: rgb(0, 79, 0,0.4) !important;
+  font-size: 12px;
+  border-bottom: 1px solid #959DA566
+}
+.notVisitUpdate{
+  --ion-color-base: rgb(173, 106, 0,0.4) !important;
+  font-size: 12px;
+  border-bottom: 1px solid #959DA566
+}
+.donevisitUpdate ion-label.lists{
+  font-size: 16px;
+  font-family: 'Poppins';
+  color: #004F00;
+
+}
+.notVisitUpdate ion-label.lists{
+  font-size: 16px;
+  font-family: 'Poppins';
+  color: #AD6A00;
+}
+ion-label.lists{
+  font-size: 16px;
+  font-family: 'Poppins';
+  color: #2196F3;
+}
+
+::ng-deep ion-accordion.accordion-expanded {
+  ion-item.notVisitUpdate{
+    --ion-color-base: rgb(173, 106, 0,0.4) !important;
+  }
+  ion-item.donevisitUpdate{
+    --ion-color-base: rgb(0, 79, 0,0.4) !important;
+  }
+  ion-item{
+    // --ion-color-base: blue ;
+  }
+}
+
+ion-accordion{
+  border: 1px solid #959DA566
+}
+
+.textopacity{
+  opacity: 0.4;
+}
