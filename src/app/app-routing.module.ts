@@ -317,6 +317,27 @@ const routes: Routes = [
         (m) => m.AllBookingsModule
       ),
   },
+  {
+    path: 'add-property',
+    loadChildren: () =>
+      import('./cpClient/add-property/add-property.module').then(
+        (m) => m.AddPropertyModule
+      ),
+  },
+  {
+    path: 'cp-lead-details',
+    loadChildren: () =>
+      import('./cpClient/cp-lead-details/cp-lead-detail.module').then(
+        (m) => m.CpLeadDetailsModule
+      ),
+  },
+  {
+    path: 'my-executives',
+    loadChildren: () =>
+      import('./cpClient/my-executive/my-executive.module').then(
+        (m) => m.MyExecutiveModule
+      ),
+  },
 ];
 
 @NgModule({

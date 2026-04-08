@@ -1,4 +1,7 @@
 <app-cp-header></app-cp-header>
+<div class="content_center loader" *ngIf="showSpinner">
+  <ion-img style="width: 300px; height: 70px" src="../assets/CRMimages/animation/loader.gif"></ion-img>
+</div>
 <ion-row class="sale-resale-rental-row mb-0">
   <ion-col (click)="applyFilter({category: '1'})" class="d-flex  align-items-center justify-content-center px-0"
     [class.active_btn]="filteredParams.category == '1'">
@@ -57,7 +60,20 @@
   </ion-button>
 </ion-row>
 
-<ion-content>
+<!--FILTERED CHIPS -->
+<ion-row class="scroll-row filterButtons m-0 p-1" *ngIf="filteredParams.source?.length > 0 ||filteredParams.propName">
+  <ion-col class="scroll-col" *ngFor="let src of filteredParams.source" (click)="removeSource(src)">
+    {{ src }}
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
+  <ion-col class="scroll-col" *ngIf="filteredParams.propName"
+    (click)="tempFilteredValues.visitedpropName = '';tempFilteredValues.propid='';onConfirmedFilter()">
+    {{filteredParams.propName }}
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
+</ion-row>
+
+<ion-content #content (ionScroll)="onScroll($event)" scrollEvents="true">
   <!-- LEADS CARD -->
   <!-- <ion-card class="leads-card" [class.selected]="filteredParams.activeCardKey == 'leads-card'">
     <ion-row class="card-content">
@@ -152,39 +168,49 @@
     </ion-row>
   </ion-card> -->
 
-  <ion-card class="booked-card mb-0" [class.selected]="filteredParams.activeCardKey == 'booked-card'">
+  <ion-card class="followups-card mb-0" [class.selected]="filteredParams.activeCardKey == 'followups-card'">
     <ion-row class="card-content">
       <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
       <ion-col
-        [ngClass]="filteredParams.selectedStage === 'Followups' && filteredParams.activeCardKey ==='booked-card'? 'selected-card border-right' : ''"
+        [ngClass]="filteredParams.selectedStage === 'Followups' && filteredParams.activeCardKey ==='followups-card'? 'selected-card border-right' : ''"
         class="py-0 px-1"
-        (click)="applyFilter({selectedStage: 'Followups',activeCardKey:'booked-card',stage:'Fresh',stagestatus:''})">
+        (click)="applyFilter({selectedStage: 'Followups',activeCardKey:'followups-card',stage:'Fresh',stagestatus:''})">
         <p>Followups</p>
         <h1>{{leadsCount.followups}}</h1>
       </ion-col>
       <ion-col
-        [ngClass]="filteredParams.selectedStage === 'Scheduled Visits' && filteredParams.activeCardKey ==='booked-card' ? 'selected-card border-left' : ''"
+        [ngClass]="filteredParams.selectedStage === 'Scheduled Visits' && filteredParams.activeCardKey ==='followups-card' ? 'selected-card border-left' : ''"
         class="py-0 px-1"
-        (click)="applyFilter({selectedStage: 'Scheduled Visits',activeCardKey:'booked-card',stage:'USV',stagestatus:'1'})">
+        (click)="applyFilter({selectedStage: 'Scheduled Visits',activeCardKey:'followups-card',stage:'USV',stagestatus:'1'})">
         <p>Scheduled visits</p>
         <h1>{{leadsCount.usvfix}}</h1>
       </ion-col>
     </ion-row>
   </ion-card>
 
-  <ion-row class="visits-row mx-1">
-    <ion-col *ngFor="let visit of visits" size="4">
-      <ion-card class="m-0">
+  <ion-row class="visits-row mx-1" *ngIf="visits?.length != 0">
+    <ion-col *ngFor="let visit of visits" size="4"
+      (click)="applyFilter({selectedStage: ('Visits_'+visit.visit_order),activeCardKey:'visits-row', visited_count:visit.visit_order,stage:''})">
+      <ion-card class="m-0" [ngClass]="filteredParams.visited_count == visit.visit_order?'selected':''">
         <ion-img src="../assets/cp/allVisits-card-icon.svg"></ion-img>
         <p>Visits {{visit.visit_order}}</p>
         <h1>{{visit.visited_count}}</h1>
       </ion-card>
     </ion-col>
   </ion-row>
+  <ion-row class="visits-row mx-1" *ngIf="visits?.length == 0">
+    <ion-col (click)="applyFilter({selectedStage: ('Visits'),activeCardKey:'visits-row',stage:''})">
+      <ion-card class="m-0" [ngClass]="filteredParams.selectedStage == 'Visits'?'selected':''">
+        <ion-img src="../assets/cp/allVisits-card-icon.svg"></ion-img>
+        <p>No Visits Found</p>
+        <h1>0</h1>
+      </ion-card>
+    </ion-col>
+  </ion-row>
 
 
   <div class="m-2">
-    <ion-row [class]="filteredParams.activeCardKey" class="rounded-0">
+    <ion-row [class]="filteredParams.activeCardKey" class="rounded-0 selected-card-header">
       <ion-col class="d-flex align-items-center justify-content-center selected-card">
         <h1 class="text-capitalize">
           {{filteredParams.selectedStage}}
@@ -199,7 +225,7 @@
             <span>{{ i + 1 | number:'2.0'}}
             </span>
           </div>
-          <ion-grid class="p-0">
+          <ion-grid class="p-0" (click)="navigateToDetailsPage(lead)">
             <div>
               <ion-row style="line-height: 1.4;">
                 <ion-col size="6">
@@ -217,59 +243,34 @@
                 </ion-col>
                 <ion-col size="6">
                   <div class="section">
-                    <p class="label">Lead Date </p>
-                    <p class="value">{{lead.Date|date: 'dd-MMM-yyyy hh:mm a' }}</p>
+                    <p class="label">Overdue On </p>
+                    <p class="value">{{lead.nextactiondate|date: 'dd-MMM-yyyy' }} {{lead.nextactiontime}}</p>
                   </div>
                 </ion-col>
-                <ion-col size="6">
+                <ion-col size="6" *ngIf="lead.propertyname || lead.leadProperty">
                   <div class="section">
-                    <p class="label">Priority </p>
-                    <p class="value">{{lead.number}}</p>
+                    <p class="label">Property </p>
+                    <p class="value">{{lead.leadProperty || lead.propertyname}}</p>
                   </div>
                 </ion-col>
-
+                <ion-col>
+                  <div class="section">
+                    <p class="label">Source </p>
+                    <p class="value">{{lead.source}}</p>
+                  </div>
+                </ion-col>
               </ion-row>
             </div>
           </ion-grid>
           <div>
             <ion-row>
               <ion-accordion-group class="w-100">
-                <ion-accordion value="first" class="latestRemark"
-                  *ngIf=" lead.suggestedprop?.length > 0 && lead.Leadphase !== 'Fresh' && filteredParams.stage != 'DCRR' && filteredParams.stage != 'Closing Request Rejected' && filteredParams.stage != 'Deal Closing Requested' && filteredParams.stage != 'Deal Closed'">
-                  <ion-item style="--inner-padding-end:0;padding: 0;" slot="header" color="light"
-                    class="custom-ion-item suggestProp">
-                    <ion-label style="flex-grow: 1;margin: 5px">
-                      {{lead.suggestedprop.length != 0 && (lead.visitedprop.length != 0)
-                      ?'Suggested / Visited Properties':lead.suggestedprop.length != 0 ?
-                      'Suggested Properties':lead.visitedprop.length != 0?'Visited Properties':''}}
-                    </ion-label>
-                  </ion-item>
-                  <div slot="content" style="border-top: 0.75px #ECECEC solid; padding:5px">
-                    <span *ngIf="lead.suggestedprop?.length > 0">
-                      <div>
-                        <h4 class="mt-0 p-0 font-size14-familyPoppins" *ngIf="lead.visitedprop.length != 0">Suggested
-                          Property:
-                        </h4>
-                        <p *ngFor="let suggest of lead.suggestedprop; let i = index" style="display: inline-block;"
-                          class="mr-1 suggested_proj">
-                          {{suggest.name +","}}</p>
-                      </div>
-                      <div *ngIf="lead.visitedprop.length != 0">
-                        <h4 class="mt-0 p-0 font-size14-familyPoppins">Visited Property:</h4>
-                        <p *ngFor="let visited of lead.visitedprop; let i = index" style="display: inline-block;"
-                          class="suggested_proj">
-                          {{visited.name +","}}</p>
-                      </div>
-                    </span>
-                  </div>
-                </ion-accordion>
-
-                <ion-accordion *ngIf="(lead.manualremarks || lead.visitremarks) && filteredParams.status != 'pending'"
-                  value="second" style="border-top: 0.75px #ECECEC solid;" class="latestRemark">
+                <ion-accordion *ngIf="(lead.manualremarks || lead.visitremarks)" value="second"
+                  style="border-top: 0.75px #ECECEC solid;" class="latestRemark">
                   <ion-item slot="header" color="light" class="custom-ion-item"
                     style="--inner-padding-end:0;padding: 0;">
                     <ion-label style="flex-grow: 1;margin: 5px">
-                      Latest Remark
+                      Latest Remarks
                     </ion-label>
                   </ion-item>
                   <div style="border-top: 0.75px #ECECEC solid;" class="p-2" slot="content">
@@ -277,6 +278,7 @@
                     <p>{{lead.manualremarks}}</p>
                     <p *ngIf="lead.manualremarks === null">{{lead.remarks}}</p>
                   </div>
+
                 </ion-accordion>
               </ion-accordion-group>
             </ion-row>
@@ -288,6 +290,13 @@
   <ion-row *ngIf="(leads_detail?.length==0)" class="textStyle ion-justify-content-center ion-align-items-center">
     <ion-col class="ion-text-center"><span>No Leads Found...</span></ion-col>
   </ion-row>
+
+  <!-- INFINITE SCROLL -->
+  <ion-infinite-scroll *ngIf="showInfiniteScroll" [disabled]="false" threshold="100px" #infiniteScroll
+    (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>
 
 <ion-modal #cp_dashboard_custDate_modal [breakpoints]="[0.3]" [initialBreakpoint]="0.3"
@@ -337,3 +346,64 @@
     <ion-datetime presentation="date" [min]="dateRange.fromdate" [(ngModel)]="dateRange.todate"></ion-datetime>
   </ng-template>
 </ion-modal>
+
+<!-- FILTER MODAL -->
+<ion-modal #filter_modal class="filter_modal">
+  <ng-template>
+    <div class="filter-container">
+      <!-- Header -->
+      <div class="filter-header">Filter by</div>
+      <!-- Body -->
+      <div class="filter-body">
+        <!-- Left Menu -->
+        <div class="filter-left">
+          <div class="menu-item" [class.active]="activeTab === 'source'" (click)="setActiveTab('source')">
+            Source
+          </div>
+          <div class="menu-item" [class.active]="activeTab === 'property'" (click)="setActiveTab('property')">
+            Property
+          </div>
+        </div>
+
+        <!-- Right Content -->
+        <div class="filter-right">
+          <!-- PROPERTY -->
+          <ng-container *ngIf="activeTab === 'property'">
+            <ion-searchbar class="search-style" placeholder="Search source..." [(ngModel)]="searchText"
+              (ionInput)="searchData()">
+            </ion-searchbar>
+            <ion-radio-group [(ngModel)]="tempFilteredValues.propid">
+              <div class="custom-row overflow-auto" *ngFor="let item of filteredProperty">
+                <ion-radio slot="start" [value]="item"></ion-radio>
+                <ion-label>{{ item.name }}</ion-label>
+              </div>
+            </ion-radio-group>
+          </ng-container>
+
+          <!-- SOURCE -->
+          <ng-container *ngIf="activeTab === 'source'">
+            <ion-searchbar class="search-style" placeholder="Search source..." [(ngModel)]="searchText"
+              (ionInput)="searchData()">
+            </ion-searchbar>
+            <div class="custom-row overflow-auto" *ngFor="let item of filteredSource">
+              <ion-checkbox slot="start" [checked]="tempFilteredValues.source?.includes(item.source)"
+                (ionChange)="applyTemFilter('source',item)"></ion-checkbox>
+              <ion-label><span>{{ item.source }}</span></ion-label>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="filter-footer">
+        <ion-button fill="outline" class="clear-btn" (click)="onClearFiltered()">Clear All</ion-button>
+        <ion-button class="apply-btn" (click)="onConfirmedFilter()">Apply</ion-button>
+      </div>
+
+    </div>
+  </ng-template>
+</ion-modal>
+
+<div class="floatting-icon" *ngIf="!sharedService.isBottom">
+  <ion-img src="../../../assets/cp/filter-icon.svg" (click)="onFilterModal()"></ion-img>
+</div>

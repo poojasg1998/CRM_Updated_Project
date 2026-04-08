@@ -57,7 +57,7 @@
   </ion-row>
   <ion-row class="leads-visits-container m-2 mb-0">
     <ion-col [ngClass]="filteredParams.isLeadsVisits === 'leads' ? 'active-btn' : 'normal-btn'" class="content-center"
-      (click)="applyFilter({isLeadsVisits: 'leads',stagestatus:'',stage:'',status:'assignedleads'})">
+      (click)="applyFilter({isLeadsVisits: 'leads',stagestatus:'',stage:'',status:'assignedleads',visitedprop:'',visitedpropName:''})">
       <ion-img *ngIf="filteredParams.isLeadsVisits === 'leads'" src="../../../assets/cp/lead-active-btn.svg"
         class="pr-1"></ion-img>
       <ion-img *ngIf="filteredParams.isLeadsVisits !== 'leads'" src="../../../assets/cp/lead.svg"
@@ -88,18 +88,33 @@
     {{filteredParams.visitedpropName }}
     <ion-icon name="close"></ion-icon>
   </ion-col>
-</ion-row>
+  <ion-col class="scroll-col" *ngIf="filteredParams.priority"
+    (click)="tempFilteredValues.priority = '';onConfirmedFilter()">
+    {{filteredParams.priority == '1'?'Hot':filteredParams.priority == '2'?'Cold':'Warm' }}
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
 
-<ion-row class="filterButtons m-2 mb-0" *ngIf="this.filteredParams.datePreset == 'custom'" (click)="removeDateFilter()">
-  <ion-button fill="clear" class="m-0">
+  <ion-col class="scroll-col" *ngIf="filteredParams.receivedfromdate"
+    (click)="tempFilteredValues.receivedfromdate = '';tempFilteredValues.receivedtodate = '';onConfirmedFilter()">
+    {{"Received On: "+filteredParams.receivedfromdate +" To "+filteredParams.receivedtodate }}
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
+  <ion-col class="scroll-col" *ngIf="filteredParams.fromdate && filteredParams.isLeadsVisits == 'visits'"
+    (click)="tempFilteredValues.fromdate= '';tempFilteredValues.todate= '';onConfirmedFilter()">
+    {{"Next Action: "+filteredParams.fromdate +" To "+filteredParams.todate }}
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
+
+  <ion-col class="scroll-col" *ngIf="this.filteredParams.datePreset == 'custom'" (click)="removeDateFilter()">
     <span *ngIf="filteredParams.isLeadsVisits == 'leads' || filteredParams.isLeadsVisits == 'calls'">{{
       this.filteredParams.fromdate }}{{ " to " +
       this.filteredParams.todate }}</span>
     <span *ngIf="filteredParams.isLeadsVisits == 'visits'">{{ this.filteredParams.visitedfromdate }}{{ " to "
       + this.filteredParams.visitedtodate }}</span>
-    <ion-icon slot="end" name="close"></ion-icon>
-  </ion-button>
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
 </ion-row>
+
 <ion-content #scrollContent scrollEvents="true" (ionScroll)="onScroll($event)">
   <!-- LEADS CARD -->
   <div class="p-1" *ngIf="filteredParams.isLeadsVisits == 'leads'">
@@ -285,7 +300,7 @@
         </div>
         <ion-grid class="p-0">
           <div>
-            <ion-row style="line-height: 1.4;">
+            <ion-row style="line-height: 1.4;" (click)="navigateToDetailsPage(lead)">
               <ion-col size="6">
                 <div class="section">
                   <p class="label">Lead Name</p>
@@ -328,7 +343,6 @@
                     {{lead.visitedtime}}</p>
                 </div>
               </ion-col>
-
             </ion-row>
             <ion-row style="line-height: 1.4;">
               <ion-col size="6">
@@ -550,13 +564,14 @@
             <ion-searchbar class="search-style" placeholder="Search source..." [(ngModel)]="searchText"
               (ionInput)="searchData()">
             </ion-searchbar>
-            <ion-radio-group [(ngModel)]="tempFilteredValues.visitedprop">
+            <ion-radio-group [(ngModel)]="tempFilteredValues.slectedProp">
               <div class="custom-row overflow-auto" *ngFor="let item of filteredProperty">
                 <ion-radio slot="start" [value]="item"></ion-radio>
                 <ion-label>{{ item.name }}</ion-label>
               </div>
             </ion-radio-group>
           </ng-container>
+
 
           <!-- SOURCE -->
           <ng-container *ngIf="activeTab === 'source'">
@@ -648,7 +663,7 @@
                 (click)="tempFilteredValues.receivedfromdate =='' || ! tempFilteredValues.receivedfromdate || tempFilteredValues.receivedfromdate == null || tempFilteredValues.receivedfromdate == undefined?warningMessage():''">
                 <label [for]="tempFilteredValues.receivedfromdate !=='' ? 'cpreceivedToDate' : ''" style="width: 100%;">
                   <div class="date_range"
-                    [ngClass]="this.tempFilteredValues.receivedfromdate !='' && this.tempFilteredValues.actiontodate == ''?'border_color_red':''">
+                    [ngClass]="this.tempFilteredValues.receivedfromdate !='' && this.tempFilteredValues.receivedtodate == ''?'border_color_red':''">
                     <div><span>{{tempFilteredValues.receivedtodate?tempFilteredValues.receivedtodate:
                         'Select to date'}}</span></div>
                     <div>

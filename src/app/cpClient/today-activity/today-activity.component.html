@@ -86,7 +86,7 @@
     <ion-icon name="close"></ion-icon>
   </ion-col>
 </ion-row>
-<ion-content>
+<ion-content #content (ionScroll)="onScroll($event)" scrollEvents="true">
 
   <div class="m-2 leads-card">
     <ion-item-sliding #sliding *ngFor="let lead of leads_detail,let i= index">
@@ -96,7 +96,7 @@
             <span>{{ i + 1 | number:'2.0'}}
             </span>
           </div>
-          <ion-grid class="p-0">
+          <ion-grid class="p-0" (click)="navigateToDetailsPage(lead)">
             <div>
               <ion-row style="line-height: 1.4;">
                 <ion-col size="6">
@@ -185,7 +185,7 @@
             </ion-searchbar>
             <ion-radio-group [(ngModel)]="tempFilteredValues.propid">
               <div class="custom-row overflow-auto" *ngFor="let item of filteredProperty">
-                <ion-radio slot="start" [value]="item" (ionSelect)="onRadioSelect($event)"></ion-radio>
+                <ion-radio slot="start" [value]="item"></ion-radio>
                 <ion-label>{{ item.name }}</ion-label>
               </div>
             </ion-radio-group>

@@ -63,16 +63,7 @@
             <span class="pl-1">Missed Dashboard</span>
           </ion-col>
         </ion-row>
-
-        <ion-row (click)="resetStoredData()" class="subdrop-row-height" routerLink="../cp-junk-dashboard"
-          [class.activeSubSec]="sharedService.isActiveRoute('cp-junk-dashboard')">
-          <ion-col class="center-vertically">
-            <ion-img style="width: 20px;" src="../../../assets/CRMimages/menubaricons/active_junk.svg"></ion-img>
-            <span class="pl-1">Junk Dashboard</span>
-          </ion-col>
-        </ion-row>
       </div>
-
 
       <ion-row routerLink="../cp-bookings"
         (click)="accordionOpen=false; sharedService.isBottom = false;resetStoredData()" class="row-height"
@@ -80,6 +71,23 @@
         <ion-col class="center-vertically">
           <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
           All Bookings
+        </ion-col>
+      </ion-row>
+
+      <ion-row routerLink="../add-property"
+        (click)="accordionOpen=false; sharedService.isBottom = false;resetStoredData()" class="row-height"
+        [class.activeSec]="sharedService.isActiveRoute('add-property')&& !accordionOpen">
+        <ion-col class="center-vertically">
+          <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
+          Add Properties
+        </ion-col>
+      </ion-row>
+      <ion-row routerLink="../my-executives"
+        (click)="accordionOpen=false; sharedService.isBottom = false;resetStoredData()" class="row-height"
+        [class.activeSec]="sharedService.isActiveRoute('my-executives')&& !accordionOpen">
+        <ion-col class="center-vertically">
+          <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
+          My Executives
         </ion-col>
       </ion-row>
     </ion-menu-toggle>

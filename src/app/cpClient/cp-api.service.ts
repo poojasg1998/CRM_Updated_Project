@@ -265,28 +265,31 @@ export class CpApiService {
     return this.http.get(this.retailcrm + '/geteditcustomer/' + id);
   }
 
-  getassignedrmretail(id, loginid, feedbackid) {
+  getassignedrmretail(id, loginid, feedbackid, category) {
     let params = new HttpParams()
       .set('loginid', loginid)
-      .set('feedback', feedbackid);
+      .set('feedback', feedbackid)
+      .set('category', category);
     return this.http.get(this.retailcrm + '/getassignedrmretail/' + id, {
       params,
     });
   }
 
-  getactiveleadsstatus(leadid, userid, assignid, feedback) {
+  getactiveleadsstatus(leadid, userid, assignid, feedback, category) {
     let params = new HttpParams()
       .set('LeadID', leadid)
       .set('ExecID', userid)
       .set('assignID', assignid)
-      .set('feedback', feedback);
+      .set('feedback', feedback)
+      .set('category', category);
     return this.http.post(this.retailcrm + '/getactiveleadsstatus', params);
   }
 
   propertylist(param) {
     let params = new HttpParams()
       .set('leadid', param.leadid)
-      .set('Execid', param.execid);
+      .set('Execid', param.execid)
+      .set('Catogid', param.Catogid);
     return this.http.get(this.retailcrm + '/propertylist', { params });
   }
 
@@ -310,7 +313,8 @@ export class CpApiService {
       .set('PropertyID', param.suggestproperties)
       .set('Stage', param.stage)
       .set('Execid', param.execid)
-      .set('assignID', param.assignid);
+      .set('assignID', param.assignid)
+      .set('Catogid', param.categoryid);
     return this.http.post(this.retailcrm + '/addsuggestproperties', params);
   }
 
@@ -1556,5 +1560,27 @@ export class CpApiService {
       .set('categoryid', param.categoryid)
       .set('loginid', param.loginid);
     return this.http.post(this.retailcrm + '/addenquiry', params);
+  }
+
+  addProperty(param) {
+    let params = new HttpParams()
+      .set('Propname', param.Propname)
+      .set('category', param.category);
+
+    return this.http.post(this.retailcrm + '/addproperties', params);
+  }
+  addSource(param) {
+    let params = new HttpParams().set('sourcename', param.sourcename);
+
+    return this.http.post(this.retailcrm + '/addsource', params);
+  }
+
+  addLocality(param) {
+    let params = new HttpParams().set('localityname', param.localityname);
+    return this.http.post(this.retailcrm + '/addlocality', params);
+  }
+
+  getExecutives() {
+    return this.http.get(this.retailcrm + '/getexecutiveslist');
   }
 }

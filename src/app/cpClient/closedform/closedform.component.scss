@@ -1,0 +1,528 @@
+
+  .userDetailsTitle {
+    margin: 10px 0 3px 0;
+  }
+
+  .ui.segment .btn.active{
+    background: #0B7AB2;
+    border: 1px solid #0B7AB2;
+    box-shadow: none;
+  }
+
+  .ui.grid{
+    width: 100%;
+    display: inline-block;
+  }
+  .ui.grid > [class*="four wide"].column{
+    padding-bottom: 0;
+    padding-top: 0;
+  }
+  .ui.grid > [class*="twelve wide"].column{
+    position: absolute;
+    right: 0;
+    top: 100px;
+    padding-top: 0;
+  }
+  
+
+  .buttonmain{
+    width: 100%;
+  }
+  
+
+  
+  .face2facemaindiv button.closebtns{   
+      font-size: 14px;
+      color: #FFF;
+      font-weight: 400;
+      text-decoration: none;
+  }
+
+  .face2facemaindiv button.acceptbtn{
+    background: green;
+  }
+  .face2facemaindiv button.rejectbtn{
+    background: red;
+  }
+  .face2facemaindiv button.requestbtn{
+    background: green;
+    font-size: 14px;
+    color: #FFF;
+    font-weight: 400;
+    text-decoration: none;
+  }
+
+  .main_suggested_div{
+    max-width: 640px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
+  }
+  ul.ks-cboxtags {
+    list-style: none;
+    padding: 0px;
+}
+ul.ks-cboxtags li{
+  display: inline;
+}
+ul.ks-cboxtags li label{
+    display: inline-block;
+    background-color: rgba(255, 255, 255, .9);
+    border: 2px solid rgba(139, 139, 139, .3);
+    color: #adadad;
+    border-radius: 25px;
+    white-space: nowrap;
+    margin: 3px 0px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: all .2s;
+}
+
+ul.ks-cboxtags li label {
+  padding: 4px 6px;
+    cursor: pointer;
+}
+
+ul.ks-cboxtags li label::before {
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 12px;
+    padding: 2px 6px 2px 2px;
+    content: "\f067";
+    transition: transform .3s ease-in-out;
+}
+
+ul.ks-cboxtags li input[type="checkbox"]:checked + label::before {
+    content: "\f00c";
+    transform: rotate(-360deg);
+    transition: transform .3s ease-in-out;
+}
+
+ul.ks-cboxtags li input[type="checkbox"]:checked + label {
+  border: 1px solid #0B7AB25c;
+  background-color: #0B7AB25c;
+  color: #0B7AB25c;
+  font-weight: 700;
+  transition: all .2s;
+}
+
+ul.ks-cboxtags li input[type="checkbox"] {
+  display: absolute;
+}
+ul.ks-cboxtags li input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+}
+ul.ks-cboxtags li input[type="checkbox"]:focus + label {
+  border: 2px solid #e9a1ff;
+}
+
+.comma-list {
+  display: inline;
+  list-style: none;
+  padding: 0px;
+}
+
+.headingdesign .heads {
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.5em;
+  padding-bottom: 15px;
+  position: relative;
+  color: #979393;
+  }
+  
+  .headingdesign .heads:after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 2px;
+    height: 1px;
+    width: 95%;
+    max-width: 255px;
+    background-color: #979393;
+  }
+
+  .headingdesign .heads:before{
+    content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 5px;
+  width: 55px;
+  background-color: #979393;
+  }
+
+.datepickerdiv{
+  width: 100%;
+}
+
+.timepickerdiv{
+  width: 100%;
+}
+
+.wrapper{
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 100%;
+  height: 40px;
+}
+.wrapper .option{
+  background: #fff;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 2px solid lightgrey;
+  transition: all 0.3s ease;
+  margin-right: 4px;
+}
+.wrapper .option .dot::before{
+  position: absolute;
+  content: "";
+  top: 4px;
+  left: 4px;
+  width: 12px;
+  height: 12px;
+  background: #0069d9;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(1.5);
+  transition: all 0.3s ease;
+}
+input[type="checkbox"]{
+  display: none;
+}
+
+
+  #option-4:checked:checked ~ .option-4,
+  #option-5:checked:checked ~ .option-5,
+  #option-6:checked:checked ~ .option-6,
+  #option-7:checked:checked ~ .option-7,
+  #option-8:checked:checked ~ .option-8,
+  #option-9:checked:checked ~ .option-9,
+  #option-10:checked:checked ~ .option-10,
+  #option-11:checked:checked ~ .option-11,
+  #option-12:checked:checked ~ .option-12,
+  #option-13:checked:checked ~ .option-13
+  {
+    border-color: #0B7AB2;
+    background: #0B7AB2;
+    color: white ;
+  }
+
+  #option-4:checked:checked ~ .option-4 span,
+  #option-5:checked:checked ~ .option-5 span,
+  #option-6:checked:checked ~ .option-6 span,
+  #option-7:checked:checked ~ .option-7 span,
+  #option-8:checked:checked ~ .option-8 span,
+  #option-9:checked:checked ~ .option-9 span,
+  #option-10:checked:checked ~ .option-10 span,
+  #option-11:checked:checked ~ .option-11 span,
+  #option-12:checked:checked ~ .option-12 span,
+  #option-13:checked:checked ~ .option-13 span{
+    color: white !important;
+  }
+
+
+
+  #option-1-0:checked:checked ~ .option-1-0, 
+  #option-1-1:checked:checked ~ .option-1-1, 
+  #option-1-2:checked:checked ~ .option-1-2, 
+  #option-1-3:checked:checked ~ .option-1-3,
+  #option-1-4:checked:checked ~ .option-1-4,
+  #option-1-5:checked:checked ~ .option-1-5,
+  #option-2-0:checked:checked ~ .option-2-0, 
+  #option-2-1:checked:checked ~ .option-2-1, 
+  #option-2-2:checked:checked ~ .option-2-2, 
+  #option-2-3:checked:checked ~ .option-2-3,
+  #option-2-4:checked:checked ~ .option-2-4,
+  #option-2-5:checked:checked ~ .option-2-5,
+  #option-3-0:checked:checked ~ .option-3-0, 
+  #option-3-1:checked:checked ~ .option-3-1, 
+  #option-3-2:checked:checked ~ .option-3-2, 
+  #option-3-3:checked:checked ~ .option-3-3,
+  #option-3-4:checked:checked ~ .option-3-4,
+  #option-3-5:checked:checked ~ .option-3-5,
+  #option-4-0:checked:checked ~ .option-4-0, 
+  #option-4-1:checked:checked ~ .option-4-1, 
+  #option-4-2:checked:checked ~ .option-4-2, 
+  #option-4-3:checked:checked ~ .option-4-3,
+  #option-4-4:checked:checked ~ .option-4-4,
+  #option-4-5:checked:checked ~ .option-4-5,
+  #option-5-0:checked:checked ~ .option-5-0, 
+  #option-5-1:checked:checked ~ .option-5-1, 
+  #option-5-2:checked:checked ~ .option-5-2, 
+  #option-5-3:checked:checked ~ .option-5-3,
+  #option-5-4:checked:checked ~ .option-5-4,
+  #option-5-5:checked:checked ~ .option-5-5,
+  #option-6-0:checked:checked ~ .option-6-0, 
+  #option-6-1:checked:checked ~ .option-6-1, 
+  #option-6-2:checked:checked ~ .option-6-2, 
+  #option-6-3:checked:checked ~ .option-6-3,
+  #option-6-4:checked:checked ~ .option-6-4,
+  #option-6-5:checked:checked ~ .option-6-5,
+  #option-7-0:checked:checked ~ .option-7-0, 
+  #option-7-1:checked:checked ~ .option-7-1, 
+  #option-7-2:checked:checked ~ .option-7-2, 
+  #option-7-3:checked:checked ~ .option-7-3,
+  #option-7-4:checked:checked ~ .option-7-4,
+  #option-7-5:checked:checked ~ .option-7-5,
+  #option-8-0:checked:checked ~ .option-8-0, 
+  #option-8-1:checked:checked ~ .option-8-1, 
+  #option-8-2:checked:checked ~ .option-8-2, 
+  #option-8-3:checked:checked ~ .option-8-3,
+  #option-8-4:checked:checked ~ .option-8-4,
+  #option-8-5:checked:checked ~ .option-8-5,
+  #option-9-0:checked:checked ~ .option-9-0, 
+  #option-9-1:checked:checked ~ .option-9-1, 
+  #option-9-2:checked:checked ~ .option-9-2, 
+  #option-9-3:checked:checked ~ .option-9-3,
+  #option-9-4:checked:checked ~ .option-9-4,
+  #option-9-5:checked:checked ~ .option-9-5,
+  #option-10-0:checked:checked ~ .option-10-0, 
+  #option-10-1:checked:checked ~ .option-10-1, 
+  #option-10-2:checked:checked ~ .option-10-2, 
+  #option-10-3:checked:checked ~ .option-10-3,
+  #option-10-4:checked:checked ~ .option-10-4,
+  #option-10-5:checked:checked ~ .option-10-5,
+  #option-11-0:checked:checked ~ .option-11-0, 
+  #option-11-1:checked:checked ~ .option-11-1, 
+  #option-11-2:checked:checked ~ .option-11-2, 
+  #option-11-3:checked:checked ~ .option-11-3,
+  #option-11-4:checked:checked ~ .option-11-4,
+  #option-11-5:checked:checked ~ .option-11-5,
+  #option-12-0:checked:checked ~ .option-12-0, 
+  #option-12-1:checked:checked ~ .option-12-1, 
+  #option-12-2:checked:checked ~ .option-12-2, 
+  #option-12-3:checked:checked ~ .option-12-3,
+  #option-12-4:checked:checked ~ .option-12-4,
+  #option-12-5:checked:checked ~ .option-12-5,
+  #option-13-0:checked:checked ~ .option-13-0, 
+  #option-13-1:checked:checked ~ .option-13-1, 
+  #option-13-2:checked:checked ~ .option-13-2, 
+  #option-13-3:checked:checked ~ .option-13-3,
+  #option-13-4:checked:checked ~ .option-13-4,
+  #option-13-5:checked:checked ~ .option-13-5
+  {
+    border-color: #0B7AB2;
+    background: #0B7AB2;
+    color: white !important;
+  }
+  
+  #option-4-0:checked:checked ~ .option-4-0 span,
+  #option-4-1:checked:checked ~ .option-4-1 span,
+  #option-4-2:checked:checked ~ .option-4-2 span,
+  #option-4-3:checked:checked ~ .option-4-3 span,
+  #option-4-4:checked:checked ~ .option-4-4 span,
+  #option-4-5:checked:checked ~ .option-4-5 span,
+  #option-5-0:checked:checked ~ .option-5-0 span,
+  #option-5-1:checked:checked ~ .option-5-1 span,
+  #option-5-2:checked:checked ~ .option-5-2 span,
+  #option-5-3:checked:checked ~ .option-5-3 span,
+  #option-5-4:checked:checked ~ .option-5-4 span,
+  #option-5-5:checked:checked ~ .option-5-5 span,
+  #option-6-0:checked:checked ~ .option-6-0 span, 
+  #option-6-1:checked:checked ~ .option-6-1 span, 
+  #option-6-2:checked:checked ~ .option-6-2 span, 
+  #option-6-3:checked:checked ~ .option-6-3 span,
+  #option-6-4:checked:checked ~ .option-6-4 span,
+  #option-6-5:checked:checked ~ .option-6-5 span,
+  #option-7-0:checked:checked ~ .option-7-0 span, 
+  #option-7-1:checked:checked ~ .option-7-1 span, 
+  #option-7-2:checked:checked ~ .option-7-2 span, 
+  #option-7-3:checked:checked ~ .option-7-3 span,
+  #option-7-4:checked:checked ~ .option-7-4 span,
+  #option-7-5:checked:checked ~ .option-7-5 span,
+  #option-8-0:checked:checked ~ .option-8-0 span, 
+  #option-8-1:checked:checked ~ .option-8-1 span, 
+  #option-8-2:checked:checked ~ .option-8-2 span, 
+  #option-8-3:checked:checked ~ .option-8-3 span,
+  #option-8-4:checked:checked ~ .option-8-4 span,
+  #option-8-5:checked:checked ~ .option-8-5 span,
+  #option-9-0:checked:checked ~ .option-9-0 span, 
+  #option-9-1:checked:checked ~ .option-9-1 span, 
+  #option-9-2:checked:checked ~ .option-9-2 span, 
+  #option-9-3:checked:checked ~ .option-9-3 span,
+  #option-9-4:checked:checked ~ .option-9-4 span,
+  #option-9-5:checked:checked ~ .option-9-5 span,
+  #option-10-0:checked:checked ~ .option-10-0 span, 
+  #option-10-1:checked:checked ~ .option-10-1 span, 
+  #option-10-2:checked:checked ~ .option-10-2 span, 
+  #option-10-3:checked:checked ~ .option-10-3 span,
+  #option-10-4:checked:checked ~ .option-10-4 span,
+  #option-10-5:checked:checked ~ .option-10-5 span,
+  #option-11-0:checked:checked ~ .option-11-0 span, 
+  #option-11-1:checked:checked ~ .option-11-1 span, 
+  #option-11-2:checked:checked ~ .option-11-2 span, 
+  #option-11-3:checked:checked ~ .option-11-3 span,
+  #option-11-4:checked:checked ~ .option-11-4 span,
+  #option-11-5:checked:checked ~ .option-11-5 span,
+  #option-12-0:checked:checked ~ .option-12-0 span, 
+  #option-12-1:checked:checked ~ .option-12-1 span, 
+  #option-12-2:checked:checked ~ .option-12-2 span, 
+  #option-12-3:checked:checked ~ .option-12-3 span,
+  #option-12-4:checked:checked ~ .option-12-4 span,
+  #option-12-5:checked:checked ~ .option-12-5 span,
+  #option-13-0:checked:checked ~ .option-13-0 span, 
+  #option-13-1:checked:checked ~ .option-13-1 span, 
+  #option-13-2:checked:checked ~ .option-13-2 span, 
+  #option-13-3:checked:checked ~ .option-13-3 span,
+  #option-13-4:checked:checked ~ .option-13-4 span,
+  #option-13-5:checked:checked ~ .option-13-5 span
+  {
+    color: #fff !important;
+  }
+
+  .coverImg input[type="file"] {
+    display: none;
+  }
+  
+  .coverImg .custom-file-upload {
+    border: 1px solid orange;
+    display: inline-block;
+    padding: 2px 6px;
+    cursor: pointer;
+    position: absolute;
+    left: 14px;
+    background: orange;
+    color: white;
+    border-radius: 0px;
+    font-size: 10px;
+  }
+
+  .closeButton {
+    position: absolute;
+    top: -8px;
+    right: 16px;
+    padding: 0px 7px;
+    border-radius: 0px;
+    font-size: 12px;
+    color: white !important;
+    background: red !important;
+  }
+  .filedisplaymaindiv{
+    display: inline-block;
+  }
+  .imagemaindiv{
+    float: left;
+    width: 45%;
+    height: 225px;
+    display: inline-table;
+  }
+
+  .imagemaindiv img{
+    border: 5px solid #adadad; 
+  }
+  .actionbtns2{
+    font-size: 14px;
+    color: #808080;
+    border: 2px solid lightgrey;
+    font-weight: 400;
+  }
+
+  .iconmark{
+      color: #E2E2E2;
+  }
+
+  .iconmark2{
+    color: #E2E2E2;
+  }
+  .selectMark{
+    color: #0B7AB2;
+  }
+
+  .selectMarkloc{
+    color: #0B7AB2;
+  }
+  .commonbtns{
+    margin: 4px 5px 4px 5px;
+    padding: 2px;
+}
+.actionbtns{
+    font-weight: 400;   
+    font-size: 14px;
+    color: #808080;
+    border: 2px solid lightgrey;
+    border-radius: 5px;
+}
+.actions{
+    border: 1px solid #0B7AB2;
+    background-color: #0B7AB240;
+    color: #0B7AB2;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.heads{
+    color: #080808;
+    font-size: 12px;
+    font-family: Poppins;
+    font-weight: 500;
+}
+
+.close-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 20px;
+    color:white; /* Change color as needed */
+    cursor: pointer;
+    background-color:red;
+}
+.actionsloc{
+  border: 1px solid #0B7AB2;
+  background-color: #0B7AB240;
+  color: #0B7AB2;
+  font-weight: 700;
+}
+
+.saveButton{
+  text-transform: none;
+  background: #ECECEC;
+  color: #727272; 
+  width:100%;
+  height:42px; 
+  border-radius: 4px; 
+  border: 1px rgba(236, 236, 236, 0.93) solid;
+}
+.activeSaveButton{
+  text-transform: none;
+  background: #0B7AB2;
+  color: #ECECEC !important; 
+  width:100%;
+  height:42px; 
+  border-radius: 4px; 
+  border: 1px rgba(236, 236, 236, 0.93) solid;
+}
+.inActiveStatus{
+  color: #727272;
+  font-size: 12px;
+  font-family: Poppins;
+  font-weight: 400;
+  word-wrap: break-word;
+  border: 0.75px #ECECEC solid;
+  border-radius: 4px;
+  margin-right: 10px;
+  height: 34px;
+  text-transform: none;
+  min-height: 36px;
+}
+
+.border_colorRed{
+  border: 1px solid red;
+  border-radius: 3px;
+}

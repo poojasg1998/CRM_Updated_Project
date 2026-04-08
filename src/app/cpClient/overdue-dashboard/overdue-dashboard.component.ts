@@ -2,7 +2,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import { CpApiService } from '../cp-api.service';
-import { IonModal } from '@ionic/angular';
+import { IonContent, IonModal } from '@ionic/angular';
+import { SharedService } from 'src/app/realEstate/shared.service';
 
 @Component({
   selector: 'app-overdue-dashboard',
@@ -10,6 +11,8 @@ import { IonModal } from '@ionic/angular';
   styleUrls: ['./overdue-dashboard.component.scss'],
 })
 export class OverdueDashboardComponent implements OnInit {
+  @ViewChild('content', { static: false }) content: IonContent;
+  @ViewChild('filter_modal') filter_modal;
   @ViewChild('cp_dashboard_custDate_modal')
   cp_dashboard_custDate_modal: IonModal;
   @ViewChild('cp_dashboard_fromDate_modal')
@@ -23,12 +26,18 @@ export class OverdueDashboardComponent implements OnInit {
     status: 'overdues',
     datePreset: 'all',
     selectedStage: 'Followups',
-    activeCardKey: 'leads-card',
+    activeCardKey: 'followups-card',
     loginid: localStorage.getItem('UserId'),
+    visited_count: '',
+    source: [],
+    propName: '',
+    propid: '',
+    selectedProp: '',
     category: '1',
     limit: 0,
     limitrows: 5,
   };
+  activeTab = 'source';
   filteredParams = { ...this.DEFAULT_PARAMS };
   count = 0;
   dateRange = {
@@ -48,20 +57,45 @@ export class OverdueDashboardComponent implements OnInit {
     pending: '',
     request: '',
   };
+  showInfiniteScroll: boolean = true;
   leads_detail: any;
   showSpinner = false;
   visits: any;
+  searchText: string;
+  source: any;
+  filteredSource: any;
+  suggestedProperty: any;
+  filteredProperty: any;
+  tempFilteredValues: any;
+  page: number;
+  canScroll: boolean;
 
   constructor(
     private activeroute: ActivatedRoute,
     private router: Router,
-    private api: CpApiService
+    private api: CpApiService,
+    public sharedService: SharedService
   ) {}
 
   ngOnInit() {
     this.activeroute.queryParams.subscribe(() => {
       this.getQueryParams();
-      this.getLeadsCount();
+      // this.getLeadsCount();
+      if (this.sharedService.hasState) {
+        this.showSpinner = false;
+        this.leads_detail = this.sharedService.enquiries;
+        this.page = this.sharedService.page;
+        setTimeout(() => {
+          this.content.scrollToPoint(0, this.sharedService.scrollTop, 0);
+        }, 0);
+
+        setTimeout(() => {
+          this.sharedService.hasState = false;
+        }, 5000);
+      } else {
+        this.content?.scrollToTop(300);
+        this.getLeadsCount();
+      }
     });
   }
 
@@ -75,15 +109,25 @@ export class OverdueDashboardComponent implements OnInit {
     // This replaces "manual" keys—it only updates what exists in LEADS_DEFAULTS
     urlParams.forEach((value, key) => {
       if (key in updatedParams) {
-        updatedParams[key] = value;
+        if (key === 'source') {
+          updatedParams[key] = urlParams.getAll('source');
+        } else {
+          updatedParams[key] = value;
+        }
       }
     });
     //Final sync
     this.filteredParams = updatedParams;
-    console.log(this.filteredParams);
+    this.tempFilteredValues = {
+      ...this.filteredParams,
+      source: Array.isArray(this.filteredParams.source)
+        ? [...this.filteredParams.source]
+        : [],
+    };
   }
 
   getLeadsCount() {
+    this.showSpinner = true;
     const requests = [];
     const stage = [
       'Fresh',
@@ -150,7 +194,7 @@ export class OverdueDashboardComponent implements OnInit {
           case 0:
             this.leadsCount.followups =
               assignleads['AssignedLeads'][0]['counts'];
-            this.visits = assignleads['Visitscounts'];
+            this.visits = assignleads['Visitscounts'] || [];
             break;
           case 1:
             this.leadsCount.nc = assignleads['AssignedLeads'][0]['counts'];
@@ -199,9 +243,24 @@ export class OverdueDashboardComponent implements OnInit {
             this.leads_detail = isLoadmore
               ? this.leads_detail.concat(response['AssignedLeads'])
               : response['AssignedLeads'];
+            this.suggestedProperty = response['SuggestedPropertyLists'];
+            this.filteredProperty = this.suggestedProperty;
+            this.filteredParams.selectedProp = this.suggestedProperty.filter(
+              (item) => {
+                return this.filteredParams.propName == item.name;
+              }
+            );
+            this.filteredParams.selectedProp = this.filteredParams.propid[0];
+            this.tempFilteredValues.selectedProp = this.filteredParams.propid;
+            this.showSpinner = false;
             resolve(true);
           } else {
             this.leads_detail = isLoadmore ? this.leads_detail : [];
+            this.suggestedProperty = isLoadmore
+              ? response['SuggestedPropertyLists']
+              : [];
+            this.filteredProperty = this.suggestedProperty;
+            this.showSpinner = false;
             resolve(false);
           }
         });
@@ -214,6 +273,7 @@ export class OverdueDashboardComponent implements OnInit {
    * @param value - The new value to set
    */
   applyFilter(filters: Record<string, any>): void {
+    this.resetInfiniteScroll();
     const today = new Date().toISOString().split('T')[0];
     Object.keys(filters).forEach((key) => {
       const value = filters[key];
@@ -323,5 +383,148 @@ export class OverdueDashboardComponent implements OnInit {
         todate: null as Date | null,
       };
     }
+  }
+  setActiveTab(tab: string) {
+    this.activeTab = tab;
+    this.searchText = '';
+    this.searchData();
+  }
+  onFilterModal() {
+    this.activeTab = 'source';
+    this.getSource();
+    this.filter_modal.present();
+  }
+
+  getSource() {
+    this.api.getSource().subscribe((resp) => {
+      this.source = resp['Sources'];
+      this.filteredSource = resp['Sources'];
+    });
+  }
+
+  searchData() {
+    const val = this.searchText?.toLowerCase();
+    if (this.activeTab === 'source') {
+      this.filteredSource = !val
+        ? [...this.source]
+        : this.source.filter((item) =>
+            (item?.source || '').toLowerCase().includes(val)
+          );
+    }
+
+    if (this.activeTab === 'property') {
+      this.filteredProperty = !val
+        ? [...this.suggestedProperty]
+        : this.suggestedProperty.filter((item) =>
+            item.name.toLowerCase().includes(val)
+          );
+    }
+  }
+  applyTemFilter(data, value) {
+    if (data === 'source') {
+      const val = value.source;
+
+      if (!Array.isArray(this.tempFilteredValues.source)) {
+        this.tempFilteredValues.source = this.tempFilteredValues.source
+          ? [this.tempFilteredValues.source]
+          : [];
+      }
+
+      const index = this.tempFilteredValues.source.indexOf(val);
+
+      if (index > -1) {
+        this.tempFilteredValues.source = this.tempFilteredValues.source.filter(
+          (v) => v !== val
+        );
+      } else {
+        this.tempFilteredValues.source = [
+          ...this.tempFilteredValues.source,
+          val,
+        ];
+      }
+    }
+  }
+  onClearFiltered() {
+    this.tempFilteredValues = {};
+    this.resetFilters();
+  }
+
+  onConfirmedFilter() {
+    this.filteredParams = {
+      ...this.tempFilteredValues,
+      propid: this.tempFilteredValues.propid?.propid || null,
+      visitedpropName: this.tempFilteredValues.propid?.name || null,
+    };
+    this.filter_modal.dismiss();
+    this.router.navigate([], {
+      relativeTo: this.activeroute,
+      queryParams: this.filteredParams,
+      queryParamsHandling: 'merge',
+    });
+  }
+  removeSource(val: string) {
+    const arr = this.tempFilteredValues.source || [];
+    this.tempFilteredValues.source = arr.filter((v) => v !== val);
+
+    if (this.tempFilteredValues.source.length === 0) {
+      this.tempFilteredValues.source = null;
+    }
+    this.filteredParams = {
+      ...this.tempFilteredValues,
+    };
+    this.router.navigate([], {
+      relativeTo: this.activeroute,
+      queryParams: this.filteredParams,
+      queryParamsHandling: 'merge',
+    });
+  }
+  async loadData(event) {
+    const hasData = await this.getLeadetails(true);
+    setTimeout(async () => {
+      event.target.complete();
+
+      if (!hasData) {
+        event.target.disabled = true;
+        return;
+      }
+    }, 200);
+  }
+
+  resetInfiniteScroll() {
+    this.showInfiniteScroll = false;
+    setTimeout(() => {
+      this.showInfiniteScroll = true;
+    }, 10);
+  }
+  navigateToDetailsPage(lead) {
+    this.sharedService.enquiries = this.leads_detail;
+    this.sharedService.page = this.page;
+    this.sharedService.hasState = true;
+    this.router.navigate(['/cp-lead-details'], {
+      queryParams: {
+        execid: lead.RMID,
+        leadid: lead.LeadID,
+        categoryid: lead.category,
+      },
+    });
+  }
+
+  onScroll(event: CustomEvent) {
+    this.sharedService.scrollTop = event.detail.scrollTop;
+    const scrollTop = event.detail.scrollTop;
+    this.content.getScrollElement().then((scrollEl) => {
+      const scrollTop = scrollEl.scrollTop;
+      const scrollHeight = scrollEl.scrollHeight;
+      const clientHeight = scrollEl.offsetHeight;
+
+      this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
+
+      if (!this.canScroll) {
+        this.sharedService.isBottom = false;
+      } else {
+        this.sharedService.isBottom =
+          scrollTop + clientHeight >= scrollHeight - 100;
+      }
+    });
   }
 }

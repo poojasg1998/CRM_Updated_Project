@@ -5,8 +5,27 @@
     </ion-col>
     <ion-col>
       <ion-row class="leads_jobs">
-        <ion-col class="d-flex align-items-center justify-content-center">
-          Dashboard
+        <ion-col class="d-flex align-items-center justify-content-center"
+          *ngIf="router.url.includes('isLeadsVisits=leads')">
+          Leads Dashboard
+        </ion-col>
+        <ion-col class="d-flex align-items-center justify-content-center"
+          *ngIf="router.url.includes('isLeadsVisits=visits')">
+          Visits Dashboard
+        </ion-col>
+        <ion-col class="d-flex align-items-center justify-content-center"
+          *ngIf="router.url.includes('cp-today-activity')">
+          Today's Scheduled
+        </ion-col>
+        <ion-col class="d-flex align-items-center justify-content-center"
+          *ngIf="router.url.includes('cp-overdue-dashboard')">
+          Missed Dashboard
+        </ion-col>
+        <ion-col class="d-flex align-items-center justify-content-center" *ngIf="router.url.includes('cp-bookings')">
+          All Bookings
+        </ion-col>
+        <ion-col class="d-flex align-items-center justify-content-center" *ngIf="router.url.includes('my-executives')">
+          My Executives
         </ion-col>
       </ion-row>
     </ion-col>

@@ -593,16 +593,31 @@ ion-datetime {
   max-width: 100%;
   --background: #ffffff;
 }
-.filterButtons ion-button {
+.filterButtons ion-col {
   color: #0b7ab2;
   font-size: 12px;
-  font-family: "Poppins";
   font-weight: 400;
   word-wrap: break-word;
   border: 0.5px #0b7ab2 solid;
   border-radius: 4px;
   height: 26px;
   min-height: 26px;
+}
+.scroll-col {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  padding: 4px 10px;
+}
+
+.filterButtons ion-col {
+  color: #0b7ab2;
+  font-size: 12px;
+  border: 0.5px #0b7ab2 solid;
+  border-radius: 4px; /* 🔥 better chip look */
+  height: 26px;
 }
 //FILTTER MODAL
 .filter-modal::part(content) {

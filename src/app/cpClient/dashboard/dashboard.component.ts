@@ -38,6 +38,7 @@ export class DashboardComponent implements OnInit {
     stage: '',
     source: [],
     priority: '',
+    slectedProp: '',
     visited_count: '',
     visitedprop: '',
     visitedpropName: '',
@@ -154,7 +155,22 @@ export class DashboardComponent implements OnInit {
     this.getLocalities();
     this.activeroute.queryParams.subscribe(() => {
       this.getQueryParams();
-      this.getLeadsCount();
+      // this.getLeadsCount();
+      if (this.sharedService.hasState) {
+        this.showSpinner = false;
+        this.leads_detail = this.sharedService.enquiries;
+        this.page = this.sharedService.page;
+        setTimeout(() => {
+          this.scrollContent.scrollToPoint(0, this.sharedService.scrollTop, 0);
+        }, 0);
+
+        setTimeout(() => {
+          this.sharedService.hasState = false;
+        }, 5000);
+      } else {
+        this.scrollContent?.scrollToTop(300);
+        this.getLeadsCount();
+      }
     });
   }
 
@@ -164,23 +180,23 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  onScroll(event: CustomEvent) {
-    const scrollTop = event.detail.scrollTop;
-    this.scrollContent.getScrollElement().then((scrollEl) => {
-      const scrollTop = scrollEl.scrollTop;
-      const scrollHeight = scrollEl.scrollHeight;
-      const clientHeight = scrollEl.offsetHeight;
+  // onScroll(event: CustomEvent) {
+  //   const scrollTop = event.detail.scrollTop;
+  //   this.scrollContent.getScrollElement().then((scrollEl) => {
+  //     const scrollTop = scrollEl.scrollTop;
+  //     const scrollHeight = scrollEl.scrollHeight;
+  //     const clientHeight = scrollEl.offsetHeight;
 
-      this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
+  //     this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
 
-      if (!this.canScroll) {
-        this.sharedService.isBottom = false;
-      } else {
-        this.sharedService.isBottom =
-          scrollTop + clientHeight >= scrollHeight - 10;
-      }
-    });
-  }
+  //     if (!this.canScroll) {
+  //       this.sharedService.isBottom = false;
+  //     } else {
+  //       this.sharedService.isBottom =
+  //         scrollTop + clientHeight >= scrollHeight - 10;
+  //     }
+  //   });
+  // }
 
   getSource() {
     this.api.getSource().subscribe((resp) => {
@@ -530,13 +546,13 @@ export class DashboardComponent implements OnInit {
             this.suggestedProperty = response['SuggestedPropertyLists'];
             this.filteredEnquiry = this.enquiredProperty;
             this.filteredProperty = this.suggestedProperty;
-            this.filteredParams.propid = this.suggestedProperty.filter(
+            this.filteredParams.slectedProp = this.suggestedProperty.filter(
               (item) => {
                 return this.filteredParams.visitedpropName == item.name;
               }
             );
-            this.filteredParams.propid = this.filteredParams.propid[0];
-            this.tempFilteredValues.propid = this.filteredParams.propid;
+            this.filteredParams.slectedProp = this.filteredParams.propid[0];
+            this.tempFilteredValues.slectedProp = this.filteredParams.propid;
             resolve(true);
           } else {
             this.leads_detail = isLoadmore ? this.leads_detail : [];
@@ -731,12 +747,15 @@ export class DashboardComponent implements OnInit {
       const index = this.tempFilteredValues.source.indexOf(val);
 
       if (index > -1) {
-        this.tempFilteredValues.source.splice(index, 1);
+        this.tempFilteredValues.source = this.tempFilteredValues.source.filter(
+          (v) => v !== val
+        );
       } else {
-        this.tempFilteredValues.source.push(val);
+        this.tempFilteredValues.source = [
+          ...this.tempFilteredValues.source,
+          val,
+        ];
       }
-
-      console.log(this.tempFilteredValues.source);
     }
     console.log(this.tempFilteredValues);
   }
@@ -744,8 +763,8 @@ export class DashboardComponent implements OnInit {
   onConfirmedFilter() {
     this.filteredParams = {
       ...this.tempFilteredValues,
-      propid: this.tempFilteredValues.propid?.propid || null,
-      visitedpropName: this.tempFilteredValues.propid?.name || null,
+      visitedprop: this.tempFilteredValues.slectedProp?.propid || null,
+      visitedpropName: this.tempFilteredValues.slectedProp?.name || null,
     };
     this.filter_modal.dismiss();
     this.router.navigate([], {
@@ -859,6 +878,37 @@ export class DashboardComponent implements OnInit {
       relativeTo: this.activeroute,
       queryParams: this.filteredParams,
       queryParamsHandling: 'merge',
+    });
+  }
+  page;
+  navigateToDetailsPage(lead) {
+    this.sharedService.enquiries = this.leads_detail;
+    this.sharedService.page = this.page;
+    this.sharedService.hasState = true;
+    this.router.navigate(['/cp-lead-details'], {
+      queryParams: {
+        execid: lead.RMID,
+        leadid: lead.LeadID,
+        categoryid: lead.category,
+      },
+    });
+  }
+  onScroll(event: CustomEvent) {
+    this.sharedService.scrollTop = event.detail.scrollTop;
+    const scrollTop = event.detail.scrollTop;
+    this.scrollContent.getScrollElement().then((scrollEl) => {
+      const scrollTop = scrollEl.scrollTop;
+      const scrollHeight = scrollEl.scrollHeight;
+      const clientHeight = scrollEl.offsetHeight;
+
+      this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
+
+      if (!this.canScroll) {
+        this.sharedService.isBottom = false;
+      } else {
+        this.sharedService.isBottom =
+          scrollTop + clientHeight >= scrollHeight - 100;
+      }
     });
   }
 }

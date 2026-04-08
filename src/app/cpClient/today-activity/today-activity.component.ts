@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import { CpApiService } from '../cp-api.service';
 import { SharedService } from 'src/app/realEstate/shared.service';
+import { IonContent } from '@ionic/angular';
 
 @Component({
   selector: 'app-today-activity',
@@ -11,6 +12,7 @@ import { SharedService } from 'src/app/realEstate/shared.service';
 })
 export class TodayActivityComponent implements OnInit {
   @ViewChild('filter_modal') filter_modal;
+  @ViewChild('content', { static: false }) content: IonContent;
   showSpinner = false;
   readonly LEADS_DEFAULTS = {
     fromdate: new Date().toISOString().split('T')[0],
@@ -70,6 +72,8 @@ export class TodayActivityComponent implements OnInit {
   tempFilteredValues;
   filteredProperty;
   suggestedProperty: any;
+  canScroll: boolean;
+  page: number;
 
   constructor(
     private activeroute: ActivatedRoute,
@@ -81,7 +85,21 @@ export class TodayActivityComponent implements OnInit {
   ngOnInit() {
     this.activeroute.queryParams.subscribe(() => {
       this.getQueryParams();
-      this.getLeadsCount();
+      if (this.sharedService.hasState) {
+        this.showSpinner = false;
+        this.leads_detail = this.sharedService.enquiries;
+        this.page = this.sharedService.page;
+        setTimeout(() => {
+          this.content.scrollToPoint(0, this.sharedService.scrollTop, 0);
+        }, 0);
+
+        setTimeout(() => {
+          this.sharedService.hasState = false;
+        }, 5000);
+      } else {
+        this.content?.scrollToTop(300);
+        this.getLeadsCount();
+      }
     });
   }
   getSource() {
@@ -471,7 +489,34 @@ export class TodayActivityComponent implements OnInit {
     });
   }
 
-  onRadioSelect(event) {
-    console.log(event);
+  onScroll(event: CustomEvent) {
+    this.sharedService.scrollTop = event.detail.scrollTop;
+    const scrollTop = event.detail.scrollTop;
+    this.content.getScrollElement().then((scrollEl) => {
+      const scrollTop = scrollEl.scrollTop;
+      const scrollHeight = scrollEl.scrollHeight;
+      const clientHeight = scrollEl.offsetHeight;
+
+      this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
+
+      if (!this.canScroll) {
+        this.sharedService.isBottom = false;
+      } else {
+        this.sharedService.isBottom =
+          scrollTop + clientHeight >= scrollHeight - 100;
+      }
+    });
+  }
+  navigateToDetailsPage(lead) {
+    this.sharedService.enquiries = this.leads_detail;
+    this.sharedService.page = this.page;
+    this.sharedService.hasState = true;
+    this.router.navigate(['/cp-lead-details'], {
+      queryParams: {
+        execid: lead.RMID,
+        leadid: lead.LeadID,
+        categoryid: lead.category,
+      },
+    });
   }
 }

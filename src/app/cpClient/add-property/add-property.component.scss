@@ -1,0 +1,136 @@
+* {
+  font-family: "Poppins";
+}
+.data-div {
+  background: #0b7ab229;
+}
+
+.data-row {
+  font-size: 12px;
+  background: white;
+  border-radius: 30px;
+  padding: 2px;
+  .active {
+    background: #0b7ab2;
+    color: #fff;
+    border-radius: 30px;
+  }
+  ion-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+.floatting-icon {
+  position: absolute;
+  width: 50px;
+  right: 0;
+  bottom: 0;
+  border-radius: 35px;
+  padding: 5px;
+  --ionicon-stroke-width: 60px;
+  ion-icon {
+    background: #0b7ab2;
+    color: #fff;
+    border-radius: 30px;
+    font-size: 26px;
+    padding: 2px;
+  }
+}
+.card-count {
+  position: absolute;
+  right: 0px;
+  background: #9d9d9d;
+  padding: 0px 4px;
+  color: white;
+  font-size: 0.68rem;
+}
+.label {
+  margin-bottom: 0;
+  color: #8a8a8a !important;
+  font-size: 0.714rem;
+}
+.value {
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 0.7rem;
+}
+ion-input {
+  border: 0.5px solid #e5e7eb;
+  border-radius: 4px;
+  width: 100%;
+  padding-left: 4px !important;
+  background-color: #ffffff;
+  font-size: 14px;
+}
+ion-input {
+  height: 30px;
+  font-size: 0.9rem;
+  color: #595454;
+}
+.addPropertyForm,.addSourceForm,.addLocalityForm {
+ 
+  ion-row > ion-col:first-child {
+    div:first-child {
+      font-size: 14px;
+      color: #666666;
+      font-weight: 400;
+    }
+    ion-row:nth-child(2) {
+      ion-col {
+        border-radius: 4px;
+        border: 0.6px solid #dfdfdf;
+        color: #595454;
+        background: #ffffff;
+        font-size: 14px;
+      }
+      ion-col.active {
+        background: #0b7ab2;
+        color: #fff;
+        }
+    }
+  }
+  .save-btn{
+    text-transform: none;
+     background: #0b7ab2;
+        color: #fff;
+  }
+}
+
+ion-modal {
+  --height: auto
+  --border-radius: 16px;
+  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+    padding:14px;
+    ion-header{
+        background:#0B7AB2;
+        color: white;
+    }
+    ion-icon{
+        font-size: 20px;
+    }
+}
+
+ion-modal::part(backdrop) {
+  background: rgb(22, 22, 22);
+  opacity: 1;
+}
+
+ion-modal ion-toolbar {
+  --background: rgb(14 116 144);
+  --color: white;
+}
+
+.sale-resale-rental-row {
+  span {
+    font-size: 14px;
+  }
+  .active_btn {
+    background: linear-gradient(180deg, #ffffff 0%, #d3ebff 100%) !important;
+    border-bottom: 1px solid #1366a5 !important;
+    box-shadow: none;
+    span {
+      color: #005d8c !important;
+    }
+  }
+}

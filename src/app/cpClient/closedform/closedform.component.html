@@ -1,0 +1,248 @@
+<div  class="content_center loader" *ngIf="showSpinner">
+  <ion-spinner name="circular" style="color: white;"></ion-spinner>
+</div>
+
+<div class="bg_border_color face2facemaindiv">
+  <ion-row>
+    <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+      Closed Date
+    </p>
+  </ion-row>       
+  <ion-row class="center-content">
+      <div lines="none" class="input-with-image date-input">  
+        <ion-input readonly [(ngModel)]="closedDate"  name="closeddate" id="closeddate" placeholder="Choose Date" required></ion-input>
+        <ion-popover trigger="closeddate" #popover>
+            <ng-template>
+                <ion-datetime presentation="date" locale="en-US"  [max]="date" 
+                (ionChange)="onDateChange($event);popover.dismiss()"></ion-datetime>
+            </ng-template>
+        </ion-popover>
+      </div>
+  </ion-row>
+
+  <ion-row class="margin-top-16">
+    <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+      Closed Time
+    </p>    
+  </ion-row>
+  <ion-row class="center-content">
+    <div no-lines class="date-input inputTime-with-image">
+      <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time" id="closedtime" aria-label="12hr format" [ngxTimepicker]="default" [(ngModel)]="closedTime" name="closedtime" (ngModelChange)="validateTime()" readonly></div>
+    </div>
+  </ion-row>    
+  <ngx-material-timepicker #default></ngx-material-timepicker>
+
+  <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
+
+  <div class="col-sm-12 form-group margin-top-16">
+    <span class="d-flex justify-content-between align-items-baseline">
+      <label class="heads">Select the Properties for the LeadClosing </label>
+    </span>
+
+    <div class="main_suggested_div">
+      <ion-row>
+        <span *ngFor="let visited of visitedpropertylists; let i = index">
+          <span *ngIf="visitedpropertylists && (visited.actions == 1 || visited.actions == 9)" id="closedsection"
+         (click)='tabclick(i,visited); selectedItem = i;' type="button" class="btn btnTab tab1 commonbtns actionbtns actions{{i}}">
+          <span *ngIf="visitedpropertylists && (visited.actions == 1 || visited.actions == 9)"><i class="fa fa-check-circle tabicon1 iconmark selectMark{{i}}" aria-hidden="true" ></i>          
+          </span>&nbsp;&nbsp; {{visited.name}}
+        </span>
+        </span>&nbsp;   
+        
+        <span *ngFor="let visited of visitedlistlocally;  let is = index">
+          <span *ngIf="visitedlistlocally  && visited.actionid == 1" id="closedsection" (click)='tabclick2(is,visited); selectedItem = is;' type="button" class="btn btnTab tab2 commonbtns actionbtns2 actionsloc{{is}}" >
+            <span *ngIf="visitedlistlocally">
+              <i class="fa fa-check-circle tabicon2 iconmark2 selectMarkloc{{is}}" aria-hidden="true" ></i>
+            </span>&nbsp;&nbsp; {{visited.prop_name}}
+          </span>&nbsp;
+        </span>
+      </ion-row>
+    </div>
+  </div>
+
+  <div class="twelve wide stretched column" *ngIf="showleadClose ===  true && localproperties === false" style="width: 100% !important;height: 100% !important;">
+    <div id="selector0" class="ui segment " >
+          <span *ngIf="roleid != '50003' && roleid != '50004'">
+            <label class="heads margin-top-16">Select Unit *:</label>
+          <div class="wrapper">
+              <input type="checkbox" class="radiocheck" name="selectnew" value="1BHK" id="option-4" (click)="unitselection1()">
+              <input type="checkbox" class="radiocheck" name="selectnew" value="2BHK" id="option-5" (click)="unitselection1()">
+              <input type="checkbox" class="radiocheck" name="selectnew" value="3BHK" id="option-6" (click)="unitselection1()">
+              <input type="checkbox" class="radiocheck" name="selectnew" value="4BHK" id="option-7" (click)="unitselection1()">
+              <input type="checkbox" class="radiocheck" name="selectnew" value="5BHK" id="option-8" (click)="unitselection1()">
+              <label for="option-4" class="option option-4">
+                <span class="heads">1 BHK</span>
+              </label>
+              <label for="option-5" class="option option-5">
+                <span  class="heads">2 BHK</span>
+              </label>
+              <label for="option-6" class="option option-6">
+                <span class="heads">3 BHK</span>
+              </label>
+              <label for="option-7" class="option option-7">
+                <span class="heads">4 BHK</span>
+              </label>
+              <label for="option-8" class="option option-8">
+                <span class="heads">5 BHK</span>
+              </label>
+              <input type="hidden" class="selectedunits1" id="selectedunits1">
+          </div>
+          
+          <label class="heads margin-top-16">Unit No *:</label>
+          <input class="form-control" id="unitnum" type="text"/>
+
+          <label class="heads margin-top-16">Dimension *:</label>
+          <input class="form-control" id="dimension" type="text"/>
+
+          <label class="heads margin-top-16">Rate Per Sqft *:</label>
+          <input class="form-control" id="ratepersquarfeet" type="text"/>
+          </span>
+
+          <label class="heads margin-top-16">Remarks *:</label>
+          <textarea class="form-control" id="remarks"></textarea>
+
+          <span  *ngIf="roleid != '50003' && roleid != '50004'">
+            <label class="heads margin-top-16">Upload Documents *(Eg: Booking Form, Pricesheet):
+              <!-- <span style="color: #999;" class="heads">Accepted File Size: 1MB</span><br/>
+              <span style="color: #999;" class="heads">Supported Formats: JPG,PNG,PDF</span> -->
+            </label>
+            <!-- 
+            <div class="custom-file mb-3">
+              <input title="Upload file smaller than 1MB" placeholder="Upload file smaller than 1MB" type="file" data-max-size="1110000" (change)="imageuploads('0',$event)" class="custom-file-input heads" id="customFile{{'0'}}" name="filename" multiple>
+            </div> -->
+            <div>
+              <ion-input placeholder="Choose File" name="file" class="inActiveStatus" [(ngModel)]="selectedFileName" style="margin-right:0;"  readonly></ion-input>
+            </div>
+            <div>
+              <input  title="Upload file smaller than 1MB" placeholder="Upload file smaller than 1MB" type="file" data-max-size="1110000" (change)="imageuploads('0',$event)" class="file-input" id="customFile{{'0'}}" style="display: none;"  name="filename" multiple>
+
+              <ion-button fill="clear" class="saveButton" [ngClass]="uploads.length===0?'saveButton':'activeSaveButton'" (click)="browseFiles('0')">Browse</ion-button>
+
+              <div style="display: flex;flex-direction: column;">
+                <span style="color: #999;font-size: 12px;">Accepted File Size: 1MB</span>
+                <span style="color: #999;font-size: 12px;">Supported Formats: JPG,PNG,PDF</span>
+              </div>
+            </div>
+
+            <!-- Uploaded file displaying before submission -->
+            <ion-row>
+              <ion-col style="height: 109px;width: 146px;" size="6" *ngFor="let img of uploads  let i = index">
+                <div style="height: 100%;position:relative" [photoGalleryGroup]>
+                  <span [photoGallery]="img">
+                    <img [src]="img" style="height:100%;width:100%;object-fit: fill;">
+                    <ion-icon (click)="removeImage(i)" name="close-outline" class="close-icon">
+                    </ion-icon>
+                  </span>
+                </div>
+              </ion-col>
+            </ion-row>
+            <!-- Uploaded file displaying before submission -->
+          </span>
+
+          <div class="buttonmain p-2 content_center">
+            <button *ngIf="execview && roleid != '50003' && roleid != '50004'" (click)="closingrequest()" class="btn requestbtn">
+              Send Closing Request</button>
+            <button *ngIf="adminview"  (click)="closingrequest()" class="btn closebtns acceptbtn">
+              Close Lead</button>
+            <button *ngIf="execview && (roleid == '50003' || roleid == '50004')" (click)="teleclosingrequest()" class="btn closebtns acceptbtn">
+              Send Closing Request</button>
+          </div>
+      </div>    
+  </div>
+
+  <div class=" twelve wide stretched column"  *ngIf="showleadClose ===  true  && localproperties === true" style="width: 100% !important;">
+    <div id="selector0" class="ui segment">
+          <span *ngIf="roleid != '50003' && roleid != '50004'">
+            <label class="heads">Select Unit *:</label>
+            <div class="wrapper">
+                <input type="checkbox" class="radiocheck" name="select2" value="1BHK" id="option-4" (click)="unitselection2()">
+                <input type="checkbox" class="radiocheck" name="select2" value="2BHK" id="option-5" (click)="unitselection2()">
+                <input type="checkbox" class="radiocheck" name="select2" value="3BHK" id="option-6" (click)="unitselection2()">
+                <input type="checkbox" class="radiocheck" name="select2" value="4BHK" id="option-7" (click)="unitselection2()">
+                <input type="checkbox" class="radiocheck" name="select2" value="5BHK" id="option-8" (click)="unitselection2()">
+                <label for="option-4" class="option option-4">
+                  <span class="heads">1 BHK</span>
+                </label>
+                <label for="option-5" class="option option-5">
+                  <span class="heads">2 BHK</span>
+                </label>
+                <label for="option-6" class="option option-6">
+                  <span class="heads">3 BHK</span>
+                </label>
+                <label for="option-7" class="option option-7">
+                  <span class="heads">4 BHK</span>
+                </label>
+                <label for="option-8" class="option option-8">
+                  <span class="heads">5 BHK</span>
+                </label>
+                <input type="hidden" class="selectedunits2" id="selectedunits2">
+            </div>
+  
+            <label class="heads">Unit No *:</label>
+            <input class="form-control" id="unitnum2" type="text"/>
+  
+            <label  class="heads">Dimension *:</label>
+            <input class="form-control" id="dimension2" type="text"/>
+  
+            <label  class="heads">Rate Per Sqft *:</label>
+            <input class="form-control" id="ratepersquarfeet2" type="text"/>
+          </span>
+
+          <label  class="heads">Remarks *:</label>
+          <textarea class="form-control" id="remarks2"></textarea>
+
+          <span *ngIf="roleid != '50003' && roleid != '50004'">
+            <label  class="heads">Upload Documents *(Eg: Booking Form, Pricesheet):
+              <!-- <span style="color: #999;" class="heads">Accepted File Size: 1MB</span><br/>
+              <span style="color: #999;" class="heads">Supported Formats: JPG,PNG,PDF</span> -->
+            </label>
+
+            <!-- <div class="custom-file mb-3">
+              <input title="Upload file smaller than 1MB" placeholder="Upload file smaller than 1MB" type="file" data-max-size="1110000" (change)="imageuploads('0',$event)" class="custom-file-input heads" id="customFile{{'0'}}" name="filename" multiple>
+              <label class="custom-file-label file-label heads" for="customFile{{'0'}}">Choose file</label>
+            </div> -->
+
+            <div>
+              <ion-input placeholder="Choose File" name="file" class="inActiveStatus" [(ngModel)]="selectedFileName" style="margin-right:0;"  readonly></ion-input>
+            </div>
+            <div>
+              <input  title="Upload file smaller than 1MB" placeholder="Upload file smaller than 1MB" type="file" data-max-size="1110000" (change)="imageuploads('0',$event)" class="file-input" id="customFile{{'0'}}" style="display: none;"  name="filename" multiple>
+
+              <ion-button fill="clear" class="saveButton" [ngClass]="uploads.length===0?'saveButton':'activeSaveButton'" (click)="browseFiles('0')">Browse</ion-button>
+
+              <div style="display: flex;flex-direction: column;">
+                <span style="color: #999;font-size: 12px;">Accepted File Size: 1MB</span>
+                <span style="color: #999;font-size: 12px;">Supported Formats: JPG,PNG,PDF</span>
+              </div>
+            </div>
+
+
+
+            <!-- Uploaded file displaying before submission -->
+            <ion-row>
+              <ion-col style="height: 109px;width: 146px;" size="6" *ngFor="let img of uploads  let i = index">
+                <div style="height: 100%;position:relative" [photoGalleryGroup]>
+                  <span [photoGallery]="img">
+                    <img [src]="img" style="height:100%;width:100%;object-fit: fill;">
+                    <ion-icon (click)="removeImage(i)"  name="close-outline" class="close-icon"></ion-icon>
+                  </span>
+                  </div>
+              </ion-col>
+            </ion-row>
+            <!-- Uploaded file displaying before submission -->
+          </span>
+
+          <div class="buttonmain p-2 content_center">
+            <button *ngIf="execview && roleid != '50003' && roleid != '50004'" 
+            (click)="closingrequest2()" class="btn requestbtn">
+              Send Closing Request</button>
+
+            <button *ngIf="adminview" (click)="closingrequest2()" class="btn closebtns acceptbtn">Close Lead</button>
+
+            <button *ngIf="execview && (roleid == '50003' || roleid == '50004')" 
+            (click)="teleclosingrequest2()" class="btn closebtns acceptbtn">Send Closing Request</button>
+          </div>
+        </div>    
+      </div>
+  <p [hidden]="visitedpropertylists?.length || visitedlistlocally?.length" class="text-center p-5">No Visited properties Found</p>
+</div>  
