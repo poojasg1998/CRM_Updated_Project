@@ -31,7 +31,9 @@ interface visitedproperties {
 })
 export class SvformComponent implements OnInit, AfterViewChecked {
   @Output() openModal = new EventEmitter<void>();
+  @Input() selectedSuggestedProp: any;
   @Input() selectedExecId: any;
+  @Input() selectedBtn: any;
   date: String = new Date().toISOString();
   @ViewChild('popover') popover: IonPopover;
   svDate;
@@ -138,7 +140,8 @@ export class SvformComponent implements OnInit, AfterViewChecked {
                     this.leadId,
                     this.userid,
                     this.svexecutiveId,
-                    this.feedbackID
+                    this.feedbackID,
+                    this.categoryid
                   )
                 : of(null);
             }),

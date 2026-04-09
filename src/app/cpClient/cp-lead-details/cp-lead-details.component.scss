@@ -298,6 +298,48 @@ ion-modal#suggested-modal .wrapper {
   background: rgba(241, 248, 254, 1);
   border: 0.5px solid rgba(11, 122, 178, 1);
   border-radius: 2px;
-  margin: 5px;
   color: rgba(11, 122, 178, 1);
+  padding: 6px 6px;
+}
+.addCategory {
+  gap: 2px;
+  ion-col {
+    border-radius: 4px;
+    border: 0.6px solid #dfdfdf;
+    color: #595454;
+    background: #ffffff;
+    font-size: 14px;
+  }
+  ion-col.active {
+    background: #0074ae;
+    color: #fff;
+  }
+  .active-proceed-btn {
+    text-transform: none;
+    color: #fff;
+    background: linear-gradient(180deg, #0074ae 0%, #004060 100%);
+    border-radius: 4px;
+  }
+  .normal-proceed-btn {
+    text-transform: none;
+    background: linear-gradient(180deg, #b5b5b5 0%, #767676 100%);
+    color: #ffffff;
+    border-radius: 4px;
+  }
+}
+.leadSegment {
+  ion-img {
+    width: 46px;
+  }
+  h1 {
+    font-weight: 500;
+    font-size: 16px;
+    text-transform: capitalize;
+  }
+  p {
+    font-weight: 300;
+    font-style: Light;
+    font-size: 10px;
+    text-transform: capitalize;
+  }
 }

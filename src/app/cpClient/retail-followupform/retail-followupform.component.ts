@@ -53,8 +53,8 @@ export class RetailFollowupformComponent implements OnInit {
   ngOnInit() {
     this.userid = localStorage.getItem('UserId');
     this.activeroute.queryParamMap.subscribe((params) => {
-      const paramMap = params.get('leadId');
-      this.leadId = params.get('leadId');
+      const paramMap = params.get('leadid');
+      this.leadId = params.get('leadid');
       this.categoryid = params.get('categoryid');
       const isEmpty = !paramMap;
       this.feedbackID = params.get('feedback') ? params.get('feedback') : '0';
@@ -287,6 +287,7 @@ export class RetailFollowupformComponent implements OnInit {
             ' ' +
             followtime,
           feedback: this.feedbackID,
+          categoryid: this.categoryid,
         };
         if (this.followsectiondata == '') {
           Swal.fire({
@@ -363,6 +364,7 @@ export class RetailFollowupformComponent implements OnInit {
             autoremarks: this.autoremarks,
             property: propIds,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
           for (const existingObject of allValuesExist) {
             var visitparam = {
@@ -378,6 +380,7 @@ export class RetailFollowupformComponent implements OnInit {
               accompany: existingObject['accompany'],
               assignid: followexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
               (success) => {
@@ -459,6 +462,7 @@ export class RetailFollowupformComponent implements OnInit {
             ' ' +
             followtime,
           feedback: this.feedbackID,
+          categoryid: this.categoryid,
         };
 
         if (this.followsectiondata == '') {
@@ -515,6 +519,7 @@ export class RetailFollowupformComponent implements OnInit {
             autoremarks: this.autoremarks,
             property: propIds,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
 
           for (const existingObject of allValuesExist) {
@@ -531,6 +536,7 @@ export class RetailFollowupformComponent implements OnInit {
               accompany: existingObject['accompany'],
               assignid: followexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
               (success) => {
@@ -613,6 +619,7 @@ export class RetailFollowupformComponent implements OnInit {
             ' ' +
             followtime,
           feedback: this.feedbackID,
+          categoryid: this.categoryid,
         };
         if (this.followsectiondata == '') {
           Swal.fire({
@@ -680,6 +687,7 @@ export class RetailFollowupformComponent implements OnInit {
             autoremarks: this.autoremarks,
             property: propIds,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
           for (const existingObject of allValuesExist) {
             var visitparam = {
@@ -695,6 +703,7 @@ export class RetailFollowupformComponent implements OnInit {
               accompany: existingObject['accompany'],
               assignid: followexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
               (success) => {
@@ -777,6 +786,7 @@ export class RetailFollowupformComponent implements OnInit {
             ' ' +
             followtime,
           feedback: this.feedbackID,
+          categoryid: this.categoryid,
         };
 
         if (this.followsectiondata == '') {
@@ -842,6 +852,7 @@ export class RetailFollowupformComponent implements OnInit {
             autoremarks: this.autoremarks,
             property: this.suggestchecked,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
 
           for (const existingObject of allValuesExist) {
@@ -858,6 +869,7 @@ export class RetailFollowupformComponent implements OnInit {
               accompany: existingObject['accompany'],
               assignid: followexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
               (success) => {
@@ -969,6 +981,7 @@ export class RetailFollowupformComponent implements OnInit {
             autoremarks: this.autoremarks,
             property: this.suggestchecked,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
           this._retailservice.addfollowuphistory(followups).subscribe(
             (success) => {

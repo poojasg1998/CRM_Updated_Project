@@ -75,7 +75,7 @@ export class OverdueDashboardComponent implements OnInit {
     private router: Router,
     private api: CpApiService,
     public sharedService: SharedService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.activeroute.queryParams.subscribe(() => {
@@ -320,6 +320,8 @@ export class OverdueDashboardComponent implements OnInit {
   }
 
   resetFilters(): void {
+    const currentCategory = this.filteredParams.category;
+    this.DEFAULT_PARAMS.category = currentCategory;
     this.router.navigate([], {
       relativeTo: this.activeroute,
       queryParams: this.DEFAULT_PARAMS,
@@ -408,16 +410,16 @@ export class OverdueDashboardComponent implements OnInit {
       this.filteredSource = !val
         ? [...this.source]
         : this.source.filter((item) =>
-            (item?.source || '').toLowerCase().includes(val)
-          );
+          (item?.source || '').toLowerCase().includes(val)
+        );
     }
 
     if (this.activeTab === 'property') {
       this.filteredProperty = !val
         ? [...this.suggestedProperty]
         : this.suggestedProperty.filter((item) =>
-            item.name.toLowerCase().includes(val)
-          );
+          item.name.toLowerCase().includes(val)
+        );
     }
   }
   applyTemFilter(data, value) {
@@ -453,7 +455,7 @@ export class OverdueDashboardComponent implements OnInit {
     this.filteredParams = {
       ...this.tempFilteredValues,
       propid: this.tempFilteredValues.propid?.propid || null,
-      visitedpropName: this.tempFilteredValues.propid?.name || null,
+      propName: this.tempFilteredValues.propid?.name || null,
     };
     this.filter_modal.dismiss();
     this.router.navigate([], {

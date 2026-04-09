@@ -30,8 +30,11 @@ interface visitedproperties {
 export class RsvformComponent implements OnInit, AfterViewChecked {
   @Output() openModal = new EventEmitter<void>();
   @Input() selectedExecId: any;
+  @Input() selectedSuggestedProp: any;
+  @Input() selectedBtn: any;
   date: String = new Date().toISOString();
   assignedRM: any;
+  isEdit: boolean = true;
 
   buttonhiders = true;
   showSpinner = true;
@@ -93,8 +96,8 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
     this.activeroute.queryParamMap.subscribe((params) => {
       this.categoryid = params.get('categoryid');
-      const paramMap = params.get('leadId');
-      this.leadId = params.get('leadId');
+      const paramMap = params.get('leadid');
+      this.leadId = params.get('leadid');
       this.feedbackID = params.get('feedback') ? params.get('feedback') : '';
       const isEmpty = !paramMap;
       this.userid = localStorage.getItem('UserId');
@@ -168,8 +171,15 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                 this.hideafterfixed = false;
                 this.rsvFixed = false;
                 this.hidebeforefixed = true;
-                this.rsvreFix = false;
-                this.rsvDone = true;
+                if (this.selectedBtn == 'rescheduled') {
+                  this.rsvreFix = true;
+                  this.rsvDone = false;
+                } else if (this.selectedBtn == 'updatevisit') {
+                  this.rsvreFix = false;
+                  this.rsvDone = true;
+                }
+                // this.rsvreFix = false;
+                // this.rsvDone = true;
                 $('#sectionselector').val('RSV');
               } else if (
                 this.activestagestatus[0].stage == 'RSV' &&
@@ -178,8 +188,13 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                 this.hideafterfixed = false;
                 this.rsvFixed = false;
                 this.hidebeforefixed = true;
-                this.rsvreFix = false;
-                this.rsvDone = true;
+                if (this.selectedBtn == 'rescheduled') {
+                  this.rsvreFix = true;
+                  this.rsvDone = false;
+                } else if (this.selectedBtn == 'updatevisit') {
+                  this.rsvreFix = false;
+                  this.rsvDone = true;
+                }
                 $('#sectionselector').val('RSV');
               } else if (
                 this.activestagestatus[0].stage == 'RSV' &&
@@ -217,6 +232,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
       assignid: this.rsvexecutiveId,
       stage: 'RSV',
       feedback: this.feedbackID,
+      categoryid: this.categoryid,
     };
 
     this._retailservice
@@ -608,6 +624,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                 accompany: existingObject['accompany'],
                 assignid: this.rsvexecutiveId,
                 feedback: this.feedbackID,
+                categoryid: this.categoryid,
               };
               this._retailservice
                 .retailpropertyvisitupdate(visitparam)
@@ -630,6 +647,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
               suggestproperties: this.suggestchecked,
               assignid: this.rsvexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
 
             this._retailservice.addrsvselectedproperties(param).subscribe(
@@ -641,6 +659,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                     stage: 'RSV',
                     assignid: this.rsvexecutiveId,
                     feedback: this.feedbackID,
+                    categoryid: this.categoryid,
                   };
                   this._retailservice
                     .rsvselectproperties(param2)
@@ -672,6 +691,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                           weekplan: weekplan,
                           property: this.suggestchecked,
                           feedback: this.feedbackID,
+                          categoryid: this.categoryid,
                         };
                         this._retailservice
                           .addleadhistoryretail(leadusvdoneparam)
@@ -698,6 +718,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                                   autoremarks: this.autoremarks,
                                   property: this.suggestchecked,
                                   feedback: this.feedbackID,
+                                  categoryid: this.categoryid,
                                 };
 
                                 this._retailservice
@@ -812,6 +833,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
               accompany: existingObject['accompany'],
               assignid: this.rsvexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
               (success) => {
@@ -832,6 +854,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
             suggestproperties: this.suggestchecked,
             assignid: this.rsvexecutiveId,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
           this._retailservice.addrsvselectedproperties(param).subscribe(
             (success) => {
@@ -842,6 +865,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                   stage: 'RSV',
                   assignid: this.rsvexecutiveId,
                   feedback: this.feedbackID,
+                  categoryid: this.categoryid,
                 };
                 this._retailservice
                   .rsvselectproperties(param2)
@@ -991,6 +1015,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
             suggestproperties: this.suggestchecked,
             assignid: this.rsvexecutiveId,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
 
           this._retailservice.addrsvselectedproperties(param).subscribe(
@@ -1002,6 +1027,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                   stage: 'RSV',
                   assignid: this.rsvexecutiveId,
                   feedback: this.feedbackID,
+                  categoryid: this.categoryid,
                 };
                 this._retailservice
                   .rsvselectproperties(param)
@@ -1156,6 +1182,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
               accompany: existingObject['accompany'],
               assignid: this.rsvexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
               (success) => {
@@ -1175,6 +1202,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
             suggestproperties: this.suggestchecked,
             assignid: this.rsvexecutiveId,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
           this._retailservice.addrsvselectedproperties(param).subscribe(
             (success) => {
@@ -1185,6 +1213,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                   stage: 'RSV',
                   assignid: this.rsvexecutiveId,
                   feedback: this.feedbackID,
+                  categoryid: this.categoryid,
                 };
                 this._retailservice
                   .rsvselectproperties(param)
@@ -1356,6 +1385,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                 stage: 'RSV',
                 assignid: this.rsvexecutiveId,
                 feedback: this.feedbackID,
+                categoryid: this.categoryid,
               };
               this._retailservice
                 .rsvselectproperties(param)
@@ -1392,6 +1422,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                       autoremarks: this.autoremarks,
                       property: this.suggestchecked,
                       feedback: this.feedbackID,
+                      categoryid: this.categoryid,
                     };
                     this._retailservice
                       .addleadhistoryretail(leadrsvrefixparam)
@@ -1454,7 +1485,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
   }
 
   // Selecting the suggested properties fix the RSV after any stage
-  selectsuggesteddone(i, id, propname) {
+  selectsuggesteddone(i, id, propname, property) {
     var rsvvisiteddate = $('#RSVvisiteddate').val();
     var rsvvisitedtime = $('#RSVvisitedtime').val();
 
@@ -1468,6 +1499,8 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
       this.suggestchecked = checkid;
       this.autoremarks =
         ' added the ' + propname + ' for RSV while fixing the meeting.';
+
+      this.selectedpropertylists.push(property);
 
       // var param2 = {
       //   leadid: this.leadId,
@@ -1513,6 +1546,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
               stage: 'RSV',
               assignid: this.rsvexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice
               .rsvselectproperties(param)
@@ -1620,6 +1654,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
               stage: 'RSV',
               assignid: this.rsvexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice
               .rsvselectproperties(param)
@@ -1648,6 +1683,60 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
   @ViewChild('rsvDoneModel', { static: true }) rsvDoneModel: IonModal;
   openRSVDoneModal() {
     this.rsvform = false;
+    let apidate, apitime;
+    if (this.isEdit && this.assignedRM && this.assignedRM.length) {
+      let rsvvisiteddate = this.assignedRM[0].latest_action_date;
+      let rsvvisitedtime = this.assignedRM[0].latest_action_time;
+      apidate = $('#RSVvisiteddate_val').text();
+      apitime = $('#RSVvisitedtime_val').text();
+      $('#RSVvisiteddate').val(this.assignedRM[0].latest_action_date);
+      $('#RSVvisitedtime').val(this.assignedRM[0].latest_action_time);
+
+      // console.log(visiteddate, visitedtime);
+
+      // // Convert date string → JS Date
+      // let dateObj = visiteddate ? new Date(visiteddate) : null;
+
+      // // Convert "1:00 PM" → Date object
+      // let timeObj = null;
+      // setTimeout(() => {
+      //   // ✅ Set Date
+      //   if (visiteddate) {
+      //     let dateObj = new Date(visiteddate);
+      //     $('.rsvvisitedcalendardate').calendar('set date', dateObj);
+      //   }
+
+      //   // ✅ Set Time
+      //   if (visitedtime) {
+      //     let timeObj = new Date();
+
+      //     let [time, modifier] = visitedtime.split(' ');
+      //     let [hours, minutes] = time.split(':');
+
+      //     if (modifier === 'PM' && hours !== '12') {
+      //       hours = parseInt(hours) + 12;
+      //     }
+      //     if (modifier === 'AM' && hours === '12') {
+      //       hours = 0;
+      //     }
+
+      //     timeObj.setHours(hours);
+      //     timeObj.setMinutes(minutes);
+      //     timeObj.setSeconds(0);
+
+      //     $('.calendartime').calendar('set date', timeObj);
+      //   }
+      // }, 300);
+
+      // // ✅ Use Semantic UI API
+      // $('.rsvvisitedcalendardate').calendar('set date', dateObj);
+      // $('.calendartime').calendar('set date', timeObj);
+    } else {
+      var rsvvisiteddate = $('#RSVvisiteddate').val();
+      var rsvvisitedtime = $('#RSVvisitedtime').val();
+      apidate = $('#RSVvisiteddate').val();
+      apitime = $('#RSVvisitedtime').val();
+    }
 
     var rsvvisiteddate = $('#RSVvisiteddate').val();
     var rsvvisitedtime = $('#RSVvisitedtime').val();
@@ -1660,6 +1749,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
       execid: this.userid,
       assignid: this.rsvexecutiveId,
       feedback: this.feedbackID,
+      categoryid: this.categoryid,
     };
     if (rsvvisiteddate != '' && rsvvisitedtime != '') {
       this._retailservice.addrsvselectedproperties(param2).subscribe(
@@ -1671,6 +1761,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
             stage: 'RSV',
             assignid: this.rsvexecutiveId,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
           this._retailservice
             .rsvselectproperties(param)
@@ -2464,6 +2555,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
             accompany: existingObject['accompany'],
             assignid: this.rsvexecutiveId,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
           this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
             (success) => {
@@ -2494,6 +2586,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                 stage: 'RSV',
                 assignid: this.rsvexecutiveId,
                 feedback: this.feedbackID,
+                categoryid: this.categoryid,
               };
               this._retailservice
                 .rsvselectproperties(param2)
@@ -2526,6 +2619,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                       weekplan: weekplan,
                       property: this.suggestchecked,
                       feedback: this.feedbackID,
+                      categoryid: this.categoryid,
                     };
                     this._retailservice
                       .addleadhistoryretail(leadsvdoneparam)
@@ -2552,6 +2646,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                               weekplan: '',
                               property: this.suggestchecked,
                               feedback: this.feedbackID,
+                              categoryid: this.categoryid,
                             };
                             this._retailservice
                               .addleadhistoryretail(leadrsvfixparam)
@@ -2644,6 +2739,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
         execid: this.userid,
         assignid: this.rsvexecutiveId,
         feedback: this.feedbackID,
+        categoryid: this.categoryid,
       };
       this._retailservice.addrsvselectedproperties(param2).subscribe(
         (success) => {
@@ -2710,6 +2806,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
         execid: this.userid,
         assignid: this.rsvexecutiveId,
         feedback: this.feedbackID,
+        categoryid: this.categoryid,
       };
       this._retailservice.addrsvselectedproperties(param2).subscribe(
         (success) => {
@@ -2856,6 +2953,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
         execid: this.userid,
         assignid: this.rsvexecutiveId,
         feedback: this.feedbackID,
+        categoryid: this.categoryid,
       };
 
       if (visiteddate != '' && visitedtime != '') {
@@ -2868,6 +2966,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
               stage: 'RSV',
               assignid: this.rsvexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice
               .rsvselectproperties(param)
@@ -2954,5 +3053,89 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
           };
       }
     }
+  }
+  enableVisitdate(num) {
+    if (num == 1) {
+      this.isEdit = false;
+      setTimeout(() => {
+        this.scriptfunctions();
+
+        if (this.assignedRM && this.assignedRM.length > 0) {
+          const date = this.assignedRM[0].latest_action_date;
+          const time = this.assignedRM[0].latest_action_time;
+
+          $('#RSVvisiteddate').val(date);
+          $('#RSVvisitedtime').val(time);
+
+          // Optional: update calendar internal state
+          $('.rsvvisitedcalendardate').calendar('set date', new Date(date));
+          $('.calendartime').calendar('set date', this.convertToDateTime(time));
+        }
+      }, 0);
+    } else if ((num = 2)) {
+      this.rsvTime = this.assignedRM[0].latest_action_time;
+      this.rsvDate = this.assignedRM[0].latest_action_date;
+      this.isEdit = true;
+    }
+  }
+
+  scriptfunctions() {
+    // $('.ui.dropdown').dropdown();
+    // $('.calendardate').calendar({
+    //   type: 'date',
+    //   // minDate: this.date,
+    //   // maxDate: this.priorDate,
+    //   formatter: {
+    //     date: function (date, settings) {
+    //       if (!date) return '';
+    //       var day = date.getDate();
+    //       var month = date.getMonth() + 1;
+    //       var year = date.getFullYear();
+    //       return year + '-' + month + '-' + day;
+    //     },
+    //   },
+    // });
+    // $('.rsvvisitedcalendardate').calendar({
+    //   type: 'date',
+    //   // minDate: this.priorDatebefore,
+    //   maxDate: this.date,
+    //   formatter: {
+    //     date: function (date, settings) {
+    //       if (!date) return '';
+    //       var day = date.getDate();
+    //       var month = date.getMonth() + 1;
+    //       var year = date.getFullYear();
+    //       return year + '-' + month + '-' + day;
+    //     },
+    //   },
+    // });
+    // var minDate = new Date();
+    // var maxDate = new Date();
+    // minDate.setHours(7);
+    // maxDate.setHours(20);
+    // $('.calendartime').calendar({
+    //   type: 'time',
+    //   disableMinute: true,
+    //   minDate: minDate,
+    //   maxDate: maxDate,
+    // });
+  }
+
+  convertToDateTime(timeStr: string): Date {
+    const now = new Date();
+
+    if (!timeStr) return now;
+
+    const [time, modifier] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    if (modifier === 'PM' && hours < 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+
+    now.setHours(hours);
+    now.setMinutes(minutes);
+    now.setSeconds(0);
+
+    return now;
   }
 }

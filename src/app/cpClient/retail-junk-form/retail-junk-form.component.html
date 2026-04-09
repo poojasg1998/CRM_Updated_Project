@@ -1,0 +1,37 @@
+<div class="content_center loader" *ngIf="showSpinner">
+  <ion-spinner name="circular" style="color: white;"></ion-spinner>
+</div>
+
+<div class="face2facemaindiv bg_border_color">
+  <form name="form" method="POST">
+    <div class="row">
+      <div class="col-sm-12 form-group headingdesign">
+        <label class="heads">Select any Reason for the Junk</label>
+        <ion-content style="height: 200px;">
+          <div class="main_suggested_div">
+            <ul class="ks-cboxtags">
+              <li *ngFor="let catogs of junkcategories; let i = index">
+                <input type="radio" id="junkcheckbox{{i}}" value="{{catogs.junk_section_IDPK }}" name='programming1'
+                  (change)="selectsuggested(catogs.junk_section_IDPK,catogs.junk_categories)">
+                <label for="junkcheckbox{{i}}">{{catogs.junk_categories}}</label>
+              </li>
+            </ul>
+          </div>
+        </ion-content>
+      </div>
+
+      <div class="col-sm-12 form-group headingdesign">
+        <label class="heads">Remarks</label>
+        <textarea class="form-control" id="junkremarks"
+          placeholder="Please Add any remarks for Moving to Junk"></textarea>
+      </div>
+    </div>
+  </form>
+  <ion-row class="margin-top-16">
+    <ion-col (click)="junkmoving()" class="ion-text-center">
+      <div class="saveBtn">
+        <span class="font-size12-familyPoppins">Save</span>
+      </div>
+    </ion-col>
+  </ion-row>
+</div>

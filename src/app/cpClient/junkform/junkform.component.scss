@@ -1,97 +1,97 @@
 .face2facemaindiv {
-    margin: 15px 0px 0px 0px;
-  }
-  .userDetailsTitle {
-    margin: 10px 0 3px 0;
-  }
-  
-  .face2facemaindiv label{
-    display: block;
-    margin: 15px 5px 5px 0;
-    font-size: 13px;
-    color: #252525;
-    font-weight: 400;
-  }
-  
-  .face2facemaindiv textarea{
-    border: 1px solid #a7a7a7;
-      padding: 0px 7px;
-      width: 100%;
-      height: 60px;
-      font-size: 14px;
-      color: #666;
-  }
-  
-  .face2facemaindiv .saveBtn{
-      background: #0B7AB2;
-      border: 1px solid #0B7AB2;
-      padding: 2px 40px;
-      color: #ffff;
-      border-radius: 5px;
-  }
-
-  .main_suggested_div{
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 13px;
-    margin: 0;
-    padding: 0;
-  }
-  ul.ks-cboxtags {
-    list-style: none;
-    padding: 0px;
+  margin: 15px 0px 0px 0px;
 }
-ul.ks-cboxtags li{
+.userDetailsTitle {
+  margin: 10px 0 3px 0;
+}
+
+.face2facemaindiv label {
+  display: block;
+  margin: 15px 5px 5px 0;
+  font-size: 13px;
+  color: #252525;
+  font-weight: 400;
+}
+
+.face2facemaindiv textarea {
+  border: 1px solid #a7a7a7;
+  padding: 0px 7px;
+  width: 100%;
+  height: 60px;
+  font-size: 14px;
+  color: #666;
+}
+
+.face2facemaindiv .saveBtn {
+  background: #0b7ab2;
+  border: 1px solid #0b7ab2;
+  padding: 2px 40px;
+  color: #ffff;
+  border-radius: 5px;
+}
+
+.main_suggested_div {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 13px;
+  margin: 0;
+  padding: 0;
+}
+ul.ks-cboxtags {
+  list-style: none;
+  padding: 0px;
+}
+ul.ks-cboxtags li {
   display: inline;
 }
-ul.ks-cboxtags li label{
-    display: inline-block;
-    background-color: rgba(255, 255, 255, .9);
-    border: 2px solid rgba(139, 139, 139, .3);
-    color: #adadad;
-    border-radius: 25px;
-    white-space: nowrap;
-    margin: 3px 0px;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    transition: all .2s;
+ul.ks-cboxtags li label {
+  display: inline-block;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(139, 139, 139, 0.3);
+  color: #adadad;
+  border-radius: 25px;
+  white-space: nowrap;
+  margin: 3px 0px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s;
 }
 
 ul.ks-cboxtags li label {
   padding: 4px 6px;
-    cursor: pointer;
-    font-size: 14px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 ul.ks-cboxtags li label::before {
-    display: inline-block;
-    font-style: normal;
-    font-variant: normal;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
-    font-size: 12px;
-    padding: 2px 6px 2px 2px;
-    content: "\f067";
-    transition: transform .3s ease-in-out;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  font-size: 12px;
+  padding: 2px 6px 2px 2px;
+  content: "\f067";
+  transition: transform 0.3s ease-in-out;
 }
 
 ul.ks-cboxtags li input[type="radio"]:checked + label::before {
-    content: "\f00c";
-    transform: rotate(-360deg);
-    transition: transform .3s ease-in-out;
+  content: "\f00c";
+  transform: rotate(-360deg);
+  transition: transform 0.3s ease-in-out;
 }
 
 ul.ks-cboxtags li input[type="radio"]:checked + label {
-  border: 1px solid #0B7AB25c;
-  background-color: #0B7AB25c;
-  color: #0B7AB25c;
+  border: 1px solid #0b7ab25c;
+  background-color: #0b7ab25c;
+  color: #0b7ab25c;
   font-weight: 700;
-  transition: all .2s;
+  transition: all 0.2s;
 }
 
 ul.ks-cboxtags li input[type="radio"] {
@@ -102,7 +102,7 @@ ul.ks-cboxtags li input[type="radio"] {
   opacity: 0;
 }
 ul.ks-cboxtags li input[type="radio"]:focus + label {
-  border: 2px solid #0B7AB2;
+  border: 2px solid #0b7ab2;
 }
 
 .comma-list {
@@ -117,13 +117,15 @@ ul.ks-cboxtags li input[type="radio"]:focus + label {
   line-height: 1.5em;
   position: relative;
   color: #979393;
-  }
-  
+}
 
-.datepickerdiv{
+.datepickerdiv {
   width: 100%;
 }
 
-.timepickerdiv{
+.timepickerdiv {
   width: 100%;
+}
+.bg_border_color {
+  border: none;
 }

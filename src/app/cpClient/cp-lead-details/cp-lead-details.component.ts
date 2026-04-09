@@ -1,11 +1,16 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CpApiService } from '../cp-api.service';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SharedService } from 'src/app/realEstate/shared.service';
-import { IonModal, PopoverController } from '@ionic/angular';
+import {
+  IonContent,
+  IonModal,
+  MenuController,
+  PopoverController,
+} from '@ionic/angular';
 import Swal from 'sweetalert2';
-
+import { Location } from '@angular/common';
 @Component({
   selector: 'app-cp-lead-details',
   templateUrl: './cp-lead-details.component.html',
@@ -14,6 +19,9 @@ import Swal from 'sweetalert2';
 export class CpLeadDetailsComponent implements OnInit {
   @ViewChild('mergeModal') mergeModal;
   @ViewChild('suggModal', { static: true }) suggModal: IonModal;
+  @ViewChild('scrollContent', { static: false }) scrollContent!: IonContent;
+  addCategoryForm!: FormGroup;
+  isCrmTypeSelection = false;
   showSpinner = false;
   selectedExecId: any;
   leadid: any;
@@ -62,6 +70,8 @@ export class CpLeadDetailsComponent implements OnInit {
   finalnegoform = false;
   leadclosedform = false;
   selectedBtn: any;
+  canScroll: boolean;
+  selectedSuggestedProp: any;
 
   constructor(
     private activeroute: ActivatedRoute,
@@ -69,7 +79,9 @@ export class CpLeadDetailsComponent implements OnInit {
     private api: CpApiService,
     private fb: FormBuilder,
     public sharedService: SharedService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private menuCtrl: MenuController,
+    public _location: Location
   ) {}
 
   ngOnInit() {
@@ -82,6 +94,11 @@ export class CpLeadDetailsComponent implements OnInit {
       enableCheckAll: false,
       allowSearchFilter: true,
     };
+
+    this.addCategoryForm = this.fb.group({
+      name: ['', Validators.required],
+      category: [[], Validators.required],
+    });
     this.activeroute.queryParams.subscribe((params) => {
       this.selectedExecId = params['execid'];
       this.leadid = params['leadid'];
@@ -106,6 +123,14 @@ export class CpLeadDetailsComponent implements OnInit {
   getcustomeredit(leadid) {
     this.api.getcustomeredit(leadid).subscribe((resp) => {
       this.customerView = resp['Customerview']?.[0];
+      if (
+        resp['Customerview']?.[0].listing_category &&
+        resp['Customerview']?.[0].listing_category.length > 0
+      ) {
+        this.isCrmTypeSelection = false;
+      } else {
+        this.isCrmTypeSelection = true;
+      }
     });
   }
   getAssignedRM() {
@@ -116,7 +141,11 @@ export class CpLeadDetailsComponent implements OnInit {
         this.assignedrm = resp['RMname'].filter((exec) => {
           return exec.RMID == this.selectedExecId;
         });
-        this.assignedrm = this.assignedrm;
+
+        this.selectedSuggestedProp = this.assignedrm?.[0]?.suggestedprop;
+
+        console.log(this.selectedSuggestedProp);
+
         console.log(resp);
       });
   }
@@ -614,5 +643,149 @@ export class CpLeadDetailsComponent implements OnInit {
           this.rescheduledfn = false;
         }
       });
+  }
+  openEndMenu() {
+    this.menuCtrl.open('end');
+  }
+
+  onBackbutton() {
+    let elementId = '';
+    if (this.stageForm) {
+      elementId = 'statusSection';
+    } else if (this.isActivityHistory) {
+      elementId = 'activitySection';
+    }
+
+    setTimeout(() => {
+      if (elementId && this.stageForm == '' && !this.isActivityHistory) {
+        const selectedElement = document.getElementById(elementId);
+        if (selectedElement) {
+          this.scrollContent.scrollToPoint(0, selectedElement.offsetTop, 500);
+        } else {
+          console.warn('Element not found:', elementId);
+        }
+      } else {
+        this.scrollContent.scrollToTop();
+      }
+    }, 300);
+
+    if (this.stageForm || this.isActivityHistory || this.isEditProDetails) {
+      if (this.stageForm) {
+        this.stageForm = '';
+      } else if (this.isActivityHistory) {
+        this.isActivityHistory = false;
+      } else if (this.isEditProDetails) {
+        this.isEditProDetails = false;
+      }
+
+      this.followform = false;
+      this.followupform = false;
+      this.followupformbtn = false;
+      this.f2fform = false;
+      this.usvform = false;
+      this.svform = false;
+      this.rsvform = false;
+      this.finalnegoform = false;
+      this.leadclosedform = false;
+      this.junkform = false;
+      this.junkformbtn = false;
+      this.commonformbtn = false;
+
+      this.router.navigate([], {
+        queryParams: {
+          stageForm: null,
+          isEditFixedPlan: null,
+          isActivityHistory: null,
+          isCallHistory: null,
+          isEditProDetails: null,
+          execid:
+            this.selectedExecId == ''
+              ? this.leadsDetailsInfo[0].RMID
+              : this.selectedExecId,
+        },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    } else {
+      this._location.back();
+    }
+  }
+  onScroll(event: CustomEvent) {
+    this.sharedService.scrollTop = event.detail.scrollTop;
+    const scrollTop = event.detail.scrollTop;
+    this.scrollContent.getScrollElement().then((scrollEl) => {
+      const scrollTop = scrollEl.scrollTop;
+      const scrollHeight = scrollEl.scrollHeight;
+      const clientHeight = scrollEl.offsetHeight;
+
+      this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
+
+      if (!this.canScroll) {
+        this.sharedService.isBottom = false;
+      } else {
+        this.sharedService.isBottom =
+          scrollTop + clientHeight >= scrollHeight - 100;
+      }
+    });
+  }
+
+  togglecategory(value: string) {
+    const current = this.addCategoryForm.value.category || [];
+
+    if (current.includes(value)) {
+      // remove
+      this.addCategoryForm.patchValue({
+        category: current.filter((v: string) => v !== value),
+      });
+    } else {
+      // add
+      this.addCategoryForm.patchValue({
+        category: [...current, value],
+      });
+    }
+  }
+  hasError(controlName: string, error: string): boolean {
+    const control = this.addCategoryForm.get(controlName);
+    return !!(control && control.touched && control.hasError(error));
+  }
+  onSubmitcategory() {
+    this.showSpinner = true;
+    let param = {
+      leadid: this.leadid,
+      categoryid: this.addCategoryForm.value.category,
+    };
+    this.filterLoader = true;
+    this.api.addLeadCrmType(param).subscribe({
+      next: (resp: any) => {
+        this.filterLoader = false;
+        Swal.fire({
+          title: 'Lead Segmentation',
+          text: 'Updated Successfully',
+          showConfirmButton: false,
+          heightAuto: false,
+          timer: 2000,
+          icon: 'success',
+        }).then(() => {
+          location.reload();
+          // this.showSpinner = false;
+          // $('.modal-backdrop').closest('div').remove();
+          // document.body.classList.remove('modal-open');
+          // let currentUrl = this.router.url;
+          // let pathWithoutQueryParams = currentUrl.split('?')[0];
+          // let currentQueryparams = this.activeroute.snapshot.queryParams;
+          // this.router
+          //   .navigateByUrl('/', { skipLocationChange: true })
+          //   .then(() => {
+          //     this.router.navigate([pathWithoutQueryParams], {
+          //       queryParams: currentQueryparams,
+          //     });
+          //   });
+        });
+      },
+      error: (err) => {
+        this.filterLoader = false;
+        console.log(err, 'error');
+      },
+    });
   }
 }

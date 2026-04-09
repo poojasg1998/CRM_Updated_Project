@@ -13,7 +13,9 @@ declare var $: any;
 export class ClosedformComponent implements OnInit {
   date: String = new Date().toISOString();
   feedbackid = '';
+  @Input() selectedSuggestedProp: any;
   @Input() selectedExecId: any;
+  @Input() selectedBtn: any;
   closedDate;
   closedTime;
   userid: string;
@@ -42,8 +44,8 @@ export class ClosedformComponent implements OnInit {
 
   ngOnInit() {
     this.activeroute.queryParamMap.subscribe((params) => {
-      const paramMap = params.get('leadId');
-      this.leadId = params.get('leadId');
+      const paramMap = params.get('leadid');
+      this.leadId = params.get('leadid');
       this.categoryid = params.get('categoryid');
       this.roleid = localStorage.getItem('Role');
       const isEmpty = !paramMap;
@@ -97,6 +99,7 @@ export class ClosedformComponent implements OnInit {
       assignid: this.closedexecutiveId,
       stage: $('#customer_phase4').val(),
       feedback: this.feedbackID,
+      categoryid: this.categoryid,
     };
     this._retailservice
       .getvisitedsuggestpropertiesretail(param)
@@ -4111,6 +4114,7 @@ export class ClosedformComponent implements OnInit {
                   remarks: existingObject['remarks'],
                   accompany: existingObject['accompany'],
                   assignid: this.closedexecutiveId,
+                  categoryid: this.categoryid,
                 };
 
                 this._retailservice
@@ -4155,6 +4159,7 @@ export class ClosedformComponent implements OnInit {
                       assignid: this.closedexecutiveId,
                       autoremarks: this.autoremarks,
                       property: propid,
+                      categoryid: this.categoryid,
                     };
 
                     this._retailservice
@@ -4193,6 +4198,7 @@ export class ClosedformComponent implements OnInit {
                               dimension: dimensions,
                               ratepersft: rpsft,
                               autoremarks: this.autoremarks,
+                              categoryid: this.categoryid,
                             };
                             this._retailservice
                               .addleadhistoryretail(leadhistparam)
@@ -4230,6 +4236,7 @@ export class ClosedformComponent implements OnInit {
                                         assignid: this.closedexecutiveId,
                                         statusid: '1',
                                         remarks: 'No Comments',
+                                        categoryid: this.categoryid,
                                       };
                                       this._retailservice
                                         .closingrequestresponse(param)
@@ -4461,6 +4468,7 @@ export class ClosedformComponent implements OnInit {
                 remarks: existingObject['remarks'],
                 accompany: existingObject['accompany'],
                 assignid: this.closedexecutiveId,
+                categoryid: this.categoryid,
               };
               this._retailservice
                 .retailpropertyvisitupdate(visitparam)
@@ -4505,6 +4513,7 @@ export class ClosedformComponent implements OnInit {
                     assignid: this.closedexecutiveId,
                     autoremarks: this.autoremarks,
                     property: propid,
+                    categoryid: this.categoryid,
                   };
 
                   this._retailservice
@@ -4544,6 +4553,7 @@ export class ClosedformComponent implements OnInit {
                             dimension: dimensions,
                             ratepersft: rpsft,
                             autoremarks: this.autoremarks,
+                            categoryid: this.categoryid,
                           };
                           // alert("sfjlksd")
                           console.log(leadhistparam);
@@ -4583,6 +4593,7 @@ export class ClosedformComponent implements OnInit {
                                       assignid: this.closedexecutiveId,
                                       statusid: '1',
                                       remarks: 'No Comments',
+                                      categoryid: this.categoryid,
                                     };
                                     this._retailservice
                                       .closingrequestresponse(param)
@@ -4834,6 +4845,7 @@ export class ClosedformComponent implements OnInit {
                   remarks: existingObject['remarks'],
                   accompany: existingObject['accompany'],
                   assignid: this.closedexecutiveId,
+                  categoryid: this.categoryid,
                 };
                 this._retailservice
                   .retailpropertyvisitupdate(visitparam)
@@ -4876,6 +4888,7 @@ export class ClosedformComponent implements OnInit {
                       assignid: this.closedexecutiveId,
                       autoremarks: this.autoremarks,
                       property: propid,
+                      categoryid: this.categoryid,
                     };
 
                     this._retailservice
@@ -4913,6 +4926,7 @@ export class ClosedformComponent implements OnInit {
                               dimension: dimensions,
                               ratepersft: rpsft,
                               autoremarks: this.autoremarks,
+                              categoryid: this.categoryid,
                             };
                             this._retailservice
                               .addleadhistoryretail(leadhistparam)
@@ -4949,6 +4963,7 @@ export class ClosedformComponent implements OnInit {
                                         assignid: this.closedexecutiveId,
                                         statusid: '1',
                                         remarks: 'No Comments',
+                                        categoryid: this.categoryid,
                                       };
                                       this._retailservice
                                         .closingrequestresponse(param)
@@ -5179,6 +5194,7 @@ export class ClosedformComponent implements OnInit {
                 remarks: existingObject['remarks'],
                 accompany: existingObject['accompany'],
                 assignid: this.closedexecutiveId,
+                categoryid: this.categoryid,
               };
               this._retailservice
                 .retailpropertyvisitupdate(visitparam)
@@ -5545,6 +5561,7 @@ export class ClosedformComponent implements OnInit {
                   remarks: existingObject['remarks'],
                   accompany: existingObject['accompany'],
                   assignid: this.closedexecutiveId,
+                  categoryid: this.categoryid,
                 };
                 this._retailservice
                   .retailpropertyvisitupdate(visitparam)
@@ -5588,6 +5605,7 @@ export class ClosedformComponent implements OnInit {
                       assignid: this.closedexecutiveId,
                       autoremarks: this.autoremarks,
                       property: propid,
+                      categoryid: this.categoryid,
                     };
 
                     this._retailservice
@@ -5624,6 +5642,7 @@ export class ClosedformComponent implements OnInit {
                               dimension: dimensions,
                               ratepersft: rpsft,
                               autoremarks: this.autoremarks,
+                              categoryid: this.categoryid,
                             };
                             this._retailservice
                               .addleadhistoryretail(leadhistparam)
@@ -5660,6 +5679,7 @@ export class ClosedformComponent implements OnInit {
                                         assignid: this.closedexecutiveId,
                                         statusid: '1',
                                         remarks: 'No Comments',
+                                        categoryid: this.categoryid,
                                       };
                                       this._retailservice
                                         .closingrequestresponse(param)
@@ -5890,6 +5910,7 @@ export class ClosedformComponent implements OnInit {
                 remarks: existingObject['remarks'],
                 accompany: existingObject['accompany'],
                 assignid: this.closedexecutiveId,
+                categoryid: this.categoryid,
               };
               this._retailservice
                 .retailpropertyvisitupdate(visitparam)
@@ -5935,6 +5956,7 @@ export class ClosedformComponent implements OnInit {
                     assignid: this.closedexecutiveId,
                     autoremarks: this.autoremarks,
                     property: propid,
+                    categoryid: this.categoryid,
                   };
 
                   this._retailservice
@@ -5972,6 +5994,7 @@ export class ClosedformComponent implements OnInit {
                             dimension: dimensions,
                             ratepersft: rpsft,
                             autoremarks: this.autoremarks,
+                            categoryid: this.categoryid,
                           };
                           this._retailservice
                             .addleadhistoryretail(leadhistparam)
@@ -6009,6 +6032,7 @@ export class ClosedformComponent implements OnInit {
                                       assignid: this.closedexecutiveId,
                                       statusid: '1',
                                       remarks: 'No Comments',
+                                      categoryid: this.categoryid,
                                     };
                                     this._retailservice
                                       .closingrequestresponse(param)
@@ -6261,6 +6285,7 @@ export class ClosedformComponent implements OnInit {
                   remarks: existingObject['remarks'],
                   accompany: existingObject['accompany'],
                   assignid: this.closedexecutiveId,
+                  categoryid: this.categoryid,
                 };
                 this._retailservice
                   .retailpropertyvisitupdate(visitparam)
@@ -6304,6 +6329,7 @@ export class ClosedformComponent implements OnInit {
                       assignid: this.closedexecutiveId,
                       autoremarks: this.autoremarks,
                       property: propid,
+                      categoryid: this.categoryid,
                     };
 
                     this._retailservice
@@ -6341,6 +6367,7 @@ export class ClosedformComponent implements OnInit {
                               dimension: dimensions,
                               ratepersft: rpsft,
                               autoremarks: this.autoremarks,
+                              categoryid: this.categoryid,
                             };
                             this._retailservice
                               .addleadhistoryretail(leadhistparam)
@@ -6378,6 +6405,7 @@ export class ClosedformComponent implements OnInit {
                                         assignid: this.closedexecutiveId,
                                         statusid: '1',
                                         remarks: 'No Comments',
+                                        categoryid: this.categoryid,
                                       };
                                       this._retailservice
                                         .closingrequestresponse(param)
@@ -6608,6 +6636,7 @@ export class ClosedformComponent implements OnInit {
                 remarks: existingObject['remarks'],
                 accompany: existingObject['accompany'],
                 assignid: this.closedexecutiveId,
+                categoryid: this.categoryid,
               };
               this._retailservice
                 .retailpropertyvisitupdate(visitparam)
@@ -6652,6 +6681,7 @@ export class ClosedformComponent implements OnInit {
                     assignid: this.closedexecutiveId,
                     autoremarks: this.autoremarks,
                     property: propid,
+                    categoryid: this.categoryid,
                   };
 
                   this._retailservice
@@ -6689,6 +6719,7 @@ export class ClosedformComponent implements OnInit {
                             dimension: dimensions,
                             ratepersft: rpsft,
                             autoremarks: this.autoremarks,
+                            categoryid: this.categoryid,
                           };
                           this._retailservice
                             .addleadhistoryretail(leadhistparam)
@@ -6726,6 +6757,7 @@ export class ClosedformComponent implements OnInit {
                                       assignid: this.closedexecutiveId,
                                       statusid: '1',
                                       remarks: 'No Comments',
+                                      categoryid: this.categoryid,
                                     };
                                     this._retailservice
                                       .closingrequestresponse(param)
@@ -7000,6 +7032,7 @@ export class ClosedformComponent implements OnInit {
                 dimension: dimensions,
                 ratepersft: rpsft,
                 autoremarks: this.autoremarks,
+                categoryid: this.categoryid,
               };
 
               this._retailservice.addleadhistoryretail(leadhistparam).subscribe(
@@ -7034,6 +7067,7 @@ export class ClosedformComponent implements OnInit {
                         assignid: this.closedexecutiveId,
                         statusid: '1',
                         remarks: 'No Comments',
+                        categoryid: this.categoryid,
                       };
                       this._retailservice
                         .closingrequestresponse(param)
@@ -7254,6 +7288,7 @@ export class ClosedformComponent implements OnInit {
                     dimension: dimensions,
                     ratepersft: rpsft,
                     autoremarks: this.autoremarks,
+                    categoryid: this.categoryid,
                   };
 
                   this._retailservice
@@ -7292,6 +7327,7 @@ export class ClosedformComponent implements OnInit {
                               assignid: this.closedexecutiveId,
                               statusid: '1',
                               remarks: 'No Comments',
+                              categoryid: this.categoryid,
                             };
                             this._retailservice
                               .closingrequestresponse(param)

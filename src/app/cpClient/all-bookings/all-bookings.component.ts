@@ -4,6 +4,7 @@ import { CpApiService } from '../cp-api.service';
 import { catchError, forkJoin, of } from 'rxjs';
 import { SharedService } from 'src/app/realEstate/shared.service';
 import Swal from 'sweetalert2';
+import { IonContent } from '@ionic/angular';
 
 @Component({
   selector: 'app-all-bookings',
@@ -11,6 +12,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./all-bookings.component.scss'],
 })
 export class AllBookingsComponent implements OnInit {
+  @ViewChild('content', { static: false }) content: IonContent;
   @ViewChild('filter_modal') filter_modal;
   showSpinner = false;
   readonly DEFAULT_PARAMS = {
@@ -45,6 +47,8 @@ export class AllBookingsComponent implements OnInit {
   filteredclosedProperty: any;
   tempFilteredValues;
   minDate: Date;
+  canScroll: boolean;
+  page: number;
 
   constructor(
     private activeroute: ActivatedRoute,
@@ -56,7 +60,21 @@ export class AllBookingsComponent implements OnInit {
   ngOnInit() {
     this.activeroute.queryParams.subscribe(() => {
       this.getQueryParams();
-      this.getLeadsCount();
+      if (this.sharedService.hasState) {
+        this.showSpinner = false;
+        this.leads_detail = this.sharedService.enquiries;
+        this.page = this.sharedService.page;
+        setTimeout(() => {
+          this.content.scrollToPoint(0, this.sharedService.scrollTop, 0);
+        }, 0);
+
+        setTimeout(() => {
+          this.sharedService.hasState = false;
+        }, 5000);
+      } else {
+        this.content?.scrollToTop(300);
+        this.getLeadsCount();
+      }
     });
   }
 
@@ -331,5 +349,36 @@ export class AllBookingsComponent implements OnInit {
         allowOutsideClick: false,
       }).then((result) => {});
     }
+  }
+  onScroll(event: CustomEvent) {
+    this.sharedService.scrollTop = event.detail.scrollTop;
+    const scrollTop = event.detail.scrollTop;
+    this.content.getScrollElement().then((scrollEl) => {
+      const scrollTop = scrollEl.scrollTop;
+      const scrollHeight = scrollEl.scrollHeight;
+      const clientHeight = scrollEl.offsetHeight;
+
+      this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
+
+      if (!this.canScroll) {
+        this.sharedService.isBottom = false;
+      } else {
+        this.sharedService.isBottom =
+          scrollTop + clientHeight >= scrollHeight - 100;
+      }
+    });
+  }
+
+  navigateToDetailsPage(lead) {
+    this.sharedService.enquiries = this.leads_detail;
+    this.sharedService.page = this.page;
+    this.sharedService.hasState = true;
+    this.router.navigate(['/cp-lead-details'], {
+      queryParams: {
+        execid: lead.RMID,
+        leadid: lead.LeadID,
+        categoryid: lead.category,
+      },
+    });
   }
 }

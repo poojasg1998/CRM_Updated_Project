@@ -80,7 +80,7 @@ export class TodayActivityComponent implements OnInit {
     private router: Router,
     private api: CpApiService,
     public sharedService: SharedService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.activeroute.queryParams.subscribe(() => {
@@ -366,11 +366,13 @@ export class TodayActivityComponent implements OnInit {
   }
 
   resetFilters(): void {
+    const currentCategory = this.filteredParams.category;
     this.filteredParams = {
       ...(this.filteredParams.isLeadsVisits === 'leads'
         ? this.LEADS_DEFAULTS
         : this.VISITS_DEFAULTS),
       isLeadsVisits: this.filteredParams.isLeadsVisits,
+      category: currentCategory
     };
 
     this.router.navigate([], {
@@ -410,16 +412,16 @@ export class TodayActivityComponent implements OnInit {
       this.filteredSource = !val
         ? [...this.source]
         : this.source.filter((item) =>
-            (item?.source || '').toLowerCase().includes(val)
-          );
+          (item?.source || '').toLowerCase().includes(val)
+        );
     }
 
     if (this.activeTab === 'property') {
       this.filteredProperty = !val
         ? [...this.suggestedProperty]
         : this.suggestedProperty.filter((item) =>
-            item.name.toLowerCase().includes(val)
-          );
+          item.name.toLowerCase().includes(val)
+        );
     }
   }
   applyTemFilter(data, value) {

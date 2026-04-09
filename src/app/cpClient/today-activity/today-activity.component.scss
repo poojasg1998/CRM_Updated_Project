@@ -1,13 +1,16 @@
 ion-content {
   --background: #f8fafd;
 }
+
 * {
   font-family: "Poppins";
 }
+
 .toggle-btn {
   font-size: 11px;
   border: 1px solid #e0e0e0;
   border-radius: 20px;
+
   .active {
     border: 1px solid #005d8c;
     margin: 2px;
@@ -15,6 +18,7 @@ ion-content {
     background-color: #005d8c;
     color: #ffffff;
   }
+
   ion-col {
     display: flex;
     align-items: center;
@@ -26,18 +30,22 @@ ion-content {
   span {
     font-size: 14px;
   }
+
   .active_btn {
     background: linear-gradient(180deg, #ffffff 0%, #d3ebff 100%) !important;
     border-bottom: 1px solid #1366a5 !important;
     box-shadow: none;
+
     span {
       color: #005d8c !important;
     }
   }
 }
+
 .active_btn {
   background-color: #1265a5 !important;
 }
+
 .leads-visits-container {
   display: flex;
   gap: 4px; // Small gap between the "buttons"
@@ -61,15 +69,14 @@ ion-content {
       letter-spacing: 0.02em;
     }
   }
+
   // Active State: Blue Gradient
   .active-btn {
     --background: linear-gradient(180deg, #2196f3 -17.31%, #004d74 96.15%);
     --color: #ffffff;
-    background: linear-gradient(
-      180deg,
-      #2196f3 -17.31%,
-      #004d74 96.15%
-    ) !important;
+    background: linear-gradient(180deg,
+        #2196f3 -17.31%,
+        #004d74 96.15%) !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
     span {
@@ -93,6 +100,7 @@ ion-content {
 
 .leads-card {
   --ion-item-background: none;
+
   ion-card {
     background: #ffffff;
   }
@@ -100,12 +108,15 @@ ion-content {
   h2 {
     color: #73322d;
   }
+
   .active-col {
     background: #fff6f5;
     border-color: #a87773;
   }
+
   border-color: #a87773;
 }
+
 .card-count {
   position: absolute;
   right: 0px;
@@ -114,6 +125,7 @@ ion-content {
   color: white;
   font-size: 0.8rem;
 }
+
 ion-item::part(native) {
   --inner-padding-end: 0 !important;
   --padding-start: 0 !important;
@@ -124,6 +136,7 @@ ion-item::part(native) {
   color: #8a8a8a !important;
   font-size: 0.714rem;
 }
+
 .value {
   color: rgba(0, 0, 0, 0.8);
   font-size: 0.7rem;
@@ -140,17 +153,21 @@ ion-item::part(native) {
   width: 100%;
   padding-left: 10px;
 }
+
 ::ng-deep ion-icon.ion-accordion-toggle-icon.md.hydrated {
   width: 15px;
   margin: 5px;
 }
+
 .refresh-btn {
   border-radius: 20px;
   font-size: 1.4rem;
+
   ion-icon {
     color: #004d74 !important;
   }
 }
+
 .latestRemark ion-label {
   color: #000000b5;
   font-size: 12px;
@@ -257,8 +274,10 @@ ion-item {
   padding: 4px 0;
   font-size: 13px;
 }
+
 .filter-right ion-checkbox {
-  --size: 16px; /* default is bigger */
+  --size: 16px;
+  /* default is bigger */
   margin-right: 6px;
   --border-color-checked: #0b7ab2;
   --checkbox-background-checked: #0b7ab2;
@@ -267,21 +286,26 @@ ion-item {
 .filter-right ion-label {
   font-size: 14px;
 }
+
 .search-style {
   position: sticky;
   top: -10px;
   padding: 0;
   z-index: 999;
+  background: #fff;
 }
+
 ion-modal.filter_modal::part(content) {
   border-radius: 20px 20px 0 0 !important;
   overflow: hidden;
   --background: #f5f7fa;
 }
+
 ion-modal.filter_modal {
   --backdrop-opacity: 0.7;
   padding-top: 72px;
 }
+
 .filterIcon label {
   background: #ececec;
   width: 20px;
@@ -299,6 +323,7 @@ ion-modal.filter_modal {
   padding: 5px;
   --ionicon-stroke-width: 60px;
 }
+
 .scroll-row {
   display: flex;
   flex-wrap: nowrap;
@@ -308,7 +333,8 @@ ion-modal.filter_modal {
 }
 
 .scroll-row::-webkit-scrollbar {
-  display: none; /* Hide scrollbar (Chrome) */
+  display: none;
+  /* Hide scrollbar (Chrome) */
 }
 
 .scroll-col {
@@ -328,6 +354,7 @@ ion-modal.filter_modal {
   height: 26px;
   min-height: 26px;
 }
+
 .scroll-col {
   flex: 0 0 auto;
   display: flex;
@@ -341,6 +368,7 @@ ion-modal.filter_modal {
   color: #0b7ab2;
   font-size: 12px;
   border: 0.5px #0b7ab2 solid;
-  border-radius: 4px; /* 🔥 better chip look */
+  border-radius: 4px;
+  /* 🔥 better chip look */
   height: 26px;
 }

@@ -6,11 +6,11 @@
     <ion-col>
       <ion-row class="leads_jobs">
         <ion-col class="d-flex align-items-center justify-content-center"
-          *ngIf="router.url.includes('isLeadsVisits=leads')">
+          *ngIf="(router.url.includes('isLeadsVisits=leads') && !router.url.includes('cp-today-activity')) || (router.url.includes('cp-dashboard') && !(router.url.includes('isLeadsVisits=visits')) && !router.url.includes('cp-today-activity'))">
           Leads Dashboard
         </ion-col>
         <ion-col class="d-flex align-items-center justify-content-center"
-          *ngIf="router.url.includes('isLeadsVisits=visits')">
+          *ngIf="router.url.includes('isLeadsVisits=visits') && !router.url.includes('cp-today-activity')">
           Visits Dashboard
         </ion-col>
         <ion-col class="d-flex align-items-center justify-content-center"
@@ -27,6 +27,12 @@
         <ion-col class="d-flex align-items-center justify-content-center" *ngIf="router.url.includes('my-executives')">
           My Executives
         </ion-col>
+
+        <span *ngIf="router.url.includes('cp-lead-details') && router.url.includes('stageForm')">
+          <ion-col class="d-flex align-items-center justify-content-center">
+            Lead Status
+          </ion-col>
+        </span>
       </ion-row>
     </ion-col>
     <ion-col size="2" class="d-flex align-items-center justify-content-center">

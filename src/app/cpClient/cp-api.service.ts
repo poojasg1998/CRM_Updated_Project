@@ -289,7 +289,7 @@ export class CpApiService {
     let params = new HttpParams()
       .set('leadid', param.leadid)
       .set('Execid', param.execid)
-      .set('Catogid', param.Catogid);
+      .set('Catogid', param.categoryid);
     return this.http.get(this.retailcrm + '/propertylist', { params });
   }
 
@@ -335,7 +335,8 @@ export class CpApiService {
       .set('Actiontime', param.closetime)
       .set('accompaniedid', param.accompany)
       .set('assignID', param.assignid ?? '')
-      .set('feedback', param.feedback);
+      .set('feedback', param.feedback)
+      .set('Catogid', param.categoryid);
 
     let headers = new HttpHeaders().set(
       'Content-Type',
@@ -381,7 +382,8 @@ export class CpApiService {
       .set('weekplan', param.weekplan ?? '')
       .set('ratepersft', param.ratepersft ?? '')
       .set('autoremarks', param.autoremarks ?? '')
-      .set('feedback', param.feedback ?? '');
+      .set('feedback', param.feedback ?? '')
+      .set('Catogid', param.categoryid ?? '');
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -431,7 +433,8 @@ export class CpApiService {
       .set('assignID', followups.assignid)
       .set('autoremarks', followups.autoremarks)
       .set('property', followups.property ?? '')
-      .set('feedback', followups.feedback ?? '');
+      .set('feedback', followups.feedback ?? '')
+      .set('categoryid', followups.categoryid ?? '');
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -449,7 +452,8 @@ export class CpApiService {
       .set('Stage', param.stage)
       .set('Execid', param.execid)
       .set('assignID', param.assignid)
-      .set('feedback', param.feedback);
+      .set('feedback', param.feedback)
+      .set('Catogid', param.categoryid);
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -466,7 +470,8 @@ export class CpApiService {
       .set('LeadID', param.leadid)
       .set('ExecID', param.execid)
       .set('assignID', param.assignid)
-      .set('feedback', param.feedback);
+      .set('feedback', param.feedback)
+      .set('Catogid', param.categoryid);
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -483,7 +488,8 @@ export class CpApiService {
       .set('LeadID', param.leadid)
       .set('ExecID', param.execid)
       .set('assignID', param.assignid)
-      .set('feedback', param.feedback);
+      .set('feedback', param.feedback)
+      .set('Catogid', param.categoryid);
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -503,7 +509,8 @@ export class CpApiService {
       .set('ExecID', param.execid)
       .set('Stage', param.stage)
       .set('assignID', param.assignid)
-      .set('feedback', param.feedback);
+      .set('feedback', param.feedback)
+      .set('Catogid', param.categoryid);
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -523,7 +530,8 @@ export class CpApiService {
       .set('Stage', param.stage)
       .set('ExecID', param.execid)
       .set('assignID', param.assignid)
-      .set('feedback', param.feedback);
+      .set('feedback', param.feedback)
+      .set('Catogid', param.categoryid ?? '');
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -537,12 +545,13 @@ export class CpApiService {
       .pipe(map((response) => response));
   }
 
-  getvisitpropertyothers(leadid, loginid, assignid, feedback) {
+  getvisitpropertyothers(leadid, loginid, assignid, feedback, categoryid) {
     let params = new HttpParams()
       .set('LeadID', leadid)
       .set('Execid', loginid)
       .set('assignID', assignid)
-      .set('feedback', feedback);
+      .set('feedback', feedback)
+      .set('Catogid', categoryid);
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -579,7 +588,8 @@ export class CpApiService {
       .set('Nexttime', param.nexttime)
       .set('Execid', param.execid)
       .set('assignID', param.assignid)
-      .set('feedback', param.feedback);
+      .set('feedback', param.feedback)
+      .set('Catogid', param.categoryid);
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -674,7 +684,8 @@ export class CpApiService {
       .set('LeadID', param.leadid)
       .set('Execid', param.execid)
       .set('assignID', param.assignid)
-      .set('feedback', param.feedback);
+      .set('feedback', param.feedback)
+      .set('Catogid', param.categoryid);
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -731,7 +742,8 @@ export class CpApiService {
       .set('LeadID', param.leadid)
       .set('Execid', param.execid)
       .set('assignID', param.assignid)
-      .set('feedback', param.feedback);
+      .set('feedback', param.feedback)
+      .set('Catogid', param.categoryid);
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -749,7 +761,8 @@ export class CpApiService {
       .set('Stage', param.stage)
       .set('Execid', param.execid)
       .set('assignID', param.assignid)
-      .set('feedback', param.feedback);
+      .set('feedback', param.feedback)
+      .set('Catogid', param.categoryid);
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -1582,5 +1595,12 @@ export class CpApiService {
 
   getExecutives() {
     return this.http.get(this.retailcrm + '/getexecutiveslist');
+  }
+
+  addLeadCrmType(param) {
+    let params = new HttpParams()
+      .set('leadid', param.leadid)
+      .set('categoryid', param.categoryid);
+    return this.http.post(this.retailcrm + '/updatecategory', params);
   }
 }

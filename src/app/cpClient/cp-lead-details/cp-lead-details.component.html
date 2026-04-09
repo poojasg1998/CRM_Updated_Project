@@ -1,4 +1,25 @@
-<app-cp-header></app-cp-header>
+<ion-header>
+  <ion-row>
+    <ion-col size="2" class="content_center">
+      <ion-icon style="font-size: 20px;" name="arrow-back" (click)="onBackbutton()">back</ion-icon>
+    </ion-col>
+
+    <ion-col class="content_center">
+      <span>
+        <span class="font-size16-familyPoppins"
+          *ngIf="(!isEditProDetails && !isActivityHistory) && stageForm == ''">Lead Details</span>
+        <span *ngIf="stageForm != ''" class="font-size16-familyPoppins">Lead Status</span>
+        <span class="font-size16-familyPoppins" *ngIf="isActivityHistory">Activities</span>
+        <span class="font-size16-familyPoppins" *ngIf="isEditProDetails"> Update Customer Details </span>
+      </span>
+    </ion-col>
+
+    <ion-col size="2" (click)="openEndMenu()" class="content_center">
+      <ion-icon name="menu" class="menu_icon"></ion-icon>
+    </ion-col>
+  </ion-row>
+</ion-header>
+
 <div class="content_center loader" *ngIf="showSpinner">
   <ion-img style="width: 300px; height: 70px" src="../assets/CRMimages/animation/loader.gif"></ion-img>
 </div>
@@ -25,7 +46,7 @@
   </ion-col>
 
 </ion-row>
-<ion-content>
+<ion-content #scrollContent (ionScroll)="onScroll($event)" scrollEvents="true">
 
   <ion-card class="lead-card mb-0" *ngIf="(this.stageForm == '') && !isEditProDetails && !isActivityHistory">
     <ion-grid class="p-0">
@@ -153,227 +174,282 @@
         {{customerView?.datetime | date:'dd MMM yyyy, hh:mm a'}}</ion-col>
     </ion-row>
   </ion-card>
-
-  <!-- ASSIGNE TO SECTION -->
-  <ion-card class="assigned-card" *ngIf="!isEditProDetails">
-    <div class="assigned-header">
-      Assigned To
-    </div>
-    <div class="exec-container">
-      <div *ngFor="let exec of leadsDetailsInfo">
-        <div class="execName" [ngClass]="selectedExecId ==  exec.RMID 
+  <span *ngIf="!isCrmTypeSelection">
+    <!-- ASSIGNE TO SECTION -->
+    <ion-card class="assigned-card" *ngIf="!isEditProDetails">
+      <div class="assigned-header">
+        Assigned To
+      </div>
+      <div class="exec-container">
+        <div *ngFor="let exec of leadsDetailsInfo">
+          <div class="execName" [ngClass]="selectedExecId ==  exec.RMID 
           ? 'active_text_borederColor' 
           : ''">
-          <span style="padding-right: 4px;">
-            {{ exec.customer_assign_name }}
-          </span>
-        </div>
-      </div>
-    </div>
-  </ion-card>
-
-  <!-- SUGGESTED PROPERTY SECTION -->
-  <div *ngIf="(this.stageForm == '') && !isEditProDetails && !isActivityHistory">
-    <ion-card class="suggested-card">
-      <!-- Header -->
-      <div class="suggested-header">
-        <div class="content_center">
-          <span>Suggested Properties</span>
-          <ion-icon class="sugg_prop_add" name="add" (click)="displaySuggProperty()"></ion-icon>
-        </div>
-      </div>
-
-      <div *ngFor="let rm of assignedrm" style="position:relative">
-        <div class="property-row" *ngFor="let suggested of rm.suggestedprop;">
-          <ion-row>
-            <ion-col class="prop-accomp">
-              <p class="prop-name">
-                {{suggested.name}}
-              </p>
-              <p class="accompanied"><span>Accompanied by :</span><span>{{rm.customer_assign_name}}</span></p>
-            </ion-col>
-            <ion-col class="status" style="color: #D07F00;"
-              *ngIf="suggested.actions == '0' && suggested.selection == '0'">
-              <span>Not Visited </span>
-            </ion-col>
-            <ion-col class="status" style="color: #006C00;"
-              *ngIf="(suggested.selection == '1' || suggested.selection == '2' || suggested.selection == '3') && suggested.stagestatus == '1' && (suggested.actions == '0' || suggested.actions == '1')">
-              <span>Visit Scheduled </span>{{suggested.nextdate}} ,
-              {{suggested.nexttime}}
-            </ion-col>
-            <ion-col class="status" style="color: #006C00;"
-              *ngIf="(suggested.selection == '1' || suggested.selection == '2' || suggested.selection == '3') && suggested.stagestatus == '2' && suggested.actions == '0'">
-              <span>Visit Rescheduled</span>{{suggested.nextdate}} ,
-              {{suggested.nexttime}}
-            </ion-col>
-            <ion-col class="status" style="color: red;"
-              *ngIf="(suggested.actions == '2' && suggested.selection == '0' && suggested.currentstage == '1') ||(suggested.actions == '5' && suggested.selection == '0' && suggested.currentstage == '3')">
-              <span>Visit Cancelled</span>
-            </ion-col>
-            <ion-col class="status" style="color: #006C00;"
-              *ngIf="suggested.actions == '1' && suggested.selection == '0' && suggested.stagestatus == '3'">
-              <span>Visit Done</span>
-              Interested {{suggested.nextdate}} ,
-              {{suggested.nexttime}}
-            </ion-col>
-
-            <ion-col class="status" style=" color: #D03E00;"
-              *ngIf="suggested.actions == '3' && suggested.selection == '0' && suggested.stagestatus == '3'">
-              <span>Visit</span>
-              Not
-              Interested{{suggested.nextdate}} ,
-              {{suggested.nexttime}}
-            </ion-col>
-
-            <ion-col class="status" style="color: #006C00;"
-              *ngIf="suggested.selection == '3' && suggested.stagestatus == '1' && suggested.actions == '1'">
-              <span>Negotiation Scheduled</span>
-              {{suggested.nextdate}} ,
-              {{suggested.nexttime}}
-            </ion-col>
-            <ion-col class="status" style="color: #006C00;"
-              *ngIf="suggested.selection == '3' && suggested.stagestatus == '2' && suggested.actions == '1'">
-              <span>Negotiation Rescheduled</span>
-              {{suggested.nextdate}} ,
-              {{suggested.nexttime}}
-            </ion-col>
-            <ion-col class="status" style="color: #006C00;"
-              *ngIf="suggested.actions == '4' && suggested.selection == '0' && suggested.currentstage == '4'">
-              <span>Negotiation Done</span>
-              Interested{{suggested.nextdate}} ,
-              {{suggested.nexttime}}
-            </ion-col>
-
-            <ion-col class="status" style="color: #006C00;"
-              *ngIf="suggested.actions == '1' && suggested.selection == '0' && suggested.currentstage == '4'">
-              <span>FN Done</span>
-              Interested{{suggested.nextdate}} ,
-              {{suggested.nexttime}}
-            </ion-col>
-            <ion-col class="status" style="background: red;"
-              *ngIf="suggested.actions == '2' && suggested.selection == '0' && suggested.currentstage == '4'">
-              <span>Negotiation Cancelled</span>
-            </ion-col>
-            <ion-col class="status" style="color: #D03E00;"
-              *ngIf="suggested.actions == '3' && suggested.selection == '0' && suggested.currentstage == '4'">
-              <span>Negotiation Done</span>
-              Not
-              Interested{{suggested.nextdate}} ,
-              {{suggested.nexttime}}
-            </ion-col>
-            <ion-col class="status" style="background: red;"
-              *ngIf="suggested.actions == '0' && suggested.selection == '3' && suggested.stagestatus == '3'">
-              <span>Negotiation Done</span>
-              Visit Status Not Updated{{suggested.nextdate}} ,
-              {{suggested.nexttime}}
-            </ion-col>
-            <ion-col class="status" style="background: #e07979;"
-              *ngIf="suggested.actions == '9' && suggested.selection == '3' && suggested.currentstage == '4'">
-              <span>Negotiation Done</span>
-              Next Action Not Taken
-            </ion-col>
-            <ion-col class="status" style="color: #006C00;"
-              *ngIf="suggested.actions == '7' && suggested.currentstage == '5'">
-              <span *ngIf="adminview">Requested For Deal Closure</span>
-              <span *ngIf="execview">Approval Pending</span>
-            </ion-col>
-
-            <ion-col class="status" style="color: #006C00;"
-              *ngIf="suggested.actions == '6' && suggested.currentstage == '5'">
-              <span *ngIf="adminview">Deal Successfully Closed</span>
-              <span *ngIf="execview">Deal Closed</span>
-            </ion-col>
-
-            <ion-col class="status" style="color: red;"
-              *ngIf="suggested.actions == '8' && suggested.currentstage == '5'">
-              <span *ngIf="adminview">Rejected - Waiting
-                for Response</span>
-              <span *ngIf="execview">Request
-                Rejected</span>
-            </ion-col>
-          </ion-row>
+            <span style="padding-right: 4px;">
+              {{ exec.customer_assign_name }}
+            </span>
+          </div>
         </div>
       </div>
     </ion-card>
-  </div>
-  <input type="hidden" id="customer_phase4">
-  <!-- LEAD STATUS -->
-  <ion-card *ngIf="!isEditProDetails && !isActivityHistory " id="statusSection">
-    <!-- Header -->
-    <div class="leads-status-header" (click)="actionChange('onleadStatus')">
-      <div>
-        <span>Leads Status</span>
-      </div>
+
+    <!-- SUGGESTED PROPERTY SECTION -->
+    <div *ngIf="(this.stageForm == '') && !isEditProDetails && !isActivityHistory">
+      <ion-card class="suggested-card">
+        <!-- Header -->
+        <div class="suggested-header">
+          <div class="content_center">
+            <span>Suggested Properties</span>
+            <ion-icon class="sugg_prop_add" name="add" (click)="displaySuggProperty()"></ion-icon>
+          </div>
+        </div>
+
+        <div *ngFor="let rm of assignedrm" style="position:relative">
+          <div class="property-row" *ngFor="let suggested of rm.suggestedprop;">
+            <ion-row>
+              <ion-col class="prop-accomp">
+                <p class="prop-name">
+                  {{suggested.name}}
+                </p>
+                <p class="accompanied"><span>Accompanied by :</span><span>{{rm.customer_assign_name}}</span></p>
+              </ion-col>
+              <ion-col class="status" style="color: #D07F00;"
+                *ngIf="suggested.actions == '0' && suggested.selection == '0'">
+                <span>Not Visited </span>
+              </ion-col>
+              <ion-col class="status" style="color: #006C00;"
+                *ngIf="(suggested.selection == '1' || suggested.selection == '2' || suggested.selection == '3') && suggested.stagestatus == '1' && (suggested.actions == '0' || suggested.actions == '1')">
+                <span>Visit Scheduled </span>{{suggested.nextdate}} ,
+                {{suggested.nexttime}}
+              </ion-col>
+              <ion-col class="status" style="color: #006C00;"
+                *ngIf="(suggested.selection == '1' || suggested.selection == '2' || suggested.selection == '3') && suggested.stagestatus == '2' && suggested.actions == '0'">
+                <span>Visit Rescheduled</span>{{suggested.nextdate}} ,
+                {{suggested.nexttime}}
+              </ion-col>
+              <ion-col class="status" style="color: red;"
+                *ngIf="(suggested.actions == '2' && suggested.selection == '0' && suggested.currentstage == '1') ||(suggested.actions == '5' && suggested.selection == '0' && suggested.currentstage == '3')">
+                <span>Visit Cancelled</span>
+              </ion-col>
+              <ion-col class="status" style="color: #006C00;"
+                *ngIf="suggested.actions == '1' && suggested.selection == '0' && suggested.stagestatus == '3'">
+                <span>Visit Done</span>
+                Interested<br> {{suggested.nextdate}} ,
+                {{suggested.nexttime}}
+              </ion-col>
+
+              <ion-col class="status" style=" color: #D03E00;"
+                *ngIf="suggested.actions == '3' && suggested.selection == '0' && suggested.stagestatus == '3'">
+                <span>Visit</span>
+                Not
+                Interested<br>{{suggested.nextdate}} ,
+                {{suggested.nexttime}}
+              </ion-col>
+
+              <ion-col class="status" style="color: #006C00;"
+                *ngIf="suggested.selection == '3' && suggested.stagestatus == '1' && suggested.actions == '1'">
+                <span>Negotiation Scheduled</span>
+                {{suggested.nextdate}} ,
+                {{suggested.nexttime}}
+              </ion-col>
+              <ion-col class="status" style="color: #006C00;"
+                *ngIf="suggested.selection == '3' && suggested.stagestatus == '2' && suggested.actions == '1'">
+                <span>Negotiation Rescheduled</span>
+                {{suggested.nextdate}} ,
+                {{suggested.nexttime}}
+              </ion-col>
+              <ion-col class="status" style="color: #006C00;"
+                *ngIf="suggested.actions == '4' && suggested.selection == '0' && suggested.currentstage == '4'">
+                <span>Negotiation Done</span>
+                Interested{{suggested.nextdate}} ,
+                {{suggested.nexttime}}
+              </ion-col>
+
+              <ion-col class="status" style="color: #006C00;"
+                *ngIf="suggested.actions == '1' && suggested.selection == '0' && suggested.currentstage == '4'">
+                <span>FN Done</span>
+                Interested{{suggested.nextdate}} ,
+                {{suggested.nexttime}}
+              </ion-col>
+              <ion-col class="status" style="background: red;"
+                *ngIf="suggested.actions == '2' && suggested.selection == '0' && suggested.currentstage == '4'">
+                <span>Negotiation Cancelled</span>
+              </ion-col>
+              <ion-col class="status" style="color: #D03E00;"
+                *ngIf="suggested.actions == '3' && suggested.selection == '0' && suggested.currentstage == '4'">
+                <span>Negotiation Done</span>
+                Not
+                Interested{{suggested.nextdate}} ,
+                {{suggested.nexttime}}
+              </ion-col>
+              <ion-col class="status" style="background: red;"
+                *ngIf="suggested.actions == '0' && suggested.selection == '3' && suggested.stagestatus == '3'">
+                <span>Negotiation Done</span>
+                Visit Status Not Updated{{suggested.nextdate}} ,
+                {{suggested.nexttime}}
+              </ion-col>
+              <ion-col class="status" style="background: #e07979;"
+                *ngIf="suggested.actions == '9' && suggested.selection == '3' && suggested.currentstage == '4'">
+                <span>Negotiation Done</span>
+                Next Action Not Taken
+              </ion-col>
+              <ion-col class="status" style="color: #006C00;"
+                *ngIf="suggested.actions == '7' && suggested.currentstage == '5'">
+                <span *ngIf="adminview">Requested For Deal Closure</span>
+                <span *ngIf="execview">Approval Pending</span>
+              </ion-col>
+
+              <ion-col class="status" style="color: #006C00;"
+                *ngIf="suggested.actions == '6' && suggested.currentstage == '5'">
+                <span *ngIf="adminview">Deal Successfully Closed</span>
+                <span *ngIf="execview">Deal Closed</span>
+              </ion-col>
+
+              <ion-col class="status" style="color: red;"
+                *ngIf="suggested.actions == '8' && suggested.currentstage == '5'">
+                <span *ngIf="adminview">Rejected - Waiting
+                  for Response</span>
+                <span *ngIf="execview">Request
+                  Rejected</span>
+              </ion-col>
+            </ion-row>
+          </div>
+          <div *ngIf="rm?.suggestedprop?.length == 0" class="d-flex align-items-center justify-content-center">
+            <span>No Properties Suggested</span>
+          </div>
+        </div>
+      </ion-card>
     </div>
+    <input type="hidden" id="customer_phase4">
+    <!-- LEAD STATUS -->
+    <ion-card *ngIf="!isEditProDetails && !isActivityHistory " id="statusSection">
+      <!-- Header -->
+      <div class="leads-status-header" (click)="actionChange('onleadStatus')">
+        <div>
+          <span>Leads Status</span>
+        </div>
+      </div>
 
-    <ion-row
-      *ngIf="(roleid == '1' || roleid != '1')&&( USV != false || SV != false || RSV != false ||Negotiation != false || leadclose != false || FOLLOWUP != false || JUNK != false) && activestagestatus && activestagestatus[0]?.stage != 'Junk'">
+      <ion-row class="gap-1 pt-0 px-1 pb-1"
+        *ngIf="((roleid == '1' || roleid != '1')&&( USV != false || SV != false || RSV != false ||Negotiation != false || leadclose != false || FOLLOWUP != false || JUNK != false) && activestagestatus && activestagestatus[0]?.stage != 'Junk')">
 
-      <ion-col size="3.5" *ngIf="FOLLOWUP" [ngClass]="stageForm == 'followupform'? 'bg_textColor':'status-btn'"
-        class="content_center status-btn" (click)="actionChange('Follow Up')">
-        <span class="followup">Followup</span>
-      </ion-col>
+        <ion-col size="3.5" *ngIf="FOLLOWUP"
+          [ngClass]="stageForm == 'Follow Up' && followform? 'bg_textColor':'status-btn'"
+          class="content_center status-btn" (click)="actionChange('Follow Up')">
+          <span class="followup">Followup</span>
+        </ion-col>
 
-      <ion-col *ngIf="rescheduledUsv" size="3.5" [ngClass]="stageForm == 'usvform'? 'bg_textColor':'status-btn'"
-        class="content_center status-btn" (click)="actionChange('USVUpdate')">
-        <span class="usv">Update Visit</span>
-      </ion-col>
+        <ion-col *ngIf="rescheduledUsv" size="4"
+          [ngClass]="stageForm == 'USVUpdate' && usvform ? 'bg_textColor':'status-btn'"
+          class="content_center status-btn" (click)="actionChange('USVUpdate')">
+          <span class="usv">Update Visit</span>
+        </ion-col>
 
-      <ion-col *ngIf="USV" size="3.5" class="content_center status-btn"
-        [ngClass]="stageForm == 'rsvform'? 'bg_textColor':'status-btn'" (click)="actionChange('USV')">
-        <span *ngIf="activestagestatus?.length && activestagestatus[0]?.stage == 'Fresh'">Schedule</span>
-        <span *ngIf="activestagestatus?.length && activestagestatus[0]?.stage != 'Fresh'">Reschedule</span>
-      </ion-col>
+        <ion-col *ngIf="USV" size="3.5" class="content_center status-btn"
+          [ngClass]="stageForm == 'USV'&& usvform? 'bg_textColor':'status-btn'" (click)="actionChange('USV')">
+          <span *ngIf="activestagestatus?.length && activestagestatus[0]?.stage == 'Fresh'">Schedule</span>
+          <span *ngIf="activestagestatus?.length && activestagestatus[0]?.stage != 'Fresh'">Reschedule</span>
+        </ion-col>
 
-      <ion-col *ngIf="rescheduledrsv" size="3.5" class="content_center status-btn"
-        [ngClass]="stageForm == 'finalnegoform'? 'bg_textColor':'status-btn'" (click)="actionChange('RSVUpdate')">
-        <span class="fn">Update Visit</span>
-      </ion-col>
+        <ion-col *ngIf="rescheduledrsv" size="4" class="content_center status-btn"
+          [ngClass]="stageForm == 'RSVUpdate' && rsvform? 'bg_textColor':'status-btn'"
+          (click)="actionChange('RSVUpdate')">
+          <span class="fn">Update Visit</span>
+        </ion-col>
 
-      <ion-col *ngIf="RSV" size="3.5" class="content_center status-btn"
-        [ngClass]="stageForm == 'leadclosedform'? 'bg_textColor':'status-btn'" (click)="actionChange('RSV')">
-        <span class="fn">Reschedule</span>
-      </ion-col>
+        <ion-col *ngIf="RSV" size="3.5" class="content_center status-btn"
+          [ngClass]="stageForm == 'RSV' && rsvform? 'bg_textColor':'status-btn'" (click)="actionChange('RSV')">
+          <span class="fn">Reschedule</span>
+        </ion-col>
 
-      <ion-col size="3.5" *ngIf="rescheduledfn" [ngClass]="stageForm == 'junkform'? 'bg_textColor':'status-btn'"
-        class="content_center junk status-btn" (click)="actionChange('FNUpdate')">
-        <span>Update Visit</span>
-      </ion-col>
+        <ion-col size="4" *ngIf="rescheduledfn"
+          [ngClass]="stageForm == 'FNUpdate' && finalnegoform? 'bg_textColor':'status-btn'"
+          class="content_center junk status-btn" (click)="actionChange('FNUpdate')">
+          <span>Update Visit</span>
+        </ion-col>
 
-      <ion-col size="3.5" *ngIf="Negotiation" [ngClass]="stageForm == 'junkform'? 'bg_textColor':'status-btn'"
-        class="content_center junk status-btn" (click)="actionChange('Final Negotiation')">
-        <span>FN</span>
-      </ion-col>
+        <ion-col size="3.5" *ngIf="Negotiation"
+          [ngClass]="stageForm == 'Final Negotiation' && finalnegoform? 'bg_textColor':'status-btn'"
+          class="content_center junk status-btn" (click)="actionChange('Final Negotiation')">
+          <span>FN</span>
+        </ion-col>
 
-      <ion-col size="3.5" *ngIf="leadclose && feedbackID != 1"
-        [ngClass]="stageForm == 'junkform'? 'bg_textColor':'status-btn'" class="content_center junk status-btn"
-        (click)="actionChange('Lead Closed')">
-        <span>Closed</span>
-      </ion-col>
+        <ion-col size="3.5" *ngIf="leadclose && feedbackID != 1 "
+          [ngClass]="stageForm == 'Lead Closed' && leadclosedform? 'bg_textColor':'status-btn'"
+          class="content_center junk status-btn" (click)="actionChange('Lead Closed')">
+          <span>Closed</span>
+        </ion-col>
 
-      <ion-col size="3.5" *ngIf="JUNK" [ngClass]="stageForm == 'junkform'? 'bg_textColor':'status-btn'"
-        class="content_center junk status-btn" (click)="actionChange('Move to Junk')">
-        <span>Junk</span>
+        <ion-col size="3.5" *ngIf="JUNK"
+          [ngClass]="stageForm == 'Move to Junk' && junkform? 'bg_textColor':'status-btn'"
+          class="content_center junk status-btn" (click)="actionChange('Move to Junk')">
+          <span>Junk</span>
+        </ion-col>
+      </ion-row>
+    </ion-card>
+    <ion-card *ngIf="stageForm !=''">
+      <app-retail-followupform *ngIf="followform" [selectedExecId]="selectedExecId">
+      </app-retail-followupform>
+
+      <app-svform *ngIf="svform" [selectedSuggestedProp]="selectedSuggestedProp" [selectedBtn]="selectedBtn"
+        [selectedExecId]="selectedExecId" (openModal)="displaySuggProperty()"></app-svform>
+
+      <app-usvform *ngIf="usvform" [selectedSuggestedProp]="selectedSuggestedProp" [selectedBtn]="selectedBtn"
+        [selectedExecId]="selectedExecId" (openModal)="displaySuggProperty()"></app-usvform>
+
+      <app-rsvform *ngIf="rsvform" [selectedSuggestedProp]="selectedSuggestedProp" [selectedBtn]="selectedBtn"
+        [selectedExecId]="selectedExecId" (openModal)="displaySuggProperty()"></app-rsvform>
+
+      <app-negoform *ngIf="finalnegoform" [selectedSuggestedProp]="selectedSuggestedProp" [selectedBtn]="selectedBtn"
+        [selectedExecId]="selectedExecId" (openModal)="displaySuggProperty()"></app-negoform>
+
+      <app-closedform *ngIf="leadclosedform" [selectedSuggestedProp]="selectedSuggestedProp" [selectedBtn]="selectedBtn"
+        [selectedExecId]="selectedExecId"></app-closedform>
+
+      <app-retail-junk-form *ngIf="junkform" [selectedSuggestedProp]="selectedSuggestedProp" [selectedBtn]="selectedBtn"
+        [selectedExecId]="selectedExecId"></app-retail-junk-form>
+    </ion-card>
+  </span>
+
+
+
+  <ion-card class="leadSegment" *ngIf="isCrmTypeSelection">
+    <ion-row>
+      <ion-col class="d-flex align-items-center flex-column ">
+        <ion-img src="../../../assets/cp/lead-segment-icon.svg"></ion-img>
+        <h1>Lead Segmentation</h1>
+        <p>Select the lead Segment to proceed</p>
+        <form [formGroup]="addCategoryForm" (ngSubmit)="onSubmitcategory()" class="addCategory w-100">
+          <ion-row class="gap-2 catagary-row py-2">
+            <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="togglecategory('1')"
+              [class.active]="addCategoryForm.value.category?.includes('1')">
+              Sale <ion-icon *ngIf="!addCategoryForm.value.category?.includes('1')" name="add"></ion-icon><ion-icon
+                *ngIf="addCategoryForm.value.category?.includes('1')" name="checkmark"></ion-icon>
+            </ion-col>
+            <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="togglecategory('2')"
+              [class.active]="addCategoryForm.value.category?.includes('2')">
+              Resale <ion-icon name="add" *ngIf="!addCategoryForm.value.category?.includes('2')"></ion-icon><ion-icon
+                *ngIf="addCategoryForm.value.category?.includes('2')" name="checkmark"></ion-icon>
+            </ion-col>
+            <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="togglecategory('3')"
+              [class.active]="addCategoryForm.value.category?.includes('3')">
+              Rental <ion-icon name="add" *ngIf="!addCategoryForm.value.category?.includes('3')"></ion-icon><ion-icon
+                *ngIf="addCategoryForm.value.category?.includes('3')" name="checkmark"></ion-icon>
+            </ion-col>
+          </ion-row>
+          <span class="error-text">{{hasError('category','required') ? 'Please Select Category' : ''}}</span>
+          <div class="d-flex justify-content-center w-100">
+            <ion-button class="save-btn"
+              [ngClass]="addCategoryForm.value.category?.length ? 'active-proceed-btn' : 'normal-proceed-btn'"
+              fill="clear" type="submit" [disabled]="!addCategoryForm.value.category?.length">
+              Proceed
+              <ion-icon name="arrow-forward"></ion-icon>
+            </ion-button>
+          </div>
+        </form>
       </ion-col>
     </ion-row>
   </ion-card>
-  <div>
-    <app-retail-followupform *ngIf="followform" [selectedExecId]="selectedExecId">
-    </app-retail-followupform>
-
-    <app-svform *ngIf="svform" [selectedExecId]="selectedExecId" (openModal)="displaySuggProperty()"></app-svform>
-
-    <app-usvform *ngIf="usvform" [selectedExecId]="selectedExecId" (openModal)="displaySuggProperty()"></app-usvform>
-
-    <app-rsvform *ngIf="rsvform" [selectedExecId]="selectedExecId" (openModal)="displaySuggProperty()"></app-rsvform>
-
-    <app-negoform *ngIf="finalnegoform" [selectedExecId]="selectedExecId"
-      (openModal)="displaySuggProperty()"></app-negoform>
-
-    <app-closedform *ngIf="leadclosedform" [selectedExecId]="selectedExecId"></app-closedform>
-
-    <app-junkform *ngIf="junkform" [selectedExecId]="selectedExecId"></app-junkform>
-  </div>
 </ion-content>
 
 <!-- SUGGESTED MODAL -->

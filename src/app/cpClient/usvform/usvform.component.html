@@ -1,17 +1,18 @@
-<div  class="content_center loader" *ngIf="showSpinner">
+<div class="content_center loader" *ngIf="showSpinner">
   <ion-spinner name="circular" style="color: white;"></ion-spinner>
-</div> 
+</div>
 
-<div class="bg_border_color marginBottom15px" *ngIf="hidebeforefixed">
+<!-- <div class="bg_border_color marginBottom15px" *ngIf="hidebeforefixed">
   <ion-row class="doneRefix">
     <ion-col (click)="usvDone?'':onusvDone()">
       <div class="content_center" [ngClass]="usvDone?'bg_textColor':''"><span>USV Done</span></div>
     </ion-col>
-    <ion-col (click)="usvreFix?'':onusvreFix()" *ngIf="(assignedRM && assignedRM[0] && assignedRM[0]?.suggestedprop && assignedRM[0]?.suggestedprop[0]?.actions != '9')">
+    <ion-col (click)="usvreFix?'':onusvreFix()"
+      *ngIf="(assignedRM && assignedRM[0] && assignedRM[0]?.suggestedprop && assignedRM[0]?.suggestedprop[0]?.actions != '9')">
       <div class="content_center" [ngClass]="usvreFix?'bg_textColor':''"><span>Refix USV</span></div>
     </ion-col>
   </ion-row>
-</div>
+</div> -->
 
 <input type="hidden" id="sectionselector">
 <!-- USV FIXED -->
@@ -27,309 +28,356 @@
 
       <div class="main_suggested_div">
         <ion-row class="ks-cboxtags">
-          <ion-col *ngFor="let property of suggestedpropertylists; let i = index" class="ion-text-center">
+          <ion-col *ngFor="let property of selectedSuggestedProp; let i = index" class="ion-text-center">
             <input type="checkbox" id="checkbox{{i}}" value="{{property.propid}}" name='programming'
               (change)="selectsuggested(i,property.propid,property.name)">
             <label for="checkbox{{i}}" id="checkboxlabel{{i}}">{{property.name}}</label>
           </ion-col>
         </ion-row>
-        <div *ngIf="!suggestedpropertylists" style="font-size:medium;font-weight: 700;display: flex;justify-content: center;color: #a9a9a9;">No Properties Suggested</div>
+        <div *ngIf="!selectedSuggestedProp"
+          style="font-size:medium;font-weight: 700;display: flex;justify-content: center;color: #a9a9a9;">No Properties
+          Suggested</div>
       </div>
     </div>
- </div>
+  </div>
 
- <div class="bg_border_color margin-top-16">
-  <form (ngSubmit)="usvfixing()" ngNativeValidate #submitForm="ngForm">
-    <ion-row>
-      <p class="font-size12-familyPoppins font-colorBlack font-weight500">
-        USV Date
-      </p>
-    </ion-row>       
-    <ion-row class="center-content">
-      <div lines="none" class="input-with-image date-input">  
-        <ion-input readonly [(ngModel)]="usvDate" name="nextactiondate" id="nextactiondate" placeholder="Choose Date" required></ion-input>
-        <ion-popover trigger="nextactiondate" #popover>
+  <div class="bg_border_color margin-top-16">
+    <form (ngSubmit)="usvfixing()" ngNativeValidate #submitForm="ngForm">
+      <ion-row>
+        <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+          Schedule Date
+        </p>
+      </ion-row>
+      <ion-row class="center-content">
+        <div lines="none" class="input-with-image date-input">
+          <ion-input readonly [(ngModel)]="usvDate" name="nextactiondate" id="nextactiondate" placeholder="Choose Date"
+            required></ion-input>
+          <ion-popover trigger="nextactiondate" #popover>
             <ng-template>
-                <ion-datetime presentation="date" locale="en-US"   
+              <ion-datetime presentation="date" locale="en-US"
                 (ionChange)="onDateChange($event);closePopover()"></ion-datetime>
             </ng-template>
-        </ion-popover>
-      </div>
-    </ion-row>
-  
-    <ion-row class="margin-top-16">
-      <p class="font-size12-familyPoppins font-colorBlack font-weight500">
-        USV Time
-      </p>    
-    </ion-row>
-    <ion-row class="center-content">
-      <div no-lines class="date-input inputTime-with-image">
-       <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time" id="nextactiontime" aria-label="12hr format" [ngxTimepicker]="default" [(ngModel)]="usvTime" name="nextactiontime" 
-        (ngModelChange)="validateTime()"
-        readonly required></div>
-      </div>
-    </ion-row>
-  
-    <ngx-material-timepicker #default ></ngx-material-timepicker>
-    <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
-    
-    <ion-row class="margin-top-16">
-      <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
-    </ion-row>
-    <ion-row class="custom-textArea">
-      <ion-textarea placeholder="Write remarks" id="textarearemarks" name="textarearemarks"     
-      [(ngModel)]="usvRemark" (ngModelChange)="checkAlphanumericSpaces()" required></ion-textarea>
-    </ion-row>
-    <ion-row class="submitForm">
-      <!-- <ion-col class="paddingZero">
+          </ion-popover>
+        </div>
+      </ion-row>
+
+      <ion-row class="margin-top-16">
+        <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+          Schedule Time
+        </p>
+      </ion-row>
+      <ion-row class="center-content">
+        <div no-lines class="date-input inputTime-with-image">
+          <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time"
+              id="nextactiontime" aria-label="12hr format" [ngxTimepicker]="default" [(ngModel)]="usvTime"
+              name="nextactiontime" (ngModelChange)="validateTime()" readonly required></div>
+        </div>
+      </ion-row>
+
+      <ngx-material-timepicker #default></ngx-material-timepicker>
+      <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
+
+      <ion-row class="margin-top-16">
+        <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
+      </ion-row>
+      <ion-row class="custom-textArea">
+        <ion-textarea placeholder="Write remarks" id="textarearemarks" name="textarearemarks" [(ngModel)]="usvRemark"
+          (ngModelChange)="checkAlphanumericSpaces()" required></ion-textarea>
+      </ion-row>
+      <ion-row class="submitForm">
+        <!-- <ion-col class="paddingZero">
         <ion-button fill="clear" type="reset">Cancel</ion-button>
       </ion-col> -->
-      <ion-col class="paddingZero">
-        <ion-button fill="clear" style="width: 100%;" class="text_borderColor" [ngClass]="submitForm.invalid || hasOnlySpaces?'saveButton':'activeSaveButton'" type="submit"  [disabled]="submitForm.invalid || hasOnlySpaces">Save</ion-button>
-      </ion-col>
-    </ion-row>
-  </form>
+        <ion-col class="paddingZero">
+          <ion-button fill="clear" style="width: 100%;" class="text_borderColor"
+            [ngClass]="submitForm.invalid || hasOnlySpaces?'saveButton':'activeSaveButton'" type="submit"
+            [disabled]="submitForm.invalid || hasOnlySpaces">Save</ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
   </div>
 </span>
 
 <!-- USV RE-FIX -->
- <span [hidden]="!usvreFix">
-    <div class="col-sm-12 form-group headingdesign">
-      <div class="bg_border_color">
-        <span class="d-flex justify-content-between align-items-baseline">
-          <label class="heads">Suggested New Properties </label> 
-          <label class="addsuggProp" (click)="notifyParent()">
-            <ion-icon name="add"></ion-icon><span>Add</span>
-          </label>
-        </span>
-  
-        <div class="main_suggested_div">
-          <ion-row class="ks-cboxtags">           
-            <ion-col *ngFor="let property of suggestedpropertylists; let i = index" >
-              <span *ngIf="property.selection === '1'">
-                <input type="checkbox" id="suggestcheckbox{{i}}" value="{{property.propid}}" name='programming' (change)="refixsuggested(i,property.propid,property.name)" checked>
-               <label for="suggestcheckbox{{i}}" class="content_center">{{property.name}}</label>
-              </span>
-              <span *ngIf="property.selection !== '1'">
-                <input type="checkbox" id="suggestcheckbox{{i}}" value="{{property.propid}}" name='programming' (change)="refixsuggested(i,property.propid,property.name)">
-                <label for="suggestcheckbox{{i}}" class="content_center">{{property.name}}</label>
-              </span>
-            </ion-col>
-          </ion-row>
-          <div *ngIf="!suggestedpropertylists" style="font-size:medium;font-weight: 700;display: flex;justify-content: center;color: #a9a9a9;">No Properties Suggested</div>
-        </div>
-      </div>
+<span [hidden]="!usvreFix">
+  <div class="col-sm-12 form-group headingdesign">
+    <div class="bg_border_color">
+      <span class="d-flex justify-content-between align-items-baseline">
+        <label class="heads">Suggested New Properties </label>
+        <label class="addsuggProp" (click)="notifyParent()">
+          <ion-icon name="add"></ion-icon><span>Add</span>
+        </label>
+      </span>
 
-      <div class="bg_border_color margin-top-16">
-        <form (ngSubmit)="usvrefixing()" ngNativeValidate #submitForm="ngForm">
+      <div class="main_suggested_div">
+        <ion-row class="ks-cboxtags">
+          <ion-col *ngFor="let property of suggestedpropertylists; let i = index">
+            <span *ngIf="property.selection === '1'">
+              <input type="checkbox" id="suggestcheckbox{{i}}" value="{{property.propid}}" name='programming'
+                (change)="refixsuggested(i,property.propid,property.name)" checked>
+              <label for="suggestcheckbox{{i}}" class="content_center">{{property.name}}</label>
+            </span>
+            <span *ngIf="property.selection !== '1'">
+              <input type="checkbox" id="suggestcheckbox{{i}}" value="{{property.propid}}" name='programming'
+                (change)="refixsuggested(i,property.propid,property.name)">
+              <label for="suggestcheckbox{{i}}" class="content_center">{{property.name}}</label>
+            </span>
+          </ion-col>
+        </ion-row>
+        <div *ngIf="!suggestedpropertylists"
+          style="font-size:medium;font-weight: 700;display: flex;justify-content: center;color: #a9a9a9;">No Properties
+          Suggested</div>
+      </div>
+    </div>
+
+    <div class="bg_border_color margin-top-16">
+      <form (ngSubmit)="usvrefixing()" ngNativeValidate #submitForm="ngForm">
+        <ion-row>
+          <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+            Reschedule Date
+          </p>
+        </ion-row>
+        <ion-row class="center-content">
+          <div lines="none" class="input-with-image date-input">
+            <ion-input readonly [(ngModel)]="usvDate" name="refixdate" id="refixdate" placeholder="Choose Date"
+              required></ion-input>
+            <ion-popover trigger="refixdate" #popover1>
+              <ng-template>
+                <ion-datetime presentation="date" locale="en-US"
+                  (ionChange)="onDateChange($event);popover1.dismiss()"></ion-datetime>
+              </ng-template>
+            </ion-popover>
+          </div>
+        </ion-row>
+
+        <ion-row class="margin-top-16">
+          <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+            Reschedule Time
+          </p>
+        </ion-row>
+        <ion-row class="center-content">
+          <div no-lines class="date-input inputTime-with-image">
+            <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time" id="refixtime"
+                aria-label="12hr format" [ngxTimepicker]="default1" [(ngModel)]="usvTime" name="refixtime"
+                (ngModelChange)="validateTime()" readonly required></div>
+          </div>
+        </ion-row>
+
+        <ngx-material-timepicker #default1></ngx-material-timepicker>
+        <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
+
+        <ion-row class="margin-top-16">
+          <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
+        </ion-row>
+        <ion-row class="custom-textArea">
+          <ion-textarea placeholder="Write remarks" id="refixtextarearemarks" name="refixtextarearemarks"
+            [(ngModel)]="usvRemark" (ngModelChange)="checkAlphanumericSpaces()" required></ion-textarea>
+        </ion-row>
+        <ion-row class="submitForm">
+          <!-- <ion-col class="paddingZero">
+              <ion-button fill="clear" type="reset">Cancel</ion-button>
+            </ion-col> -->
+          <ion-col class="paddingZero">
+            <ion-button fill="clear" class="text_borderColor" style="width: 100%;"
+              [ngClass]="submitForm.invalid || hasOnlySpaces?'saveButton':'activeSaveButton'" type="submit"
+              [disabled]="submitForm.invalid || hasOnlySpaces">Save</ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+    </div>
+  </div>
+</span>
+
+<!-- USV DONE -->
+<span [hidden]="!usvDone">
+  <div class="form-group headingdesign">
+    <div class="bg_border_color">
+      <span class="d-flex justify-content-between align-items-baseline">
+        <label class="heads">Suggested New Properties </label>
+        <label class="addsuggProp" (click)="notifyParent()">
+          <ion-icon name="add"></ion-icon><span>Add</span>
+        </label>
+      </span>
+
+      <div class="main_suggested_div">
+        <ion-row class="ks-cboxtags">
+          <ion-col *ngFor="let property of suggestedpropertylists; let i = index">
+            <span *ngIf="property.selection === '1'">
+              <input type="checkbox" id="moresuggestcheckbox{{i}}" value="{{property.propid}}" name='programming'
+                (change)="moresuggested(i,property.propid,property.name,property)" checked disabled>
+              <label for="moresuggestcheckbox{{i}}" class="content_center">{{property.name}}</label>
+            </span>
+            <span *ngIf="property.selection !== '1'">
+              <input type="checkbox" id="moresuggestcheckbox{{i}}" value="{{property.propid}}" name='programming'
+                (change)="moresuggested(i,property.propid,property.name,property)">
+              <label for="moresuggestcheckbox{{i}}" class="content_center">{{property.name}}</label>
+            </span>
+          </ion-col>
+        </ion-row>
+      </div>
+    </div>
+
+    <div class="col-sm-12 form-group row m-2" [hidden]="!isEdit">
+      <div class="already_present_date w-full d-flex" style="width: 100%;    padding: 2px;">
+        <div class="col-6  p-2">
+          <div style="font-size: 12px;font-weight: 400;color: #353434;">Scheduled Date</div>
+          <div style="font-size: 14px;font-weight: 500;color: #0B7AB2;">
+            <ion-icon name="calendar"></ion-icon>
+            <span *ngIf="assignedRM && assignedRM.length > 0"
+              id="USVvisiteddate_dis">{{assignedRM[0].latest_action_date}}</span>
+          </div>
+        </div>
+        <div class="col-6 p-2">
+          <div style="font-size: 12px;font-weight: 400;color: #353434;">Scheduled Time</div>
+          <div style="font-size: 14px;font-weight: 500;color: #0B7AB2;">
+            <ion-icon name="time"></ion-icon>
+            <span *ngIf="assignedRM && assignedRM.length > 0"
+              id="USVvisitedtime_dis">{{assignedRM[0].latest_action_time}}</span>
+          </div>
+        </div>
+        <span class="edit_pos" (click)="enableVisitdate(1)"><ion-icon name="create"
+            style="color: #fff;"></ion-icon></span>
+      </div>
+    </div>
+
+
+    <span [hidden]="isEdit" class="cursor-pointer close_edit_time" (click)="enableVisitdate(2)">
+      <!-- <i class="fas fa-times" style="color: #ffffff;cursor: pointer;"></i> -->
+      <ion-icon name="close" style="color: #ffffff;cursor: pointer;"></ion-icon>
+    </span>
+    <div>
+      <form ngNativeValidate #usvdoneform="ngForm">
+        <div class="bg_border_color" [hidden]="isEdit">
           <ion-row>
             <p class="font-size12-familyPoppins font-colorBlack font-weight500">
-              USV Refixed Date
+              Site Visited Date
             </p>
-          </ion-row>       
-          <ion-row class="center-content">
-              <div lines="none" class="input-with-image date-input">  
-                <ion-input readonly [(ngModel)]="usvDate" name="refixdate" id="refixdate" placeholder="Choose Date" required></ion-input>
-                <ion-popover trigger="refixdate" #popover1>
-                    <ng-template>
-                      <ion-datetime presentation="date" locale="en-US" 
-                        (ionChange)="onDateChange($event);popover1.dismiss()"></ion-datetime>
-                      </ng-template>
-                </ion-popover>
-              </div>
           </ion-row>
-        
+          <ion-row class="center-content">
+            <div lines="none" class="input-with-image date-input">
+              <ion-input readonly [(ngModel)]="usvDate" name="USVvisiteddate" id="USVvisiteddate"
+                placeholder="Choose Date" required></ion-input>
+              <ion-popover trigger="USVvisiteddate" #popover2>
+                <ng-template>
+                  <ion-datetime presentation="date" locale="en-US"
+                    (ionChange)="onDateChange($event);popover2.dismiss()"></ion-datetime>
+                </ng-template>
+              </ion-popover>
+            </div>
+          </ion-row>
+
           <ion-row class="margin-top-16">
             <p class="font-size12-familyPoppins font-colorBlack font-weight500">
-              USV Refixed Time
-            </p>    
+              Site Visited Time
+            </p>
           </ion-row>
           <ion-row class="center-content">
             <div no-lines class="date-input inputTime-with-image">
-             <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time" id="refixtime" aria-label="12hr format" [ngxTimepicker]="default1" [(ngModel)]="usvTime" name="refixtime" (ngModelChange)="validateTime()"  readonly required></div>
+              <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time"
+                  id="USVvisitedtime" aria-label="12hr format" [ngxTimepicker]="default2" [(ngModel)]="usvTime"
+                  name="USVvisitedtime" readonly (ngModelChange)="validateTime()" required></div>
             </div>
           </ion-row>
-        
-          <ngx-material-timepicker #default1 ></ngx-material-timepicker>
+          <ngx-material-timepicker #default2></ngx-material-timepicker>
           <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
-
-          <ion-row class="margin-top-16">
-            <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
-          </ion-row>
-          <ion-row class="custom-textArea">
-            <ion-textarea placeholder="Write remarks" id="refixtextarearemarks" name="refixtextarearemarks" [(ngModel)]="usvRemark" (ngModelChange)="checkAlphanumericSpaces()" required></ion-textarea>
-          </ion-row>
-          <ion-row class="submitForm">
-            <!-- <ion-col class="paddingZero">
-              <ion-button fill="clear" type="reset">Cancel</ion-button>
-            </ion-col> -->
-            <ion-col class="paddingZero">
-              <ion-button fill="clear" class="text_borderColor" style="width: 100%;" [ngClass]="submitForm.invalid || hasOnlySpaces?'saveButton':'activeSaveButton'" type="submit"  [disabled]="submitForm.invalid || hasOnlySpaces">Save</ion-button>
-            </ion-col>
-          </ion-row>
-        </form>
-      </div>
-    </div>
- </span>
-
- <!-- USV DONE -->
-  <span [hidden]="!usvDone">
-    <div class="form-group headingdesign">
-      <div class="bg_border_color">
-        <span class="d-flex justify-content-between align-items-baseline">
-          <label class="heads">Suggested New Properties </label> 
-          <label class="addsuggProp" (click)="notifyParent()">
-            <ion-icon name="add"></ion-icon><span>Add</span>
-          </label>
-        </span>
-  
-        <div class="main_suggested_div">
-          <ion-row class="ks-cboxtags">           
-            <ion-col *ngFor="let property of suggestedpropertylists; let i = index" >
-              <span *ngIf="property.selection === '1'">
-                <input type="checkbox" id="moresuggestcheckbox{{i}}" value="{{property.propid}}" name='programming' (change)="moresuggested(i,property.propid,property.name)" checked disabled>
-               <label for="moresuggestcheckbox{{i}}" class="content_center">{{property.name}}</label>
-              </span>
-              <span *ngIf="property.selection !== '1'">
-                <input type="checkbox" id="moresuggestcheckbox{{i}}" value="{{property.propid}}" name='programming' (change)="moresuggested(i,property.propid,property.name)">
-                <label for="moresuggestcheckbox{{i}}" class="content_center">{{property.name}}</label>
-              </span>
-            </ion-col>
-          </ion-row>
         </div>
-      </div>
+        <ion-row>
+          <ion-col (click)="openUSVDoneModal()">
+            <ion-button fill="clear"
+              style="background: linear-gradient(180deg, #0B7AB2 0%, #37AAE3 100%);color: #FFFFFF; width: 100%; border-radius: 4px;"
+              type="submit">
+              Update Visit
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </form>
+    </div>
+  </div>
+</span>
 
-      <div class="margin-top-16">
-        <form ngNativeValidate #usvdoneform="ngForm">          
-          <div class="bg_border_color">
-            <ion-row>
-              <p class="font-size12-familyPoppins font-colorBlack font-weight500">
-                Site Visited Date
-              </p>
-            </ion-row>       
-            <ion-row class="center-content">
-                <div lines="none" class="input-with-image date-input">  
-                  <ion-input readonly [(ngModel)]="usvDate" name="USVvisiteddate" id="USVvisiteddate" placeholder="Choose Date" required></ion-input>
-                  <ion-popover trigger="USVvisiteddate" #popover2>
-                      <ng-template>
-                          <ion-datetime presentation="date" locale="en-US"  
-                          (ionChange)="onDateChange($event);popover2.dismiss()"></ion-datetime>
-                      </ng-template>
-                  </ion-popover>
-                </div>
-            </ion-row>
-
-            <ion-row class="margin-top-16">
-              <p class="font-size12-familyPoppins font-colorBlack font-weight500">
-                Site Visited Time
-              </p>    
-            </ion-row>
-            <ion-row class="center-content">
-              <div no-lines class="date-input inputTime-with-image">
-               <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time" id="USVvisitedtime" aria-label="12hr format" [ngxTimepicker]="default2" [(ngModel)]="usvTime" name="USVvisitedtime" readonly (ngModelChange)="validateTime()"  required></div>
-              </div>
-            </ion-row>        
-            <ngx-material-timepicker #default2 ></ngx-material-timepicker>
-            <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
-          </div>
-          <ion-row>
-            <!-- <ion-col class="paddingZero"  *ngIf="(assignedRM && assignedRM[0] && assignedRM[0]?.suggestedprop && assignedRM[0]?.suggestedprop[0]?.actions != '9')" (click)="!usvdoneform.invalid?updateUsvDone():''">
-              <ion-button fill="clear" style="width: 100%;" class="text_borderColor" [ngClass]="usvdoneform.invalid?'saveButton':'activeSaveButton'" type="submit"  [disabled]="usvdoneform.invalid">
-                USV Done
-              </ion-button>
-            </ion-col>
-             -->
-            <ion-col class="paddingZero" (click)="!usvdoneform.invalid?openUSVDoneModal():''">
-              <ion-button fill="clear" style="width: 100%;" class="text_borderColor" [ngClass]="usvdoneform.invalid?'saveButton':'activeSaveButton'" type="submit"  [disabled]="usvdoneform.invalid">
-                Update Visit
-              </ion-button>
-            </ion-col>
-          </ion-row>
-        </form>
-      </div>      
-    </div>  
-  </span>
-
-  <!-- VISIT UPDATE MODAL -->
-  <ion-modal trigger="open-modal" #usvDoneModel style="--background:#F5F7F9">
-    <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-row class="heading">
-            <ion-col size="2" class="content_center" (click)="onUpdateBackbutton(); usvDoneModel.dismiss()">
-              <ion-icon name="arrow-back" class="backButton"></ion-icon>
-            </ion-col>
-            <ion-col size="9" class="content_center">
-              <span style="font-family: 'Poppins';">Property Visit Update</span>
-            </ion-col>
-            <ion-col size="1"></ion-col>
-          </ion-row>  
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="ion-padding" style="--background:#f5f7f9">    
+<!-- VISIT UPDATE MODAL -->
+<ion-modal trigger="open-modal" #usvDoneModel style="--background:#F5F7F9">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-row class="heading">
+          <ion-col size="2" class="content_center" (click)="onUpdateBackbutton(); usvDoneModel.dismiss()">
+            <ion-icon name="arrow-back" class="backButton"></ion-icon>
+          </ion-col>
+          <ion-col size="9" class="content_center">
+            <span style="font-family: 'Poppins';">Property Visit Update</span>
+          </ion-col>
+          <ion-col size="1"></ion-col>
+        </ion-row>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding" style="--background:#f5f7f9">
       <ion-accordion-group allowMultiple="false" *ngFor="let suggested of selectedpropertylists; 
         let i = index; let last = last;">
         <ion-accordion value="first">
           <ion-item slot="header" color="light" id="visitUpdate{{i}}" class="">
-            <ion-label  class="item lists projectlists{{i}}"
-              [ngClass]="{'active': selectedItem === i}"  (click)='selectedItem = i; nextoverride(i);' data-toggle="tab">                 
-                  {{suggested.name}}     
+            <ion-label class="item lists projectlists{{i}}" [ngClass]="{'active': selectedItem === i}"
+              (click)='selectedItem = i; nextoverride(i);' data-toggle="tab">
+              {{suggested.name}}
             </ion-label>
-            <ion-img *ngIf="isDoneVisitUpdate(i)" 
-            src="../../../assets/CRMimages/visitsUpdateDone-icon.svg"></ion-img>
-            <ion-img *ngIf="isNotDoneVisitUpdate(i)" 
-            src="../../../assets/CRMimages/visitsUpdateNotDone-icon.svg"></ion-img>
+            <ion-img *ngIf="isDoneVisitUpdate(i)" src="../../../assets/CRMimages/visitsUpdateDone-icon.svg"></ion-img>
+            <ion-img *ngIf="isNotDoneVisitUpdate(i)"
+              src="../../../assets/CRMimages/visitsUpdateNotDone-icon.svg"></ion-img>
           </ion-item>
 
           <div slot="content" class="content">
             <div id="selector{{i}}" class="lists tab-pane m-0" [ngClass]="{'active': selectedItem === i}">
               <div class="wrapper">
-              <ion-row class="interestedNot">
-                <ion-col>
-                  <div class="content_center">
-                    <input type="radio" class="radiocheck" name="select1-{{i}}" value="1BHK" id="option-1-{{i}}" (click)="notvisitclick(suggested.propid,suggested.name,i,last)">
-                    <label style="padding: 3px;" for="option-1-{{i}}" class="option option-1-{{i}} content_center">
-                      <span>Not Visited</span>
-                    </label>
+                <ion-row class="interestedNot">
+                  <ion-col>
+                    <div class="content_center">
+                      <input type="radio" class="radiocheck" name="select1-{{i}}" value="1BHK" id="option-1-{{i}}"
+                        (click)="notvisitclick(suggested.propid,suggested.name,i,last)">
+                      <label style="padding: 3px;" for="option-1-{{i}}" class="option option-1-{{i}} content_center">
+                        <span>Not Visited</span>
+                      </label>
                     </div>
-                </ion-col>
+                  </ion-col>
+                  <ion-col>
+                    <div class="content_center option option-2-{{i}}">
+                      <input type="radio" class="radiocheck" name="select1-{{i}}" value="2BHK" id="option-2-{{i}}"
+                        (click)="interestclick(suggested.propid,suggested.name,i)">
+                      <label style="padding: 3px;" for="option-2-{{i}}" class="option option-2-{{i}} content_center">
+                        <span>Interested</span>
+                      </label>
+                    </div>
+                  </ion-col>
+                  <ion-col>
+                    <div class="content_center">
+                      <input type="radio" class="radiocheck" name="select1-{{i}}" value="3BHK" id="option-3-{{i}}"
+                        (click)="notinterestclick(suggested.propid,suggested.name,i)">
+                      <label style="padding: 3px;" for="option-3-{{i}}" class="option option-3-{{i}} content_center">
+                        <span>Not Interested</span>
+                      </label>
+                    </div>
+                  </ion-col>
+                </ion-row>
+                <input type="hidden" id="selectedunits-{{i}}">
+              </div>
+              <ion-row>
                 <ion-col>
-                  <div class="content_center option option-2-{{i}}">
-                    <input type="radio" class="radiocheck" name="select1-{{i}}" value="2BHK" id="option-2-{{i}}" (click)="interestclick(suggested.propid,suggested.name,i)">
-                    <label style="padding: 3px;" for="option-2-{{i}}" class="option option-2-{{i}} content_center">
-                      <span>Interested</span>
-                    </label>
-                  </div>
-                </ion-col>
-                <ion-col>
-                  <div class="content_center">
-                    <input type="radio" class="radiocheck" name="select1-{{i}}" value="3BHK" id="option-3-{{i}}" (click)="notinterestclick(suggested.propid,suggested.name,i)">
-                    <label style="padding: 3px;" for="option-3-{{i}}" class="option option-3-{{i}} content_center">
-                      <span>Not Interested</span>
-                    </label>
-                  </div>
+                  <input type="text" class="form-control directteam visitupdatearea{{i}} visitupdatecommon"
+                    id="accompaniedname{{i}}" (input)="accompanycheck($event,suggested.propid,i)"
+                    placeholder="Please Mention the Accompanied Person Name" />
                 </ion-col>
               </ion-row>
-              <input type="hidden" id="selectedunits-{{i}}">                           
+              <ion-row class="custom-textArea">
+                <ion-col>
+                  <textarea class="form-control visitupdatearea{{i}} visitupdatecommon" id="propertyremarks{{i}}"
+                    (input)="visitremarkscheck($event,suggested.propid,i)"
+                    placeholder="Write About the Sitevisit"></textarea>
+                </ion-col>
+              </ion-row>
             </div>
-            <ion-row>
-              <ion-col>
-                <input type="text" class="form-control directteam visitupdatearea{{i}} visitupdatecommon"
-                  id="accompaniedname{{i}}" (input)="accompanycheck($event,suggested.propid,i)" 
-                  placeholder="Please Mention the Accompanied Person Name" />
-              </ion-col>
-            </ion-row>
-            <ion-row class="custom-textArea">
-            <ion-col>
-              <textarea class="form-control visitupdatearea{{i}} visitupdatecommon" 
-              id="propertyremarks{{i}}" (input)="visitremarkscheck($event,suggested.propid,i)" placeholder="Write About the Sitevisit"></textarea>
-            </ion-col>
-            </ion-row>
           </div>
-        </div>          
-      </ion-accordion>
-      </ion-accordion-group> 
-      
+        </ion-accordion>
+      </ion-accordion-group>
+
       <div *ngIf="lockedsession" class="margin-top-16">
         <div class="bg_border_color marginBottom15px">
           <ion-row class="nexrActionCss">
@@ -339,25 +387,28 @@
               </span>
             </ion-col>
           </ion-row>
-  
+
           <ion-row>
             <div class="stages">
               <span [ngClass]="followdownform?'bg_textColor':''" (click)="followupdownbtn()">
-                Follow Up</span>        
-            </div>  
-            <div class="stages">
+                Follow Up</span>
+            </div>
+            <!-- <div class="stages">
               <span [ngClass]="svform?'bg_textColor':''" (click)="onsvFixed()">SV</span>
+            </div> -->
+            <div class="stages">
+              <span [ngClass]="rsvform?'bg_textColor':(proploopArray?.length <= 0)?'textopacity':''"
+                (click)="!(proploopArray?.length <= 0)?onrsvFixed():''">Rescheduled</span>
             </div>
             <div class="stages">
-              <span [ngClass]="rsvform?'bg_textColor':(proploopArray?.length <= 0)?'textopacity':''" (click)="!(proploopArray?.length <= 0)?onrsvFixed():''">RSV</span>
-            </div>
-            <div class="stages">
-              <span [ngClass]="finalnegoform?'bg_textColor':(proploopArray?.length <= 0)?'textopacity':''" (click)="!(proploopArray?.length <= 0)?onnegofixed():''">
+              <span [ngClass]="finalnegoform?'bg_textColor':(proploopArray?.length <= 0)?'textopacity':''"
+                (click)="!(proploopArray?.length <= 0)?onnegofixed():''">
                 FN
               </span>
             </div>
-            <div class="stages" *ngIf="feedbackID != '1'" >
-              <span [ngClass]="leadclosedform?'bg_textColor':(proploopArray?.length <= 0)?'textopacity':''" (click)="!(proploopArray?.length <= 0)?onleadclosed():''">
+            <div class="stages" *ngIf="feedbackID != '1'">
+              <span [ngClass]="leadclosedform?'bg_textColor':(proploopArray?.length <= 0)?'textopacity':''"
+                (click)="!(proploopArray?.length <= 0)?onleadclosed():''">
                 Closed
               </span>
             </div>
@@ -369,7 +420,7 @@
           </ion-row>
         </div>
 
-        <app-retail-followupform *ngIf="followdownform" [selectedExecId]="selectedExecId">            
+        <app-retail-followupform *ngIf="followdownform" [selectedExecId]="selectedExecId">
         </app-retail-followupform>
         <app-svform *ngIf="svform" [selectedExecId]="selectedExecId" (openModal)="notifyParent()">
         </app-svform>
@@ -380,12 +431,12 @@
 
         <app-closedform *ngIf="leadclosedform" [selectedExecId]="selectedExecId"></app-closedform>
 
-        <app-junkform *ngIf="junkform" [selectedExecId]="selectedExecId"></app-junkform>
+        <app-retail-junk-form *ngIf="junkform" [selectedExecId]="selectedExecId"></app-retail-junk-form>
       </div>
 
     </ion-content>
 
-    <ion-footer  *ngIf="autolocksession">
+    <ion-footer *ngIf="autolocksession">
       <ion-toolbar>
         <ion-row>
           <ion-col class="content_center">
@@ -403,4 +454,3 @@
     </ion-footer>
   </ng-template>
 </ion-modal>
-

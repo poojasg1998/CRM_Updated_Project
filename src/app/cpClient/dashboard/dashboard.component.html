@@ -88,6 +88,11 @@
     {{filteredParams.visitedpropName }}
     <ion-icon name="close"></ion-icon>
   </ion-col>
+  <ion-col class="scroll-col" *ngIf="filteredParams.suggestedpropname"
+    (click)="tempFilteredValues.suggestedpropname = '';tempFilteredValues.propid='';onConfirmedFilter()">
+    {{filteredParams.suggestedpropname }}
+    <ion-icon name="close"></ion-icon>
+  </ion-col>
   <ion-col class="scroll-col" *ngIf="filteredParams.priority"
     (click)="tempFilteredValues.priority = '';onConfirmedFilter()">
     {{filteredParams.priority == '1'?'Hot':filteredParams.priority == '2'?'Cold':'Warm' }}
@@ -198,7 +203,7 @@
               <h1>{{leadsCount.scheduledVisits }}</h1>
             </ion-col>
             <ion-col class="text-center visitConvert-row p-0">
-              <p class="m-0">Visit Converted {{'0'}}</p>
+              <p class="m-0">Visit Converted {{leadsCount.visitsConverted}}</p>
             </ion-col>
           </ion-row>
         </div>
@@ -224,7 +229,7 @@
             <p>All Visits {{visitsCount.allvisits}}</p>
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Active Visits' ? 'selected-card border-top-right' : ''"
-            (click)="applyFilter({selectedStage: 'Active Visits', activeCardKey: 'allvisits-card',status: 'activevisits',stagestatus:3,stage:''})"
+            (click)="applyFilter({selectedStage: 'Active Visits', activeCardKey: 'allvisits-card',status: 'activevisits',stagestatus:3,stage:'',visited_count:'1'})"
             ; class="pl-1 w-25">
             <p class="mt-2">Active Visits</p>
             <h1>{{visitsCount.active}}</h1>
@@ -237,14 +242,14 @@
         <div><ion-img src="../assets/cp/fn-card-icon.svg"></ion-img></div>
         <div class="card-content">
           <div [ngClass]="filteredParams.selectedStage === 'FN' ? 'selected-card border-bottom-right' : ''"
-            (click)="applyFilter({selectedStage: 'FN', activeCardKey: 'fn-card',status:'', stage: 'Final Negotiation',stagestatus:'3'})"
+            (click)="applyFilter({selectedStage: 'FN', activeCardKey: 'fn-card',status:'', stage: 'Final Negotiation',stagestatus:'3',visited_count:''})"
             class="pl-1">
             <p>FN</p>
             <h1>{{visitsCount.fn}}</h1>
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Booking Cancelled' ? 'selected-card border-top-right' : ''"
             (click)="applyFilter({selectedStage: 'Booking Cancelled', activeCardKey: 'fn-card',status:'', 
-                  stage:'Closing Request Rejected',stagestatus:'3'})" class="pl-1">
+                  stage:'Closing Request Rejected',stagestatus:'3',visited_count:''})" class="pl-1">
             <p class="mt-2">Booking Cancelled</p>
             <h1>{{visitsCount.bookingCancelled}}</h1>
           </div>
@@ -255,12 +260,12 @@
         <div class="card-content">
           <div [ngClass]="filteredParams.selectedStage === 'Closed Leads' ? 'selected-card border-bottom-right' : ''"
             (click)="applyFilter({selectedStage: 'Closed Leads', activeCardKey: 'closed-card',status:'', 
-             stage:'Deal Closed',stagestatus:'3'})" class="pl-1">
+             stage:'Deal Closed',stagestatus:'3',visited_count:''})" class="pl-1">
             <p>Closed Leads</p>
             <h1>{{visitsCount.closedLeads}}</h1>
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Junk Visits' ? 'selected-card border-top-right' : ''"
-            (click)="applyFilter({selectedStage: 'Junk Visits', activeCardKey: 'closed-card',status:'junkvisits', stage: '',stagestatus:'3'})"
+            (click)="applyFilter({selectedStage: 'Junk Visits', activeCardKey: 'closed-card',status:'junkvisits', stage: '',stagestatus:'3',visited_count:''})"
             class="pl-1">
             <p class="mt-2">Junk Visits</p>
             <h1>{{visitsCount.junkVisits}}</h1>
@@ -320,9 +325,11 @@
                   <p class="value">{{lead.Date|date: 'dd-MMM-yyyy hh:mm a' }}</p>
                 </div>
               </ion-col>
-              <ion-col size="6" *ngIf="filteredParams.isLeadsVisits == 'leads'">
+              <ion-col size="6"
+                *ngIf="filteredParams.isLeadsVisits == 'leads' && filteredParams.selectedStage != 'Untouched'">
                 <div class="section">
-                  <p class="label">Enquired Property</p>
+                  <p class="label" *ngIf="filteredParams.selectedStage != 'Scheduled Visits'">Suggested</p>
+                  <p class="label" *ngIf="filteredParams.selectedStage == 'Scheduled Visits'">Scheduled Property</p>
                   <p class="value" *ngIf="lead.propertyname">{{lead.propertyname}}</p>
                   <p class="value fst-italic" *ngIf="!lead.propertyname">--</p>
                 </div>
@@ -593,9 +600,9 @@
               (ionInput)="searchData()">
             </ion-searchbar>
 
-            <ion-radio-group [(ngModel)]="filteredParams.propid" (ionChange)="applyTemFilter('enquired',$event)">
+            <ion-radio-group [(ngModel)]="tempFilteredValues.selectedLeadsProp">
               <div class="custom-row overflow-auto" *ngFor="let item of filteredEnquiry">
-                <ion-radio slot="start" [value]="item.propid"></ion-radio>
+                <ion-radio slot="start" [value]="item"></ion-radio>
                 <ion-label>{{ item.name }}</ion-label>
               </div>
             </ion-radio-group>

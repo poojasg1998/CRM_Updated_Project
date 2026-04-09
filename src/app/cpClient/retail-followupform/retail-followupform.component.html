@@ -1,9 +1,9 @@
 <div>
-  <div  class="content_center loader" *ngIf="showSpinner">
+  <div class="content_center loader" *ngIf="showSpinner">
     <ion-spinner name="circular" style="color: white;"></ion-spinner>
-  </div> 
+  </div>
 
-  <form (ngSubmit)="addfollowupdata()"  ngNativeValidate #submitForm="ngForm" ngNativeValidate>
+  <form (ngSubmit)="addfollowupdata()" ngNativeValidate #submitForm="ngForm" ngNativeValidate>
     <div class="bg_border_color">
       <ion-row>
         <p class="font-size12-familyPoppins font-colorBlack font-weight500"> Reason to follow up</p>
@@ -16,70 +16,74 @@
         </div>   -->
         <span *ngFor="let section of followupsections;let i = index">
           <div *ngIf="currentstage != 'Fresh' && section.followup_categories =='NC';else other_content"></div>
-          <ng-template #other_content (click)="followupactionclick(i,section.followup_section_IDPK,section.followup_categories)">
-            <div class="followUpResoncss" id="followupsection" 
+          <ng-template #other_content
             (click)="followupactionclick(i,section.followup_section_IDPK,section.followup_categories)">
-              <span [ngClass]="followsectiondata === section.followup_section_IDPK?'bg_textColor':'text_borderColor'"> 
+            <div class="followUpResoncss" id="followupsection"
+              (click)="followupactionclick(i,section.followup_section_IDPK,section.followup_categories)">
+              <span [ngClass]="followsectiondata === section.followup_section_IDPK?'bg_textColor':'text_borderColor'">
                 {{section.followup_categories}}
               </span>
-            </div>    
+            </div>
           </ng-template>
-          </span>
+        </span>
       </ion-row>
     </div>
     <div class="bg_border_color margin-top-16">
-     <span [hidden]="!isFreshLead">
-      <ion-row>
-        <p class="font-size12-familyPoppins font-colorBlack font-weight500">
-          Follow Up Date
-        </p>
-      </ion-row>       
-      <ion-row class="center-content">
-          <div lines="none" class="input-with-image date-input">  
-            <ion-input readonly [(ngModel)]="followupDate"  name="date" id="folloupdate" placeholder="Choose Date" required></ion-input>
+      <span [hidden]="!isFreshLead">
+        <ion-row>
+          <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+            Follow Up Date
+          </p>
+        </ion-row>
+        <ion-row class="center-content">
+          <div lines="none" class="input-with-image date-input">
+            <ion-input readonly [(ngModel)]="followupDate" name="date" id="folloupdate" placeholder="Choose Date"
+              required></ion-input>
             <ion-popover trigger="folloupdate" #popover>
               <!-- [min]="date"  -->
-                <ng-template>
-                    <ion-datetime presentation="date" locale="en-US"  [min]="date"
-                    (ionChange)="onDateChange($event);closePopover()"></ion-datetime>
-                </ng-template>
+              <ng-template>
+                <ion-datetime presentation="date" locale="en-US" [min]="date"
+                  (ionChange)="onDateChange($event);closePopover()"></ion-datetime>
+              </ng-template>
             </ion-popover>
           </div>
-      </ion-row>
-    
-      <ion-row class="margin-top-16">
-        <p class="font-size12-familyPoppins font-colorBlack font-weight500">
-          Follow Up Time
-        </p>    
-      </ion-row>
-    
-      <ion-row class="center-content">
-        <div no-lines class="date-input inputTime-with-image">
-         <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time" id="followuptime" aria-label="12hr format" [ngxTimepicker]="default" [(ngModel)]="followupTime" name="followupTime" (ngModelChange)="validateTime()"  readonly></div>
-        </div>
-      </ion-row>
-    
-      <ngx-material-timepicker #default></ngx-material-timepicker>
-      <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
+        </ion-row>
 
-      <ion-row class="margin-top-16" *ngIf="this.followsectionname == 'NC' || this.followsectionname == 'Callback'">
-        <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
-      </ion-row>
-      <ion-row class="custom-textArea" *ngIf="this.followsectionname == 'NC' || this.followsectionname == 'Callback'">
-        <ion-textarea placeholder="Write remarks" id="followuptextarearemarks" name="remark"     
-        [(ngModel)]="followUpRemark" (ionInput)="checkAlphanumericSpaces()" required></ion-textarea>
-      </ion-row>
-     </span>
-     <ion-row class="submitForm">
-      <!-- <ion-col class="paddingZero">
+        <ion-row class="margin-top-16">
+          <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+            Follow Up Time
+          </p>
+        </ion-row>
+
+        <ion-row class="center-content">
+          <div no-lines class="date-input inputTime-with-image">
+            <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time"
+                id="followuptime" aria-label="12hr format" [ngxTimepicker]="default" [(ngModel)]="followupTime"
+                name="followupTime" (ngModelChange)="validateTime()" readonly></div>
+          </div>
+        </ion-row>
+
+        <ngx-material-timepicker #default></ngx-material-timepicker>
+        <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
+
+        <ion-row class="margin-top-16">
+          <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
+        </ion-row>
+        <ion-row class="custom-textArea">
+          <ion-textarea placeholder="Write remarks" id="followuptextarearemarks" name="remark"
+            [(ngModel)]="followUpRemark" (ionInput)="checkAlphanumericSpaces()" required></ion-textarea>
+        </ion-row>
+      </span>
+      <ion-row class="submitForm">
+        <!-- <ion-col class="paddingZero">
         <ion-button fill="clear" type="reset">Cancel</ion-button>
       </ion-col> -->
-      <ion-col class="paddingZero">
-        <ion-button fill="clear" class="saveButton" 
-        [ngClass]="submitForm.invalid || hasOnlySpaces|| timeError?'saveButton':'activeSaveButton'" type="submit"  
-        [disabled]="isFreshLead?submitForm.invalid || hasOnlySpaces|| timeError:false">Save</ion-button>
-      </ion-col>
-    </ion-row>
-    </div>   
+        <ion-col class="paddingZero">
+          <ion-button fill="clear" class="saveButton"
+            [ngClass]="submitForm.invalid || hasOnlySpaces|| timeError?'saveButton':'activeSaveButton'" type="submit"
+            [disabled]="isFreshLead?submitForm.invalid || hasOnlySpaces|| timeError:false">Save</ion-button>
+        </ion-col>
+      </ion-row>
+    </div>
   </form>
 </div>

@@ -12,6 +12,8 @@ declare var $: any;
 })
 export class JunkformComponent implements OnInit {
   @Input() selectedExecId: any;
+  @Input() selectedSuggestedProp: any;
+  @Input() selectedBtn: any;
   leadId: string;
   userid: string;
   excludedIds: any;
@@ -36,8 +38,8 @@ export class JunkformComponent implements OnInit {
 
   ngOnInit() {
     this.activeroute.queryParamMap.subscribe((params) => {
-      const paramMap = params.get('leadId');
-      this.leadId = params.get('leadId');
+      const paramMap = params.get('leadid');
+      this.leadId = params.get('leadid');
       this.categoryid = params.get('categoryid');
       this.feedbackID = params.get('feedback') ? params.get('feedback') : '';
       const isEmpty = !paramMap;

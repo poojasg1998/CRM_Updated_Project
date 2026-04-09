@@ -16,10 +16,11 @@ import { SvformComponent } from '../svform/svform.component';
 import { RsvformComponent } from '../rsvform/rsvform.component';
 import { RetailFollowupformComponent } from '../retail-followupform/retail-followupform.component';
 import { NegoformComponent } from '../negoform/negoform.component';
-import { JunkformComponent } from '../junkform/junkform.component';
 import { ClosedformComponent } from '../closedform/closedform.component';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { PhotoGalleryModule } from '@twogate/ngx-photo-gallery';
+import { JunkformComponent } from '../junkform/junkform.component';
+import { RetailJunkFormComponent } from '../retail-junk-form/retail-junk-form.component';
 
 @NgModule({
   imports: [
@@ -53,6 +54,7 @@ import { PhotoGalleryModule } from '@twogate/ngx-photo-gallery';
     NegoformComponent,
     JunkformComponent,
     ClosedformComponent,
+    RetailJunkFormComponent,
   ],
 })
 export class CpLeadDetailsModule {}

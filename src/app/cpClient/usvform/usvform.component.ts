@@ -43,7 +43,8 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
   @Input() selectedExecId: any;
   @Output() openModal = new EventEmitter<void>();
   @ViewChild(IonModal) modal: IonModal;
-
+  @Input() selectedSuggestedProp: any;
+  @Input() selectedBtn: any;
   date: String = new Date().toISOString();
   followdownform: boolean;
   followupdown: boolean;
@@ -91,6 +92,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
   leadclosed: boolean;
   proploopArray: visitedproperties[];
   categoryid: string;
+  isEdit: boolean = true;
 
   constructor(
     private _retailservice: CpApiService,
@@ -105,6 +107,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
   ionViewDidEnter() {
     this.ngOnInit();
   }
+
   assignedRM;
   feedbackID;
   ngOnInit() {
@@ -113,9 +116,10 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
     this.username = localStorage.getItem('Name');
 
     this.activeroute.queryParamMap.subscribe((params) => {
-      const paramMap = params.get('leadId');
+      this.showSpinner = true;
+      const paramMap = params.get('leadid');
       this.categoryid = params.get('categoryid');
-      this.leadId = params.get('leadId');
+      this.leadId = params.get('leadid');
       const isEmpty = !paramMap;
       if (!isEmpty) {
         // to get exceId
@@ -153,13 +157,13 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
                     this.leadId,
                     this.userid,
                     this.usvexecutiveId,
-                    this.feedbackID
+                    this.feedbackID,
+                    this.categoryid
                   )
                 : of(null);
             }),
             switchMap((visitedwithothers) => {
               this.othersvisitedlists = visitedwithothers['visitedothers'];
-
               // Then, get the active leads status
               return this.usvexecutiveId
                 ? this._retailservice.getactiveleadsstatus(
@@ -175,6 +179,8 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
           .subscribe((stagestatus) => {
             if (stagestatus) {
               this.activestagestatus = stagestatus['activeleadsstatus'];
+
+              this.activestagestatus = stagestatus['activeleadsstatus'];
               if (
                 this.activestagestatus[0].stage == 'USV' &&
                 this.activestagestatus[0].stagestatus == '1'
@@ -182,8 +188,13 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
                 this.hideafterfixed = false;
                 this.usvFixed = false;
                 this.hidebeforefixed = true;
-                this.usvreFix = false;
-                this.usvDone = true;
+                if (this.selectedBtn == 'rescheduled') {
+                  this.usvreFix = true;
+                  this.usvDone = false;
+                } else if (this.selectedBtn == 'updatevisit') {
+                  this.usvreFix = false;
+                  this.usvDone = true;
+                }
                 $('#sectionselector').val('USV');
               } else if (
                 this.activestagestatus[0].stage == 'USV' &&
@@ -192,8 +203,13 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
                 this.hideafterfixed = false;
                 this.usvFixed = false;
                 this.hidebeforefixed = true;
-                this.usvreFix = false;
-                this.usvDone = true;
+                if (this.selectedBtn == 'rescheduled') {
+                  this.usvreFix = true;
+                  this.usvDone = false;
+                } else if (this.selectedBtn == 'updatevisit') {
+                  this.usvreFix = false;
+                  this.usvDone = true;
+                }
                 $('#sectionselector').val('USV');
               } else if (
                 this.activestagestatus[0].stage == 'USV' &&
@@ -206,8 +222,8 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
               } else {
                 this.hideafterfixed = true;
               }
-              this.showSpinner = false;
             }
+            this.showSpinner = false;
           });
 
         var param = {
@@ -229,6 +245,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
       assignid: this.usvexecutiveId,
       stage: $('#customer_phase4').val(),
       feedback: this.feedbackID,
+      categoryid: this.categoryid,
     };
 
     this._retailservice.getsuggestedproperties(param).subscribe((suggested) => {
@@ -272,7 +289,8 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
         this.leadId,
         this.userid,
         this.usvexecutiveId,
-        this.feedbackID
+        this.feedbackID,
+        this.categoryid
       )
       .subscribe((visitedwithothers) => {
         this.othersvisitedlists = visitedwithothers['visitedothers'];
@@ -281,6 +299,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
     var params = {
       leadid: this.leadId,
       execid: this.userid,
+      categoryid: this.categoryid,
     };
 
     this._retailservice.propertylist(params).subscribe((propertylist) => {
@@ -473,6 +492,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
         execid: this.userid,
         assignid: this.usvexecutiveId,
         feedback: this.feedbackID,
+        categoryid: this.categoryid,
       };
 
       if (localStorage.getItem('Name') == 'demo') {
@@ -493,6 +513,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
               execid: this.userid,
               assignid: this.selectedExecId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice
               .getselectedsuggestpropertiesretail(param2)
@@ -538,6 +559,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
                     weekplan: '',
                     autoremarks: this.autoremarks,
                     feedback: this.feedbackID,
+                    categoryid: this.categoryid,
                   };
                   this._retailservice
                     .addleadhistoryretail(leadusvhistparam)
@@ -627,6 +649,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
                 execid: this.userid,
                 assignid: this.selectedExecId,
                 feedback: this.feedbackID,
+                categoryid: this.categoryid,
               };
               this._retailservice
                 .getselectedsuggestpropertiesretail(param2)
@@ -670,6 +693,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
                       assignid: this.usvexecutiveId,
                       autoremarks: this.autoremarks,
                       feedback: this.feedbackID,
+                      categoryid: this.categoryid,
                     };
                     this._retailservice
                       .addleadhistoryretail(leadusvhistparam)
@@ -721,8 +745,60 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
   @ViewChild('usvDoneModel', { static: true }) usvDoneModel: IonModal;
   openUSVDoneModal() {
     $('body').addClass('parentmodal');
-    var visiteddate = $('#USVvisiteddate').val();
-    var visitedtime = $('#USVvisitedtime').val();
+    let apidate, apitime;
+    if (this.isEdit && this.assignedRM && this.assignedRM.length) {
+      let visiteddate = this.assignedRM[0].latest_action_date;
+      let visitedtime = this.assignedRM[0].latest_action_time;
+      apidate = $('#USVvisiteddate_dis').text();
+      apitime = $('#USVvisitedtime_dis').text();
+      $('#USVvisiteddate').val(this.assignedRM[0].latest_action_date);
+      $('#USVvisitedtime').val(this.assignedRM[0].latest_action_time);
+
+      console.log(visiteddate, visitedtime);
+
+      // Convert date string → JS Date
+      let dateObj = visiteddate ? new Date(visiteddate) : null;
+
+      // Convert "1:00 PM" → Date object
+      let timeObj = null;
+      // setTimeout(() => {
+      //   // ✅ Set Date
+      //   if (visiteddate) {
+      //     let dateObj = new Date(visiteddate);
+      //     $('.usvvisitedcalendardate').calendar('set date', dateObj);
+      //   }
+
+      //   // ✅ Set Time
+      //   if (visitedtime) {
+      //     let timeObj = new Date();
+
+      //     let [time, modifier] = visitedtime.split(' ');
+      //     let [hours, minutes] = time.split(':');
+
+      //     if (modifier === 'PM' && hours !== '12') {
+      //       hours = parseInt(hours) + 12;
+      //     }
+      //     if (modifier === 'AM' && hours === '12') {
+      //       hours = 0;
+      //     }
+
+      //     timeObj.setHours(hours);
+      //     timeObj.setMinutes(minutes);
+      //     timeObj.setSeconds(0);
+
+      //     $('.calendartime').calendar('set date', timeObj);
+      //   }
+      // }, 300);
+
+      // ✅ Use Semantic UI API
+      // $('.usvvisitedcalendardate').calendar('set date', dateObj);
+      // $('.calendartime').calendar('set date', timeObj);
+    } else {
+      var visiteddate = $('#USVvisiteddate').val();
+      var visitedtime = $('#USVvisitedtime').val();
+      apidate = $('#USVvisiteddate').val();
+      apitime = $('#USVvisitedtime').val();
+    }
 
     var param = {
       leadid: this.leadId,
@@ -756,11 +832,13 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
         }
       );
     }
+    console.log(this.selectedpropertylists);
     this.usvDoneModel.present();
   }
 
   selectedpropertylists1;
-  moresuggested(i, id, propname) {
+  moresuggested(i, id, propname, property) {
+    console.log(this.selectedpropertylists);
     if ($('#moresuggestcheckbox' + i).is(':checked')) {
       var checkid = $("input[name='programming']:checked")
         .map(function () {
@@ -769,6 +847,9 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
         .get()
         .join(',');
       this.suggestchecked = checkid;
+      console.log(this.suggestchecked);
+      this.selectedpropertylists.push(property);
+      console.log(this.selectedpropertylists);
 
       // if ($('#USVvisiteddate').val() == "") {
       //   Swal.fire({
@@ -834,6 +915,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
             execid: this.userid,
             assignid: this.selectedExecId,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
           // this.status = success.status;
           this._retailservice
@@ -1566,6 +1648,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
         execid: this.userid,
         assignid: this.usvexecutiveId,
         feedback: this.feedbackID,
+        categoryid: this.categoryid,
       };
       if (visiteddate != '' && visitedtime != '') {
         this._retailservice.addselectedsuggestedproperties(param).subscribe(
@@ -1576,6 +1659,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
                 execid: this.userid,
                 assignid: this.selectedExecId,
                 feedback: this.feedbackID,
+                categoryid: this.categoryid,
               };
               this._retailservice
                 .getselectedsuggestpropertiesretail(param2)
@@ -1597,6 +1681,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
                         remarks: 'Usv Done for' + ' ' + existingObject['name'],
                         accompany: this.usvexecutiveId,
                         assignid: this.usvexecutiveId,
+                        categoryid: this.categoryid,
                       };
                       this._retailservice
                         .retailpropertyvisitupdate(visitparam)
@@ -1629,6 +1714,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
                       property: selectedpropertylists.join(','),
                       weekplan: checkedDay,
                       feedback: this.feedbackID,
+                      categoryid: this.categoryid,
                     };
                     this._retailservice
                       .addleadhistoryretail(leadusvdoneparam)
@@ -1659,5 +1745,101 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
         );
       }
     }
+  }
+
+  enableVisitdate(num) {
+    if (num == 1) {
+      this.isEdit = false;
+      setTimeout(() => {
+        this.scriptfunctions();
+
+        if (this.assignedRM && this.assignedRM.length > 0) {
+          const date = this.assignedRM[0].latest_action_date;
+          const time = this.assignedRM[0].latest_action_time;
+
+          $('#USVvisiteddate').val(date);
+          $('#USVvisitedtime').val(time);
+
+          // Optional: update calendar internal state
+          $('.usvvisitedcalendardate').calendar('set date', new Date(date));
+          $('.calendartime').calendar('set date', this.convertToDateTime(time));
+        }
+      }, 0);
+    } else if ((num = 2)) {
+      this.isEdit = true;
+      this.usvDate = this.assignedRM[0].latest_action_date;
+      this.usvTime = this.assignedRM[0].latest_action_time;
+    }
+  }
+
+  scriptfunctions() {
+    $('.ui.dropdown').dropdown();
+    $('.calendardate').calendar({
+      type: 'date',
+      // minDate: this.date,
+      // maxDate: this.priorDate,
+      formatter: {
+        date: function (date, settings) {
+          if (!date) return '';
+          var day = date.getDate();
+          var month = date.getMonth() + 1;
+          var year = date.getFullYear();
+          return year + '-' + month + '-' + day;
+        },
+      },
+    });
+
+    $('.usvvisitedcalendardate').calendar({
+      type: 'date',
+      // minDate: this.priorDatebefore,
+      // maxDate: this.date,
+      formatter: {
+        date: function (date, settings) {
+          if (!date) return '';
+          var day = date.getDate();
+          var month = date.getMonth() + 1;
+          var year = date.getFullYear();
+          return year + '-' + month + '-' + day;
+        },
+      },
+    });
+
+    var minDate = new Date();
+    var maxDate = new Date();
+    minDate.setHours(7);
+    maxDate.setHours(20);
+    $('.calendartime').calendar({
+      type: 'time',
+      disableMinute: true,
+      minDate: minDate,
+      maxDate: maxDate,
+    });
+
+    $.extend($.expr[':'], {
+      unchecked: function (obj) {
+        return (
+          (obj.type == 'checkbox' || obj.type == 'radio') &&
+          !$(obj).is(':checked')
+        );
+      },
+    });
+  }
+
+  convertToDateTime(timeStr: string): Date {
+    const now = new Date();
+
+    if (!timeStr) return now;
+
+    const [time, modifier] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    if (modifier === 'PM' && hours < 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+
+    now.setHours(hours);
+    now.setMinutes(minutes);
+    now.setSeconds(0);
+
+    return now;
   }
 }

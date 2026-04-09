@@ -30,6 +30,9 @@ interface visitedproperties {
 export class NegoformComponent implements OnInit, AfterViewChecked {
   @Output() openModal = new EventEmitter<void>();
   @Input() selectedExecId: any;
+  @Input() selectedSuggestedProp: any;
+  @Input() selectedBtn: any;
+  isEdit: boolean = true;
   date: String = new Date().toISOString();
   showSpinner = true;
   buttonhiders = true;
@@ -90,8 +93,9 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
   feedbackID = '';
   ngOnInit() {
     this.activeroute.queryParamMap.subscribe((params) => {
-      const paramMap = params.get('leadId');
-      this.leadId = params.get('leadId');
+      this.showSpinner = true;
+      const paramMap = params.get('leadid');
+      this.leadId = params.get('leadid');
       this.categoryid = params.get('categoryid');
       this.feedbackID = params.get('feedback') ? params.get('feedback') : '0';
       const isEmpty = !paramMap;
@@ -146,6 +150,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                 execid: this.userid,
                 assignid: this.negoexecutiveId,
                 feedback: this.feedbackID,
+                categoryid: this.categoryid,
               };
               return this.negoexecutiveId
                 ? this._retailservice.negoselectproperties(param)
@@ -175,8 +180,15 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
               this.hideafterfixed = false;
               this.negoFixed = false;
               this.hidebeforefixed = true;
-              this.negoreFix = false;
-              this.negoDone = true;
+              if (this.selectedBtn == 'rescheduled') {
+                this.negoreFix = true;
+                this.negoDone = false;
+              } else if (this.selectedBtn == 'updatevisit') {
+                this.negoreFix = false;
+                this.negoDone = true;
+              }
+              // this.negoreFix = false;
+              // this.negoDone = true;
               $('#sectionselector').val('Final Negotiation');
             } else if (
               this.activestagestatus[0].stage == 'Final Negotiation' &&
@@ -185,7 +197,13 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
               this.hideafterfixed = false;
               this.negoFixed = false;
               this.hidebeforefixed = true;
-              this.negoreFix = true;
+              if (this.selectedBtn == 'rescheduled') {
+                this.negoreFix = true;
+                this.negoDone = false;
+              } else if (this.selectedBtn == 'updatevisit') {
+                this.negoreFix = false;
+                this.negoDone = true;
+              }
               $('#sectionselector').val('Final Negotiation');
             } else if (
               this.activestagestatus[0].stage == 'Final Negotiation' &&
@@ -221,6 +239,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
       assignid: this.negoexecutiveId,
       stage: $('#customer_phase4').val(),
       feedback: this.feedbackID,
+      categoryid: this.categoryid,
     };
 
     this._retailservice
@@ -515,7 +534,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  selectsuggesteddone(i, id, propname) {
+  selectsuggesteddone(i, id, propname, property) {
     var negonextactiondate = $('#negovisiteddate').val();
     var negonextactiontime = $('#negovisitedtime').val();
 
@@ -527,6 +546,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
         .get()
         .join(',');
       this.suggestchecked = checkid;
+      this.selectedpropertylists.push(property);
       // this.autoremarks = " Selected the "+propname+" for Finalnegotiation.";
       // $('#negotextarearemarks').html(' Fixed the Final Negotiation for '+propname);
       //   var param = {
@@ -597,7 +617,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  selectsuggesteddone2(i, id, propname) {
+  selectsuggesteddone2(i, id, propname, property) {
     var negonextactiondate = $('#negonextactiondate').val();
     var negonextactiontime = $('#negonextactiontime').val();
 
@@ -610,6 +630,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
         .join(',');
       this.suggestchecked = checkid;
       this.autoremarks = ' Selected the ' + propname + ' for Finalnegotiation.';
+      this.selectedpropertylists.push(property);
       // var param = {
       //   leadid: this.leadId,
       //   suggestproperties: this.suggestchecked,
@@ -1494,6 +1515,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
               accompany: existingObject['accompany'],
               assignid: this.negoexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
               (success) => {
@@ -1522,6 +1544,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                 execid: this.userid,
                 assignid: this.negoexecutiveId,
                 feedback: this.feedbackID,
+                categoryid: this.categoryid,
               };
               if (success['status'] == 'True') {
                 this._retailservice
@@ -1554,6 +1577,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                         autoremarks: this.autoremarks,
                         property: this.suggestchecked,
                         feedback: this.feedbackID,
+                        categoryid: this.categoryid,
                       };
                       this._retailservice
                         .addleadhistoryretail(leadusvdoneparam)
@@ -1580,6 +1604,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                                 autoremarks: this.autoremarks,
                                 property: this.suggestchecked,
                                 feedback: this.feedbackID,
+                                categoryid: this.categoryid,
                               };
                               this._retailservice
                                 .addleadhistoryretail(leadnegofixparam)
@@ -1695,6 +1720,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
               accompany: existingObject['accompany'],
               assignid: this.negoexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
               (success) => {
@@ -1896,6 +1922,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
               accompany: existingObject['accompany'],
               assignid: this.negoexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
               (success) => {
@@ -1925,6 +1952,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                 execid: this.userid,
                 assignid: this.negoexecutiveId,
                 feedback: this.feedbackID,
+                categoryid: this.categoryid,
               };
               if (success['status'] == 'True') {
                 this._retailservice
@@ -1958,6 +1986,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                         weekplan: weekplan,
                         property: this.suggestchecked,
                         feedback: this.feedbackID,
+                        categoryid: this.categoryid,
                       };
                       this._retailservice
                         .addleadhistoryretail(leadsvdoneparam)
@@ -1984,6 +2013,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                                 autoremarks: this.autoremarks,
                                 property: this.suggestchecked,
                                 feedback: this.feedbackID,
+                                categoryid: this.categoryid,
                               };
                               this._retailservice
                                 .addleadhistoryretail(leadnegofixparam)
@@ -2081,6 +2111,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                 execid: this.userid,
                 assignid: this.negoexecutiveId,
                 feedback: this.feedbackID,
+                categoryid: this.categoryid,
               };
               if (success['status'] == 'True') {
                 this._retailservice
@@ -2119,6 +2150,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                         weekplan: '',
                         property: this.suggestchecked,
                         feedback: this.feedbackID,
+                        categoryid: this.categoryid,
                       };
                       this._retailservice
                         .addleadhistoryretail(leadnegofixparam)
@@ -2219,6 +2251,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
               execid: this.userid,
               assignid: this.negoexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             if (success['status'] == 'True') {
               this._retailservice
@@ -2256,6 +2289,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                       autoremarks: this.autoremarks,
                       property: this.suggestchecked,
                       feedback: this.feedbackID,
+                      categoryid: this.categoryid,
                     };
                     this._retailservice
                       .addleadhistoryretail(leadnegorefixparam)
@@ -2378,6 +2412,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
             accompany: existingObject['accompany'],
             assignid: this.negoexecutiveId,
             feedback: this.feedbackID,
+            categoryid: this.categoryid,
           };
           this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
             (success) => {
@@ -2406,6 +2441,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
               execid: this.userid,
               assignid: this.negoexecutiveId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             if (success['status'] == 'True') {
               this._retailservice
@@ -2439,6 +2475,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                       weekplan: weekplan,
                       property: this.suggestchecked,
                       feedback: this.feedbackID,
+                      categoryid: this.categoryid,
                     };
                     this._retailservice
                       .addleadhistoryretail(leadsvdoneparam)
@@ -2465,6 +2502,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                               weekplan: '',
                               property: this.suggestchecked,
                               feedback: this.feedbackID,
+                              categoryid: this.categoryid,
                             };
                             this._retailservice
                               .addleadhistoryretail(leadnegofixparam)
@@ -2738,5 +2776,88 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
         );
       }
     }
+  }
+
+  enableVisitdate(num) {
+    if (num == 1) {
+      this.isEdit = false;
+      setTimeout(() => {
+        this.scriptfunctions();
+
+        if (this.assignedRM && this.assignedRM.length > 0) {
+          const date = this.assignedRM[0].latest_action_date;
+          const time = this.assignedRM[0].latest_action_time;
+
+          $('#negovisiteddate').val(date);
+          $('#negovisitedtime').val(time);
+
+          // Optional: update calendar internal state
+          $('.negovisitedcalendardate').calendar('set date', new Date(date));
+          $('.calendartime').calendar('set date', this.convertToDateTime(time));
+        }
+      }, 0);
+    } else if ((num = 2)) {
+      this.isEdit = true;
+    }
+  }
+
+  scriptfunctions() {
+    $('.ui.dropdown').dropdown();
+    $('.calendardate').calendar({
+      type: 'date',
+      // minDate: this.date,
+      // maxDate: this.priorDate,
+      formatter: {
+        date: function (date, settings) {
+          if (!date) return '';
+          var day = date.getDate();
+          var month = date.getMonth() + 1;
+          var year = date.getFullYear();
+          return year + '-' + month + '-' + day;
+        },
+      },
+    });
+    $('.negovisitedcalendardate').calendar({
+      type: 'date',
+      // minDate: this.priorDatebefore,
+      // maxDate: this.date,
+      formatter: {
+        date: function (date, settings) {
+          if (!date) return '';
+          var day = date.getDate();
+          var month = date.getMonth() + 1;
+          var year = date.getFullYear();
+          return year + '-' + month + '-' + day;
+        },
+      },
+    });
+    var minDate = new Date();
+    var maxDate = new Date();
+    minDate.setHours(7);
+    maxDate.setHours(20);
+    $('.calendartime').calendar({
+      type: 'time',
+      disableMinute: true,
+      minDate: minDate,
+      maxDate: maxDate,
+    });
+  }
+
+  convertToDateTime(timeStr: string): Date {
+    const now = new Date();
+
+    if (!timeStr) return now;
+
+    const [time, modifier] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    if (modifier === 'PM' && hours < 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+
+    now.setHours(hours);
+    now.setMinutes(minutes);
+    now.setSeconds(0);
+
+    return now;
   }
 }

@@ -1,41 +1,51 @@
 ion-content {
   --background: #f8fafd;
 }
+
 * {
   font-family: "Poppins";
 }
+
 .sale-resale-rental-row {
   span {
     font-size: 14px;
   }
+
   .active_btn {
     background: linear-gradient(180deg, #ffffff 0%, #d3ebff 100%) !important;
     border-bottom: 1px solid #1366a5 !important;
     box-shadow: none;
+
     span {
       color: #005d8c !important;
     }
   }
 }
+
 .active_btn {
   background-color: #1265a5 !important;
 }
+
 .datefilter-main-row {
   gap: 6px;
+
   .presets-container {
     border: 0.5px solid #e6e6e6;
     border-radius: 20px;
     padding: 2px !important;
     background-color: white;
   }
+
   .active_btn {
     border-radius: 20px;
   }
+
   .date-btn,
   .refresh-btn {
     background-color: white;
     border-radius: 20px;
     font-size: 1.4rem;
+
     ion-icon {
       color: #ababab !important;
     }
@@ -47,12 +57,15 @@ ion-content {
 .booked-card.selected,
 .followups-card.selected {
   border-color: rgb(198, 137, 132);
+
   .selected-card {
     border-color: rgb(198, 137, 132);
   }
 }
+
 .usv-card.selected {
   border-color: rgb(2, 171, 255);
+
   .selected-card {
     border-color: rgb(2, 171, 255);
   }
@@ -62,18 +75,23 @@ ion-content {
 .booked-card,
 .followups-card {
   background: linear-gradient(81.85deg, #ffffff 48.93%, #ffe4e1 106.84%);
+
   .selected-card {
     background: #ffdad5;
   }
+
   h1 {
     color: #73322d;
   }
 }
+
 .usv-card {
   background: linear-gradient(84.03deg, #ffffff 32.95%, #e5f6fe 104.6%);
+
   .selected-card {
     background: #c3ebff;
   }
+
   h1 {
     color: #004e76;
   }
@@ -89,6 +107,7 @@ ion-content {
   overflow: hidden;
   // margin: 0 2px;
   padding: 0;
+
   .selected-card {
     border-radius: 0;
     padding-left: 4px;
@@ -122,29 +141,35 @@ ion-content {
 .border-right {
   border-right: 1px solid;
 }
+
 .border-left {
   border-left: 1px solid;
 }
+
 .border-right-left {
   border-right: 1px solid;
   border-left: 1px solid;
 }
+
 .border-left-bottom-right {
   border-radius: 0 0 6px 6px !important;
   border-left: 1px solid;
   border-bottom: 1px solid;
   border-right: 1px solid;
 }
+
 .border-left-bottom {
   border-radius: 0 0 0 6px !important;
   border-left: 1px solid;
   border-bottom: 1px solid;
 }
+
 .border-right-bottom {
   border-radius: 0 0 6px 0 !important;
   border-right: 1px solid;
   border-bottom: 1px solid;
 }
+
 .border-left-top-right {
   border-radius: 6px 6px 0 0 !important;
   border-left: 1px solid;
@@ -157,9 +182,11 @@ ion-content {
   border-left: 1px solid;
   border-top: 1px solid;
 }
+
 .leads-card {
   background: #ffffff;
 }
+
 .card-count {
   position: absolute;
   right: 0px;
@@ -168,10 +195,12 @@ ion-content {
   color: white;
   font-size: 0.8rem;
 }
+
 ion-item::part(native) {
   --inner-padding-end: 0 !important;
   --padding-start: 0 !important;
 }
+
 .label {
   margin-bottom: 0;
   color: #8a8a8a !important;
@@ -196,6 +225,7 @@ ion-item::part(native) {
   font-family: Poppins;
   font-size: 9px;
 }
+
 .custom-ion-item {
   --inner-item-padding-top: 0;
   --inner-item-padding-bottom: 0;
@@ -207,10 +237,12 @@ ion-item::part(native) {
   width: 100%;
   padding-left: 10px;
 }
+
 ::ng-deep ion-icon.ion-accordion-toggle-icon.md.hydrated {
   width: 15px;
   margin: 5px;
 }
+
 .update-btn-row {
   span {
     color: white;
@@ -225,6 +257,7 @@ ion-modal.cp_dashboard_custDate_modal::part(content) {
   border-radius: 20px 20px 0 0 !important;
   overflow: hidden;
 }
+
 ion-modal {
   --backdrop-opacity: 1.4;
   // --height: auto;
@@ -276,6 +309,7 @@ ion-modal {
 ::ng-deep.confirm-btn::part(native) {
   padding: 12px;
 }
+
 .error-text {
   font-size: 12px;
   font-family: "Poppins";
@@ -287,6 +321,7 @@ ion-datetime {
   max-width: 100%;
   --background: #ffffff;
 }
+
 .filterButtons ion-button {
   color: #0b7ab2;
   font-size: 12px;
@@ -303,29 +338,35 @@ ion-datetime {
   background: linear-gradient(83.66deg, #ffffff 32.79%, #d8d3ff 156.84%);
   border-top: 1px solid #180d6e;
   border-bottom: 1px solid #180d6e;
+
   h1 {
     color: #180d6e;
   }
 }
+
 .visits-row {
   .selected {
     border: 1px solid #180d6e;
   }
+
   ion-card {
     background: linear-gradient(83.66deg, #ffffff 32.79%, #d8d3ff 156.84%);
     padding: 4px;
     border: 2px solid #ffffff;
   }
+
   ion-img {
     width: 20px;
     position: absolute;
     right: 0;
   }
+
   p {
     font-weight: 400 !important;
     font-size: 0.68rem;
     color: #180d6e;
   }
+
   h1 {
     font-weight: 500;
     font-size: 18px;
@@ -426,8 +467,10 @@ ion-item {
   padding: 4px 0;
   font-size: 13px;
 }
+
 .filter-right ion-checkbox {
-  --size: 16px; /* default is bigger */
+  --size: 16px;
+  /* default is bigger */
   margin-right: 6px;
   --border-color-checked: #0b7ab2;
   --checkbox-background-checked: #0b7ab2;
@@ -436,21 +479,26 @@ ion-item {
 .filter-right ion-label {
   font-size: 14px;
 }
+
 .search-style {
   position: sticky;
   top: -10px;
   padding: 0;
   z-index: 999;
+  background: #fff;
 }
+
 ion-modal.filter_modal::part(content) {
   border-radius: 20px 20px 0 0 !important;
   overflow: hidden;
   --background: #f5f7fa;
 }
+
 ion-modal.filter_modal {
   --backdrop-opacity: 0.7;
   padding-top: 72px;
 }
+
 .filterIcon label {
   background: #ececec;
   width: 20px;
@@ -467,6 +515,7 @@ ion-modal.filter_modal {
   padding: 5px;
   --ionicon-stroke-width: 60px;
 }
+
 .scroll-row {
   display: flex;
   flex-wrap: nowrap;
@@ -476,7 +525,8 @@ ion-modal.filter_modal {
 }
 
 .scroll-row::-webkit-scrollbar {
-  display: none; /* Hide scrollbar (Chrome) */
+  display: none;
+  /* Hide scrollbar (Chrome) */
 }
 
 .scroll-col {
@@ -496,6 +546,7 @@ ion-modal.filter_modal {
   height: 26px;
   min-height: 26px;
 }
+
 .scroll-col {
   flex: 0 0 auto;
   display: flex;
@@ -509,6 +560,7 @@ ion-modal.filter_modal {
   color: #0b7ab2;
   font-size: 12px;
   border: 0.5px #0b7ab2 solid;
-  border-radius: 4px; /* 🔥 better chip look */
+  border-radius: 4px;
+  /* 🔥 better chip look */
   height: 26px;
 }
