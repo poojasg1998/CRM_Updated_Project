@@ -381,4 +381,31 @@ export class AllBookingsComponent implements OnInit {
       },
     });
   }
+  onSwipe(event, lead: any) {
+    if (event?.detail?.side == 'start' || event == 'chat') {
+      window.open(`https://wa.me/+91 ${lead.number}`, '_system');
+      // this.navigateToWhatsApp(lead.number);
+    } else {
+      window.open(`tel:${lead.number}`, '_system');
+      if (lead && lead.number) {
+        // Trigger the call
+        window.open(`tel:${lead.number}`, '_system');
+      } else {
+        console.error('Phone number not available for the selected lead.');
+      }
+    }
+  }
+  // onCallChat(value, lead) {
+  //   if (value == 'chat') {
+  //     window.open(`https://wa.me/+91 ${lead.number}`, '_system');
+  //   } else {
+  //     window.open(`tel:${lead.number}`, '_system');
+  //     if (lead && lead.number) {
+  //       // Trigger the call
+  //       window.open(`tel:${lead.number}`, '_system');
+  //     } else {
+  //       console.error('Phone number not available for the selected lead.');
+  //     }
+  //   }
+  // }
 }

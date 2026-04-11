@@ -1255,6 +1255,7 @@
     <ion-row
       *ngIf="!(activestagestatus?.length && activestagestatus[0]?.stage == 'Junk' && feedbackID == '0') && (USV !== false || RSV !== false && negotiation !== false || leadclose !== false ||
           followup !== false || junk !== false) && !leadMoveJunkExec && !isleadcloseupdate && !(assignedrm && ['1','2','3','4','5','6'].includes(this.assignedrm[0]?.reassign_visibility) && isAdmin)">
+
       <ion-col size="3.5" *ngIf="followup" [ngClass]="stageForm == 'followupform'? 'bg_textColor':'status-btn'"
         class="content_center status-btn" (click)="actionChange('Follow Up')">
         <span class="followup">Followup</span>

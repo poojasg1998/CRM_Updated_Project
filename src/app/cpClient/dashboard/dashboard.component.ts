@@ -21,6 +21,7 @@ export class DashboardComponent implements OnInit {
   @ViewChild('scrollContent', { static: false }) scrollContent!: IonContent;
   @ViewChild('filter_modal') filter_modal;
   @ViewChild('add_lead') add_lead;
+  todayDate: string = new Date().toISOString().split('T')[0];
   readonly LEADS_DEFAULTS = {
     fromdate: '',
     todate: '',
@@ -117,7 +118,9 @@ export class DashboardComponent implements OnInit {
     private api: CpApiService,
     private fb: FormBuilder,
     public sharedService: SharedService
-  ) { }
+  ) {
+    this.todayDate = new Date().toISOString();
+  }
 
   ngOnInit() {
     this.addleadForm = this.fb.group({
@@ -354,7 +357,7 @@ export class DashboardComponent implements OnInit {
         ? this.LEADS_DEFAULTS
         : this.VISITS_DEFAULTS),
       isLeadsVisits: this.filteredParams.isLeadsVisits,
-      category: currentCategory
+      category: currentCategory,
     };
     this.dateRange = {
       fromdate: null as Date | null,
@@ -561,8 +564,11 @@ export class DashboardComponent implements OnInit {
   getLeadetails(isLoadmore) {
     this.count = isLoadmore ? (this.count += 5) : 0;
     this.filteredParams.limit = this.count;
-    console.log(this.filteredParams)
-    this.filteredParams.visited_count = (this.filteredParams.selectedStage == 'Active Visits' ? this.filteredParams.visited_count : '')
+    console.log(this.filteredParams);
+    this.filteredParams.visited_count =
+      this.filteredParams.selectedStage == 'Active Visits'
+        ? this.filteredParams.visited_count
+        : '';
     return new Promise((resolve, reject) => {
       this.api
         .getAssignedLeadsDetail(this.filteredParams)
@@ -585,13 +591,14 @@ export class DashboardComponent implements OnInit {
             this.filteredParams.slectedProp = this.filteredParams.propid[0];
             this.tempFilteredValues.slectedProp = this.filteredParams.propid;
 
-            this.filteredParams.selectedLeadsProp = this.suggestedProperty.filter(
-              (item) => {
+            this.filteredParams.selectedLeadsProp =
+              this.suggestedProperty.filter((item) => {
                 return this.filteredParams.suggestedpropname == item.name;
-              }
-            );
-            this.filteredParams.selectedLeadsProp = this.filteredParams.propid[0];
-            this.tempFilteredValues.selectedLeadsProp = this.filteredParams.propid;
+              });
+            this.filteredParams.selectedLeadsProp =
+              this.filteredParams.propid[0];
+            this.tempFilteredValues.selectedLeadsProp =
+              this.filteredParams.propid;
             resolve(true);
           } else {
             this.leads_detail = isLoadmore ? this.leads_detail : [];
@@ -737,24 +744,24 @@ export class DashboardComponent implements OnInit {
       this.filteredSource = !val
         ? [...this.source]
         : this.source.filter((item) =>
-          (item?.source || '').toLowerCase().includes(val)
-        );
+            (item?.source || '').toLowerCase().includes(val)
+          );
     }
 
     if (this.activeTab === 'property') {
       this.filteredProperty = !val
         ? [...this.suggestedProperty]
         : this.suggestedProperty.filter((item) =>
-          item.name.toLowerCase().includes(val)
-        );
+            item.name.toLowerCase().includes(val)
+          );
     }
 
     if (this.activeTab === 'enquiry') {
       this.filteredEnquiry = !val
         ? [...this.enquiredProperty]
         : this.enquiredProperty.filter((item) =>
-          item.name.toLowerCase().includes(val)
-        );
+            item.name.toLowerCase().includes(val)
+          );
     }
   }
 
@@ -805,7 +812,8 @@ export class DashboardComponent implements OnInit {
       visitedprop: this.tempFilteredValues.slectedProp?.propid || null,
       visitedpropName: this.tempFilteredValues.slectedProp?.name || null,
       suggestedprop: this.tempFilteredValues.selectedLeadsProp?.propid || null,
-      suggestedpropname: this.tempFilteredValues.selectedLeadsProp?.name || null
+      suggestedpropname:
+        this.tempFilteredValues.selectedLeadsProp?.name || null,
     };
     this.filter_modal.dismiss();
     this.router.navigate([], {
@@ -823,7 +831,7 @@ export class DashboardComponent implements OnInit {
         confirmButtonText: 'OK',
         heightAuto: false,
         allowOutsideClick: false,
-      }).then((result) => { });
+      }).then((result) => {});
     }
   }
 
@@ -951,5 +959,19 @@ export class DashboardComponent implements OnInit {
           scrollTop + clientHeight >= scrollHeight - 100;
       }
     });
+  }
+  onSwipe(event, lead: any) {
+    if (event?.detail?.side == 'start' || event == 'chat') {
+      window.open(`https://wa.me/+91 ${lead.number}`, '_system');
+      // this.navigateToWhatsApp(lead.number);
+    } else {
+      window.open(`tel:${lead.number}`, '_system');
+      if (lead && lead.number) {
+        // Trigger the call
+        window.open(`tel:${lead.number}`, '_system');
+      } else {
+        console.error('Phone number not available for the selected lead.');
+      }
+    }
   }
 }

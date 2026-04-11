@@ -6,6 +6,7 @@ import {
   Input,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import {
@@ -43,8 +44,8 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
   @Input() selectedExecId: any;
   @Output() openModal = new EventEmitter<void>();
   @ViewChild(IonModal) modal: IonModal;
-  @Input() selectedSuggestedProp: any;
   @Input() selectedBtn: any;
+  @Input() refreshTrigger: any;
   date: String = new Date().toISOString();
   followdownform: boolean;
   followupdown: boolean;
@@ -800,6 +801,8 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
       apitime = $('#USVvisitedtime').val();
     }
 
+    var visiteddate = $('#USVvisiteddate').val();
+    var visitedtime = $('#USVvisitedtime').val();
     var param = {
       leadid: this.leadId,
       nextdate: visiteddate,
@@ -808,6 +811,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
       execid: this.userid,
       assignid: this.usvexecutiveId,
       feedback: this.feedbackID,
+      categoryid: this.categoryid,
     };
     if (visiteddate != '' && visitedtime != '') {
       this._retailservice.addselectedsuggestedproperties(param).subscribe(
@@ -818,6 +822,7 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
               execid: this.userid,
               assignid: this.selectedExecId,
               feedback: this.feedbackID,
+              categoryid: this.categoryid,
             };
             this._retailservice
               .getselectedsuggestpropertiesretail(param2)
@@ -1151,6 +1156,10 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
       } else if (this.visitedprop[existingIndex].accompany == 'NOT Visited') {
         this.autolocksession = true;
         this.lockedsession = false;
+        $('#propertyremarks' + i).val('');
+        $('#accompaniedname' + i).val('');
+        $('#visitUpdate' + i).addClass('notVisitUpdate');
+        $('#visitUpdate' + i).removeClass('donevisitUpdate');
       } else {
         if (this.visitedprop[existingIndex].remarks == '') {
           this.autolocksession = true;
@@ -1158,6 +1167,8 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
         } else if (this.visitedprop[existingIndex].remarks == 'NOT Visited') {
           this.autolocksession = true;
           this.lockedsession = false;
+          $('#propertyremarks' + i).val('');
+          $('#accompaniedname' + i).val('');
         } else {
           this.autolocksession = false;
           // this.lockedsession = true;
@@ -1270,6 +1281,10 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
       } else if (this.visitedprop[existingIndex].accompany == 'NOT Visited') {
         this.autolocksession = true;
         this.lockedsession = false;
+        $('#propertyremarks' + i).val('');
+        $('#accompaniedname' + i).val('');
+        $('#visitUpdate' + i).addClass('notVisitUpdate');
+        $('#visitUpdate' + i).removeClass('donevisitUpdate');
       } else {
         if (this.visitedprop[existingIndex].remarks == '') {
           this.autolocksession = true;
@@ -1277,9 +1292,11 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
         } else if (this.visitedprop[existingIndex].remarks == 'NOT Visited') {
           this.autolocksession = true;
           this.lockedsession = false;
+          $('#propertyremarks' + i).val('');
+          $('#accompaniedname' + i).val('');
         } else {
           this.autolocksession = false;
-          // this.lockedsession = true;
+          this.lockedsession = true;
         }
       }
     }
@@ -1766,63 +1783,60 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
         }
       }, 0);
     } else if ((num = 2)) {
-      this.isEdit = true;
       this.usvDate = this.assignedRM[0].latest_action_date;
       this.usvTime = this.assignedRM[0].latest_action_time;
+      this.isEdit = true;
     }
   }
 
   scriptfunctions() {
-    $('.ui.dropdown').dropdown();
-    $('.calendardate').calendar({
-      type: 'date',
-      // minDate: this.date,
-      // maxDate: this.priorDate,
-      formatter: {
-        date: function (date, settings) {
-          if (!date) return '';
-          var day = date.getDate();
-          var month = date.getMonth() + 1;
-          var year = date.getFullYear();
-          return year + '-' + month + '-' + day;
-        },
-      },
-    });
-
-    $('.usvvisitedcalendardate').calendar({
-      type: 'date',
-      // minDate: this.priorDatebefore,
-      // maxDate: this.date,
-      formatter: {
-        date: function (date, settings) {
-          if (!date) return '';
-          var day = date.getDate();
-          var month = date.getMonth() + 1;
-          var year = date.getFullYear();
-          return year + '-' + month + '-' + day;
-        },
-      },
-    });
-
-    var minDate = new Date();
-    var maxDate = new Date();
-    minDate.setHours(7);
-    maxDate.setHours(20);
-    $('.calendartime').calendar({
-      type: 'time',
-      disableMinute: true,
-      minDate: minDate,
-      maxDate: maxDate,
-    });
-
-    $.extend($.expr[':'], {
-      unchecked: function (obj) {
-        return (
-          (obj.type == 'checkbox' || obj.type == 'radio') &&
-          !$(obj).is(':checked')
-        );
-      },
-    });
+    // $('.ui.dropdown').dropdown();
+    // $('.calendardate').calendar({
+    //   type: 'date',
+    //   // minDate: this.date,
+    //   // maxDate: this.priorDate,
+    //   formatter: {
+    //     date: function (date, settings) {
+    //       if (!date) return '';
+    //       var day = date.getDate();
+    //       var month = date.getMonth() + 1;
+    //       var year = date.getFullYear();
+    //       return year + '-' + month + '-' + day;
+    //     },
+    //   },
+    // });
+    // $('.usvvisitedcalendardate').calendar({
+    //   type: 'date',
+    //   // minDate: this.priorDatebefore,
+    //   // maxDate: this.date,
+    //   formatter: {
+    //     date: function (date, settings) {
+    //       if (!date) return '';
+    //       var day = date.getDate();
+    //       var month = date.getMonth() + 1;
+    //       var year = date.getFullYear();
+    //       return year + '-' + month + '-' + day;
+    //     },
+    //   },
+    // });
+    // var minDate = new Date();
+    // var maxDate = new Date();
+    // minDate.setHours(7);
+    // maxDate.setHours(20);
+    // $('.calendartime').calendar({
+    //   type: 'time',
+    //   disableMinute: true,
+    //   minDate: minDate,
+    //   maxDate: maxDate,
+    // });
+    // $.extend($.expr[':'], {
+    //   unchecked: function (obj) {
+    //     return (
+    //       (obj.type == 'checkbox' || obj.type == 'radio') &&
+    //       !$(obj).is(':checked')
+    //     );
+    //   },
+    // });
   }
 
   convertToDateTime(timeStr: string): Date {
@@ -1841,5 +1855,11 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
     now.setSeconds(0);
 
     return now;
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['refreshTrigger']) {
+      this.loadimportantapi();
+    }
   }
 }

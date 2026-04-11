@@ -10,4 +10,7 @@ export class CpHeaderComponent implements OnInit {
   constructor(public router: Router) {}
 
   ngOnInit() {}
+  dashboardRedirect() {
+    this.router.navigate(['/cp-dashboard']);
+  }
 }

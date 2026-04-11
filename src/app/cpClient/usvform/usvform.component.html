@@ -28,13 +28,13 @@
 
       <div class="main_suggested_div">
         <ion-row class="ks-cboxtags">
-          <ion-col *ngFor="let property of selectedSuggestedProp; let i = index" class="ion-text-center">
+          <ion-col *ngFor="let property of suggestedpropertylists; let i = index" class="ion-text-center">
             <input type="checkbox" id="checkbox{{i}}" value="{{property.propid}}" name='programming'
               (change)="selectsuggested(i,property.propid,property.name)">
             <label for="checkbox{{i}}" id="checkboxlabel{{i}}">{{property.name}}</label>
           </ion-col>
         </ion-row>
-        <div *ngIf="!selectedSuggestedProp"
+        <div *ngIf="!suggestedpropertylists"
           style="font-size:medium;font-weight: 700;display: flex;justify-content: center;color: #a9a9a9;">No Properties
           Suggested</div>
       </div>
@@ -68,9 +68,9 @@
       </ion-row>
       <ion-row class="center-content">
         <div no-lines class="date-input inputTime-with-image">
-          <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time"
-              id="nextactiontime" aria-label="12hr format" [ngxTimepicker]="default" [(ngModel)]="usvTime"
-              name="nextactiontime" (ngModelChange)="validateTime()" readonly required></div>
+          <div style="width: 100%;height: 100%;"> <input style="width: 100%;height: 100%;" pInputText
+              placeholder="Choose Time" id="nextactiontime" aria-label="12hr format" [ngxTimepicker]="default"
+              [(ngModel)]="usvTime" name="nextactiontime" (ngModelChange)="validateTime()" readonly required></div>
         </div>
       </ion-row>
 
@@ -157,9 +157,9 @@
         </ion-row>
         <ion-row class="center-content">
           <div no-lines class="date-input inputTime-with-image">
-            <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time" id="refixtime"
-                aria-label="12hr format" [ngxTimepicker]="default1" [(ngModel)]="usvTime" name="refixtime"
-                (ngModelChange)="validateTime()" readonly required></div>
+            <div style="width: 100%;height: 100%;"> <input style="width: 100%;height: 100%;" pInputText
+                placeholder="Choose Time" id="refixtime" aria-label="12hr format" [ngxTimepicker]="default1"
+                [(ngModel)]="usvTime" name="refixtime" (ngModelChange)="validateTime()" readonly required></div>
           </div>
         </ion-row>
 
@@ -273,9 +273,9 @@
           </ion-row>
           <ion-row class="center-content">
             <div no-lines class="date-input inputTime-with-image">
-              <div style="width: 100%;"> <input style="width: 100%;" pInputText placeholder="Choose Time"
-                  id="USVvisitedtime" aria-label="12hr format" [ngxTimepicker]="default2" [(ngModel)]="usvTime"
-                  name="USVvisitedtime" readonly (ngModelChange)="validateTime()" required></div>
+              <div style="width: 100%;height: 100%;"> <input style="width: 100%;height: 100%;" pInputText
+                  placeholder="Choose Time" id="USVvisitedtime" aria-label="12hr format" [ngxTimepicker]="default2"
+                  [(ngModel)]="usvTime" name="USVvisitedtime" readonly (ngModelChange)="validateTime()" required></div>
             </div>
           </ion-row>
           <ngx-material-timepicker #default2></ngx-material-timepicker>

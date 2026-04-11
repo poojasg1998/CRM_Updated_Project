@@ -1,0 +1,74 @@
+<ion-header>
+  <app-cp-header></app-cp-header>
+</ion-header>
+<ion-content>
+  <ion-searchbar class="font-size12-familyPoppins font-weight400 mainSearch" placeholder="Search a name / mobile number"
+    (ionInput)="searchClient($event)" (ionFocus)="toggleSearchFocus()" (ionBlur)="toggleSearchFocus()"></ion-searchbar>
+
+  <ion-item-sliding #sliding *ngFor="let lead of leads_detail,let i= index" (ionSwipe)="onSwipe($event,lead)">
+    <ion-item lines="none">
+      <ion-card class="leads-card w-100 mt-0">
+        <div class="card-count">
+          <span>{{ i + 1 | number:'2.0'}}
+          </span>
+        </div>
+        <ion-grid class="p-0" (click)="navigateToDetailsPage(lead)">
+          <div>
+            <ion-row style="line-height: 1.4;">
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Lead Name</p>
+                  <p class="value">{{lead.customer_name}}</p>
+                </div>
+              </ion-col>
+
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Number </p>
+                  <p class="value">{{lead.customer_number}}</p>
+                </div>
+              </ion-col>
+            </ion-row>
+          </div>
+        </ion-grid>
+        <div>
+          <ion-row>
+            <ion-accordion-group class="w-100">
+              <ion-accordion *ngIf="(lead.manualremarks || lead.visitremarks)" value="second"
+                style="border-top: 0.75px #ECECEC solid;" class="latestRemark">
+                <ion-item slot="header" color="light" class="custom-ion-item" style="--inner-padding-end:0;padding: 0;">
+                  <ion-label style="flex-grow: 1;margin: 5px">
+                    Latest Remark
+                  </ion-label>
+                </ion-item>
+                <div style="border-top: 0.75px #ECECEC solid;" class="p-2" slot="content">
+                  <p>{{lead.visitremarks}}</p>
+                  <p>{{lead.manualremarks}}</p>
+                  <p *ngIf="lead.manualremarks === null">{{lead.remarks}}</p>
+                </div>
+              </ion-accordion>
+            </ion-accordion-group>
+          </ion-row>
+        </div>
+        <ion-row style="justify-content: end;">
+          <ion-col size="1" class="d-flex align-items-center  justify-content-center" (click)="onSwipe('call',lead)">
+            <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
+          </ion-col>
+          <ion-col size="1" class="d-flex align-items-center  justify-content-center" (click)="onSwipe('chat',lead)">
+            <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
+          </ion-col>
+        </ion-row>
+      </ion-card>
+    </ion-item>
+    <ion-item-options side="end" style="background: white;">
+      <ion-img src="../../assets/CRMimages/phone-call.svg" style="width:45px;padding: 10px;"
+        class="call-icon"></ion-img>
+    </ion-item-options>
+
+    <ion-item-options side="start" style="background: white;">
+      <ion-img src="../../assets/CRMimages/whatsapp_icon.svg" style="width:52px;padding: 10px;"
+        class="call-icon"></ion-img>
+    </ion-item-options>
+  </ion-item-sliding>
+</ion-content>
+<app-cp-footer></app-cp-footer>

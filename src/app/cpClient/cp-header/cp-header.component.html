@@ -1,6 +1,7 @@
 <ion-header mode="md">
   <ion-row>
-    <ion-col size="2"><ion-img class="logo" src="../../assets/CRMimages/logo.png">
+    <ion-col size="2" (click)="!router.url.includes('cp-dashboard') ?dashboardRedirect():''"><ion-img class="logo"
+        src="../../assets/CRMimages/logo.png">
       </ion-img>
     </ion-col>
     <ion-col>
@@ -33,6 +34,12 @@
             Lead Status
           </ion-col>
         </span>
+        <ion-col class="d-flex align-items-center justify-content-center" *ngIf="router.url.includes('add-lead')">
+          Add Lead
+        </ion-col>
+        <ion-col class="d-flex align-items-center justify-content-center" *ngIf="router.url.includes('cp-search')">
+          Seach Lead
+        </ion-col>
       </ion-row>
     </ion-col>
     <ion-col size="2" class="d-flex align-items-center justify-content-center">

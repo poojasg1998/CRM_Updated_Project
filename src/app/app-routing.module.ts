@@ -338,6 +338,20 @@ const routes: Routes = [
         (m) => m.MyExecutiveModule
       ),
   },
+  {
+    path: 'add-lead',
+    loadChildren: () =>
+      import('./cpClient/add-lead/add-lead.module').then(
+        (m) => m.AddLeadModule
+      ),
+  },
+  {
+    path: 'cp-search',
+    loadChildren: () =>
+      import('./cpClient/cp-search/cp-search.module').then(
+        (m) => m.CpSearchModule
+      ),
+  },
 ];
 
 @NgModule({

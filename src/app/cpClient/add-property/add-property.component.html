@@ -13,24 +13,24 @@
   </ion-row>
 </div>
 
-<ion-row class="sale-resale-rental-row mb-0">
-  <ion-col (click)="onCategory('Sale')" class="d-flex  align-items-center justify-content-center px-0"
-    [class.active_btn]="category == 'Sale'">
+<ion-row class="sale-resale-rental-row mb-0" *ngIf="isPropSourceLocality=='property'">
+  <ion-col (click)="onCategory('1')" class="d-flex  align-items-center justify-content-center px-0"
+    [class.active_btn]="selectedCategories?.includes('1')">
     <span>Sale</span>
-    <ion-img *ngIf="category != 'Sale'" src="../../../assets/cp/sale.svg"></ion-img>
-    <ion-img *ngIf="category == 'Sale'" src="../../../assets/cp/active-sale.svg"></ion-img>
+    <ion-img *ngIf="!selectedCategories?.includes('1')" src="../../../assets/cp/sale.svg"></ion-img>
+    <ion-img *ngIf="selectedCategories?.includes('1')" src="../../../assets/cp/active-sale.svg"></ion-img>
   </ion-col>
-  <ion-col size="4" (click)="onCategory('Rental')" class="d-flex  align-items-center justify-content-center px-0"
-    [class.active_btn]="category == 'Rental'">
+  <ion-col size="4" (click)="onCategory('2')" class="d-flex  align-items-center justify-content-center px-0"
+    [class.active_btn]="selectedCategories?.includes('2')">
     <span>Resale</span>
-    <ion-img *ngIf="category != 'Rental'" src="../../../assets/cp/resale.svg"></ion-img>
-    <ion-img *ngIf="category == 'Rental'" src="../../../assets/cp/active-resale.svg"></ion-img>
+    <ion-img *ngIf="!selectedCategories?.includes('2')" src="../../../assets/cp/resale.svg"></ion-img>
+    <ion-img *ngIf="selectedCategories?.includes('2')" src="../../../assets/cp/active-resale.svg"></ion-img>
   </ion-col>
-  <ion-col (click)="onCategory('Resale')" class="d-flex align-items-center justify-content-center px-0"
-    [class.active_btn]="category == 'Resale'">
+  <ion-col (click)="onCategory('3')" class="d-flex align-items-center justify-content-center px-0"
+    [class.active_btn]="selectedCategories?.includes('3')">
     <span>Rental</span>
-    <ion-img *ngIf="category != 'Resale'" src="../../../assets/cp/rental.svg"></ion-img>
-    <ion-img *ngIf="category == 'Resale'" src="../../../assets/cp/active-rental.svg"></ion-img>
+    <ion-img *ngIf="!selectedCategories?.includes('3')" src="../../../assets/cp/rental.svg"></ion-img>
+    <ion-img *ngIf="selectedCategories?.includes('3')" src="../../../assets/cp/active-rental.svg"></ion-img>
   </ion-col>
 </ion-row>
 
@@ -190,3 +190,4 @@
   (click)="isPropSourceLocality == 'property'? addProperty.present(): isPropSourceLocality == 'source'?addSource.present():addLocality.present()">
   <ion-icon name="add"></ion-icon>
 </div>
+<app-cp-footer></app-cp-footer>

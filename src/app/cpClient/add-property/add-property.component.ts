@@ -14,6 +14,8 @@ export class AddPropertyComponent implements OnInit {
   @ViewChild('addProperty') addProperty;
   @ViewChild('addSource') addSource;
   @ViewChild('addLocality') addLocality;
+
+  catergoryid = '';
   showSpinner = false;
   isPropSourceLocality = 'property';
   source: any;
@@ -24,6 +26,7 @@ export class AddPropertyComponent implements OnInit {
   addLocalityForm!: FormGroup;
   category = '';
   filterPropertyList: any;
+  selectedCategories: any;
   constructor(
     private activeroute: ActivatedRoute,
     private router: Router,
@@ -44,6 +47,13 @@ export class AddPropertyComponent implements OnInit {
       name: ['', Validators.required],
     });
     this.activeroute.queryParams.subscribe((params) => {
+      const paramValue = params['categoryid'];
+
+      if (paramValue && this.selectedCategories.length === 0) {
+        this.selectedCategories = paramValue.split(',');
+      }
+
+      console.log('From URL:', this.selectedCategories);
       this.showSpinner = true;
       if (params['isPropSourceLocality']) {
         this.isPropSourceLocality = params['isPropSourceLocality'];
@@ -82,7 +92,14 @@ export class AddPropertyComponent implements OnInit {
     });
   }
   getProperties() {
-    this.api.propertylistnew().subscribe((resp) => {
+    const categoryValue = this.selectedCategories?.length
+      ? this.selectedCategories.join(',')
+      : '';
+
+    const params = {
+      category: categoryValue,
+    };
+    this.api.propertylistnew(params).subscribe((resp) => {
       this.propertyList = resp['Properties'];
       this.filterPropertyList = this.propertyList;
       this.showSpinner = false;
@@ -177,14 +194,44 @@ export class AddPropertyComponent implements OnInit {
       }
     });
   }
-  onCategory(value) {
-    this.category = this.category === value ? null : value;
-    if (this.category != null) {
-      this.filterPropertyList = this.propertyList.filter((item) => {
-        return item.listing_category === value;
-      });
-    } else {
-      this.filterPropertyList = this.propertyList;
+  // onCategory(value) {
+  //   this.router.navigate([], {
+  //     queryParams: {
+  //       catergoryid: value,
+  //     },
+  //   });
+  //   // this.category = this.category === value ? null : value;
+  //   // if (this.category != null) {
+  //   //   this.filterPropertyList = this.propertyList.filter((item) => {
+  //   //     return item.listing_category === value;
+  //   //   });
+  //   // } else {
+  //   //   this.filterPropertyList = this.propertyList;
+  //   // }
+  // }
+
+  onCategory(id: string) {
+    if (!this.selectedCategories) {
+      this.selectedCategories = [];
     }
+
+    const index = this.selectedCategories.indexOf(id);
+
+    if (index > -1) {
+      this.selectedCategories.splice(index, 1);
+    } else {
+      this.selectedCategories.push(id);
+    }
+
+    const value = this.selectedCategories.join(',');
+
+    console.log('Final Selected:', this.selectedCategories); // ✅
+
+    this.router.navigate([], {
+      queryParams: {
+        categoryid: value,
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 }

@@ -218,7 +218,7 @@
       </ion-col>
     </ion-row>
 
-    <ion-item-sliding #sliding *ngFor="let lead of leads_detail,let i= index">
+    <ion-item-sliding #sliding *ngFor="let lead of leads_detail,let i= index" (ionSwipe)="onSwipe($event,lead)">
       <ion-item lines="none">
         <ion-card class="leads-card w-100 mt-0">
           <div class="card-count">
@@ -283,8 +283,25 @@
               </ion-accordion-group>
             </ion-row>
           </div>
+          <ion-row style="justify-content: end;">
+            <ion-col size="1" class="d-flex align-items-center  justify-content-center" (click)="onSwipe('call',lead)">
+              <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
+            </ion-col>
+            <ion-col size="1" class="d-flex align-items-center  justify-content-center" (click)="onSwipe('chat',lead)">
+              <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
+            </ion-col>
+          </ion-row>
         </ion-card>
       </ion-item>
+      <ion-item-options side="end" style="background: white;">
+        <ion-img src="../../assets/CRMimages/phone-call.svg" style="width:45px;padding: 10px;"
+          class="call-icon"></ion-img>
+      </ion-item-options>
+
+      <ion-item-options side="start" style="background: white;">
+        <ion-img src="../../assets/CRMimages/whatsapp_icon.svg" style="width:52px;padding: 10px;"
+          class="call-icon"></ion-img>
+      </ion-item-options>
     </ion-item-sliding>
   </div>
   <ion-row *ngIf="(leads_detail?.length==0)" class="textStyle ion-justify-content-center ion-align-items-center">
@@ -337,13 +354,14 @@
 <ion-modal #cp_dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()" (ionChange)="onFromDateSelected($event)">
   <ng-template>
-    <ion-datetime presentation="date" [(ngModel)]="dateRange.fromdate"></ion-datetime>
+    <ion-datetime [max]="todayDate" presentation="date" [(ngModel)]="dateRange.fromdate"></ion-datetime>
   </ng-template>
 </ion-modal>
 <ion-modal #cp_dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()" (ionChange)="onToDateSelected($event)">
   <ng-template>
-    <ion-datetime presentation="date" [min]="dateRange.fromdate" [(ngModel)]="dateRange.todate"></ion-datetime>
+    <ion-datetime [max]="todayDate" presentation="date" [min]="dateRange.fromdate"
+      [(ngModel)]="dateRange.todate"></ion-datetime>
   </ng-template>
 </ion-modal>
 
@@ -407,3 +425,4 @@
 <div class="floatting-icon" *ngIf="!sharedService.isBottom">
   <ion-img src="../../../assets/cp/filter-icon.svg" (click)="onFilterModal()"></ion-img>
 </div>
+<app-cp-footer></app-cp-footer>

@@ -6,6 +6,7 @@ import {
   Input,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,6 +32,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
   @Output() openModal = new EventEmitter<void>();
   @Input() selectedExecId: any;
   @Input() selectedSuggestedProp: any;
+  @Input() refreshTrigger: any;
   @Input() selectedBtn: any;
   date: String = new Date().toISOString();
   assignedRM: any;
@@ -897,6 +899,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                         weekplan: weekplan,
                         property: this.suggestchecked,
                         feedback: this.feedbackID,
+                        categoryid: this.categoryid,
                       };
                       this._retailservice
                         .addleadhistoryretail(leadsvdoneparam)
@@ -923,6 +926,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                                 weekplan: '',
                                 property: this.suggestchecked,
                                 feedback: this.feedbackID,
+                                categoryid: this.categoryid,
                               };
                               this._retailservice
                                 .addleadhistoryretail(leadrsvfixparam)
@@ -1064,6 +1068,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                         weekplan: '',
                         property: this.suggestchecked,
                         feedback: this.feedbackID,
+                        categoryid: this.categoryid,
                       };
                       this._retailservice
                         .addleadhistoryretail(leadrsvfixparam)
@@ -1245,6 +1250,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                         weekplan: weekplan,
                         property: this.suggestchecked,
                         feedback: this.feedbackID,
+                        categoryid: this.categoryid,
                       };
                       this._retailservice
                         .addleadhistoryretail(leadnegodoneparam)
@@ -1271,6 +1277,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                                 autoremarks: this.autoremarks,
                                 property: this.suggestchecked,
                                 feedback: this.feedbackID,
+                                categoryid: this.categoryid,
                               };
                               this._retailservice
                                 .addleadhistoryretail(leadrsvfixparam)
@@ -2188,6 +2195,10 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
       } else if (this.visitedprop[existingIndex].accompany == 'NOT Visited') {
         this.autolocksession = true;
         this.lockedsession = false;
+        $('#propertyremarks' + i).val('');
+        $('#accompaniedname' + i).val('');
+        $('#visitUpdate' + i).addClass('notVisitUpdate');
+        $('#visitUpdate' + i).removeClass('donevisitUpdate');
       } else {
         if (this.visitedprop[existingIndex].remarks == '') {
           this.autolocksession = true;
@@ -2314,6 +2325,10 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
       } else if (this.visitedprop[existingIndex].accompany == 'NOT Visited') {
         this.autolocksession = true;
         this.lockedsession = false;
+        $('#propertyremarks' + i).val('');
+        $('#accompaniedname' + i).val('');
+        $('#visitUpdate' + i).addClass('notVisitUpdate');
+        $('#visitUpdate' + i).removeClass('donevisitUpdate');
       } else {
         if (this.visitedprop[existingIndex].remarks == '') {
           this.autolocksession = true;
@@ -3021,6 +3036,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                     property: selectedpropertylists.join(','),
                     weekplan: checkedDay,
                     feedback: this.feedbackID,
+                    categoryid: this.categoryid,
                   };
                   this._retailservice
                     .addleadhistoryretail(leadsvdoneparam)
@@ -3137,5 +3153,10 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
     now.setSeconds(0);
 
     return now;
+  }
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['refreshTrigger']) {
+      this.loadimportantapi();
+    }
   }
 }

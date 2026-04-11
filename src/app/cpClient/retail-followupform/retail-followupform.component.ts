@@ -99,6 +99,10 @@ export class RetailFollowupformComponent implements OnInit {
           )
           .pipe(
             switchMap((cust) => {
+              console.log(cust);
+              console.log(
+                cust?.['RMname']?.[0]?.['suggestedprop']?.[0]?.propid
+              );
               if (cust && cust['RMname'] && cust['RMname'][0]) {
                 this.executeid = cust['RMname'][0].executiveid;
                 this.suggestchecked =
@@ -983,6 +987,7 @@ export class RetailFollowupformComponent implements OnInit {
             feedback: this.feedbackID,
             categoryid: this.categoryid,
           };
+          console.log(followups);
           this._retailservice.addfollowuphistory(followups).subscribe(
             (success) => {
               if (success['status'] == 'True') {

@@ -1,0 +1,113 @@
+.addLeadForm {
+  margin: 4px;
+
+  ion-row > ion-col:first-child {
+    div:first-child {
+      font-size: 14px;
+      color: #666666;
+      font-weight: 400;
+    }
+
+    ion-row:nth-child(2) {
+      ion-col {
+        border-radius: 4px;
+        border: 0.6px solid #dfdfdf;
+        color: #595454;
+        background: #ffffff;
+        font-size: 14px;
+      }
+    }
+  }
+
+  ion-textarea,
+  ion-input {
+    border: 0.5px solid #e5e7eb;
+    border-radius: 4px;
+    width: 100%;
+    padding-left: 4px !important;
+    background-color: #ffffff;
+    font-size: 14px;
+  }
+
+  ion-input {
+    height: 30px;
+    font-size: 0.9rem;
+    color: #595454;
+  }
+
+  p-dropdown {
+    width: 100%;
+  }
+
+  .active,
+  .save-row ion-button {
+    background: #0b7ab2 !important;
+    color: #ffffff !important;
+  }
+}
+
+::ng-deep .addLeadForm p-dropdown .p-inputwrapper span {
+  font-size: 14px !important;
+  font-weight: 400;
+  color: #595454;
+  padding: 4px;
+}
+
+::ng-deep .addLeadForm .p-dropdown-header {
+  padding: 1px !important;
+}
+
+::ng-deep .addLeadForm .p-dropdown-header searchicon svg {
+  width: 10px !important;
+}
+
+::ng-deep .addLeadForm .p-dropdown-items li {
+  padding: 0 2px;
+  font-size: 12px;
+}
+
+::ng-deep .addLeadForm p-dropdown .p-inputwrapper {
+  width: 100% !important;
+  border: 0.6px solid #dfdfdf;
+}
+
+::ng-deep
+  .addLeadForm
+  p-dropdown
+  .p-inputwrapper
+  .p-dropdown-trigger
+  chevrondownicon {
+  width: 12px;
+  color: #474747;
+}
+
+::ng-deep .addLeadForm p-dropdown .p-inputwrapper .p-dropdown-trigger {
+  width: 22px !important;
+}
+
+::ng-deep .addLeadForm .p-element .p-dropdown-item {
+  padding: 5px !important;
+  font-size: 12px;
+}
+
+.error-field {
+  border: 1px solid red !important;
+}
+
+::ng-deep .addLeadForm p-dropdown.error-field .p-inputwrapper {
+  width: 100% !important;
+  border: 1px solid red !important;
+}
+
+.error-text {
+  font-size: 0.68rem;
+  color: red;
+}
+
+::ng-deep .native-wrapper textarea {
+  padding: 4px 0 14px 0 !important;
+}
+
+.filter_opt {
+  z-index: 9 !important;
+}

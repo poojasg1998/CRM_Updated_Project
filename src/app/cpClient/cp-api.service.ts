@@ -33,8 +33,9 @@ export class CpApiService {
     }
   }
 
-  propertylistnew() {
-    return this.http.get(this.retailcrm + '/propertynewlists');
+  propertylistnew(param) {
+    let params = new HttpParams().set('category', param.category || '');
+    return this.http.get(this.retailcrm + '/propertynewlists', { params });
   }
 
   // TO ASSIGN LEAD
@@ -434,7 +435,7 @@ export class CpApiService {
       .set('autoremarks', followups.autoremarks)
       .set('property', followups.property ?? '')
       .set('feedback', followups.feedback ?? '')
-      .set('categoryid', followups.categoryid ?? '');
+      .set('Catogid', followups.categoryid ?? '');
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -584,8 +585,8 @@ export class CpApiService {
     let params = new HttpParams()
       .set('LeadID', param.leadid)
       .set('PropertyID', param.suggestproperties)
-      .set('Nextdate', param.nextdate)
-      .set('Nexttime', param.nexttime)
+      .set('Nextdate', param.nextdate ?? '')
+      .set('Nexttime', param.nexttime ?? '')
       .set('Execid', param.execid)
       .set('assignID', param.assignid)
       .set('feedback', param.feedback)
@@ -605,7 +606,7 @@ export class CpApiService {
     let params = new HttpParams()
       .set('LeadID', param.leadid)
       .set('PropertyID', param.suggestproperties)
-      .set('Nextdate', param.nextdate)
+      .set('Nextdate', param.nextdate ?? '')
       .set('Nexttime', param.nexttime)
       .set('Execid', param.execid)
       .set('assignID', param.assignid);
@@ -1602,5 +1603,74 @@ export class CpApiService {
       .set('leadid', param.leadid)
       .set('categoryid', param.categoryid);
     return this.http.post(this.retailcrm + '/updatecategory', params);
+  }
+
+  postMergeLeads(param) {
+    let params = new HttpParams()
+      .set('primarylead', param.leadId)
+      .set('mergedlead', param.mergeLeadId)
+      .set('relationship', param.relation)
+      .set('LeadP', param.LeadP);
+    return this.http.post(this.retailcrm + '/mergeleads', params);
+  }
+
+  searchLeads(searcheddata, crmtype, loginid, merge) {
+    let params = new HttpParams()
+      .set('crmtype', crmtype)
+      .set('loginId', loginid)
+      .set('merge', merge ?? '');
+    return this.http
+      .get<any>(this.retailcrm + '/searchlist/' + searcheddata, {
+        params,
+      })
+      .pipe(map((response) => response));
+  }
+
+  gethistory(param) {
+    let urlSearchParams = new URLSearchParams();
+    urlSearchParams.append('LeadID', param.leadid);
+    urlSearchParams.append('RoleID', param.roleid);
+    urlSearchParams.append('UserID', param.userid);
+    urlSearchParams.append('execid', param.execid);
+    urlSearchParams.append('feedback', param.feedbackid);
+    let body = urlSearchParams.toString();
+    let headers = new HttpHeaders().set(
+      'Content-Type',
+      'application/x-www-form-urlencoded'
+    );
+    return this.http
+      .post<any>(this.retailcrm + '/leadhistory', body, { headers: headers })
+      .pipe(map((response) => response));
+  }
+
+  datashortupdate(param) {
+    let urlSearchParams = new URLSearchParams();
+    urlSearchParams.append('IDPK', param.leadid);
+    urlSearchParams.append('name', param.name);
+    urlSearchParams.append('number', param.number);
+    urlSearchParams.append('mail', param.mail);
+    urlSearchParams.append('ExecID', param.execid);
+    urlSearchParams.append('preferdlocation', param.location);
+    urlSearchParams.append('preferedtype', param.proptype);
+    urlSearchParams.append('leadpossession', param.possession);
+    urlSearchParams.append('preferedvarient', param.size);
+    urlSearchParams.append('preferedbudget', param.budget);
+    urlSearchParams.append('leadpriority', param.priority);
+    urlSearchParams.append('leadaddress', param.address);
+    urlSearchParams.append('primaryname', param.primaryname);
+    urlSearchParams.append('primarynumber', param.primarynumber);
+    urlSearchParams.append('primarymail', param.primarymail);
+    urlSearchParams.append('categoryid', param.categoryid);
+
+    let body = urlSearchParams.toString();
+    let headers = new HttpHeaders().set(
+      'Content-Type',
+      'application/x-www-form-urlencoded'
+    );
+    return this.http
+      .post<any>(this.retailcrm + '/updateshortdata', body, {
+        headers: headers,
+      })
+      .pipe(map((response) => response));
   }
 }

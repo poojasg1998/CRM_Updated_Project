@@ -11,6 +11,7 @@ import {
 } from '@ionic/angular';
 import Swal from 'sweetalert2';
 import { Location } from '@angular/common';
+import { Subject } from 'rxjs';
 @Component({
   selector: 'app-cp-lead-details',
   templateUrl: './cp-lead-details.component.html',
@@ -20,6 +21,27 @@ export class CpLeadDetailsComponent implements OnInit {
   @ViewChild('mergeModal') mergeModal;
   @ViewChild('suggModal', { static: true }) suggModal: IonModal;
   @ViewChild('scrollContent', { static: false }) scrollContent!: IonContent;
+  @ViewChild('viewToMergedLeads') viewToMergedLeads;
+  refreshFlag = false;
+  leadSearchTerm;
+  filteredLeads = [];
+  selectedLeadP;
+  filteredLead = [];
+  isActiveMerge = false;
+  searchSubject = new Subject<string>();
+  selectedRelation;
+  relationShips = [
+    { name: 'Father', code: 'Father' },
+    { name: 'Mother', code: 'Mother' },
+    { name: 'Sister', code: 'Sister' },
+    { name: 'Brother', code: 'Brother' },
+    { name: 'Husband', code: 'Husband' },
+    { name: 'Wife', code: 'Wife' },
+    { name: 'Friend', code: 'Friend' },
+    { name: 'Others', code: 'Others' },
+  ];
+  mergedleads: any = [];
+  leadtrack: any;
   addCategoryForm!: FormGroup;
   isCrmTypeSelection = false;
   showSpinner = false;
@@ -73,6 +95,49 @@ export class CpLeadDetailsComponent implements OnInit {
   canScroll: boolean;
   selectedSuggestedProp: any;
 
+  getName;
+  getMail;
+  leadpriority = [
+    {
+      id: '1',
+      priority: 'Hot',
+    },
+    {
+      id: '2',
+      priority: 'Warm',
+    },
+    {
+      id: '3',
+      priority: 'Cold',
+    },
+  ];
+
+  villaSizes = [
+    { id: '3', size: '3 BHK' },
+    { id: '3.5', size: '3.5 BHK' },
+    { id: '4', size: '4 BHK' },
+    { id: '4.5', size: '4.5 BHK' },
+    { id: '5', size: '5 BHK' },
+    { id: '5.5', size: '5.5 BHK' },
+  ];
+
+  sizeOptionsMap: any = {
+    '1': [
+      // Apartment
+      { id: '1', size: '1 BHK' },
+      { id: '2', size: '2 BHK' },
+      { id: '3', size: '3 BHK' },
+      { id: '4', size: '4 BHK' },
+      { id: '5', size: '5 BHK' },
+    ],
+    '2': this.villaSizes, // Villa
+    '4': this.villaSizes, // Villament (same reference)
+  };
+  size_array: any[] = [];
+
+  budget_array = ['1.5Cr - 2Cr', '2Cr - 3Cr', '3Cr - 4Cr', '> 4Cr'];
+  locality: any;
+
   constructor(
     private activeroute: ActivatedRoute,
     private router: Router,
@@ -115,14 +180,28 @@ export class CpLeadDetailsComponent implements OnInit {
         this.execview = true;
       }
       this.getcustomeredit(this.leadid);
-      this.getAssignedRM();
-      this.getstages();
+      this.triggerhistory();
+      this.getLocalityList();
     });
   }
 
+  getLocalityList() {
+    this.api.localitylist().subscribe((resp) => {
+      this.locality = resp['Localities'];
+    });
+  }
   getcustomeredit(leadid) {
     this.api.getcustomeredit(leadid).subscribe((resp) => {
       this.customerView = resp['Customerview']?.[0];
+      this.mergedleads = resp['Customerview'][0]?.mergedleads;
+      this.getName = this.customerView?.enquiry_name
+        ? this.customerView.enquiry_name
+        : this.customerView.customer_name;
+      this.getMail = this.customerView.enquiry_mail
+        ? this.customerView.enquiry_mail
+        : this.customerView.customer_mail;
+      this.onPropertyTypeChange(this.customerView.enquiry_proptype);
+
       if (
         resp['Customerview']?.[0].listing_category &&
         resp['Customerview']?.[0].listing_category.length > 0
@@ -131,6 +210,16 @@ export class CpLeadDetailsComponent implements OnInit {
       } else {
         this.isCrmTypeSelection = true;
       }
+
+      if (
+        this.categoryid == '' ||
+        this.categoryid == null ||
+        this.categoryid == undefined
+      ) {
+        this.categoryid = resp['Customerview'][0]?.listing_category['0'].id;
+      }
+      this.getAssignedRM();
+      this.getstages();
     });
   }
   getAssignedRM() {
@@ -158,19 +247,6 @@ export class CpLeadDetailsComponent implements OnInit {
       queryParamsHandling: 'merge',
     });
     await this.popoverController.dismiss();
-  }
-
-  onMergeIcon() {
-    this.mergeLeadDetails = [];
-    const obj = {
-      id: this.assignedrm[0].customer_IDPK,
-      name: this.assignedrm[0].customer_name,
-    };
-
-    this.mergeLeadDetails.push(obj);
-
-    console.log(this.mergeLeadDetails);
-    this.mergeModal.present();
   }
 
   // to open suggested property modal
@@ -218,6 +294,7 @@ export class CpLeadDetailsComponent implements OnInit {
           confirmButtonText: 'OK!',
         }).then((result) => {
           this.getAssignedRM();
+          this.refreshFlag = !this.refreshFlag;
           this.suggModal.dismiss();
         });
       }
@@ -787,5 +864,420 @@ export class CpLeadDetailsComponent implements OnInit {
         console.log(err, 'error');
       },
     });
+  }
+
+  toViewMergedLeads() {
+    this.viewToMergedLeads.present();
+  }
+
+  onMergeIcon() {
+    this.mergeLeadDetails = [];
+    const obj = {
+      id: this.assignedrm[0].customer_IDPK,
+      name: this.assignedrm[0].customer_name,
+    };
+
+    this.mergeLeadDetails.push(obj);
+
+    console.log(this.mergeLeadDetails);
+    this.mergeModal.present();
+  }
+
+  onCloseMergeModal() {
+    this.filteredLead = [];
+    this.filteredLeads = [];
+    this.leadSearchTerm = '';
+    this.isActiveMerge = false;
+    this.mergeModal.dismiss();
+  }
+
+  searchClient(event): void {
+    const query = event.target.value;
+    console.log(query);
+    if (query.length >= 5) {
+      this.showSpinner = true;
+      this.searchSubject.next(query);
+    } else {
+      this.filteredLeads = [];
+      this.showSpinner = false;
+    }
+  }
+
+  onFilteredLead(lead) {
+    this.filteredLead = [];
+    this.filteredLead.push(lead);
+    this.isActiveMerge = true;
+    this.leadSearchTerm = '';
+    this.filteredLeads = [];
+
+    const obj = {
+      id: this.filteredLead[0].customer_IDPK,
+      name: this.filteredLead[0].customer_name,
+    };
+
+    this.mergeLeadDetails.push(obj);
+    console.log(this.mergeLeadDetails);
+  }
+
+  onMergeLead() {
+    if (
+      this.selectedRelation == '' ||
+      this.selectedRelation == undefined ||
+      this.selectedRelation == null
+    ) {
+      Swal.fire({
+        title: 'Relation',
+        text: 'Please select the Relationship',
+        timer: 2000,
+        heightAuto: false,
+        showConfirmButton: false,
+        icon: 'error',
+      });
+      $('#relationship_dropdown')
+        .focus()
+        .css('border-color', 'red')
+        .attr('placeholder', 'Please Select the Relation');
+      return false;
+    }
+
+    let param = {
+      leadId: this.leadid,
+      mergeLeadId: this.filteredLead[0].customer_IDPK,
+      relation: this.selectedRelation.name,
+      LeadP: this.selectedLeadP.id,
+    };
+
+    this.api.postMergeLeads(param).subscribe((resp) => {
+      Swal.fire({
+        title: 'Merge Lead',
+        text: 'The Lead has been successfully Merged',
+        showConfirmButton: false,
+        timer: 2000,
+        heightAuto: false,
+        icon: 'success',
+      }).then(() => {
+        location.reload();
+      });
+    });
+    return true;
+  }
+
+  fetchData(query: string) {
+    let searchedData;
+    if (/^[\d\s+]+$/.test(query)) {
+      searchedData = query.replace(/\s+/g, '');
+      searchedData = searchedData.slice(-10);
+    } else {
+      searchedData = query;
+    }
+    this.api.searchLeads(searchedData, '', '', '').subscribe({
+      next: (response) => {
+        if (response['status'] == 'True') {
+          this.filteredLeads = response['Searchlist'];
+          this.showSpinner = false;
+        } else {
+          this.filteredLeads = [];
+          this.showSpinner = false;
+        }
+      },
+      error: (error) => {
+        this.filteredLeads = [];
+        this.showSpinner = false;
+      },
+    });
+  }
+
+  triggerhistory() {
+    this.roleid = localStorage.getItem('Role');
+    this.userid = localStorage.getItem('UserId');
+
+    var param2 = {
+      leadid: this.leadid,
+      roleid: this.roleid,
+      userid: this.userid,
+      execid: this.selectedExecId,
+      feedbackid: this.feedbackID,
+    };
+    this.api.gethistory(param2).subscribe((history) => {
+      this.showSpinner = false;
+      if (history['status'] == 'True') {
+        const uniquehistory = history['Leadhistory'].filter((val, i, self) => {
+          return (
+            i ==
+            self.findIndex((t) => {
+              return (
+                t.autoremarks == val.autoremarks && t.Saveddate == val.Saveddate
+              );
+            })
+          );
+        });
+        this.leadtrack = uniquehistory;
+      } else {
+        this.leadtrack = [];
+      }
+    });
+  }
+
+  getItemsCountForDate(index: number): number {
+    let count = 0;
+
+    // go backward to find the date header
+    let dateIndex = index;
+    while (
+      dateIndex >= 0 &&
+      this.leadtrack[dateIndex].item_type !== 'message_date'
+    ) {
+      dateIndex--;
+    }
+
+    // count items until next date header
+    for (let i = dateIndex + 1; i < this.leadtrack.length; i++) {
+      if (this.leadtrack[i].item_type === 'message_date') {
+        break;
+      }
+      count++;
+    }
+
+    return count;
+  }
+
+  isLastItemUnderDate(index: number): boolean {
+    // next item is either date header or end of array
+    return (
+      index + 1 === this.leadtrack.length ||
+      this.leadtrack[index + 1].item_type === 'message_date'
+    );
+  }
+
+  showAllActivities() {
+    this.isActivityHistory = true;
+  }
+
+  alternateNumbercheck(event) {
+    // if (event.target.value == this.customerView.customer_number) {
+    //   this.customerView.enquiry_altnumber = '';
+    //   $('#enquiry_number')
+    //     .focus()
+    //     .css('border-color', 'red')
+    //     .attr('placeholder', 'Please enter different contact number')
+    //     .val('');
+    // }
+    let value = event.detail.value || '';
+
+    // 🔥 Remove everything except digits
+    value = value.replace(/\D/g, '');
+
+    // 🔥 Limit to 10 digits
+    value = value.slice(0, 10);
+
+    // 🔥 Update input value (important)
+    event.target.value = value;
+    this.customerView.enquiry_altnumber = value;
+
+    // 🔥 Prevent same number
+    if (value && value === this.customerView.customer_number) {
+      this.customerView.enquiry_altnumber = '';
+      event.target.value = '';
+      $('#enquiry_number')
+        .focus()
+        .css('border-color', 'red')
+        .attr('placeholder', 'Please enter different contact number')
+        .val('');
+    }
+  }
+
+  updateProfile() {
+    // primary name
+    if ($('#customer_name').val() === '') {
+      $('#customer_name')
+        .focus()
+        .addClass('border-color')
+        .attr('placeholder', 'Please Enter Name');
+      return false;
+    } else {
+      var nameFilter = /^([a-zA-Z]+\s)*[a-zA-Z]+$/;
+      if (nameFilter.test(String($('#customer_name').val()))) {
+        $('#customer_name').removeClass('border-color');
+      } else {
+        $('#customer_name')
+          .focus()
+          .addClass('border-color')
+          .attr('placeholder', 'Please enter valid Name')
+          .val('');
+        return false;
+      }
+    }
+
+    //primary mail
+    if ($('#customer_mail').val() != '') {
+      let enameFilter =
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+      if (enameFilter.test(String($('#customer_mail').val()))) {
+        $('#customer_mail').removeClass('border-color');
+      } else {
+        $('#customer_mail')
+          .focus()
+          .addClass('border-color')
+          .attr('placeholder', 'Please enter valid email')
+          .val('');
+        return false;
+      }
+    }
+
+    //alternate mail
+    if ($('#enquiry_mail').val() != '') {
+      let enameFilter =
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+      if (enameFilter.test(String($('#enquiry_mail').val()))) {
+        $('#enquiry_mail').removeClass('border-color');
+      } else {
+        $('#enquiry_mail')
+          .focus()
+          .addClass('border-color')
+          .attr('placeholder', 'Please enter valid email')
+          .val('');
+        return false;
+      }
+    }
+    //alternate name
+    if ($('#enquiry_name').val() != '') {
+      var nameFilter = /^([a-zA-Z]+\s)*[a-zA-Z]+$/;
+      if (nameFilter.test(String($('#enquiry_name').val()))) {
+        $('#enquiry_name').removeClass('border-color');
+      } else {
+        $('#enquiry_name')
+          .focus()
+          .addClass('border-color')
+          .attr('placeholder', 'Please enter valid name')
+          .val('');
+        return false;
+      }
+    }
+
+    //alternate number
+    var mobileno = /^[0-9]{10}$/;
+    if ($('#enquiry_number').val() != '') {
+      if (mobileno.test(String($('#enquiry_number').val()))) {
+        $('#enquiry_number').removeClass('border-color');
+      } else {
+        $('#enquiry_number')
+          .focus()
+          .addClass('border-color')
+          .attr('placeholder', 'Please enter valid contact number')
+          .val('');
+        return false;
+      }
+    }
+    var propertyselect = $('#property_select').val();
+    var param = {
+      primaryname: $('#customer_name').val(),
+      primarynumber: $('#customer_number').val(),
+      primarymail: $('#customer_mail').val(),
+      execid: this.userid,
+      name: this.customerView.enquiry_altname,
+      number: this.customerView.enquiry_altnumber,
+      mail: this.customerView.enquiry_altmail,
+      budget: this.customerView.enquiry_budget,
+      location: this.customerView.localityid,
+      proptype: this.customerView.enquiry_proptype,
+      size: this.customerView.enquiry_bhksize,
+      property: propertyselect,
+      priority: this.customerView.lead_priority,
+      address: this.customerView.address,
+      leadid: this.leadid,
+      possession: this.customerView.enquiry_possession,
+      categoryid: this.categoryid,
+    };
+
+    if (localStorage.getItem('Name') == 'demo') {
+      Swal.fire({
+        title: 'Updating lead details is restricted for demo accounts',
+        icon: 'error',
+        heightAuto: false,
+        confirmButtonText: 'OK!',
+      }).then((result) => {
+        this.showSpinner = false;
+      });
+    } else {
+      this.api.datashortupdate(param).subscribe(
+        (success) => {
+          if (success['status'] == 'True') {
+            Swal.fire({
+              title: 'Updated Successfully',
+              icon: 'success',
+              heightAuto: false,
+              confirmButtonText: 'OK!',
+            }).then((result) => {
+              this.scrollContent.scrollToTop(500);
+              this.onBackbutton();
+            });
+          }
+        },
+        (err) => {
+          console.log('Failed to Update');
+        }
+      );
+    }
+    return true;
+  }
+
+  onPropertyTypeChange(type: any) {
+    if (type === '3') {
+      this.size_array = [];
+      this.customerView.enquiry_bhksize = null;
+    } else if (type === '2' || type === '4') {
+      this.size_array = this.villaSizes;
+    } else {
+      this.size_array = this.sizeOptionsMap['1'];
+    }
+  }
+
+  onCategory(id) {
+    this.router.navigate([], {
+      queryParams: {
+        categoryid: id,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
+  revertStage() {
+    Swal.fire({
+      title: `Do you want to Revert the lead for ${this.assignedrm[0].customer_assign_name}`,
+      icon: 'question',
+      showConfirmButton: true,
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      heightAuto: false,
+      cancelButtonText: 'No',
+    }).then((result) => {
+      if (result.value == true) {
+        let param = {
+          leadid: this.leadid,
+          executid: this.selectedExecId,
+        };
+        this.api.revertBackToPreStage(param).subscribe((resposne) => {
+          if (resposne['status'] == 'True') {
+            this.getstages();
+          }
+        });
+      }
+    });
+  }
+  onSwipe(event) {
+    if (event == 'chat') {
+      window.open(
+        `https://wa.me/+91 ${this.customerView.enquiry_number}`,
+        '_system'
+      );
+      // this.navigateToWhatsApp(lead.number);
+    } else {
+      window.open(`tel:${this.customerView?.enquiry_number}`, '_system');
+      if (this.customerView?.enquiry_number) {
+        // Trigger the call
+        window.open(`tel:${this.customerView.enquiry_number}`, '_system');
+      } else {
+        console.error('Phone number not available for the selected lead.');
+      }
+    }
   }
 }

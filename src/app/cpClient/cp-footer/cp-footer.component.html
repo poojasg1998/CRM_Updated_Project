@@ -1,3 +1,16 @@
 <ion-footer>
-  <p>footer</p>
-</ion-footer>>
+  <ion-row class="footer-icons">
+    <ion-col class="content_center" (click)="onNavigation('dashboard')">
+      <ion-img *ngIf="!router.url.includes('cp-dashboard')" src="../../assets/CRMimages/Home.svg"></ion-img>
+      <ion-img *ngIf="router.url.includes('cp-dashboard')" src="../../assets/CRMimages/homeActive.svg"></ion-img>
+    </ion-col>
+    <ion-col class="content_center" (click)="onNavigation('search')">
+      <ion-img *ngIf="!router.url.includes('cp-search')" src="../../assets/CRMimages/search.svg"></ion-img>
+      <ion-img *ngIf="router.url.includes('cp-search')" src="../../assets/CRMimages/searchActive.svg"></ion-img>
+    </ion-col>
+    <ion-col class="content_center" (click)="onNavigation('addLead')">
+      <ion-img *ngIf="!router.url.includes('add-lead')" src="../../assets/cp/add-lead-icon.svg"></ion-img>
+      <ion-img *ngIf="router.url.includes('add-lead')" src="../../assets/cp/active-add-lead-icon.svg"></ion-img>
+    </ion-col>
+  </ion-row>
+</ion-footer>

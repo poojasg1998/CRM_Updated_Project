@@ -95,7 +95,7 @@
   </ion-col>
   <ion-col class="scroll-col" *ngIf="filteredParams.priority"
     (click)="tempFilteredValues.priority = '';onConfirmedFilter()">
-    {{filteredParams.priority == '1'?'Hot':filteredParams.priority == '2'?'Cold':'Warm' }}
+    {{filteredParams.priority == '1'?'Hot':filteredParams.priority == '2'?'Warm': 'Cold' }}
     <ion-icon name="close"></ion-icon>
   </ion-col>
 
@@ -133,13 +133,13 @@
           <div [ngClass]="filteredParams.selectedStage === 'Total Received' ? 'selected-card border-bottom-right' : ''"
             (click)="applyFilter({selectedStage: 'Total Received', activeCardKey: 'totalreceived-card',status: 'assignedleads',stage: ''});"
             class="pl-1">
-            <p>Total Received</p>
+            <p class="pr-1">Total Received</p>
             <h1>{{leadsCount.total}}</h1>
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Untouched' ? 'selected-card border-top-right' : ''"
             (click)="applyFilter({selectedStage: 'Untouched', activeCardKey: 'totalreceived-card',status: 'pending',stage: ''});"
             class="pl-1">
-            <p class="mt-2">Untouched</p>
+            <p class="mt-2 pr-1">Untouched</p>
             <h1>{{leadsCount.untouched}}</h1>
           </div>
         </div>
@@ -152,7 +152,7 @@
             <div [ngClass]="filteredParams.selectedStage === 'Touched' ? 'selected-card border-bottom-right' : ''"
               (click)="applyFilter({selectedStage: 'Touched', activeCardKey: 'touchedLeads-card',status: 'touched',stage: ''});"
               class="pl-1">
-              <p>Touched</p>
+              <p class="pr-1">Touched</p>
               <h1>{{leadsCount.touched}}</h1>
             </div>
           </div>
@@ -161,13 +161,13 @@
             <ion-col [ngClass]="filteredParams.selectedStage === 'Inactive' ? 'selected-card border-top-right' : ''"
               class="py-0 px-1" size="5"
               (click)="applyFilter({selectedStage: 'Inactive', activeCardKey: 'touchedLeads-card',status: 'inactive',stage: ''});">
-              <p>Inactive</p>
+              <p class="pr-1">Inactive</p>
               <h1>{{leadsCount.inactive}}</h1>
             </ion-col>
             <ion-col [ngClass]="filteredParams.selectedStage === 'Junk Leads' ? 'selected-card border-top-left' : ''"
               class="py-0 px-1" size="7"
               (click)="applyFilter({selectedStage: 'Junk Leads', activeCardKey: 'touchedLeads-card',status: 'junkleads',stage: ''});">
-              <p>Junk Leads</p>
+              <p class="pr-1">Junk Leads</p>
               <h1>{{leadsCount.junkleads}}</h1>
             </ion-col>
           </ion-row>
@@ -183,7 +183,7 @@
             <div [ngClass]="filteredParams.selectedStage === 'Active Leads' ? 'selected-card border-bottom-right' : ''"
               (click)="applyFilter({selectedStage: 'Active Leads', activeCardKey: 'active-card',status: 'active',stage: ''});"
               class="pl-1">
-              <p>Active Leads</p>
+              <p class="pr-1">Active Leads</p>
               <h1>{{leadsCount.activeleads}}</h1>
             </div>
           </div>
@@ -192,18 +192,18 @@
             <ion-col [ngClass]="filteredParams.selectedStage === 'Followups' ? 'selected-card border-top-right' : ''"
               class="py-0 px-1" size="3"
               (click)="applyFilter({selectedStage: 'Followups', activeCardKey: 'active-card',status: 'generalfollowups',stage: ''});">
-              <p>Followups</p>
+              <p class="pr-1">Followups</p>
               <h1>{{leadsCount.followups}}</h1>
             </ion-col>
             <ion-col
               [ngClass]="filteredParams.selectedStage === 'Scheduled Visits' ? 'selected-card border-top-left' : ''"
               class="py-0 px-1"
               (click)="applyFilter({selectedStage: 'Scheduled Visits', activeCardKey: 'active-card',stage: 'USV',stagestatus:'1',status: ''});">
-              <p>Scheduled Visits</p>
+              <p class="pr-1">Scheduled Visits</p>
               <h1>{{leadsCount.scheduledVisits }}</h1>
             </ion-col>
             <ion-col class="text-center visitConvert-row p-0">
-              <p class="m-0">Visit Converted {{leadsCount.visitsConverted}}</p>
+              <p class="m-0 ">Visit Converted {{leadsCount.visitsConverted}}</p>
             </ion-col>
           </ion-row>
         </div>
@@ -231,7 +231,7 @@
           <div [ngClass]="filteredParams.selectedStage === 'Active Visits' ? 'selected-card border-top-right' : ''"
             (click)="applyFilter({selectedStage: 'Active Visits', activeCardKey: 'allvisits-card',status: 'activevisits',stagestatus:3,stage:'',visited_count:'1'})"
             ; class="pl-1 w-25">
-            <p class="mt-2">Active Visits</p>
+            <p class="mt-2 pr-1">Active Visits</p>
             <h1>{{visitsCount.active}}</h1>
           </div>
         </div>
@@ -244,13 +244,13 @@
           <div [ngClass]="filteredParams.selectedStage === 'FN' ? 'selected-card border-bottom-right' : ''"
             (click)="applyFilter({selectedStage: 'FN', activeCardKey: 'fn-card',status:'', stage: 'Final Negotiation',stagestatus:'3',visited_count:''})"
             class="pl-1">
-            <p>FN</p>
+            <p class="pr-1">FN</p>
             <h1>{{visitsCount.fn}}</h1>
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Booking Cancelled' ? 'selected-card border-top-right' : ''"
             (click)="applyFilter({selectedStage: 'Booking Cancelled', activeCardKey: 'fn-card',status:'', 
                   stage:'Closing Request Rejected',stagestatus:'3',visited_count:''})" class="pl-1">
-            <p class="mt-2">Booking Cancelled</p>
+            <p class="mt-2 pr-1">Booking Cancelled</p>
             <h1>{{visitsCount.bookingCancelled}}</h1>
           </div>
         </div>
@@ -261,7 +261,7 @@
           <div [ngClass]="filteredParams.selectedStage === 'Closed Leads' ? 'selected-card border-bottom-right' : ''"
             (click)="applyFilter({selectedStage: 'Closed Leads', activeCardKey: 'closed-card',status:'', 
              stage:'Deal Closed',stagestatus:'3',visited_count:''})" class="pl-1">
-            <p>Closed Leads</p>
+            <p class="pr-1">Closed Leads</p>
             <h1>{{visitsCount.closedLeads}}</h1>
           </div>
           <div [ngClass]="filteredParams.selectedStage === 'Junk Visits' ? 'selected-card border-top-right' : ''"
@@ -284,7 +284,6 @@
           </h1>
         </ion-col>
       </ion-row>
-
     </div>
     <ion-row class="visitscount scroll-row selected-card m-0 p-1" [class]="filteredParams.activeCardKey"
       *ngIf="filteredParams.isLeadsVisits == 'visits' && filteredParams.status =='activevisits'">
@@ -296,7 +295,7 @@
       </ion-col>
     </ion-row>
   </div>
-  <ion-item-sliding #sliding *ngFor="let lead of leads_detail,let i= index">
+  <ion-item-sliding #sliding *ngFor="let lead of leads_detail,let i= index" (ionSwipe)="onSwipe($event,lead)">
     <ion-item lines="none">
       <ion-card class="leads-card w-100 mt-0">
         <div class="card-count">
@@ -431,8 +430,26 @@
             </ion-accordion-group>
           </ion-row>
         </div>
+        <ion-row style="justify-content: end; background: #ECECEC;">
+          <ion-col size="1" class="d-flex align-items-center  justify-content-center" (click)="onSwipe('call',lead)">
+            <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
+          </ion-col>
+          <ion-col size="1" class="d-flex align-items-center  justify-content-center" (click)="onSwipe('chat',lead)">
+            <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
+          </ion-col>
+        </ion-row>
       </ion-card>
     </ion-item>
+
+    <ion-item-options side="end" style="background: white;">
+      <ion-img src="../../assets/CRMimages/phone-call.svg" style="width:45px;padding: 10px;"
+        class="call-icon"></ion-img>
+    </ion-item-options>
+
+    <ion-item-options side="start" style="background: white;">
+      <ion-img src="../../assets/CRMimages/whatsapp_icon.svg" style="width:52px;padding: 10px;"
+        class="call-icon"></ion-img>
+    </ion-item-options>
   </ion-item-sliding>
 
   <ion-row *ngIf="(leads_detail?.length==0)" class="textStyle ion-justify-content-center ion-align-items-center">
@@ -507,13 +524,14 @@
 <ion-modal #cp_dashboard_fromDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()" (ionChange)="onFromDateSelected($event)">
   <ng-template>
-    <ion-datetime presentation="date" [(ngModel)]="dateRange.fromdate"></ion-datetime>
+    <ion-datetime presentation="date" [max]="todayDate" [(ngModel)]="dateRange.fromdate"></ion-datetime>
   </ng-template>
 </ion-modal>
 <ion-modal #cp_dashboard_toDate_modal [breakpoints]="[0, 0.50]" [initialBreakpoint]="0.56" mode="ios"
   [keepContentsMounted]="false" (ionBreakpointDidChange)="onmodaldismiss()" (ionChange)="onToDateSelected($event)">
   <ng-template>
-    <ion-datetime presentation="date" [min]="dateRange.fromdate" [(ngModel)]="dateRange.todate"></ion-datetime>
+    <ion-datetime presentation="date" [max]="todayDate" [min]="dateRange.fromdate"
+      [(ngModel)]="dateRange.todate"></ion-datetime>
   </ng-template>
 </ion-modal>
 
@@ -538,10 +556,10 @@
           <div class="menu-item" [class.active]="activeTab === 'source'" (click)="setActiveTab('source')">
             Source
           </div>
-
+          <!-- 
           <div class="menu-item" [class.active]="activeTab === 'enquired'" (click)="setActiveTab('enquired')">
             Enquired
-          </div>
+          </div> -->
 
           <div class="menu-item" *ngIf="filteredParams.isLeadsVisits == 'visits'"
             [class.active]="activeTab === 'nextaction'" (click)="setActiveTab('nextaction')">
@@ -995,6 +1013,8 @@
 </ion-modal>
 
 <div class="floatting-icon" *ngIf="!sharedService.isBottom">
-  <ion-img src="../../../assets/cp/addlead-icon.svg" (click)="add_lead.present()"></ion-img>
+  <!-- <ion-img src="../../../assets/cp/addlead-icon.svg" (click)="add_lead.present()"></ion-img> -->
   <ion-img src="../../../assets/cp/filter-icon.svg" (click)="filter_modal.present()"></ion-img>
 </div>
+
+<app-cp-footer></app-cp-footer>

@@ -1,0 +1,296 @@
+<ion-header>
+  <app-cp-header></app-cp-header>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="addleadForm" (ngSubmit)="addLead()" class="addLeadForm">
+    <ion-row>
+      <ion-col>
+        <div>Client Name</div>
+        <div>
+          <ion-input [placeholder]="hasError('name','required') ? 'Please Enter Name' : 'Enter Name'"
+            [ngClass]="(hasError('name','required') || hasError('name','pattern')) ? 'error-field' : ''"
+            style="min-height:20px" type="text" formControlName="name">
+          </ion-input>
+
+          <span class="error-text" *ngIf="hasError('name', 'pattern')">
+            Only letters and numbers allowed.
+          </span>
+          <span class="error-text" *ngIf="hasError('name', 'required')">
+            Name is required.
+          </span>
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <div>Client Number</div>
+        <div>
+          <ion-input [placeholder]="hasError('number','required') ? 'Please Enter Number' : 'Enter Number'"
+            [ngClass]="hasError('number','required') ? 'error-field' : ''" style="min-height:20px" type="text"
+            formControlName="number">
+          </ion-input>
+          <span class="error-text">{{hasError('number','pattern') ? 'Please enter a valid 10-digit number' : ''}}</span>
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <div>Client Email</div>
+        <div>
+          <ion-input [placeholder]="hasError('email','required') ? 'Please Enter Email' : 'Enter Email'"
+            [ngClass]="(hasError('email','required') || hasError('email','pattern')) ? 'error-field' : ''"
+            style="min-height:20px" type="text" formControlName="email">
+          </ion-input>
+          <span class="error-text" *ngIf="hasError('email', 'pattern')">
+            Invalid email format
+          </span>
+          <span class="error-text" *ngIf="hasError('email', 'required') && addleadForm.get('email')?.touched">
+            Email is required
+          </span>
+        </div>
+
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <div>Source</div>
+        <div><p-dropdown [placeholder]="hasError('source','required') ? 'Please Select Source' : 'Select Source'"
+            [ngClass]="hasError('source','required') ? 'error-field' : ''" formControlName="source" [options]="source"
+            optionValue="source" optionLabel="source" required />
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <div>Prefered Location</div>
+        <div><p-dropdown [placeholder]="hasError('location','required') ? 'Please Select Location' : 'Select Location'"
+            [ngClass]="hasError('location','required') ? 'error-field' : ''" formControlName="location"
+            [options]="localityList" optionLabel="locality" required />
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <div>Priority</div>
+        <ion-row class="gap-2">
+          <ion-col class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({priority: addleadForm.value.priority === '1' ? null : '1'})"
+            [ngClass]="addleadForm.value.priority=='1'?'':''" [class.active]="addleadForm.value.priority=='1'">
+            Hot
+          </ion-col>
+          <ion-col class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({priority: addleadForm.value.priority === '2' ? null : '2'})"
+            [class.active]="addleadForm.value.priority=='2'">
+            Warm
+          </ion-col>
+          <ion-col class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({priority: addleadForm.value.priority === '3' ? null : '3'})"
+            [class.active]="addleadForm.value.priority=='3'">
+            Cold
+          </ion-col>
+        </ion-row>
+        <span class="error-text">{{hasError('priority','required') ? 'Please Select Priority' : ''}}</span>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <div>Type</div>
+        <ion-row class="gap-2">
+          <ion-col class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({type: addleadForm.value.type === '1' ? null : '1'})"
+            [class.active]="addleadForm.value.type=='1'">
+            Apartment
+          </ion-col>
+          <ion-col class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({type: addleadForm.value.type === '2' ? null : '2'})"
+            [class.active]="addleadForm.value.type=='2'">
+            Villa
+          </ion-col>
+          <ion-col class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({type: addleadForm.value.type === '3' ? null : '3'})"
+            [class.active]="addleadForm.value.type=='3'">
+            Plot
+          </ion-col>
+          <ion-col class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({type: addleadForm.value.type === '4' ? null : '4'})"
+            [class.active]="addleadForm.value.type=='4'">
+            Villament
+          </ion-col>
+        </ion-row>
+        <span class="error-text">{{hasError('type','required') ? 'Please Select Type' : ''}}</span>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <div>Possession With</div>
+        <ion-row class="gap-2">
+          <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({possession: addleadForm.value.possession === '2' ? null : '2'})"
+            [class.active]="addleadForm.value.possession=='2'">
+            < 6Months </ion-col>
+              <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                (click)="addleadForm.patchValue({possession: addleadForm.value.possession === '3' ? null : '3'})"
+                [class.active]="addleadForm.value.possession=='3'">
+                1 Year
+              </ion-col>
+              <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                (click)="addleadForm.patchValue({possession: addleadForm.value.possession === '4' ? null : '4'})"
+                [class.active]="addleadForm.value.possession=='4'">
+                1-2 Year
+              </ion-col>
+              <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                (click)="addleadForm.patchValue({ possession: addleadForm.value.possession === '5' ? null : '5'})"
+                [class.active]="addleadForm.value.possession=='5'">
+                > 2 Year
+              </ion-col>
+        </ion-row>
+        <span class="error-text">{{hasError('possession','required') ? 'Please Select Possession' : ''}}</span>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <div>Lead Segment</div>
+        <ion-row class="gap-2">
+          <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="toggleLeadSegment('1')"
+            [class.active]="addleadForm.value.leadSegment?.includes('1')">
+            Sale </ion-col>
+          <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="toggleLeadSegment('2')"
+            [class.active]="addleadForm.value.leadSegment?.includes('2')">
+            Resale
+          </ion-col>
+          <ion-col class="d-flex align-items-center justify-content-center p-1" (click)="toggleLeadSegment('3')"
+            [class.active]="addleadForm.value.leadSegment?.includes('3')">
+            Rental
+          </ion-col>
+        </ion-row>
+        <span class="error-text">{{hasError('leadSegment','required') ? 'Please Select LeadSegment' : ''}}</span>
+      </ion-col>
+    </ion-row>
+
+    <ion-row *ngIf="addleadForm.value.type != '3'">
+      <ion-col>
+        <div>Select Size</div>
+        <ion-row class="gap-2">
+          <ion-col size="3" *ngIf="addleadForm.value.type == '1'"
+            class="d-flex align-items-center justify-content-center p-1"
+            (click)=" addleadForm.patchValue({size: addleadForm.value.size === '1' ? null : '1'})"
+            [class.active]="addleadForm.value.size=='1'">
+            1 BHK </ion-col>
+          <ion-col size="3" *ngIf="addleadForm.value.type == '1'"
+            class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({ size: addleadForm.value.size === '2' ? null : '2'})"
+            [class.active]="addleadForm.value.size=='2'">
+            2 BHK
+          </ion-col>
+          <ion-col size="3" class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({ size: addleadForm.value.size === '3' ? null : '3'})"
+            [class.active]="addleadForm.value.size=='3'">
+            3 BHK
+          </ion-col>
+          <ion-col size="3" *ngIf="['2','4'].includes(addleadForm.value.type)"
+            class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({size: addleadForm.value.size === '3.5' ? null : '3.5'})"
+            [class.active]="addleadForm.value.size=='3.5'">
+            3.5 BHK
+          </ion-col>
+          <ion-col size="3" class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({ size: addleadForm.value.size === '4' ? null : '4'})"
+            [class.active]="addleadForm.value.size=='4'">
+            4 BHK
+          </ion-col>
+          <ion-col size="3" *ngIf="['2','4'].includes(addleadForm.value.type)"
+            class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({ size: addleadForm.value.size === '4.5' ? null : '4.5'})"
+            [class.active]="addleadForm.value.size=='4.5'">
+            4.5 BHK
+          </ion-col>
+          <ion-col size="3" class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({ size: addleadForm.value.size === '5' ? null : '5'})"
+            [class.active]="addleadForm.value.size=='5'">
+            5 BHK
+          </ion-col>
+          <ion-col size="3" *ngIf="['2','4'].includes(addleadForm.value.type)"
+            class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({ size: addleadForm.value.size === '5.5' ? null : '5.5'})"
+            [class.active]="addleadForm.value.size=='5.5'">
+            5.5 BHK
+          </ion-col>
+        </ion-row>
+        <span> {{hasError('size','required') ? 'Please Select Size' : ''}}</span>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="addleadForm.value.type">
+      <ion-col>
+        <div>Budget</div>
+        <ion-row class="gap-2" *ngIf="['1','3'].includes(addleadForm.value.type)">
+          <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '< 60L' ? null : '< 60L'})"
+            [class.active]="addleadForm.value.budget=='< 60L'">
+            < 60L </ion-col>
+              <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '60L - 80L' ? null : '60L - 80L'})"
+                [class.active]="addleadForm.value.budget=='60L - 80L'">
+                60L-80L
+              </ion-col>
+              <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '80L - 1Cr' ? null : '80L - 1Cr'})"
+                [class.active]="addleadForm.value.budget=='80L - 1Cr'">
+                80L - 1Cr
+              </ion-col>
+              <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1" (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '1Cr - 1.2Cr' ? null :
+                        '1Cr - 1.2Cr'})" [class.active]="addleadForm.value.budget=='1Cr - 1.2Cr'">
+                1Cr - 1.2Cr
+              </ion-col>
+              <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+                (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '> 1.2Cr' ? null : '> 1.2Cr'})"
+                [class.active]="addleadForm.value.budget=='> 1.2Cr'">
+                > 1.2Cr
+              </ion-col>
+        </ion-row>
+        <ion-row class="gap-2" *ngIf="['2','4'].includes(addleadForm.value.type)">
+          <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '1.5Cr - 2Cr' ? null : '1.5Cr - 2Cr'})"
+            [class.active]="addleadForm.value.budget=='1.5Cr - 2Cr'">
+            1.5Cr - 2Cr </ion-col>
+          <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '2Cr - 3Cr' ? null : '2Cr - 3Cr'})"
+            [class.active]="addleadForm.value.budget=='2Cr - 3Cr'">
+            2Cr - 3Cr
+          </ion-col>
+          <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '3Cr - 4Cr' ? null : '3Cr - 4Cr'})"
+            [class.active]="addleadForm.value.budget=='3Cr - 4Cr'">
+            3Cr - 4Cr
+          </ion-col>
+          <ion-col size="3.5" class="d-flex align-items-center justify-content-center p-1"
+            (click)="addleadForm.patchValue({budget: addleadForm.value.budget === '> 4Cr' ? null : '> 4Cr'})"
+            [class.active]="addleadForm.value.budget=='> 4Cr'">
+            >4Cr
+          </ion-col>
+        </ion-row>
+        <span class="error-text">{{hasError('budget','required') ? 'Please Select Budget' : ''}}</span>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <div>
+          Address
+        </div>
+        <div>
+          <ion-textarea formControlName="address"
+            [placeholder]="hasError('address','required') ? 'Please Enter Address' : 'Enter Address'"
+            [ngClass]="hasError('address','required') ? 'error-field' : ''"></ion-textarea>
+        </div>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="save-row">
+      <ion-col class="d-flex  align-items-center justify-content-end">
+        <ion-button type="submit" fill="clear">Save</ion-button>
+      </ion-col>
+    </ion-row>
+  </form>
+</ion-content>
+<app-cp-footer></app-cp-footer>

@@ -6,6 +6,7 @@ import {
   Input,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,6 +33,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
   @Input() selectedExecId: any;
   @Input() selectedSuggestedProp: any;
   @Input() selectedBtn: any;
+  @Input() refreshTrigger: any;
   isEdit: boolean = true;
   date: String = new Date().toISOString();
   showSpinner = true;
@@ -91,6 +93,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
   ) {}
   assignedRM;
   feedbackID = '';
+
   ngOnInit() {
     this.activeroute.queryParamMap.subscribe((params) => {
       this.showSpinner = true;
@@ -1037,6 +1040,10 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
       } else if (this.visitedprop[existingIndex].accompany == 'NOT Visited') {
         this.autolocksession = true;
         this.lockedsession = false;
+        $('#propertyremarks' + i).val('');
+        $('#accompaniedname' + i).val('');
+        $('#visitUpdate' + i).addClass('notVisitUpdate');
+        $('#visitUpdate' + i).removeClass('donevisitUpdate');
       } else {
         if (this.visitedprop[existingIndex].remarks == '') {
           this.autolocksession = true;
@@ -1159,6 +1166,10 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
       } else if (this.visitedprop[existingIndex].accompany == 'NOT Visited') {
         this.autolocksession = true;
         this.lockedsession = false;
+        $('#propertyremarks' + i).val('');
+        $('#accompaniedname' + i).val('');
+        $('#visitUpdate' + i).addClass('notVisitUpdate');
+        $('#visitUpdate' + i).removeClass('donevisitUpdate');
       } else {
         if (this.visitedprop[existingIndex].remarks == '') {
           this.autolocksession = true;
@@ -2859,5 +2870,10 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
     now.setSeconds(0);
 
     return now;
+  }
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['refreshTrigger']) {
+      this.loadimportantapi();
+    }
   }
 }

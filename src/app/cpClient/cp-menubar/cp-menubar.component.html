@@ -1,7 +1,8 @@
 <ion-menu side="end" contentId="app-content">
   <ion-header>
     <ion-toolbar>
-      <ion-title><ion-img src="../../../assets/CRMimages/SITE CRM Logo_1.png"></ion-img></ion-title>
+      <ion-title class="p-2"><ion-img style="width: 140px;"
+          src="../../../assets/CRMimages/SITE CRM Logo_1.png"></ion-img></ion-title>
     </ion-toolbar>
   </ion-header>
 
@@ -59,7 +60,7 @@
         <ion-row (click)="resetStoredData()" class="subdrop-row-height" routerLink="../cp-overdue-dashboard"
           [class.activeSubSec]="sharedService.isActiveRoute('cp-overdue-dashboard')">
           <ion-col class="center-vertically">
-            <ion-img style="width: 20px;" src="../../../assets/CRMimages/menubaricons/active_scheduled.svg"></ion-img>
+            <ion-img style="width: 20px;" src="../../../assets/cp/missed-dashboard-menuicon.svg"></ion-img>
             <span class="pl-1">Missed Dashboard</span>
           </ion-col>
         </ion-row>
@@ -69,7 +70,10 @@
         (click)="accordionOpen=false; sharedService.isBottom = false;resetStoredData()" class="row-height"
         [class.activeSec]="sharedService.isActiveRoute('cp-bookings')&& !accordionOpen">
         <ion-col class="center-vertically">
-          <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
+          <ion-img *ngIf="!(sharedService.isActiveRoute('cp-bookings')&& !accordionOpen)" class="img-height-width"
+            src="../../assets/cp/all-booking-menubar-icon.svg"></ion-img>
+          <ion-img *ngIf="(sharedService.isActiveRoute('cp-bookings')&& !accordionOpen)" class="img-height-width"
+            src="../../assets/cp/active-all-bookings.svg"></ion-img>
           All Bookings
         </ion-col>
       </ion-row>
@@ -77,8 +81,11 @@
       <ion-row routerLink="../add-property"
         (click)="accordionOpen=false; sharedService.isBottom = false;resetStoredData()" class="row-height"
         [class.activeSec]="sharedService.isActiveRoute('add-property')&& !accordionOpen">
-        <ion-col class="center-vertically">
-          <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
+        <ion-col class="center-vertically" style="padding-left: 1px;">
+          <ion-img style="width: 25px;" *ngIf="!(sharedService.isActiveRoute('add-property')&& !accordionOpen)"
+            src="../../assets/cp/add-property-menubar-icon.svg"></ion-img>
+          <ion-img style="width: 25px;" *ngIf="(sharedService.isActiveRoute('add-property')&& !accordionOpen)"
+            src="../../assets/cp/active-allLeads.svg"></ion-img>
           Add Properties
         </ion-col>
       </ion-row>
@@ -86,8 +93,22 @@
         (click)="accordionOpen=false; sharedService.isBottom = false;resetStoredData()" class="row-height"
         [class.activeSec]="sharedService.isActiveRoute('my-executives')&& !accordionOpen">
         <ion-col class="center-vertically">
-          <ion-img class="img-height-width" src="../../assets/CRMimages/menubaricons/main_leads_inactive.svg"></ion-img>
+          <ion-img *ngIf="!(sharedService.isActiveRoute('my-executives')&& !accordionOpen)" class="img-height-width"
+            src="../../assets/cp/my-executive-menubar-icon.svg"></ion-img>
+          <ion-img *ngIf="(sharedService.isActiveRoute('my-executives')&& !accordionOpen)" class="img-height-width"
+            src="../../assets/cp/active-myExecutives.svg"></ion-img>
           My Executives
+        </ion-col>
+      </ion-row>
+
+      <ion-row routerLink="../add-lead" (click)="accordionOpen=false; sharedService.isBottom = false;resetStoredData()"
+        class="row-height" [class.activeSec]="sharedService.isActiveRoute('add-lead')&& !accordionOpen">
+        <ion-col class="center-vertically">
+          <ion-img *ngIf="!(sharedService.isActiveRoute('add-lead')&& !accordionOpen)" class="img-height-width"
+            src="../../assets/cp/all-lead-menubar-icon.svg"></ion-img>
+          <ion-img *ngIf="(sharedService.isActiveRoute('add-lead')&& !accordionOpen)" class="img-height-width"
+            src="../../assets/cp/active-addLead.svg"></ion-img>
+          Add Lead
         </ion-col>
       </ion-row>
     </ion-menu-toggle>

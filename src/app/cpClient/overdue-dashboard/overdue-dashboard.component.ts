@@ -18,6 +18,7 @@ export class OverdueDashboardComponent implements OnInit {
   @ViewChild('cp_dashboard_fromDate_modal')
   cp_dashboard_fromDate_modal: IonModal;
   @ViewChild('cp_dashboard_toDate_modal') cp_dashboard_toDate_modal: IonModal;
+  todayDate: string = new Date().toISOString().split('T')[0];
   readonly DEFAULT_PARAMS = {
     fromdate: '',
     todate: '',
@@ -75,7 +76,9 @@ export class OverdueDashboardComponent implements OnInit {
     private router: Router,
     private api: CpApiService,
     public sharedService: SharedService
-  ) { }
+  ) {
+    this.todayDate = new Date().toISOString();
+  }
 
   ngOnInit() {
     this.activeroute.queryParams.subscribe(() => {
@@ -410,16 +413,16 @@ export class OverdueDashboardComponent implements OnInit {
       this.filteredSource = !val
         ? [...this.source]
         : this.source.filter((item) =>
-          (item?.source || '').toLowerCase().includes(val)
-        );
+            (item?.source || '').toLowerCase().includes(val)
+          );
     }
 
     if (this.activeTab === 'property') {
       this.filteredProperty = !val
         ? [...this.suggestedProperty]
         : this.suggestedProperty.filter((item) =>
-          item.name.toLowerCase().includes(val)
-        );
+            item.name.toLowerCase().includes(val)
+          );
     }
   }
   applyTemFilter(data, value) {
@@ -528,5 +531,19 @@ export class OverdueDashboardComponent implements OnInit {
           scrollTop + clientHeight >= scrollHeight - 100;
       }
     });
+  }
+  onSwipe(event, lead: any) {
+    if (event?.detail?.side == 'start' || event == 'chat') {
+      window.open(`https://wa.me/+91 ${lead.number}`, '_system');
+      // this.navigateToWhatsApp(lead.number);
+    } else {
+      window.open(`tel:${lead.number}`, '_system');
+      if (lead && lead.number) {
+        // Trigger the call
+        window.open(`tel:${lead.number}`, '_system');
+      } else {
+        console.error('Phone number not available for the selected lead.');
+      }
+    }
   }
 }

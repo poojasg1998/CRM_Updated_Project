@@ -74,9 +74,11 @@ ion-content {
   .active-btn {
     --background: linear-gradient(180deg, #2196f3 -17.31%, #004d74 96.15%);
     --color: #ffffff;
-    background: linear-gradient(180deg,
-        #2196f3 -17.31%,
-        #004d74 96.15%) !important;
+    background: linear-gradient(
+      180deg,
+      #2196f3 -17.31%,
+      #004d74 96.15%
+    ) !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
     span {
@@ -318,7 +320,7 @@ ion-modal.filter_modal {
   position: absolute;
   width: 50px;
   right: 0;
-  bottom: 0;
+  bottom: 40px;
   border-radius: 35px;
   padding: 5px;
   --ionicon-stroke-width: 60px;

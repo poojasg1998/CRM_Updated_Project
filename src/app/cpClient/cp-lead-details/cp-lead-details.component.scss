@@ -343,3 +343,342 @@ ion-modal#suggested-modal .wrapper {
     text-transform: capitalize;
   }
 }
+
+::ng-deep
+  .relationshipDropdown
+  p-dropdown
+  .p-inputwrapper
+  .p-dropdown-trigger
+  chevrondownicon {
+  width: 12px;
+}
+
+::ng-deep .relationshipDropdown p-dropdown .p-inputwrapper .p-dropdown-trigger {
+  width: 30px !important;
+}
+
+::ng-deep .relationshipDropdown p-dropdown .p-inputwrapper {
+  width: 100% !important;
+}
+
+::ng-deep .p-element .p-dropdown-item {
+  padding: 5px !important;
+  font-size: 0.8rem;
+}
+
+.relationshipDropdown {
+  border: 1px solid #d8d8d8;
+  border-radius: 2px;
+  padding: 0;
+}
+
+.mergeModal ion-searchbar {
+  --box-shadow: 39px !important;
+  border: 1px solid #909090;
+  border-radius: 6px;
+  padding: 0;
+  min-height: 40px;
+}
+
+::ng-deep .mergeModal .searchbar-search-icon.sc-ion-searchbar-md {
+  display: none !important;
+}
+
+::ng-deep .mergeModal .searchbar-input.sc-ion-searchbar-ios {
+  border-radius: 6px !important;
+}
+
+::ng-deep .mergeModal .searchbar-input.sc-ion-searchbar-md {
+  -webkit-padding-start: 0;
+  padding-inline-start: 4px;
+  -webkit-padding-end: 0;
+  padding-inline-end: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  background-position: 0;
+  height: auto;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 30px;
+  font-size: 12px;
+  font-family: "Poppins";
+}
+
+.merge-footer ion-button {
+  width: 100%;
+}
+
+.merge-footer {
+  box-shadow: none;
+}
+
+.merge-footer ion-button {
+  margin: 0;
+  text-transform: none;
+  font-family: "Poppins";
+  font-size: 22px;
+  color: white;
+}
+
+.merge-footer ion-row {
+  margin: 0 10px 10px 10px;
+  background-color: #c0c0c0;
+  border-radius: 3px;
+}
+
+.leadMerged {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 7px;
+  width: 100%;
+  border-radius: 4px;
+}
+
+ion-modal.viewMergedLedasModal {
+  padding: 10px;
+  --height: 70%;
+  --border-radius: 4px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
+
+ion-modal.viewMergedLedasModal-modal .wrapper {
+  margin-bottom: 10px;
+}
+
+.mergedLeadsInfo-value {
+  font-family: "Poppins";
+  font-weight: 400;
+  font-size: 12px;
+  color: #004568;
+}
+
+.mergedLeadsInfo-heading {
+  font-family: "Poppins";
+  color: #4c4c4c;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+}
+
+.merge_button {
+  float: right;
+  border-radius: 25px;
+  padding: 0 10px;
+  font-size: 14px;
+  border: 1px solid #0b7ab2 !important;
+  color: #0b7ab2 !important;
+  background-color: #0b7ab245;
+  display: flex;
+  align-items: center;
+}
+
+.merge_button ion-img {
+  padding-left: 5px;
+}
+
+.mergeModal {
+  --height: 90%;
+  padding: 10px;
+}
+
+.mergerModal_heading {
+  color: #0b7ab2 !important;
+  background-color: #0b7ab245;
+}
+
+.mergedLeadsInfo {
+  background: #f4f4f4;
+}
+
+.lead-info {
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px;
+  background-color: #f0f9ff;
+}
+
+info-row-value {
+  font-family: "Poppins";
+  font-weight: 400;
+  font-size: 12px;
+  color: rgb(0, 0, 0, 0.6);
+}
+
+.info-row-heading {
+  font-family: "Poppins";
+  color: rgb(0, 0, 0, 0.8);
+  font-weight: 500;
+  font-size: 14px;
+  background-color: #f0f9ff;
+  line-height: 16px;
+}
+
+.timeline-item {
+  display: flex;
+  position: relative;
+  // flex-direction: column;
+}
+
+.date-header {
+  background: #dff0ff;
+  color: #1c6ea4;
+  text-align: center;
+  font-size: 4vw;
+  font-weight: 500;
+  margin: 12px 0;
+}
+
+.timeline-left {
+  width: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #666;
+  border-radius: 50%;
+}
+
+.line {
+  flex: 1;
+  width: 1px;
+  background: #ddd;
+}
+
+.time {
+  font-size: 3.4vw;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.timeline-right {
+  flex: 1;
+}
+
+.remarks {
+  font-size: 3vw;
+  color: #888;
+  padding-bottom: 10px;
+}
+
+//EDIT LEAD
+.enquiredDetails {
+  background: rgba(11, 122, 178, 0.2);
+  border-radius: 7px;
+  padding: 0 10px;
+}
+.enqDetailsHeading {
+  height: 22px;
+  ion-col {
+    padding-bottom: 0;
+    color: #686868;
+  }
+}
+.enqDetailsdata {
+  height: 22px;
+  ion-col {
+    padding-top: 0;
+    color: #000000;
+  }
+}
+.custom-textArea ion-textarea {
+  height: 80px;
+  border-radius: 4px;
+  border: 1px solid #bebfc8;
+}
+::ng-deep .custom-textArea .native-wrapper {
+  padding: 8px;
+}
+
+.lead-details {
+  margin-top: 10px;
+}
+.lead-details > ion-row:first-child {
+  font-size: 16px;
+  font-family: "Poppins";
+  font-weight: 400px;
+  color: rgb(0, 0, 0, 0.6);
+}
+.lead-details > ion-row:first-child ion-col {
+  padding-bottom: 0;
+}
+
+.lead-details > ion-row:nth-child(2) {
+  // padding: 0 5px;
+  border: 1px solid #bebfc8;
+  background: #e2f2ff;
+  border-radius: 4px;
+}
+.lead-details > ion-row:nth-child(2) ion-input,
+.lead-details > ion-row:nth-child(2) ion-select {
+  font-size: 16px !important;
+  color: rgb(0, 0, 0, 0.8);
+  font-family: "Poppins";
+  --padding-start: 5px;
+}
+.lead-details > ion-row:nth-child(2) ion-col {
+  padding: 0;
+  height: 36px;
+}
+ion-input {
+  min-height: 36px !important;
+  background: #fff !important;
+}
+ion-select::part(icon) {
+  position: absolute !important;
+  right: 10px !important;
+}
+ion-select {
+  min-height: 36px;
+  border: 1px solid #959da533;
+  border-radius: 4px;
+  font-family: "Poppins";
+  background: #fff !important;
+  border-radius: 4px;
+}
+
+ion-select::part(container) {
+  font-size: 12px;
+  font-family: "Poppins";
+  color: #000000;
+  padding-left: 5px;
+}
+
+.cancel-btn div {
+  border: 1px solid #2196f3;
+  color: #2196f3;
+  font-family: "Poppins";
+  font-size: 18px;
+  width: 100%;
+  border-radius: 50px;
+  padding: 5px;
+}
+.save-btn div {
+  border: 1px solid #2196f3;
+  color: #ffff;
+  font-family: "Poppins";
+  font-size: 18px;
+  width: 100%;
+  border-radius: 50px;
+  background: #2196f3;
+  padding: 5px;
+}
+button {
+  color: white;
+  background-color: #0b7ab2 !important;
+  border-color: #0b7ab2 !important;
+}
+.border-color {
+  border: 1px solid red;
+}
+
+.border-color {
+  --border-color: red !important;
+  --highlight-color-invalid: red !important;
+  border: 1px solid red !important;
+  border-radius: 4px;
+}
