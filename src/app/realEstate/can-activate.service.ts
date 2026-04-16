@@ -24,6 +24,7 @@ export class CanActivateGuard implements CanActivate {
     if (!this.authService.isAuthenticated()) {
       return this.router.createUrlTree(['/login']);
     }
+
     if (department == '10005') {
       return this.router.createUrlTree(['/source-dashboard'], {
         queryParams: {

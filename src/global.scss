@@ -499,3 +499,9 @@ ion-toast.slide-toast::part(container) {
 ion-toast.slide-toast {
   --top: 60px; /* Adjust this value to push it below your header */
 }
+
+.sticky_header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 99999 !important;
+}

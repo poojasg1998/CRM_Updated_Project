@@ -10,6 +10,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { DashboardComponent } from './dashboard.component';
 import { IonRangeCalendarModule } from '@googlproxer/ion-range-calendar';
 import { CpSharedModule } from '../cp-shared/cp-shared.module';
+import { SharedModule } from 'src/app/realEstate/shared.module';
 
 @NgModule({
   imports: [
@@ -27,6 +28,7 @@ import { CpSharedModule } from '../cp-shared/cp-shared.module';
     IonRangeCalendarModule,
     CalendarModule,
     ReactiveFormsModule,
+    SharedModule,
     CpSharedModule,
     NgMultiSelectDropDownModule,
   ],

@@ -21,3 +21,41 @@ ion-content {
 * {
   font-family: "Poppins";
 }
+
+.floatting-icon {
+  position: absolute;
+  width: 50px;
+  right: 0;
+  bottom: 42px;
+  border-radius: 35px;
+  padding: 5px;
+  --ionicon-stroke-width: 60px;
+  ion-icon {
+    background-color: #1265a5 !important;
+    color: white;
+    font-size: 24px;
+    border-radius: 20px;
+    padding: 4px;
+  }
+}
+
+.my-swal-popup .swal2-title {
+  font-size: 1.2rem !important;
+}
+
+.my-swal-popup .swal2-html-container {
+  font-size: 0.8rem !important;
+}
+.swal-confirm {
+  font-size: 1rem !important;
+  padding: 6px !important;
+}
+
+.swal-cancel {
+  font-size: 1rem !important;
+  padding: 6px 10px !important;
+}
+.swal-icon {
+  width: 4rem;
+  height: 4rem;
+}

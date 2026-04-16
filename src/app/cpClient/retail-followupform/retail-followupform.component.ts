@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonPopover, ModalController } from '@ionic/angular';
-import { of, switchMap } from 'rxjs';
+import { of, Subject, switchMap, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import { CpApiService } from '../cp-api.service';
 declare var $: any;
@@ -40,6 +40,9 @@ export class RetailFollowupformComponent implements OnInit {
   currenttime: any;
   isFreshLead: boolean = false;
   categoryid: string;
+  private destroy$ = new Subject<void>();
+
+  subscription: import('rxjs').Subscription;
 
   constructor(
     private router: Router,
@@ -52,100 +55,105 @@ export class RetailFollowupformComponent implements OnInit {
 
   ngOnInit() {
     this.userid = localStorage.getItem('UserId');
-    this.activeroute.queryParamMap.subscribe((params) => {
-      const paramMap = params.get('leadid');
-      this.leadId = params.get('leadid');
-      this.categoryid = params.get('categoryid');
-      const isEmpty = !paramMap;
-      this.feedbackID = params.get('feedback') ? params.get('feedback') : '0';
-      var curmonth = this.currentdateforcompare.getMonth() + 1;
-      var curmonthwithzero = curmonth.toString().padStart(2, '0');
-      var curday = this.currentdateforcompare.getDate();
-      var curdaywithzero = curday.toString().padStart(2, '0');
-      this.todaysdateforcompare =
-        this.currentdateforcompare.getFullYear() +
-        '-' +
-        curmonthwithzero +
-        '-' +
-        curdaywithzero;
-      const options: Intl.DateTimeFormatOptions = {
-        hour: '2-digit',
-        minute: '2-digit',
-      };
-      const timeString = new Date().toLocaleTimeString([], options);
-      this.currenttime = timeString;
+    this.subscription = this.activeroute.queryParamMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        const paramMap = params.get('leadid');
+        this.leadId = params.get('leadid');
+        this.categoryid = params.get('categoryid');
+        const isEmpty = !paramMap;
+        this.feedbackID = params.get('feedback') ? params.get('feedback') : '0';
+        var curmonth = this.currentdateforcompare.getMonth() + 1;
+        var curmonthwithzero = curmonth.toString().padStart(2, '0');
+        var curday = this.currentdateforcompare.getDate();
+        var curdaywithzero = curday.toString().padStart(2, '0');
+        this.todaysdateforcompare =
+          this.currentdateforcompare.getFullYear() +
+          '-' +
+          curmonthwithzero +
+          '-' +
+          curdaywithzero;
+        const options: Intl.DateTimeFormatOptions = {
+          hour: '2-digit',
+          minute: '2-digit',
+        };
+        const timeString = new Date().toLocaleTimeString([], options);
+        this.currenttime = timeString;
 
-      if (!isEmpty) {
-        this._retailservice.getfollowupsections().subscribe((response) => {
-          if (response['status'] == 'True') {
-            this.followupsections = response['followupCategories'];
-            this.showSpinner = false;
+        if (!isEmpty) {
+          this._retailservice.getfollowupsections().subscribe((response) => {
+            if (response['status'] == 'True') {
+              this.followupsections = response['followupCategories'];
+              this.showSpinner = false;
+            }
+          });
+
+          let rmid;
+          if (this.feedbackID == '1') {
+            rmid = this.selectedExecId;
+          } else {
+            rmid = this.userid;
           }
-        });
+          // to get exceId
+          this._retailservice
+            .getassignedrmretail(
+              this.leadId,
+              rmid,
+              this.feedbackID,
+              this.categoryid
+            )
+            .pipe(
+              takeUntil(this.destroy$),
+              switchMap((cust) => {
+                console.log(cust);
+                console.log(
+                  cust?.['RMname']?.[0]?.['suggestedprop']?.[0]?.propid
+                );
 
-        let rmid;
-        if (this.feedbackID == '1') {
-          rmid = this.selectedExecId;
-        } else {
-          rmid = this.userid;
-        }
-        // to get exceId
-        this._retailservice
-          .getassignedrmretail(
-            this.leadId,
-            rmid,
-            this.feedbackID,
-            this.categoryid
-          )
-          .pipe(
-            switchMap((cust) => {
-              console.log(cust);
-              console.log(
-                cust?.['RMname']?.[0]?.['suggestedprop']?.[0]?.propid
-              );
-              if (cust && cust['RMname'] && cust['RMname'][0]) {
-                this.executeid = cust['RMname'][0].executiveid;
-                this.suggestchecked =
-                  cust?.['RMname']?.[0]?.['suggestedprop']?.[0]?.propid;
-                this.followexecutiveId =
-                  this.userid === '1' ? this.selectedExecId : this.executeid;
-              }
-              // Return an observable for the second API call
-              return this.followexecutiveId
-                ? this._retailservice.getactiveleadsstatus(
-                    this.leadId,
-                    this.userid,
-                    this.followexecutiveId,
-                    this.feedbackID,
-                    this.categoryid
-                  )
-                : of(null);
-            })
-          )
-          .subscribe((stagestatus) => {
-            if (stagestatus) {
-              if (stagestatus['status'] === 'True') {
-                this.currentstage = stagestatus['activeleadsstatus'][0].stage;
-                this.stagestatusapi =
-                  stagestatus['activeleadsstatus'][0].stagestatus;
-                if (this.currentstage == null) {
+                this.selectedPriority = cust?.['RMname']?.[0]?.priority;
+                if (cust && cust['RMname'] && cust['RMname'][0]) {
+                  this.executeid = cust['RMname'][0].executiveid;
+                  this.suggestchecked =
+                    cust?.['RMname']?.[0]?.['suggestedprop']?.[0]?.propid;
+                  this.followexecutiveId =
+                    this.userid === '1' ? this.selectedExecId : this.executeid;
+                }
+                // Return an observable for the second API call
+                return this.followexecutiveId
+                  ? this._retailservice.getactiveleadsstatus(
+                      this.leadId,
+                      this.userid,
+                      this.followexecutiveId,
+                      this.feedbackID,
+                      this.categoryid
+                    )
+                  : of(null);
+              })
+            )
+            .subscribe((stagestatus) => {
+              if (stagestatus) {
+                if (stagestatus['status'] === 'True') {
+                  this.currentstage = stagestatus['activeleadsstatus'][0].stage;
+                  this.stagestatusapi =
+                    stagestatus['activeleadsstatus'][0].stagestatus;
+                  if (this.currentstage == null) {
+                    this.currentstage = 'Fresh';
+                    this.stagestatus = '0';
+                  }
+
+                  if (stagestatus['activeleadsstatus'][0].stage == 'Fresh') {
+                    this.isFreshLead = false;
+                  } else {
+                    this.isFreshLead = true;
+                  }
+                } else {
                   this.currentstage = 'Fresh';
                   this.stagestatus = '0';
                 }
-
-                if (stagestatus['activeleadsstatus'][0].stage == 'Fresh') {
-                  this.isFreshLead = false;
-                } else {
-                  this.isFreshLead = true;
-                }
-              } else {
-                this.currentstage = 'Fresh';
-                this.stagestatus = '0';
               }
-            }
-          });
-      }
-    });
+            });
+        }
+      });
   }
 
   // to display date in the format of YYYY-MM-DD
@@ -405,27 +413,23 @@ export class RetailFollowupformComponent implements OnInit {
                   .subscribe(
                     (success) => {
                       if (success['status'] == 'True') {
-                        Swal.fire({
-                          title: 'Followup Fixed Successfully',
-                          text: 'Please check your followup bucket for the Lead reminders',
-                          icon: 'success',
-                          heightAuto: false,
-                          confirmButtonText: 'OK!',
-                        }).then((result) => {
-                          if (result.value) {
-                            this.modalController.dismiss();
-                            //  const currentParams = this.activeroute.snapshot.queryParams;
-                            //  this.router.navigate([], {
-                            //   relativeTo: this.activeroute,
-                            //   queryParams: {
-                            //     ...currentParams,
-                            //     stageForm: 'onleadStatus'
-                            //   },
-                            //   queryParamsHandling: 'merge'
-                            // });
-                            location.reload();
-                          }
-                        });
+                        this._retailservice
+                          .updatehotwarmcold(this.selectedPriority, this.leadId)
+                          .subscribe((resp) => {
+                            if (resp['status'] == 'True') {
+                              Swal.fire({
+                                title: 'Followup Fixed Successfully',
+                                text: 'Please check your followup bucket for the Lead reminders',
+                                icon: 'success',
+                                heightAuto: false,
+                                confirmButtonText: 'OK!',
+                              }).then((result) => {
+                                if (result.value) {
+                                  location.reload();
+                                }
+                              });
+                            }
+                          });
                       }
                     },
                     (err) => {
@@ -709,6 +713,8 @@ export class RetailFollowupformComponent implements OnInit {
               feedback: this.feedbackID,
               categoryid: this.categoryid,
             };
+            console.log(visitparam);
+
             this._retailservice.retailpropertyvisitupdate(visitparam).subscribe(
               (success) => {
                 if (success['status'] == 'True') {
@@ -728,27 +734,23 @@ export class RetailFollowupformComponent implements OnInit {
                   .subscribe(
                     (success) => {
                       if (success['status'] == 'True') {
-                        Swal.fire({
-                          title: 'Followup Updated Successfully',
-                          text: 'Please check your followup bucket for the Lead reminders',
-                          icon: 'success',
-                          heightAuto: false,
-                          confirmButtonText: 'OK!',
-                        }).then((result) => {
-                          if (result.value) {
-                            this.modalController.dismiss();
-                            // const currentParams = this.activeroute.snapshot.queryParams;
-                            //        this.router.navigate([], {
-                            //         relativeTo: this.activeroute,
-                            //         queryParams: {
-                            //           ...currentParams,
-                            //           stageForm: 'onleadStatus'
-                            //         },
-                            //         queryParamsHandling: 'merge'
-                            //       });
-                            location.reload();
-                          }
-                        });
+                        this._retailservice
+                          .updatehotwarmcold(this.selectedPriority, this.leadId)
+                          .subscribe((resp) => {
+                            if (resp['status'] == 'True') {
+                              Swal.fire({
+                                title: 'Followup Fixed Successfully',
+                                text: 'Please check your followup bucket for the Lead reminders',
+                                icon: 'success',
+                                heightAuto: false,
+                                confirmButtonText: 'OK!',
+                              }).then((result) => {
+                                if (result.value) {
+                                  location.reload();
+                                }
+                              });
+                            }
+                          });
                       }
                     },
                     (err) => {
@@ -894,27 +896,23 @@ export class RetailFollowupformComponent implements OnInit {
                   .subscribe(
                     (success) => {
                       if (success['status'] == 'True') {
-                        Swal.fire({
-                          title: 'Followup Updated Successfully',
-                          text: 'Please check your followup bucket for the Lead reminders',
-                          icon: 'success',
-                          heightAuto: false,
-                          confirmButtonText: 'OK!',
-                        }).then((result) => {
-                          if (result.value) {
-                            this.modalController.dismiss();
-                            //  const currentParams = this.activeroute.snapshot.queryParams;
-                            //            this.router.navigate([], {
-                            //             relativeTo: this.activeroute,
-                            //             queryParams: {
-                            //               ...currentParams,
-                            //               stageForm: 'onleadStatus'
-                            //             },
-                            //             queryParamsHandling: 'merge'
-                            //           });
-                            location.reload();
-                          }
-                        });
+                        this._retailservice
+                          .updatehotwarmcold(this.selectedPriority, this.leadId)
+                          .subscribe((resp) => {
+                            if (resp['status'] == 'True') {
+                              Swal.fire({
+                                title: 'Followup Fixed Successfully',
+                                text: 'Please check your followup bucket for the Lead reminders',
+                                icon: 'success',
+                                heightAuto: false,
+                                confirmButtonText: 'OK!',
+                              }).then((result) => {
+                                if (result.value) {
+                                  location.reload();
+                                }
+                              });
+                            }
+                          });
                       }
                     },
                     (err) => {
@@ -991,27 +989,23 @@ export class RetailFollowupformComponent implements OnInit {
           this._retailservice.addfollowuphistory(followups).subscribe(
             (success) => {
               if (success['status'] == 'True') {
-                Swal.fire({
-                  title: 'Followup Updated Successfully',
-                  text: 'Please check your followup bucket for the Lead reminders',
-                  icon: 'success',
-                  heightAuto: false,
-                  confirmButtonText: 'OK!',
-                }).then((result) => {
-                  if (result.value) {
-                    this.modalController.dismiss();
-                    //  const currentParams = this.activeroute.snapshot.queryParams;
-                    //     this.router.navigate([], {
-                    //     relativeTo: this.activeroute,
-                    //     queryParams: {
-                    //       ...currentParams,
-                    //       stageForm: 'onleadStatus'
-                    //     },
-                    //     queryParamsHandling: 'merge'
-                    //   });
-                    location.reload();
-                  }
-                });
+                this._retailservice
+                  .updatehotwarmcold(this.selectedPriority, this.leadId)
+                  .subscribe((resp) => {
+                    if (resp['status'] == 'True') {
+                      Swal.fire({
+                        title: 'Followup Fixed Successfully',
+                        text: 'Please check your followup bucket for the Lead reminders',
+                        icon: 'success',
+                        heightAuto: false,
+                        confirmButtonText: 'OK!',
+                      }).then((result) => {
+                        if (result.value) {
+                          location.reload();
+                        }
+                      });
+                    }
+                  });
               }
             },
             (err) => {
@@ -1054,9 +1048,21 @@ export class RetailFollowupformComponent implements OnInit {
 
   ngOnDestroy() {
     this.closeAlert();
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   closeAlert() {
     Swal.close();
+  }
+
+  selectedPriority: string = '';
+
+  setPriority(value: string) {
+    this.selectedPriority = this.selectedPriority === value ? '' : value;
   }
 }

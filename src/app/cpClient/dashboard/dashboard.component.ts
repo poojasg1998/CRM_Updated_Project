@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CpApiService } from '../cp-api.service';
-import { catchError, forkJoin, of } from 'rxjs';
+import { catchError, forkJoin, of, Subject } from 'rxjs';
 import Swal from 'sweetalert2';
 import { IonContent, IonModal } from '@ionic/angular';
 import { SharedService } from '../../realEstate/shared.service';
@@ -12,7 +12,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
   @ViewChild('cp_dashboard_custDate_modal')
   cp_dashboard_custDate_modal: IonModal;
   @ViewChild('cp_dashboard_fromDate_modal')
@@ -22,6 +22,7 @@ export class DashboardComponent implements OnInit {
   @ViewChild('filter_modal') filter_modal;
   @ViewChild('add_lead') add_lead;
   todayDate: string = new Date().toISOString().split('T')[0];
+  destroy$ = new Subject<void>();
   readonly LEADS_DEFAULTS = {
     fromdate: '',
     todate: '',
@@ -32,10 +33,10 @@ export class DashboardComponent implements OnInit {
     isLeadsVisits: 'leads',
     datePreset: 'all',
     category: '1',
-    selectedStage: 'Total Received',
+    selectedStage: 'Untouched',
     activeCardKey: 'totalreceived-card',
     stagestatus: '',
-    status: 'assignedleads',
+    status: 'pending',
     stage: '',
     source: [],
     priority: '',
@@ -108,21 +109,19 @@ export class DashboardComponent implements OnInit {
   filteredProperty: any;
   tempFilteredValues: any;
   minDate;
-  canScroll;
   addleadForm!: FormGroup;
   localityList;
+  subscription: import('rxjs').Subscription;
 
   constructor(
     private activeroute: ActivatedRoute,
     private router: Router,
     private api: CpApiService,
     private fb: FormBuilder,
-    public sharedService: SharedService
+    public sharedService: SharedService,
+    private cd: ChangeDetectorRef
   ) {
     this.todayDate = new Date().toISOString();
-  }
-
-  ngOnInit() {
     this.addleadForm = this.fb.group({
       name: ['', Validators.required],
       number: [
@@ -158,11 +157,14 @@ export class DashboardComponent implements OnInit {
       }
       documentsControl?.updateValueAndValidity();
     });
+  }
+
+  ionViewWillEnter() {
     this.getSource();
     this.getLocalities();
-    this.activeroute.queryParams.subscribe(() => {
+    this.subscription = this.activeroute.queryParams.subscribe(() => {
       this.getQueryParams();
-      // this.getLeadsCount();
+
       if (this.sharedService.hasState) {
         this.showSpinner = false;
         this.leads_detail = this.sharedService.enquiries;
@@ -173,7 +175,7 @@ export class DashboardComponent implements OnInit {
 
         setTimeout(() => {
           this.sharedService.hasState = false;
-        }, 5000);
+        }, 1000);
       } else {
         this.scrollContent?.scrollToTop(300);
         this.getLeadsCount();
@@ -186,24 +188,6 @@ export class DashboardComponent implements OnInit {
       this.localityList = resp['Localities'];
     });
   }
-
-  // onScroll(event: CustomEvent) {
-  //   const scrollTop = event.detail.scrollTop;
-  //   this.scrollContent.getScrollElement().then((scrollEl) => {
-  //     const scrollTop = scrollEl.scrollTop;
-  //     const scrollHeight = scrollEl.scrollHeight;
-  //     const clientHeight = scrollEl.offsetHeight;
-
-  //     this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
-
-  //     if (!this.canScroll) {
-  //       this.sharedService.isBottom = false;
-  //     } else {
-  //       this.sharedService.isBottom =
-  //         scrollTop + clientHeight >= scrollHeight - 10;
-  //     }
-  //   });
-  // }
 
   getSource() {
     this.api.getSource().subscribe((resp) => {
@@ -244,6 +228,7 @@ export class DashboardComponent implements OnInit {
    * @param value - The new value to set
    */
   applyFilter(filters: Record<string, any>): void {
+    this.sharedService.hasState = false;
     this.resetInfiniteScroll();
     Object.keys(filters).forEach((key) => {
       const value = filters[key];
@@ -261,7 +246,10 @@ export class DashboardComponent implements OnInit {
     // Navigate ONLY ONCE
     this.router.navigate([], {
       relativeTo: this.activeroute,
-      queryParams: this.filteredParams,
+      queryParams: {
+        ...this.filteredParams,
+        refresh: new Date().getTime(),
+      },
       queryParamsHandling: 'merge',
     });
   }
@@ -426,6 +414,14 @@ export class DashboardComponent implements OnInit {
           stage: '',
           stagestatus: '3',
           visited_count: '',
+          visitedfromdate: this.filteredParams.fromdate
+            ? this.filteredParams.fromdate
+            : '',
+          visitedtodate: this.filteredParams.todate
+            ? this.filteredParams.todate
+            : '',
+          fromdate: '',
+          todate: '',
         };
         requests.push(
           this.api.getAssignedLeadsCount(params).pipe(
@@ -510,7 +506,7 @@ export class DashboardComponent implements OnInit {
           ...this.filteredParams,
           stage: stage,
           status: '',
-          stagestatus: '3',
+          stagestatus: stage == 'Final Negotiation' ? '3' : '',
           visited_count: '',
         };
         requests.push(
@@ -535,6 +531,24 @@ export class DashboardComponent implements OnInit {
               this.visitsCount.active =
                 assignleads['AssignedLeads'][0]['Uniquee_counts'];
               this.Visitscounts = assignleads['Visitscounts'];
+
+              const matched = this.Visitscounts.find(
+                (item) => item.visit_order == this.filteredParams.visited_count
+              );
+
+              if (matched) {
+                this.filteredParams.visited_count = matched.visit_order;
+              } else if (
+                this.Visitscounts.length > 0 &&
+                this.Visitscounts[0]?.visit_order
+              ) {
+                this.filteredParams.visited_count =
+                  this.Visitscounts[0].visit_order;
+              }
+              // if (this.filteredParams.visited_count == '') {
+              //   this.filteredParams.visited_count =
+              //     this.Visitscounts[0].visit_order;
+              // }
               break;
             case 2:
               this.visitsCount.junkVisits =
@@ -602,18 +616,16 @@ export class DashboardComponent implements OnInit {
             resolve(true);
           } else {
             this.leads_detail = isLoadmore ? this.leads_detail : [];
-            this.suggestedProperty = isLoadmore
-              ? response['SuggestedPropertyLists']
-              : [];
+            this.suggestedProperty = isLoadmore ? this.suggestedProperty : [];
             this.filteredProperty = this.suggestedProperty;
 
-            this.enquiredProperty = isLoadmore
-              ? response['EnquiredPropertyLists']
-              : [];
+            this.enquiredProperty = isLoadmore ? this.enquiredProperty : [];
             this.filteredEnquiry = this.enquiredProperty;
             this.showSpinner = false;
             resolve(false);
           }
+
+          this.cd.detectChanges();
         });
     });
   }
@@ -944,20 +956,12 @@ export class DashboardComponent implements OnInit {
   }
   onScroll(event: CustomEvent) {
     this.sharedService.scrollTop = event.detail.scrollTop;
-    const scrollTop = event.detail.scrollTop;
     this.scrollContent.getScrollElement().then((scrollEl) => {
       const scrollTop = scrollEl.scrollTop;
       const scrollHeight = scrollEl.scrollHeight;
-      const clientHeight = scrollEl.offsetHeight;
-
-      this.canScroll = scrollHeight > clientHeight + 10; // ADD A BUFFER of 10px
-
-      if (!this.canScroll) {
-        this.sharedService.isBottom = false;
-      } else {
-        this.sharedService.isBottom =
-          scrollTop + clientHeight >= scrollHeight - 100;
-      }
+      const clientHeight = scrollEl.clientHeight;
+      this.sharedService.isBottom =
+        Math.abs(scrollTop + clientHeight - scrollHeight) < 5;
     });
   }
   onSwipe(event, lead: any) {
@@ -972,6 +976,12 @@ export class DashboardComponent implements OnInit {
       } else {
         console.error('Phone number not available for the selected lead.');
       }
+    }
+  }
+
+  ionViewWillLeave() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 }

@@ -44,6 +44,15 @@
     background: #0b7ab2 !important;
     color: #ffffff !important;
   }
+  .save-row {
+    ion-button {
+      width: 30%;
+      border-radius: 4px;
+    }
+    position: sticky;
+    bottom: 0;
+    z-index: 9999;
+  }
 }
 
 ::ng-deep .addLeadForm p-dropdown .p-inputwrapper span {
@@ -110,4 +119,85 @@
 
 .filter_opt {
   z-index: 9 !important;
+}
+.toggle-btn {
+  font-size: 11px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+
+  .active {
+    border: 1px solid #005d8c;
+    margin: 2px;
+    border-radius: 20px;
+    background-color: #005d8c;
+    color: #ffffff;
+  }
+
+  ion-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+.drop-zone {
+  padding: 10px !important;
+  text-align: center !important;
+  padding: 2rem !important;
+  padding: 10px 0px !important;
+  cursor: pointer !important;
+}
+
+.drop-zone {
+  text-align: center !important;
+  padding: 1rem !important;
+  border: 2px dashed #d1d5db !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  height: 200px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 1rem;
+}
+
+.drop-zone i {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+.csvAndDowloadSample {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem;
+}
+.downloadSampleFile {
+  height: 34px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: capitalize !important;
+  font-size: 14px !important;
+}
+
+.addcsvBtn {
+  height: 34px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px !important;
+  text-transform: capitalize !important;
+  font-size: 14px !important;
+  border: 1px solid #005d8c;
+  background-color: #005d8c;
+  color: #ffffff;
+}
+
+.addcsvBtn:hover {
+  height: 35px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px !important;
+  text-transform: capitalize !important;
+  font-size: 18px !important;
 }

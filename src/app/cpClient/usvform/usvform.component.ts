@@ -21,7 +21,7 @@ import {
   ModalController,
   NavController,
 } from '@ionic/angular';
-import { of, switchMap } from 'rxjs';
+import { of, Subject, switchMap, takeUntil } from 'rxjs';
 import { Location } from '@angular/common';
 import Swal from 'sweetalert2';
 import { CpApiService } from '../cp-api.service';
@@ -94,7 +94,8 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
   proploopArray: visitedproperties[];
   categoryid: string;
   isEdit: boolean = true;
-
+  subscription: import('rxjs').Subscription;
+  private destroy$ = new Subject<void>();
   constructor(
     private _retailservice: CpApiService,
     private activeroute: ActivatedRoute,
@@ -105,138 +106,144 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ionViewDidEnter() {
-    this.ngOnInit();
-  }
-
   assignedRM;
   feedbackID;
   ngOnInit() {
     this.cdr.detectChanges();
     this.userid = localStorage.getItem('UserId');
     this.username = localStorage.getItem('Name');
+    this.loadApi();
+  }
 
-    this.activeroute.queryParamMap.subscribe((params) => {
-      this.showSpinner = true;
-      const paramMap = params.get('leadid');
-      this.categoryid = params.get('categoryid');
-      this.leadId = params.get('leadid');
-      const isEmpty = !paramMap;
-      if (!isEmpty) {
-        // to get exceId
-        let rmid;
-        if (this.feedbackID == 1) {
-          rmid = this.selectedExecId;
-        } else {
-          rmid = this.userid;
-        }
-        this.feedbackID = params.get('feedback') ? params.get('feedback') : '';
-        this._retailservice
-          .getassignedrmretail(
-            this.leadId,
-            rmid,
-            this.feedbackID,
-            this.categoryid
-          )
-          .pipe(
-            switchMap((cust) => {
-              this.leadDetails = cust['RMname'][0];
-              this.executeid = cust['RMname'][0].executiveid;
-              if (this.userid == '1') {
-                this.usvexecutiveId = this.selectedExecId;
-              } else {
-                this.usvexecutiveId = this.selectedExecId;
-              }
-              this.assignedRM = cust['RMname'].filter((lead) => {
-                return lead.RMID == this.selectedExecId;
-              });
-              this.loadimportantapi();
-
-              //First, get the visit property others
-              return this.usvexecutiveId
-                ? this._retailservice.getvisitpropertyothers(
-                    this.leadId,
-                    this.userid,
-                    this.usvexecutiveId,
-                    this.feedbackID,
-                    this.categoryid
-                  )
-                : of(null);
-            }),
-            switchMap((visitedwithothers) => {
-              this.othersvisitedlists = visitedwithothers['visitedothers'];
-              // Then, get the active leads status
-              return this.usvexecutiveId
-                ? this._retailservice.getactiveleadsstatus(
-                    this.leadId,
-                    this.userid,
-                    this.usvexecutiveId,
-                    this.feedbackID,
-                    this.categoryid
-                  )
-                : of(null);
-            })
-          )
-          .subscribe((stagestatus) => {
-            if (stagestatus) {
-              this.activestagestatus = stagestatus['activeleadsstatus'];
-
-              this.activestagestatus = stagestatus['activeleadsstatus'];
-              if (
-                this.activestagestatus[0].stage == 'USV' &&
-                this.activestagestatus[0].stagestatus == '1'
-              ) {
-                this.hideafterfixed = false;
-                this.usvFixed = false;
-                this.hidebeforefixed = true;
-                if (this.selectedBtn == 'rescheduled') {
-                  this.usvreFix = true;
-                  this.usvDone = false;
-                } else if (this.selectedBtn == 'updatevisit') {
-                  this.usvreFix = false;
-                  this.usvDone = true;
+  loadApi() {
+    this.subscription = this.activeroute.queryParamMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        this.showSpinner = true;
+        const paramMap = params.get('leadid');
+        this.categoryid = params.get('categoryid');
+        this.leadId = params.get('leadid');
+        const isEmpty = !paramMap;
+        if (!isEmpty) {
+          // to get exceId
+          let rmid;
+          if (this.feedbackID == 1) {
+            rmid = this.selectedExecId;
+          } else {
+            rmid = this.userid;
+          }
+          this.feedbackID = params.get('feedback')
+            ? params.get('feedback')
+            : '';
+          this._retailservice
+            .getassignedrmretail(
+              this.leadId,
+              rmid,
+              this.feedbackID,
+              this.categoryid
+            )
+            .pipe(
+              takeUntil(this.destroy$),
+              switchMap((cust) => {
+                this.leadDetails = cust['RMname'][0];
+                this.executeid = cust['RMname'][0].executiveid;
+                if (this.userid == '1') {
+                  this.usvexecutiveId = this.selectedExecId;
+                } else {
+                  this.usvexecutiveId = this.selectedExecId;
                 }
-                $('#sectionselector').val('USV');
-              } else if (
-                this.activestagestatus[0].stage == 'USV' &&
-                this.activestagestatus[0].stagestatus == '2'
-              ) {
-                this.hideafterfixed = false;
-                this.usvFixed = false;
-                this.hidebeforefixed = true;
-                if (this.selectedBtn == 'rescheduled') {
-                  this.usvreFix = true;
+                this.assignedRM = cust['RMname'].filter((lead) => {
+                  return lead.RMID == this.selectedExecId;
+                });
+                this.selectedPriority = this.assignedRM[0].priority;
+                this.loadimportantapi();
+
+                //First, get the visit property others
+                return this.usvexecutiveId
+                  ? this._retailservice.getvisitpropertyothers(
+                      this.leadId,
+                      this.userid,
+                      this.usvexecutiveId,
+                      this.feedbackID,
+                      this.categoryid
+                    )
+                  : of(null);
+              }),
+              switchMap((visitedwithothers) => {
+                this.othersvisitedlists = visitedwithothers['visitedothers'];
+                // Then, get the active leads status
+                return this.usvexecutiveId
+                  ? this._retailservice.getactiveleadsstatus(
+                      this.leadId,
+                      this.userid,
+                      this.usvexecutiveId,
+                      this.feedbackID,
+                      this.categoryid
+                    )
+                  : of(null);
+              }),
+              takeUntil(this.destroy$)
+            )
+            .subscribe((stagestatus) => {
+              if (stagestatus) {
+                this.activestagestatus = stagestatus['activeleadsstatus'];
+
+                this.activestagestatus = stagestatus['activeleadsstatus'];
+                if (
+                  this.activestagestatus[0].stage == 'USV' &&
+                  this.activestagestatus[0].stagestatus == '1'
+                ) {
+                  this.hideafterfixed = false;
+                  this.usvFixed = false;
+                  this.hidebeforefixed = true;
+                  if (this.selectedBtn == 'rescheduled') {
+                    this.usvreFix = true;
+                    this.usvDone = false;
+                  } else if (this.selectedBtn == 'updatevisit') {
+                    this.usvreFix = false;
+                    this.usvDone = true;
+                  }
+                  $('#sectionselector').val('USV');
+                } else if (
+                  this.activestagestatus[0].stage == 'USV' &&
+                  this.activestagestatus[0].stagestatus == '2'
+                ) {
+                  this.hideafterfixed = false;
+                  this.usvFixed = false;
+                  this.hidebeforefixed = true;
+                  if (this.selectedBtn == 'rescheduled') {
+                    this.usvreFix = true;
+                    this.usvDone = false;
+                  } else if (this.selectedBtn == 'updatevisit') {
+                    this.usvreFix = false;
+                    this.usvDone = true;
+                  }
+                  $('#sectionselector').val('USV');
+                } else if (
+                  this.activestagestatus[0].stage == 'USV' &&
+                  this.activestagestatus[0].stagestatus == '3'
+                ) {
+                  this.hideafterfixed = true;
+                  this.hidebeforefixed = false;
                   this.usvDone = false;
-                } else if (this.selectedBtn == 'updatevisit') {
-                  this.usvreFix = false;
-                  this.usvDone = true;
+                  this.usvFixed = true;
+                } else {
+                  this.hideafterfixed = true;
                 }
-                $('#sectionselector').val('USV');
-              } else if (
-                this.activestagestatus[0].stage == 'USV' &&
-                this.activestagestatus[0].stagestatus == '3'
-              ) {
-                this.hideafterfixed = true;
-                this.hidebeforefixed = false;
-                this.usvDone = false;
-                this.usvFixed = true;
-              } else {
-                this.hideafterfixed = true;
               }
-            }
-            this.showSpinner = false;
+              this.showSpinner = false;
+            });
+
+          var param = {
+            leadid: this.leadId,
+            execid: this.userid,
+          };
+
+          this._retailservice.propertylist(param).subscribe((propertylist) => {
+            this.properties = propertylist;
           });
-
-        var param = {
-          leadid: this.leadId,
-          execid: this.userid,
-        };
-
-        this._retailservice.propertylist(param).subscribe((propertylist) => {
-          this.properties = propertylist;
-        });
-      }
-    });
+        }
+      });
   }
 
   loadimportantapi() {
@@ -572,27 +579,28 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
                           $('#nextactiontime').val('');
                           $('#customer_phase4').val('');
                           $('#textarearemarks').val('');
-                          Swal.fire({
-                            title: 'USV Fixed Successfully',
-                            icon: 'success',
-                            allowOutsideClick: false,
-                            heightAuto: false,
-                            confirmButtonText: 'OK!',
-                          }).then((result) => {
-                            if (result.value) {
-                              this.modalController.dismiss();
-                              // const currentParams = this.activeroute.snapshot.queryParams;
-                              //     this.router.navigate([], {
-                              //     relativeTo: this.activeroute,
-                              //     queryParams: {
-                              //       ...currentParams,
-                              //       stageForm: 'onleadStatus'
-                              //     },
-                              //     queryParamsHandling: 'merge'
-                              //   });
-                              location.reload();
-                            }
-                          });
+
+                          this._retailservice
+                            .updatehotwarmcold(
+                              this.selectedPriority,
+                              this.leadId
+                            )
+                            .subscribe((resp) => {
+                              if (resp['status'] == 'True') {
+                                Swal.fire({
+                                  title: 'USV Fixed Successfully',
+                                  icon: 'success',
+                                  allowOutsideClick: false,
+                                  heightAuto: false,
+                                  confirmButtonText: 'OK!',
+                                }).then((result) => {
+                                  if (result.value) {
+                                    this.modalController.dismiss();
+                                    location.reload();
+                                  }
+                                });
+                              }
+                            });
                         }
                       },
                       (err) => {
@@ -702,25 +710,35 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
                         (success) => {
                           if (success['status'] == 'True') {
                             this.showSpinner = false;
-                            Swal.fire({
-                              title: 'USV Refixed Successfully',
-                              icon: 'success',
-                              allowOutsideClick: false,
-                              heightAuto: false,
-                              confirmButtonText: 'OK!',
-                            }).then((result) => {
-                              this.modalController.dismiss();
-                              // const currentParams = this.activeroute.snapshot.queryParams;
-                              //   this.router.navigate([], {
-                              //   relativeTo: this.activeroute,
-                              //   queryParams: {
-                              //     ...currentParams,
-                              //     stageForm: 'onleadStatus'
-                              //   },
-                              //   queryParamsHandling: 'merge'
-                              // });
-                              location.reload();
-                            });
+
+                            this._retailservice
+                              .updatehotwarmcold(
+                                this.selectedPriority,
+                                this.leadId
+                              )
+                              .subscribe((resp) => {
+                                if (resp['status'] == 'True') {
+                                  Swal.fire({
+                                    title: 'USV Refixed Successfully',
+                                    icon: 'success',
+                                    allowOutsideClick: false,
+                                    heightAuto: false,
+                                    confirmButtonText: 'OK!',
+                                  }).then((result) => {
+                                    this.modalController.dismiss();
+                                    // const currentParams = this.activeroute.snapshot.queryParams;
+                                    //   this.router.navigate([], {
+                                    //   relativeTo: this.activeroute,
+                                    //   queryParams: {
+                                    //     ...currentParams,
+                                    //     stageForm: 'onleadStatus'
+                                    //   },
+                                    //   queryParamsHandling: 'merge'
+                                    // });
+                                    location.reload();
+                                  });
+                                }
+                              });
                           }
                         },
                         (err) => {
@@ -1625,6 +1643,12 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
 
   ngOnDestroy() {
     this.closeAlert();
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   closeAlert() {
@@ -1858,8 +1882,14 @@ export class UsvformComponent implements OnInit, AfterViewChecked {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['refreshTrigger']) {
-      this.loadimportantapi();
+    this.showSpinner = true;
+    if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
+      this.loadApi();
     }
+  }
+  selectedPriority: string = '';
+
+  setPriority(value: string) {
+    this.selectedPriority = this.selectedPriority === value ? '' : value;
   }
 }

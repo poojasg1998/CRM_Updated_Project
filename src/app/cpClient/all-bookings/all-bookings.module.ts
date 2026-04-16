@@ -11,6 +11,7 @@ import { IonRangeCalendarModule } from '@googlproxer/ion-range-calendar';
 import { CpSharedModule } from '../cp-shared/cp-shared.module';
 import { AllBookingsComponent } from './all-bookings.component';
 import { SharedModule } from 'src/app/realEstate/shared.module';
+import { PhotoGalleryModule } from '@twogate/ngx-photo-gallery';
 
 @NgModule({
   imports: [
@@ -28,6 +29,7 @@ import { SharedModule } from 'src/app/realEstate/shared.module';
     IonRangeCalendarModule,
     CalendarModule,
     SharedModule,
+    PhotoGalleryModule,
     NgMultiSelectDropDownModule,
     CpSharedModule,
   ],

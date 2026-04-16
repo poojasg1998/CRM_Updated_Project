@@ -34,7 +34,7 @@
   </ion-col>
 </ion-row>
 
-<ion-content>
+<ion-content #scrollContent scrollEvents="true" (ionScroll)="onScroll($event)">
   <ion-card
     *ngFor="let data of isPropSourceLocality == 'property'?filterPropertyList:isPropSourceLocality == 'source'?source:localityList;,let i= index">
     <div class="card-count">
@@ -48,7 +48,7 @@
       </ion-row>
       <ion-row>
         <ion-col class="pt-0 value">{{data.name}}</ion-col>
-        <ion-col class="pt-0 value">{{data.listing_category}}</ion-col>
+        <ion-col class="pt-0 value">{{ data.listing_category?data.listing_category:'--'}}</ion-col>
       </ion-row>
     </div>
     <div *ngIf="isPropSourceLocality == 'source'">

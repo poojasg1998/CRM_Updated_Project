@@ -243,10 +243,11 @@
   justify-content: center;
 }
 .status {
-  font-size: 12px;
+  font-size: 10px;
   display: flex;
-  align-items: end;
   flex-direction: column;
+  text-align: center;
+  align-items: center;
 }
 ion-modal#suggested-modal {
   padding: 10px;
@@ -681,4 +682,35 @@ button {
   --highlight-color-invalid: red !important;
   border: 1px solid red !important;
   border-radius: 4px;
+}
+
+.yellow-bg {
+  background: #fff5e7;
+  color: #d07f00;
+}
+.green-bg {
+  background: #e8ffe8;
+  color: #006c00;
+}
+.red-bg {
+  background: red;
+}
+.orange-bg {
+  background: #ffeaea;
+  color: #d03e00;
+}
+.pink-bg {
+  background: #e07979;
+}
+.followup-style {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 12px;
+  span {
+    color: #0b7ab2;
+  }
+  color: #000000;
+  ion-col {
+    gap: 2px;
+  }
 }

@@ -374,3 +374,12 @@ ion-modal.filter_modal {
   /* 🔥 better chip look */
   height: 26px;
 }
+
+.latest_remark_col {
+  background: #546d7e;
+  border-radius: 0 4px 4px 4px;
+  span {
+    color: white;
+    font-size: 0.9rem;
+  }
+}

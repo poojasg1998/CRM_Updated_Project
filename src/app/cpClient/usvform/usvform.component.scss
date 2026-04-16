@@ -321,3 +321,19 @@ ion-accordion {
 .bg_border_color {
   border: none;
 }
+
+/* active state */
+.priority .active {
+  border: 0.5px solid rgb(11, 122, 178);
+  border-radius: 2px;
+  background: rgb(11, 122, 178);
+  color: #f0f0f0;
+}
+
+.priority {
+  ion-col {
+    border: 1px #ececec solid;
+    color: #a0a0a1;
+    font-size: 14px;
+  }
+}

@@ -10,7 +10,7 @@ import { IonContent } from '@ionic/angular';
   templateUrl: './today-activity.component.html',
   styleUrls: ['./today-activity.component.scss'],
 })
-export class TodayActivityComponent implements OnInit {
+export class TodayActivityComponent {
   @ViewChild('filter_modal') filter_modal;
   @ViewChild('content', { static: false }) content: IonContent;
   showSpinner = false;
@@ -48,21 +48,11 @@ export class TodayActivityComponent implements OnInit {
   count = 0;
   leadsCount = {
     tf: '',
-    t_gf: '',
-    t_nc: '',
     uf: '',
-    u_gf: '',
-    u_nc: '',
   };
   visitsCount = {
     tv: '',
-    t_usv: '',
-    t_rsv: '',
-    t_fn: '',
     uv: '',
-    u_usv: '',
-    u_rsv: '',
-    u_fn: '',
   };
   leads_detail: any;
   showInfiniteScroll: boolean = true;
@@ -74,6 +64,7 @@ export class TodayActivityComponent implements OnInit {
   suggestedProperty: any;
   canScroll: boolean;
   page: number;
+  subscription: import('rxjs').Subscription;
 
   constructor(
     private activeroute: ActivatedRoute,
@@ -81,9 +72,8 @@ export class TodayActivityComponent implements OnInit {
     private api: CpApiService,
     public sharedService: SharedService
   ) {}
-
-  ngOnInit() {
-    this.activeroute.queryParams.subscribe(() => {
+  ionViewWillEnter() {
+    this.subscription = this.activeroute.queryParams.subscribe(() => {
       this.getQueryParams();
       if (this.sharedService.hasState) {
         this.showSpinner = false;
@@ -95,13 +85,33 @@ export class TodayActivityComponent implements OnInit {
 
         setTimeout(() => {
           this.sharedService.hasState = false;
-        }, 5000);
+        }, 1000);
       } else {
         this.content?.scrollToTop(300);
         this.getLeadsCount();
       }
     });
   }
+
+  // ngOnInit() {
+  //   // this.subscription = this.activeroute.queryParams.subscribe(() => {
+  //   //   this.getQueryParams();
+  //   //   if (this.sharedService.hasState) {
+  //   //     this.showSpinner = false;
+  //   //     this.leads_detail = this.sharedService.enquiries;
+  //   //     this.page = this.sharedService.page;
+  //   //     setTimeout(() => {
+  //   //       this.content.scrollToPoint(0, this.sharedService.scrollTop, 0);
+  //   //     }, 0);
+  //   //     setTimeout(() => {
+  //   //       this.sharedService.hasState = false;
+  //   //     }, 5000);
+  //   //   } else {
+  //   //     this.content?.scrollToTop(300);
+  //   //     this.getLeadsCount();
+  //   //   }
+  //   // });
+  // }
   getSource() {
     this.api.getSource().subscribe((resp) => {
       this.source = resp['Sources'];
@@ -145,7 +155,8 @@ export class TodayActivityComponent implements OnInit {
     this.showSpinner = true;
     if (this.filteredParams.isLeadsVisits == 'leads') {
       const requests = [];
-      const followupsStage = ['', 'Fresh', 'NC'];
+
+      const followupsStage = [''];
       followupsStage.forEach((stage) => {
         const params = {
           ...this.filteredParams,
@@ -164,7 +175,7 @@ export class TodayActivityComponent implements OnInit {
         );
       });
 
-      const upcomingStage = ['', 'Fresh', 'NC'];
+      const upcomingStage = [''];
       upcomingStage.forEach((stage) => {
         const params = {
           ...this.filteredParams,
@@ -190,19 +201,9 @@ export class TodayActivityComponent implements OnInit {
               this.leadsCount.tf = assignleads['AssignedLeads'][0]['counts'];
               break;
             case 1:
-              this.leadsCount.t_gf = assignleads['AssignedLeads'][0]['counts'];
-              break;
-            case 2:
-              this.leadsCount.t_nc = assignleads['AssignedLeads'][0]['counts'];
-              break;
-            case 3:
               this.leadsCount.uf = assignleads['AssignedLeads'][0]['counts'];
               break;
-            case 4:
-              this.leadsCount.u_gf = assignleads['AssignedLeads'][0]['counts'];
-              break;
-            case 5:
-              this.leadsCount.u_nc = assignleads['AssignedLeads'][0]['counts'];
+            default:
               break;
           }
         });
@@ -210,7 +211,7 @@ export class TodayActivityComponent implements OnInit {
       });
     } else if (this.filteredParams.isLeadsVisits == 'visits') {
       const requests = [];
-      const todayStage = ['', 'USV', 'RSV', 'Final Negotiation'];
+      const todayStage = [''];
       todayStage.forEach((stage) => {
         const params = {
           ...this.filteredParams,
@@ -229,7 +230,7 @@ export class TodayActivityComponent implements OnInit {
         );
       });
 
-      const upcomingStage = ['', 'USV', 'RSV', 'Final Negotiation'];
+      const upcomingStage = [''];
       upcomingStage.forEach((stage) => {
         const params = {
           ...this.filteredParams,
@@ -255,31 +256,7 @@ export class TodayActivityComponent implements OnInit {
                 assignleads['AssignedLeads'][0]['Uniquee_counts'];
               break;
             case 1:
-              this.visitsCount.t_usv =
-                assignleads['AssignedLeads'][0]['Uniquee_counts'];
-              break;
-            case 2:
-              this.visitsCount.t_rsv =
-                assignleads['AssignedLeads'][0]['Uniquee_counts'];
-              break;
-            case 3:
-              this.visitsCount.t_fn =
-                assignleads['AssignedLeads'][0]['Uniquee_counts'];
-              break;
-            case 4:
               this.visitsCount.uv =
-                assignleads['AssignedLeads'][0]['Uniquee_counts'];
-              break;
-            case 5:
-              this.visitsCount.u_usv =
-                assignleads['AssignedLeads'][0]['Uniquee_counts'];
-              break;
-            case 6:
-              this.visitsCount.u_rsv =
-                assignleads['AssignedLeads'][0]['Uniquee_counts'];
-              break;
-            case 7:
-              this.visitsCount.u_fn =
                 assignleads['AssignedLeads'][0]['Uniquee_counts'];
               break;
             default:
@@ -333,6 +310,7 @@ export class TodayActivityComponent implements OnInit {
    * @param value - The new value to set
    */
   applyFilter(filters: Record<string, any>): void {
+    this.sharedService.hasState = false;
     this.resetInfiniteScroll();
     Object.keys(filters).forEach((key) => {
       const value = filters[key];
@@ -343,10 +321,12 @@ export class TodayActivityComponent implements OnInit {
       }
     });
 
-    // Navigate ONLY ONCE
     this.router.navigate([], {
       relativeTo: this.activeroute,
-      queryParams: this.filteredParams,
+      queryParams: {
+        ...this.filteredParams,
+        refresh: new Date().getTime(), // 🔥 FORCE trigger
+      },
       queryParamsHandling: 'merge',
     });
   }
@@ -534,6 +514,11 @@ export class TodayActivityComponent implements OnInit {
       } else {
         console.error('Phone number not available for the selected lead.');
       }
+    }
+  }
+  ionViewWillLeave() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 }

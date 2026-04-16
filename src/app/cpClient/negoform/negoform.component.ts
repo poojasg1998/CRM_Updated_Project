@@ -11,7 +11,14 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonModal, ModalController } from '@ionic/angular';
-import { of, switchMap } from 'rxjs';
+import {
+  distinctUntilChanged,
+  filter,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
 import Swal from 'sweetalert2';
 import { CpApiService } from '../cp-api.service';
 declare var $: any;
@@ -36,6 +43,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
   @Input() refreshTrigger: any;
   isEdit: boolean = true;
   date: String = new Date().toISOString();
+  private destroy$ = new Subject<void>();
   showSpinner = true;
   buttonhiders = true;
   hidebeforefixed = false;
@@ -83,6 +91,7 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
   lockedsession = false;
   fnlocalselection = false;
   categoryid: string;
+  subscription: import('rxjs').Subscription;
 
   constructor(
     private activeroute: ActivatedRoute,
@@ -95,144 +104,154 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
   feedbackID = '';
 
   ngOnInit() {
-    this.activeroute.queryParamMap.subscribe((params) => {
-      this.showSpinner = true;
-      const paramMap = params.get('leadid');
-      this.leadId = params.get('leadid');
-      this.categoryid = params.get('categoryid');
-      this.feedbackID = params.get('feedback') ? params.get('feedback') : '0';
-      const isEmpty = !paramMap;
-      this.userid = localStorage.getItem('UserId');
-      this.username = localStorage.getItem('Name');
-      if ('propertyloops' in localStorage) {
-        const firstArray = JSON.parse(localStorage.getItem('propertyloops'));
-        const secondArray = JSON.parse(localStorage.getItem('visitedprop'));
+    this.loadApi();
+  }
+  loadApi() {
+    this.subscription = this.activeroute.queryParamMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        this.showSpinner = true;
+        const paramMap = params.get('leadid');
+        this.leadId = params.get('leadid');
+        this.categoryid = params.get('categoryid');
+        this.feedbackID = params.get('feedback') ? params.get('feedback') : '0';
+        const isEmpty = !paramMap;
+        this.userid = localStorage.getItem('UserId');
+        this.username = localStorage.getItem('Name');
+        if ('propertyloops' in localStorage) {
+          const firstArray = JSON.parse(localStorage.getItem('propertyloops'));
+          const secondArray = JSON.parse(localStorage.getItem('visitedprop'));
 
-        if (firstArray.length === 0) {
-          this.negopropslocally = secondArray;
+          if (firstArray.length === 0) {
+            this.negopropslocally = secondArray;
+          } else {
+            this.negopropslocally = secondArray.filter((obj) =>
+              firstArray.includes(obj.propid)
+            );
+          }
+          this.excludedIds = JSON.parse(localStorage.getItem('propertyloops'));
+          this.fnlocalselection = true;
         } else {
-          this.negopropslocally = secondArray.filter((obj) =>
-            firstArray.includes(obj.propid)
-          );
+          this.negopropslocally = [0];
+          this.excludedIds = [0];
+          this.fnlocalselection = false;
         }
-        this.excludedIds = JSON.parse(localStorage.getItem('propertyloops'));
-        this.fnlocalselection = true;
-      } else {
-        this.negopropslocally = [0];
-        this.excludedIds = [0];
-        this.fnlocalselection = false;
-      }
-      let rmid;
-      if (this.feedbackID == '1') {
-        rmid = this.selectedExecId;
-      } else {
-        rmid = this.userid;
-      }
-      if (!isEmpty) {
-        this._retailservice
-          .getassignedrmretail(
-            this.leadId,
-            rmid,
-            this.feedbackID,
-            this.categoryid
-          )
-          .pipe(
-            switchMap((cust) => {
-              this.executeid = cust['RMname'][0].executiveid;
-              if (this.userid == '1') {
-                this.negoexecutiveId = this.selectedExecId;
+        let rmid;
+        if (this.feedbackID == '1') {
+          rmid = this.selectedExecId;
+        } else {
+          rmid = this.userid;
+        }
+        if (!isEmpty) {
+          this._retailservice
+            .getassignedrmretail(
+              this.leadId,
+              rmid,
+              this.feedbackID,
+              this.categoryid
+            )
+            .pipe(
+              takeUntil(this.destroy$),
+              switchMap((cust) => {
+                this.executeid = cust['RMname'][0].executiveid;
+                if (this.userid == '1') {
+                  this.negoexecutiveId = this.selectedExecId;
+                } else {
+                  this.negoexecutiveId = this.selectedExecId;
+                }
+                this.assignedRM = cust['RMname'].filter((lead) => {
+                  return lead.RMID == this.selectedExecId;
+                });
+                this.selectedPriority = this.assignedRM[0].priority;
+                this.loadimportantapi();
+                let param = {
+                  leadid: this.leadId,
+                  execid: this.userid,
+                  assignid: this.negoexecutiveId,
+                  feedback: this.feedbackID,
+                  categoryid: this.categoryid,
+                };
+                return this.negoexecutiveId
+                  ? this._retailservice.negoselectproperties(param)
+                  : of(null);
+              }),
+              takeUntil(this.destroy$),
+              switchMap((selectsuggested) => {
+                this.selectedpropertylists =
+                  selectsuggested['selectednegolists'];
+                this.selectedlists = selectsuggested;
+                // Then, get the active leads status
+                return this.negoexecutiveId
+                  ? this._retailservice.getactiveleadsstatus(
+                      this.leadId,
+                      this.userid,
+                      this.negoexecutiveId,
+                      this.feedbackID,
+                      this.categoryid
+                    )
+                  : of(null);
+              }),
+              takeUntil(this.destroy$)
+            )
+            .subscribe((stagestatus) => {
+              this.activestagestatus = stagestatus['activeleadsstatus'];
+              if (
+                this.activestagestatus[0].stage == 'Final Negotiation' &&
+                this.activestagestatus[0].stagestatus == '1'
+              ) {
+                this.hideafterfixed = false;
+                this.negoFixed = false;
+                this.hidebeforefixed = true;
+                if (this.selectedBtn == 'rescheduled') {
+                  this.negoreFix = true;
+                  this.negoDone = false;
+                } else if (this.selectedBtn == 'updatevisit') {
+                  this.negoreFix = false;
+                  this.negoDone = true;
+                }
+                // this.negoreFix = false;
+                // this.negoDone = true;
+                $('#sectionselector').val('Final Negotiation');
+              } else if (
+                this.activestagestatus[0].stage == 'Final Negotiation' &&
+                this.activestagestatus[0].stagestatus == '2'
+              ) {
+                this.hideafterfixed = false;
+                this.negoFixed = false;
+                this.hidebeforefixed = true;
+                if (this.selectedBtn == 'rescheduled') {
+                  this.negoreFix = true;
+                  this.negoDone = false;
+                } else if (this.selectedBtn == 'updatevisit') {
+                  this.negoreFix = false;
+                  this.negoDone = true;
+                }
+                $('#sectionselector').val('Final Negotiation');
+              } else if (
+                this.activestagestatus[0].stage == 'Final Negotiation' &&
+                this.activestagestatus[0].stagestatus == '3'
+              ) {
+                this.hideafterfixed = true;
+                this.hidebeforefixed = false;
+                this.negoDone = false;
+                this.negoFixed = true;
               } else {
-                this.negoexecutiveId = this.selectedExecId;
+                this.hideafterfixed = true;
               }
-              this.assignedRM = cust['RMname'].filter((lead) => {
-                return lead.RMID == this.selectedExecId;
-              });
-              this.loadimportantapi();
-              let param = {
-                leadid: this.leadId,
-                execid: this.userid,
-                assignid: this.negoexecutiveId,
-                feedback: this.feedbackID,
-                categoryid: this.categoryid,
-              };
-              return this.negoexecutiveId
-                ? this._retailservice.negoselectproperties(param)
-                : of(null);
-            }),
-            switchMap((selectsuggested) => {
-              this.selectedpropertylists = selectsuggested['selectednegolists'];
-              this.selectedlists = selectsuggested;
-              // Then, get the active leads status
-              return this.negoexecutiveId
-                ? this._retailservice.getactiveleadsstatus(
-                    this.leadId,
-                    this.userid,
-                    this.negoexecutiveId,
-                    this.feedbackID,
-                    this.categoryid
-                  )
-                : of(null);
-            })
-          )
-          .subscribe((stagestatus) => {
-            this.activestagestatus = stagestatus['activeleadsstatus'];
-            if (
-              this.activestagestatus[0].stage == 'Final Negotiation' &&
-              this.activestagestatus[0].stagestatus == '1'
-            ) {
-              this.hideafterfixed = false;
-              this.negoFixed = false;
-              this.hidebeforefixed = true;
-              if (this.selectedBtn == 'rescheduled') {
-                this.negoreFix = true;
-                this.negoDone = false;
-              } else if (this.selectedBtn == 'updatevisit') {
-                this.negoreFix = false;
-                this.negoDone = true;
-              }
-              // this.negoreFix = false;
-              // this.negoDone = true;
-              $('#sectionselector').val('Final Negotiation');
-            } else if (
-              this.activestagestatus[0].stage == 'Final Negotiation' &&
-              this.activestagestatus[0].stagestatus == '2'
-            ) {
-              this.hideafterfixed = false;
-              this.negoFixed = false;
-              this.hidebeforefixed = true;
-              if (this.selectedBtn == 'rescheduled') {
-                this.negoreFix = true;
-                this.negoDone = false;
-              } else if (this.selectedBtn == 'updatevisit') {
-                this.negoreFix = false;
-                this.negoDone = true;
-              }
-              $('#sectionselector').val('Final Negotiation');
-            } else if (
-              this.activestagestatus[0].stage == 'Final Negotiation' &&
-              this.activestagestatus[0].stagestatus == '3'
-            ) {
-              this.hideafterfixed = true;
-              this.hidebeforefixed = false;
-              this.negoDone = false;
-              this.negoFixed = true;
-            } else {
-              this.hideafterfixed = true;
-            }
-            this.showSpinner = false;
-          });
-      }
-      this.suggestchecked = '';
-      if (
-        $('#sectionselector').val() == 'SV' ||
-        $('#sectionselector').val() == 'USV' ||
-        $('#sectionselector').val() == 'RSV'
-      ) {
-        this.buttonhiders = false;
-      } else {
-        this.buttonhiders = true;
-      }
-    });
+              this.showSpinner = false;
+            });
+        }
+        this.suggestchecked = '';
+        if (
+          $('#sectionselector').val() == 'SV' ||
+          $('#sectionselector').val() == 'USV' ||
+          $('#sectionselector').val() == 'RSV'
+        ) {
+          this.buttonhiders = false;
+        } else {
+          this.buttonhiders = true;
+        }
+      });
   }
 
   loadimportantapi() {
@@ -828,6 +847,57 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
 
   @ViewChild('fnDoneModel', { static: true }) fnDoneModel: IonModal;
   openFNDoneModal() {
+    let apidate, apitime;
+    if (this.isEdit && this.assignedRM && this.assignedRM.length) {
+      let visiteddate = this.assignedRM[0].latest_action_date;
+      let visitedtime = this.assignedRM[0].latest_action_time;
+      apidate = $('#negovisiteddate_val').text();
+      apitime = $('#negovisitedtime_val').text();
+      $('#negovisiteddate').val(apidate);
+      $('#negovisitedtime').val(apitime);
+    } else {
+      var visiteddate = $('#negovisiteddate').val();
+      var visitedtime = $('#negovisitedtime').val();
+      apidate = $('#negovisiteddate').val();
+      apitime = $('#negovisitedtime').val();
+    }
+
+    // ✅ API PARAM
+    let param = {
+      leadid: this.leadId,
+      suggestproperties: this.suggestchecked,
+      nextdate: apidate,
+      nexttime: apitime,
+      execid: this.userid,
+      assignid: this.negoexecutiveId,
+      feedback: this.feedbackID,
+    };
+
+    // ✅ API CALL
+    this._retailservice.addnegoselectedproperties(param).subscribe(
+      (success) => {
+        if (success['status'] === 'True') {
+          let param2 = {
+            leadid: this.leadId,
+            execid: this.userid,
+            assignid: this.negoexecutiveId,
+            feedback: this.feedbackID,
+            categoryid: this.categoryid,
+          };
+
+          this._retailservice.negoselectproperties(param2).subscribe((res) => {
+            this.selectedpropertylists = res['selectednegolists'];
+
+            this.selectedproperty_commaseperated = this.selectedpropertylists
+              .map((x) => x.name)
+              .join(',');
+          });
+        }
+      },
+      () => {
+        console.log('Failed to Update');
+      }
+    );
     this.fnDoneModel.present();
   }
 
@@ -1623,27 +1693,37 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                                   (success) => {
                                     this.showSpinner = false;
                                     if (success['status'] == 'True') {
-                                      Swal.fire({
-                                        title: 'Negotiation Fixed Successfully',
-                                        icon: 'success',
-                                        heightAuto: false,
-                                        allowOutsideClick: false,
-                                        confirmButtonText: 'OK!',
-                                      }).then((result) => {
-                                        if (result.value) {
-                                          this.modalController.dismiss();
-                                          // const currentParams = this.activeroute.snapshot.queryParams;
-                                          // this.router.navigate([], {
-                                          // relativeTo: this.activeroute,
-                                          // queryParams: {
-                                          //   ...currentParams,
-                                          //   stageForm: 'onleadStatus'
-                                          // },
-                                          // queryParamsHandling: 'merge'
-                                          // });
-                                          location.reload();
-                                        }
-                                      });
+                                      this._retailservice
+                                        .updatehotwarmcold(
+                                          this.selectedPriority,
+                                          this.leadId
+                                        )
+                                        .subscribe((resp) => {
+                                          if (resp['status'] == 'True') {
+                                            Swal.fire({
+                                              title:
+                                                'Negotiation Fixed Successfully',
+                                              icon: 'success',
+                                              heightAuto: false,
+                                              allowOutsideClick: false,
+                                              confirmButtonText: 'OK!',
+                                            }).then((result) => {
+                                              if (result.value) {
+                                                this.modalController.dismiss();
+                                                // const currentParams = this.activeroute.snapshot.queryParams;
+                                                // this.router.navigate([], {
+                                                // relativeTo: this.activeroute,
+                                                // queryParams: {
+                                                //   ...currentParams,
+                                                //   stageForm: 'onleadStatus'
+                                                // },
+                                                // queryParamsHandling: 'merge'
+                                                // });
+                                                location.reload();
+                                              }
+                                            });
+                                          }
+                                        });
                                     }
                                   },
                                   (err) => {
@@ -2032,27 +2112,38 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                                   (success) => {
                                     if (success['status'] == 'True') {
                                       this.showSpinner = false;
-                                      Swal.fire({
-                                        title: 'Negotiation Fixed Successfully',
-                                        icon: 'success',
-                                        heightAuto: false,
-                                        allowOutsideClick: false,
-                                        confirmButtonText: 'OK!',
-                                      }).then((result) => {
-                                        if (result.value) {
-                                          this.modalController.dismiss();
-                                          //   const currentParams = this.activeroute.snapshot.queryParams;
-                                          // this.router.navigate([], {
-                                          // relativeTo: this.activeroute,
-                                          // queryParams: {
-                                          //   ...currentParams,
-                                          //   stageForm: 'onleadStatus'
-                                          // },
-                                          // queryParamsHandling: 'merge'
-                                          // });
-                                          location.reload();
-                                        }
-                                      });
+
+                                      this._retailservice
+                                        .updatehotwarmcold(
+                                          this.selectedPriority,
+                                          this.leadId
+                                        )
+                                        .subscribe((resp) => {
+                                          if (resp['status'] == 'True') {
+                                            Swal.fire({
+                                              title:
+                                                'Negotiation Fixed Successfully',
+                                              icon: 'success',
+                                              heightAuto: false,
+                                              allowOutsideClick: false,
+                                              confirmButtonText: 'OK!',
+                                            }).then((result) => {
+                                              if (result.value) {
+                                                this.modalController.dismiss();
+                                                //   const currentParams = this.activeroute.snapshot.queryParams;
+                                                // this.router.navigate([], {
+                                                // relativeTo: this.activeroute,
+                                                // queryParams: {
+                                                //   ...currentParams,
+                                                //   stageForm: 'onleadStatus'
+                                                // },
+                                                // queryParamsHandling: 'merge'
+                                                // });
+                                                location.reload();
+                                              }
+                                            });
+                                          }
+                                        });
                                     }
                                   },
                                   (err) => {
@@ -2169,27 +2260,37 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                           (success) => {
                             this.showSpinner = false;
                             if (success['status'] == 'True') {
-                              Swal.fire({
-                                title: 'Final Negotiation Fixed Successfully',
-                                icon: 'success',
-                                allowOutsideClick: false,
-                                heightAuto: false,
-                                confirmButtonText: 'OK!',
-                              }).then((result) => {
-                                if (result.value) {
-                                  this.modalController.dismiss();
-                                  // const currentParams = this.activeroute.snapshot.queryParams;
-                                  //     this.router.navigate([], {
-                                  //     relativeTo: this.activeroute,
-                                  //     queryParams: {
-                                  //       ...currentParams,
-                                  //       stageForm: 'onleadStatus'
-                                  //     },
-                                  //     queryParamsHandling: 'merge'
-                                  //     });
-                                  location.reload();
-                                }
-                              });
+                              this._retailservice
+                                .updatehotwarmcold(
+                                  this.selectedPriority,
+                                  this.leadId
+                                )
+                                .subscribe((resp) => {
+                                  if (resp['status'] == 'True') {
+                                    Swal.fire({
+                                      title:
+                                        'Final Negotiation Fixed Successfully',
+                                      icon: 'success',
+                                      allowOutsideClick: false,
+                                      heightAuto: false,
+                                      confirmButtonText: 'OK!',
+                                    }).then((result) => {
+                                      if (result.value) {
+                                        this.modalController.dismiss();
+                                        // const currentParams = this.activeroute.snapshot.queryParams;
+                                        //     this.router.navigate([], {
+                                        //     relativeTo: this.activeroute,
+                                        //     queryParams: {
+                                        //       ...currentParams,
+                                        //       stageForm: 'onleadStatus'
+                                        //     },
+                                        //     queryParamsHandling: 'merge'
+                                        //     });
+                                        location.reload();
+                                      }
+                                    });
+                                  }
+                                });
                             }
                           },
                           (err) => {
@@ -2308,27 +2409,37 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                         (success) => {
                           this.showSpinner = false;
                           if (success['status'] == 'True') {
-                            Swal.fire({
-                              title: 'Refixed Final Negotiation Successfully',
-                              icon: 'success',
-                              allowOutsideClick: false,
-                              heightAuto: false,
-                              confirmButtonText: 'OK!',
-                            }).then((result) => {
-                              if (result.value) {
-                                this.modalController.dismiss();
-                                //  const currentParams = this.activeroute.snapshot.queryParams;
-                                //   this.router.navigate([], {
-                                //   relativeTo: this.activeroute,
-                                //   queryParams: {
-                                //     ...currentParams,
-                                //     stageForm: 'onleadStatus'
-                                //   },
-                                //   queryParamsHandling: 'merge'
-                                //   });
-                                location.reload();
-                              }
-                            });
+                            this._retailservice
+                              .updatehotwarmcold(
+                                this.selectedPriority,
+                                this.leadId
+                              )
+                              .subscribe((resp) => {
+                                if (resp['status'] == 'True') {
+                                  Swal.fire({
+                                    title:
+                                      'Refixed Final Negotiation Successfully',
+                                    icon: 'success',
+                                    allowOutsideClick: false,
+                                    heightAuto: false,
+                                    confirmButtonText: 'OK!',
+                                  }).then((result) => {
+                                    if (result.value) {
+                                      this.modalController.dismiss();
+                                      //  const currentParams = this.activeroute.snapshot.queryParams;
+                                      //   this.router.navigate([], {
+                                      //   relativeTo: this.activeroute,
+                                      //   queryParams: {
+                                      //     ...currentParams,
+                                      //     stageForm: 'onleadStatus'
+                                      //   },
+                                      //   queryParamsHandling: 'merge'
+                                      //   });
+                                      location.reload();
+                                    }
+                                  });
+                                }
+                              });
                           }
                         },
                         (err) => {
@@ -2521,28 +2632,38 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
                                 (success) => {
                                   this.showSpinner = false;
                                   if (success['status'] == 'True') {
-                                    Swal.fire({
-                                      title: 'Negotiation Fixed Successfully',
-                                      icon: 'success',
-                                      heightAuto: false,
-                                      allowOutsideClick: false,
-                                      confirmButtonText: 'OK!',
-                                    }).then((result) => {
-                                      if (result.value) {
-                                        this.modalController.dismiss();
-                                        this.fnDoneModel.dismiss();
-                                        // const currentParams = this.activeroute.snapshot.queryParams;
-                                        // this.router.navigate([], {
-                                        // relativeTo: this.activeroute,
-                                        // queryParams: {
-                                        //   ...currentParams,
-                                        //   stageForm: 'onleadStatus'
-                                        // },
-                                        // queryParamsHandling: 'merge'
-                                        // });
-                                        location.reload();
-                                      }
-                                    });
+                                    this._retailservice
+                                      .updatehotwarmcold(
+                                        this.selectedPriority,
+                                        this.leadId
+                                      )
+                                      .subscribe((resp) => {
+                                        if (resp['status'] == 'True') {
+                                          Swal.fire({
+                                            title:
+                                              'Negotiation Fixed Successfully',
+                                            icon: 'success',
+                                            heightAuto: false,
+                                            allowOutsideClick: false,
+                                            confirmButtonText: 'OK!',
+                                          }).then((result) => {
+                                            if (result.value) {
+                                              this.modalController.dismiss();
+                                              this.fnDoneModel.dismiss();
+                                              // const currentParams = this.activeroute.snapshot.queryParams;
+                                              // this.router.navigate([], {
+                                              // relativeTo: this.activeroute,
+                                              // queryParams: {
+                                              //   ...currentParams,
+                                              //   stageForm: 'onleadStatus'
+                                              // },
+                                              // queryParamsHandling: 'merge'
+                                              // });
+                                              location.reload();
+                                            }
+                                          });
+                                        }
+                                      });
                                   }
                                 },
                                 (err) => {
@@ -2635,6 +2756,12 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
 
   ngOnDestroy() {
     this.closeAlert();
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   closeAlert() {
@@ -2809,6 +2936,8 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
       }, 0);
     } else if ((num = 2)) {
       this.isEdit = true;
+      this.fnTime = this.assignedRM[0].latest_action_time;
+      this.fnDate = this.assignedRM[0].latest_action_date;
     }
   }
 
@@ -2871,9 +3000,17 @@ export class NegoformComponent implements OnInit, AfterViewChecked {
 
     return now;
   }
+
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['refreshTrigger']) {
-      this.loadimportantapi();
+    this.showSpinner = true;
+    if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
+      this.loadApi();
     }
+  }
+
+  selectedPriority: string = '';
+
+  setPriority(value: string) {
+    this.selectedPriority = this.selectedPriority === value ? '' : value;
   }
 }

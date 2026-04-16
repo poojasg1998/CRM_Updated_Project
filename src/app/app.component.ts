@@ -14,6 +14,13 @@ import { AuthServiceService } from './realEstate/auth-service.service';
 import { RetailServiceService } from './realEstate/retail-service.service';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 import { ChatStateService } from './realEstate/chat-state.service';
+import Swal from 'sweetalert2';
+import { PushNotifications } from '@capacitor/push-notifications';
+import {
+  AndroidSettings,
+  IOSSettings,
+  NativeSettings,
+} from 'capacitor-native-settings';
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -61,8 +68,10 @@ export class AppComponent implements OnInit {
     });
 
     this.requestNotificationPermission();
-
-    this.initializeApp();
+    App.addListener('resume', () => {
+      this.enableNotifications();
+    });
+    this.enableNotifications();
   }
 
   isOnline = true;
@@ -212,11 +221,6 @@ export class AppComponent implements OnInit {
     } catch (e) {
       console.error('App init error:', e);
     }
-
-    // await LocalNotifications.requestPermissions();
-    // if (localStorage.getItem('Department') == '10006') {
-    //   await this.scheduleDailyBreakNotifications();
-    // }
   }
 
   async scheduleDailyBreakNotifications() {
@@ -272,7 +276,6 @@ export class AppComponent implements OnInit {
           },
         ],
       });
-
       console.log('✅ Notification channel created');
     } catch (err) {
       console.error('Notification init failed:', err);
@@ -857,5 +860,26 @@ export class AppComponent implements OnInit {
     this.sharedService.getCallCounts(params).subscribe((resp) => {
       this.sharedService.allCallCounts = resp['success'][0];
     });
+  }
+
+  async enableNotifications() {
+    const perm = await LocalNotifications.requestPermissions();
+    const permission = await PushNotifications.requestPermissions();
+
+    if (perm.display != 'granted' || permission.receive != 'granted') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Notifications Required',
+        text: 'Please enable notifications from browser settings to continue.',
+        heightAuto: false,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      }).then(() => {
+        NativeSettings.open({
+          optionAndroid: AndroidSettings.AppNotification,
+          optionIOS: IOSSettings.App,
+        });
+      });
+    }
   }
 }

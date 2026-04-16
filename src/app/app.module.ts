@@ -6,7 +6,7 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -17,6 +17,7 @@ import { EchoService } from './realEstate/echo.service';
 import { CpHeaderComponent } from './cpClient/cp-header/cp-header.component';
 import { CpMenubarComponent } from './cpClient/cp-menubar/cp-menubar.component';
 import { CpSharedModule } from './cpClient/cp-shared/cp-shared.module';
+import { AuthInterceptor } from './cpClient/auth.interceptor';
 
 @NgModule({
   declarations: [AppComponent, CpMenubarComponent],
@@ -33,6 +34,7 @@ import { CpSharedModule } from './cpClient/cp-shared/cp-shared.module';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    // { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     LocalNotifications,
     EchoService,
   ],

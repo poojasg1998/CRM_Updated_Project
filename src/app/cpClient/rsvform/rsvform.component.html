@@ -1,8 +1,7 @@
 <div>
   <div class="content_center loader" *ngIf="showSpinner">
-    <ion-spinner name="circular" style="color: white;"></ion-spinner>
+    <ion-img style="width: 300px; height: 70px" src="../assets/CRMimages/animation/loader.gif"></ion-img>
   </div>
-
   <!-- <div *ngIf="buttonhiders">
     <div class="bg_border_color marginBottom15px" *ngIf="hidebeforefixed">
       <ion-row class="doneRefix">
@@ -23,31 +22,22 @@
     <div class="bg_border_color">
       <div class="col-sm-12 form-group headingdesign">
         <span class="d-flex justify-content-between align-items-baseline">
-          <label class="heads">Select the Visited Properties for the RSV</label>
+          <label class="heads">Select Properties for Next Visit</label>
+          <label class="addsuggProp" (click)="notifyParent()">
+            <ion-icon name="add"></ion-icon><span>Add</span>
+          </label>
         </span>
 
         <div class="main_suggested_div">
           <ion-row class="ks-cboxtags">
-            <ion-col *ngFor="let visited of visitedpropertylists; let i = index" class="ion-text-center">
-              <span *ngIf="!excludedIds.includes(visited.propid) && visited.actions === '1' ">
-                <input type="checkbox" id="rsvcheckboxdirect{{i}}" value="{{visited.propid}}"
-                  name='programmingrsvdirect' (change)="selectsuggesteddirect(i,visited.propid,visited.name)">
-                <label for="rsvcheckboxdirect{{i}}">{{visited.name}}</label>
+            <ion-col *ngFor="let property of suggestedpropertylists; let i = index" class="ion-text-center">
+              <span>
+                <input type="checkbox" id="rsvcheckboxdirect2{{i}}" value="{{property.propid}}"
+                  name='programmingrsvdirect' (change)="selectsuggesteddirect2(i,property.propid,property.name)">
+                <label for="rsvcheckboxdirect2{{i}}">{{property.name}}</label>
               </span>
             </ion-col>
           </ion-row>
-
-          <span *ngIf="rsvlocalselection">
-            <ion-row class="ks-cboxtags">
-              <ion-col *ngFor="let visited of rsvpropslocally; let i = index" class="ion-text-center">
-                <span *ngIf="visited.actionid === 1">
-                  <input type="checkbox" id="rsvcheckboxdirect2{{i}}" value="{{visited.propid}}"
-                    name='programmingrsvdirect' (change)="selectsuggesteddirect2(i,visited.propid,visited.prop_name)">
-                  <label for="rsvcheckboxdirect2{{i}}">{{visited.prop_name}}</label>
-                </span>
-              </ion-col>
-            </ion-row>
-          </span>
           <div *ngIf="!visitedpropertylists?.length && !rsvpropslocally?.length"
             style="font-size:medium;font-weight: 700;display: flex;justify-content: center;color: #a9a9a9;">No
             Properties Suggested Till Now</div>
@@ -91,6 +81,27 @@
 
         <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
 
+
+        <ion-row class="margin-top-16">
+          <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+            Priority
+          </p>
+        </ion-row>
+        <ion-row class="gap-2  priority">
+          <ion-col [class.active]="selectedPriority === '1'" (click)="setPriority('1')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Hot
+          </ion-col>
+          <ion-col [class.active]="selectedPriority === '2'" (click)="setPriority('2')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Warm
+          </ion-col>
+          <ion-col [class.active]="selectedPriority === '3'" (click)="setPriority('3')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Cold
+          </ion-col>
+        </ion-row>
+
         <ion-row class="margin-top-16">
           <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
         </ion-row>
@@ -114,7 +125,7 @@
     <div class="bg_border_color">
       <div class="col-sm-12 form-group headingdesign">
         <span class="d-flex justify-content-between align-items-baseline">
-          <label class="heads">Select the Visited Properties for the RSV</label>
+          <label class="heads">Select Properties for Next Visit</label>
         </span>
 
         <div class="main_suggested_div">
@@ -175,6 +186,27 @@
 
         <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
 
+
+        <ion-row class="margin-top-16">
+          <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+            Priority
+          </p>
+        </ion-row>
+        <ion-row class="gap-2  priority">
+          <ion-col [class.active]="selectedPriority === '1'" (click)="setPriority('1')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Hot
+          </ion-col>
+          <ion-col [class.active]="selectedPriority === '2'" (click)="setPriority('2')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Warm
+          </ion-col>
+          <ion-col [class.active]="selectedPriority === '3'" (click)="setPriority('3')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Cold
+          </ion-col>
+        </ion-row>
+
         <ion-row class="margin-top-16">
           <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
         </ion-row>
@@ -232,7 +264,7 @@
           <div style="font-size: 14px;font-weight: 500;color: #0B7AB2;">
             <ion-icon name="calendar"></ion-icon>
             <span *ngIf="assignedRM && assignedRM.length > 0"
-              id="USVvisiteddate_dis">{{assignedRM[0].latest_action_date}}</span>
+              id="RSVvisiteddate_val">{{assignedRM[0].latest_action_date}}</span>
           </div>
         </div>
         <div class="col-6 p-2">
@@ -240,7 +272,7 @@
           <div style="font-size: 14px;font-weight: 500;color: #0B7AB2;">
             <ion-icon name="time"></ion-icon>
             <span *ngIf="assignedRM && assignedRM.length > 0"
-              id="USVvisitedtime_dis">{{assignedRM[0].latest_action_time}}</span>
+              id="RSVvisitedtime_val">{{assignedRM[0].latest_action_time}}</span>
           </div>
         </div>
         <span class="edit_pos" (click)="enableVisitdate(1)"><ion-icon name="create"
@@ -292,15 +324,6 @@
             Please select a time between 8 AM and 8 PM.
           </div>
         </span>
-        <!-- <ion-row>
-          <ion-col style="margin-left: 2px;" class="paddingZero" (click)="!submitForm2.invalid?openRSVDoneModal():''">
-            <ion-button fill="clear" class="saveButton" [ngClass]="submitForm2.invalid?'saveButton':'activeSaveButton'"
-              type="submit" [disabled]="submitForm2.invalid">
-              Update Visit
-            </ion-button>
-          </ion-col>
-        </ion-row> -->
-
         <ion-row>
           <ion-col (click)="openRSVDoneModal()">
             <ion-button fill="clear"
@@ -453,39 +476,19 @@
           <div class="bg_border_color margin-top-16">
             <div class="col-sm-12 form-group headingdesign">
               <span class="d-flex justify-content-between align-items-baseline">
-                <label class="heads">Select the Visited Properties for the RSV fsdfs</label>
+                <label class="heads">Select Properties for Next Visit</label>
               </span>
 
               <div class="main_suggested_div">
                 <ion-row class="ks-cboxtags">
-                  <ion-col *ngFor="let visited of visitedpropertylists; let i = index" class="ion-text-center">
-                    <!-- <span *ngIf="excludedIds.includes(visited.propid)">
-                    <input type="checkbox" id="rsvcheckboxrsv2rsv{{i}}" value="{{visited.propid}}" name='programmingrsv2rsv' 
-                    (change)="selectsuggestedrsv2rsv(i,visited.propid,visited.name)">
-                    <label for="rsvcheckboxrsv2rsv{{i}}">{{visited.name}}</label>
-                  </span>   -->
-                    <span *ngIf="excludedIds.includes(visited.propid)">
-                      <span *ngIf="visited.selection === '2'">
-                        <input type="checkbox" id="rsvcheckboxrsv2rsv{{i}}" value="{{visited.propid}}"
-                          name='programmingrsv2rsv' checked>
-                        <label for="rsvcheckboxrsv2rsv{{i}}">{{visited.name}} {{'Test1'}}</label>
-                      </span>
+                  <ion-col *ngFor="let property of suggestedpropertylists; let i = index" class="ion-text-center">
+                    <span>
+                      <input type="checkbox" id="rsvcheckboxdirect3{{i}}" value="{{property.propid}}"
+                        name='programmingrsvdirect3' checked
+                        (change)="selectsuggesteddirect3(i,property.propid,property.name)">
+                      <label for="rsvcheckboxdirect3{{i}}">{{property.name}}</label>
                     </span>
-                    <span *ngIf="visited.selection !== '2'">
-                      <input type="checkbox" id="rsvcheckboxrsv2rsv{{i}}" value="{{visited.propid}}"
-                        name='programmingrsv2rsv' (change)="selectsuggestedrsv2rsv(i,visited.propid,visited.name)">
-                      <label for="rsvcheckboxrsv2rsv{{i}}">{{visited.name}}{{'Test2'}}</label>
-                    </span>
-
                   </ion-col>
-                  <span *ngIf="rsvlocalselection">
-                    <ion-col *ngFor="let visited of rsvpropslocally; let i = index">
-                      <input type="checkbox" id="rsvcheckboxrsv2rsv2{{i}}" value="{{visited.propid}}"
-                        name='programmingrsv2rsv'
-                        (change)="selectsuggestedrsv2rsv2(i,visited.propid,visited.prop_name)">
-                      <label for="rsvcheckboxrsv2rsv2{{i}}">{{visited.prop_name}}{{'Test3'}}</label>
-                    </ion-col>
-                  </span>
                 </ion-row>
                 <div *ngIf="!visitedpropertylists?.length && !rsvpropslocally?.length"
                   style="font-size:medium;font-weight: 700;display: flex;justify-content: center;color: #a9a9a9;"> No
@@ -532,6 +535,26 @@
               <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.
               </div>
 
+              <ion-row class="margin-top-16">
+                <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+                  Priority
+                </p>
+              </ion-row>
+              <ion-row class="gap-2  priority">
+                <ion-col [class.active]="selectedPriority === '1'" (click)="setPriority('1')"
+                  class="d-flex align-items-center justify-content-center p-1">
+                  Hot
+                </ion-col>
+                <ion-col [class.active]="selectedPriority === '2'" (click)="setPriority('2')"
+                  class="d-flex align-items-center justify-content-center p-1">
+                  Warm
+                </ion-col>
+                <ion-col [class.active]="selectedPriority === '3'" (click)="setPriority('3')"
+                  class="d-flex align-items-center justify-content-center p-1">
+                  Cold
+                </ion-col>
+              </ion-row>
+
               <ion-row>
                 <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
               </ion-row>
@@ -550,7 +573,8 @@
           </form>
         </div>
 
-        <app-negoform *ngIf="finalnegoform" [selectedExecId]="selectedExecId"></app-negoform>
+        <app-negoform *ngIf="finalnegoform" [selectedExecId]="selectedExecId"
+          [refreshTrigger]="refreshTrigger"></app-negoform>
         <app-closedform *ngIf="leadclosedform" [selectedExecId]="selectedExecId"></app-closedform>
         <app-retail-junk-form *ngIf="junkform" [selectedExecId]="selectedExecId"></app-retail-junk-form>
 

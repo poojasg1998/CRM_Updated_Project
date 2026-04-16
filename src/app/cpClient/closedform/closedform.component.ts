@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import Swal from 'sweetalert2';
 import { CpApiService } from '../cp-api.service';
+import { filter, Subject, takeUntil } from 'rxjs';
 declare var $: any;
 
 @Component({
@@ -42,6 +43,7 @@ export class ClosedformComponent implements OnInit {
   roleid;
   feedbackID = '';
   categoryid: string;
+  private destroy$ = new Subject<void>();
   constructor(
     private activeroute: ActivatedRoute,
     private _retailservice: CpApiService,
@@ -51,53 +53,65 @@ export class ClosedformComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.activeroute.queryParamMap.subscribe((params) => {
-      const paramMap = params.get('leadid');
-      this.leadId = params.get('leadid');
-      this.categoryid = params.get('categoryid');
-      this.roleid = localStorage.getItem('Role');
-      const isEmpty = !paramMap;
-      this.userid = localStorage.getItem('UserId');
-      this.feedbackID = params.get('feedback') ? params.get('feedback') : '';
-      if ('propertyloops' in localStorage) {
-        const firstArray = JSON.parse(localStorage.getItem('propertyloops'));
-        const secondArray = JSON.parse(localStorage.getItem('visitedprop'));
-        this.visitedlistlocally = secondArray.filter((obj) =>
-          firstArray.includes(obj.propid)
-        );
-      } else {
-        this.visitedlistlocally = [0];
-      }
+    this.activeroute.queryParamMap
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe((params) => {
+        const paramMap = params.get('leadid');
+        this.leadId = params.get('leadid');
+        this.categoryid = params.get('categoryid');
+        this.roleid = localStorage.getItem('Role');
+        const isEmpty = !paramMap;
+        this.userid = localStorage.getItem('UserId');
+        this.feedbackID = params.get('feedback') ? params.get('feedback') : '';
+        if ('propertyloops' in localStorage) {
+          const firstArray = JSON.parse(localStorage.getItem('propertyloops'));
+          const secondArray = JSON.parse(localStorage.getItem('visitedprop'));
+          // this.visitedlistlocally = secondArray.filter((obj) =>
+          //   firstArray.includes(obj.propid)
+          // );
 
-      if (!isEmpty) {
-        this._retailservice
-          .getassignedrmretail(
-            this.leadId,
-            this.userid,
-            this.feedbackid,
-            this.categoryid
-          )
-          .subscribe((cust) => {
-            this.executeid = cust['RMname'][0].executiveid;
-            if (this.userid == '1') {
-              this.closedexecutiveId = this.selectedExecId;
-            } else {
-              this.closedexecutiveId = this.selectedExecId;
-            }
-            this.loadimportantapi();
-          });
-      }
+          if (firstArray.length == 0) {
+            this.visitedlistlocally = secondArray;
+          } else {
+            this.visitedlistlocally = secondArray.filter((obj) =>
+              firstArray.includes(obj.propid)
+            );
+          }
+        } else {
+          this.visitedlistlocally = [0];
+        }
 
-      if (localStorage.getItem('Role') == null) {
-        this.router.navigateByUrl('/login');
-      } else if (localStorage.getItem('Role') == '1') {
-        this.adminview = true;
-        this.execview = false;
-      } else {
-        this.adminview = false;
-        this.execview = true;
-      }
-    });
+        if (!isEmpty) {
+          this._retailservice
+            .getassignedrmretail(
+              this.leadId,
+              this.userid,
+              this.feedbackid,
+              this.categoryid
+            )
+            .subscribe((cust) => {
+              this.executeid = cust['RMname'][0].executiveid;
+              if (this.userid == '1') {
+                this.closedexecutiveId = this.selectedExecId;
+              } else {
+                this.closedexecutiveId = this.selectedExecId;
+              }
+              this.loadimportantapi();
+            });
+        }
+
+        if (localStorage.getItem('Role') == null) {
+          this.router.navigateByUrl('/login');
+        } else if (localStorage.getItem('Role') == '1') {
+          this.adminview = true;
+          this.execview = false;
+        } else {
+          this.adminview = false;
+          this.execview = true;
+        }
+      });
   }
 
   loadimportantapi() {
@@ -118,18 +132,26 @@ export class ClosedformComponent implements OnInit {
         }
         this.visitedpropertylists = visitsuggested['visitedlists'];
         //here iam filtering based on the actions ,if actions is 6 the its lead closed ,so lead closed should not be displayed.
-        if (this.visitedpropertylists) {
-          this.visitedpropertylists = this.visitedpropertylists?.filter(
-            (pro) => pro.actions != '6'
-          );
-          this.visitedlistlocally = this.visitedlistlocally?.filter((val) =>
-            this.visitedpropertylists.includes((da) => {
-              return da.propid != val.propid;
-            })
-          );
-        }
+        // if (this.visitedpropertylists) {
+        //   this.visitedpropertylists = this.visitedpropertylists?.filter(
+        //     (pro) => pro.actions != '6'
+        //   );
+        //   this.visitedlistlocally = this.visitedlistlocally?.filter((val) =>
+        //     this.visitedpropertylists.includes((da) => {
+        //       return da.propid != val.propid;
+        //     })
+        //   );
+        // }
+
+        this.visitedlistlocally = this.visitedlistlocally.filter(
+          (val) =>
+            !this.visitedpropertylists.some(
+              (da) => da.propid === val.propid && da.actions == val.actionid
+            )
+        );
+        console.log(this.visitedlistlocally);
         this.suggestchecked = this.visitedpropertylists
-          ?.map((item) => {
+          .map((item) => {
             return item.propid;
           })
           .join(',');
@@ -157,7 +179,7 @@ export class ClosedformComponent implements OnInit {
       $('#dimension').val('');
       $('#ratepersquarfeet').val('');
       $('#remarks').val('');
-      $('.radiocheck').prop('checked', false);
+      $('.closefromradiocheck').prop('checked', false);
     }
 
     if (prop != '' || prop != undefined) {
@@ -200,7 +222,7 @@ export class ClosedformComponent implements OnInit {
       this.selectedLeadProperty.propid !== prop.propid
     ) {
       $('.selectedunits2').val('');
-      $('.radiocheck').prop('checked', false);
+      $('.closefromradiocheck').prop('checked', false);
     }
 
     if (prop != '' || prop != undefined) {
@@ -335,18 +357,18 @@ export class ClosedformComponent implements OnInit {
         if ($('#closeddate').val() == '') {
           $('#closeddate')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Date');
         } else {
-          $('#closeddate').removeAttr('style');
+          $('#closeddate').removeClass('border-color');
         }
         if ($('#closedtime').val() == '') {
           $('#closedtime')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#closedtime').removeAttr('style');
+          $('#closedtime').removeClass('border-color');
         }
         if ($('.selectedunits1').val() == '') {
           Swal.fire({
@@ -362,37 +384,61 @@ export class ClosedformComponent implements OnInit {
         ) {
           $('#unitnum')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Unit Number');
+        } else if (!/[0-9]/.test($('#unitnum').val())) {
+          $('#unitnum')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr(
+              'placeholder',
+              'Must include at least one number (e.g. A101 or 101)'
+            );
         } else if (
           $('#dimension').val() == '' ||
           $('#dimension').val().match(/^\s+$/) !== null
         ) {
-          $('#unitnum').removeAttr('style');
+          $('#unitnum').removeClass('border-color');
           $('#dimension')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Dimension');
+        } else if (!/[0-9]/.test($('#dimension').val())) {
+          $('#dimension')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr(
+              'placeholder',
+              'Must include at least one number (e.g. A101 or 101)'
+            );
         } else if (
           $('#ratepersquarfeet').val() == '' ||
           $('#ratepersquarfeet').val().match(/^\s+$/) !== null
         ) {
-          $('#dimension').removeAttr('style');
+          $('#dimension').removeClass('border-color');
           $('#ratepersquarfeet')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Rate Per Squarefeet');
+        } else if (!/[0-9]/.test($('#ratepersquarfeet').val())) {
+          $('#ratepersquarfeet')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 5000)');
         } else if (
           $('#remarks').val() == '' ||
           $('#remarks').val().match(/^\s+$/) !== null
         ) {
-          $('#ratepersquarfeet').removeAttr('style');
+          $('#ratepersquarfeet').removeClass('border-color');
           $('#remarks')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type some comments/remarks');
         } else if ($('#customFile' + '0').val() == '') {
-          $('#remarks').removeAttr('style');
+          $('#remarks').removeClass('border-color');
           Swal.fire({
             title: 'No Files Uploaded',
             text: 'Upload atleast one file for ' + propname,
@@ -417,10 +463,10 @@ export class ClosedformComponent implements OnInit {
             confirmButtonText: 'ok',
           });
         } else {
-          $('#unitnum').removeAttr('style');
-          $('#dimension').removeAttr('style');
-          $('#ratepersquarfeet').removeAttr('style');
-          $('#remarks').removeAttr('style');
+          $('#unitnum').removeClass('border-color');
+          $('#dimension').removeClass('border-color');
+          $('#ratepersquarfeet').removeClass('border-color');
+          $('#remarks').removeClass('border-color');
 
           // var unitsselected = $(".selectedunits-" + i).val();
           var lastunit = this.unitselection.replace(/,\s*$/, '');
@@ -736,7 +782,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#unitnum')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Unit Number');
           }
           // Condition of selected unit less and not equal one & entered more unit numbers
@@ -779,7 +825,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#dimension')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Dimension');
           }
           // Condition of selected unit less & entered more dimensions
@@ -822,7 +868,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#ratepersquarfeet')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Rate Per Squarefeet');
           }
           // Condition of selected unit less & entered more ratepersqfeets
@@ -1073,18 +1119,18 @@ export class ClosedformComponent implements OnInit {
         if ($('#closeddate').val() == '') {
           $('#closeddate')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Date');
         } else {
-          $('#closeddate').removeAttr('style');
+          $('#closeddate').removeClass('border-color');
         }
         if ($('#closedtime').val() == '') {
           $('#closedtime')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#closedtime').removeAttr('style');
+          $('#closedtime').removeClass('border-color');
         }
         if ($('.selectedunits1').val() == '') {
           Swal.fire({
@@ -1102,37 +1148,58 @@ export class ClosedformComponent implements OnInit {
         ) {
           $('#unitnum')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Unit Number');
+        } else if (!/[0-9]/.test($('#unitnum').val())) {
+          $('#unitnum')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr(
+              'placeholder',
+              'Must include at least one number (e.g. A101 or 101)'
+            );
         } else if (
           $('#dimension').val() == '' ||
           $('#dimension').val().match(/^\s+$/) !== null
         ) {
-          $('#unitnum').removeAttr('style');
+          $('#unitnum').removeClass('border-color');
           $('#dimension')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Dimension');
+        } else if (!/[0-9]/.test($('#dimension').val())) {
+          $('#dimension')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 10x20 or 200)');
         } else if (
           $('#ratepersquarfeet').val() == '' ||
           $('#ratepersquarfeet').val().match(/^\s+$/) !== null
         ) {
-          $('#dimension').removeAttr('style');
+          $('#dimension').removeClass('border-color');
           $('#ratepersquarfeet')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Rate Per Squarefeet');
+        } else if (!/[0-9]/.test($('#ratepersquarfeet').val())) {
+          $('#ratepersquarfeet')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 5000)');
         } else if (
           $('#remarks').val() == '' ||
           $('#remarks').val().match(/^\s+$/) !== null
         ) {
-          $('#ratepersquarfeet').removeAttr('style');
+          $('#ratepersquarfeet').removeClass('border-color');
           $('#remarks')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type some comments/remarks');
         } else if ($('#customFile' + '0').val() == '') {
-          $('#remarks').removeAttr('style');
+          $('#remarks').removeClass('border-color');
           Swal.fire({
             title: 'No Files Uploaded',
             text: 'Upload atleast one file for ' + propname,
@@ -1157,10 +1224,10 @@ export class ClosedformComponent implements OnInit {
             confirmButtonText: 'ok',
           });
         } else {
-          $('#unitnum').removeAttr('style');
-          $('#dimension').removeAttr('style');
-          $('#ratepersquarfeet').removeAttr('style');
-          $('#remarks').removeAttr('style');
+          $('#unitnum').removeClass('border-color');
+          $('#dimension').removeClass('border-color');
+          $('#ratepersquarfeet').removeClass('border-color');
+          $('#remarks').removeClass('border-color');
 
           // var unitsselected = $(".selectedunits-" + i).val();
           var lastunit = this.unitselection.replace(/,\s*$/, '');
@@ -1483,7 +1550,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#unitnum')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Unit Number');
           }
           // Condition of selected unit less and not equal one & entered more unit numbers
@@ -1526,7 +1593,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#dimension')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Dimension');
           }
           // Condition of selected unit less & entered more dimensions
@@ -1569,7 +1636,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#ratepersquarfeet')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Rate Per Squarefeet');
           }
           // Condition of selected unit less & entered more ratepersqfeets
@@ -1830,18 +1897,18 @@ export class ClosedformComponent implements OnInit {
         if ($('#closeddate').val() == '') {
           $('#closeddate')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Date');
         } else {
-          $('#closeddate').removeAttr('style');
+          $('#closeddate').removeClass('border-color');
         }
         if ($('#closedtime').val() == '') {
           $('#closedtime')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#closedtime').removeAttr('style');
+          $('#closedtime').removeClass('border-color');
         }
         if ($('.selectedunits1').val() == '') {
           Swal.fire({
@@ -1857,37 +1924,58 @@ export class ClosedformComponent implements OnInit {
         ) {
           $('#unitnum')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Unit Number');
+        } else if (!/[0-9]/.test($('#unitnum').val())) {
+          $('#unitnum')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr(
+              'placeholder',
+              'Must include at least one number (e.g. A101 or 101)'
+            );
         } else if (
           $('#dimension').val() == '' ||
           $('#dimension').val().match(/^\s+$/) !== null
         ) {
-          $('#unitnum').removeAttr('style');
+          $('#unitnum').removeClass('border-color');
           $('#dimension')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Dimension');
+        } else if (!/[0-9]/.test($('#dimension').val())) {
+          $('#dimension')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 10x20 or 200)');
         } else if (
           $('#ratepersquarfeet').val() == '' ||
           $('#ratepersquarfeet').val().match(/^\s+$/) !== null
         ) {
-          $('#dimension').removeAttr('style');
+          $('#dimension').removeClass('border-color');
           $('#ratepersquarfeet')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Rate Per Squarefeet');
+        } else if (!/[0-9]/.test($('#ratepersquarfeet').val())) {
+          $('#ratepersquarfeet')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 5000)');
         } else if (
           $('#remarks').val() == '' ||
           $('#remarks').val().match(/^\s+$/) !== null
         ) {
-          $('#ratepersquarfeet').removeAttr('style');
+          $('#ratepersquarfeet').removeClass('border-color');
           $('#remarks')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type some comments/remarks');
         } else if ($('#customFile' + '0').val() == '') {
-          $('#remarks').removeAttr('style');
+          $('#remarks').removeClass('border-color');
           Swal.fire({
             title: 'No Files Uploaded',
             text: 'Upload atleast one file for ' + propname,
@@ -1912,10 +2000,10 @@ export class ClosedformComponent implements OnInit {
             confirmButtonText: 'ok',
           });
         } else {
-          $('#unitnum').removeAttr('style');
-          $('#dimension').removeAttr('style');
-          $('#ratepersquarfeet').removeAttr('style');
-          $('#remarks').removeAttr('style');
+          $('#unitnum').removeClass('border-color');
+          $('#dimension').removeClass('border-color');
+          $('#ratepersquarfeet').removeClass('border-color');
+          $('#remarks').removeClass('border-color');
           // var unitsselected = $(".selectedunits-" + i).val();
           var lastunit = this.unitselection.replace(/,\s*$/, '');
           var totalunitscount = lastunit.split(',').length;
@@ -2244,7 +2332,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#unitnum')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Unit Number');
           }
           // Condition of selected unit less and not equal one & entered more unit numbers
@@ -2287,7 +2375,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#dimension')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Dimension');
           }
           // Condition of selected unit less & entered more dimensions
@@ -2330,7 +2418,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#ratepersquarfeet')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Rate Per Squarefeet');
           }
           // Condition of selected unit less & entered more ratepersqfeets
@@ -2583,18 +2671,18 @@ export class ClosedformComponent implements OnInit {
         if ($('#closeddate').val() == '') {
           $('#closeddate')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Date');
         } else {
-          $('#closeddate').removeAttr('style');
+          $('#closeddate').removeClass('border-color');
         }
         if ($('#closedtime').val() == '') {
           $('#closedtime')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#closedtime').removeAttr('style');
+          $('#closedtime').removeClass('border-color');
         }
         if ($('.selectedunits1').val() == '') {
           Swal.fire({
@@ -2610,37 +2698,58 @@ export class ClosedformComponent implements OnInit {
         ) {
           $('#unitnum')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Unit Number');
+        } else if (!/[0-9]/.test($('#unitnum').val())) {
+          $('#unitnum')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr(
+              'placeholder',
+              'Must include at least one number (e.g. A101 or 101)'
+            );
         } else if (
           $('#dimension').val() == '' ||
           $('#dimension').val().match(/^\s+$/) !== null
         ) {
-          $('#unitnum').removeAttr('style');
+          $('#unitnum').removeClass('border-color');
           $('#dimension')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Dimension');
+        } else if (!/[0-9]/.test($('#dimension').val())) {
+          $('#dimension')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 10x20 or 200)');
         } else if (
           $('#ratepersquarfeet').val() == '' ||
           $('#ratepersquarfeet').val().match(/^\s+$/) !== null
         ) {
-          $('#dimension').removeAttr('style');
+          $('#dimension').removeClass('border-color');
           $('#ratepersquarfeet')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Rate Per Squarefeet');
+        } else if (!/[0-9]/.test($('#ratepersquarfeet').val())) {
+          $('#ratepersquarfeet')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 5000)');
         } else if (
           $('#remarks').val() == '' ||
           $('#remarks').val().match(/^\s+$/) !== null
         ) {
-          $('#ratepersquarfeet').removeAttr('style');
+          $('#ratepersquarfeet').removeClass('border-color');
           $('#remarks')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type some comments/remarks');
         } else if ($('#customFile' + '0').val() == '') {
-          $('#remarks').removeAttr('style');
+          $('#remarks').removeClass('border-color');
           Swal.fire({
             title: 'No Files Uploaded',
             text: 'Upload atleast one file for ' + propname,
@@ -2665,10 +2774,10 @@ export class ClosedformComponent implements OnInit {
             confirmButtonText: 'ok',
           });
         } else {
-          $('#unitnum').removeAttr('style');
-          $('#dimension').removeAttr('style');
-          $('#ratepersquarfeet').removeAttr('style');
-          $('#remarks').removeAttr('style');
+          $('#unitnum').removeClass('border-color');
+          $('#dimension').removeClass('border-color');
+          $('#ratepersquarfeet').removeClass('border-color');
+          $('#remarks').removeClass('border-color');
 
           // var unitsselected = $(".selectedunits-" + i).val();
           var lastunit = this.unitselection.replace(/,\s*$/, '');
@@ -2998,7 +3107,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#unitnum')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Unit Number');
           }
           // Condition of selected unit less and not equal one & entered more unit numbers
@@ -3041,7 +3150,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#dimension')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Dimension');
           }
           // Condition of selected unit less & entered more dimensions
@@ -3084,7 +3193,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#ratepersquarfeet')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Rate Per Squarefeet');
           }
           // Condition of selected unit less & entered more ratepersqfeets
@@ -3341,18 +3450,18 @@ export class ClosedformComponent implements OnInit {
         if ($('#closeddate').val() == '') {
           $('#closeddate')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Date');
         } else {
-          $('#closeddate').removeAttr('style');
+          $('#closeddate').removeClass('border-color');
         }
         if ($('#closedtime').val() == '') {
           $('#closedtime')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#closedtime').removeAttr('style');
+          $('#closedtime').removeClass('border-color');
         }
         if ($('.selectedunits1').val() == '') {
           Swal.fire({
@@ -3368,37 +3477,58 @@ export class ClosedformComponent implements OnInit {
         ) {
           $('#unitnum')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Unit Number');
+        } else if (!/[0-9]/.test($('#unitnum').val())) {
+          $('#unitnum')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr(
+              'placeholder',
+              'Must include at least one number (e.g. A101 or 101)'
+            );
         } else if (
           $('#dimension').val() == '' ||
           $('#dimension').val().match(/^\s+$/) !== null
         ) {
-          $('#unitnum').removeAttr('style');
+          $('#unitnum').removeClass('border-color');
           $('#dimension')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Dimension');
+        } else if (!/[0-9]/.test($('#dimension').val())) {
+          $('#dimension')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 10x20 or 200)');
         } else if (
           $('#ratepersquarfeet').val() == '' ||
           $('#ratepersquarfeet').val().match(/^\s+$/) !== null
         ) {
-          $('#dimension').removeAttr('style');
+          $('#dimension').removeClass('border-color');
           $('#ratepersquarfeet')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Rate Per Squarefeet');
+        } else if (!/[0-9]/.test($('#ratepersquarfeet').val())) {
+          $('#ratepersquarfeet')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 5000)');
         } else if (
           $('#remarks').val() == '' ||
           $('#remarks').val().match(/^\s+$/) !== null
         ) {
-          $('#ratepersquarfeet').removeAttr('style');
+          $('#ratepersquarfeet').removeClass('border-color');
           $('#remarks')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type some comments/remarks');
         } else if ($('#customFile' + '0').val() == '') {
-          $('#remarks').removeAttr('style');
+          $('#remarks').removeClass('border-color');
           Swal.fire({
             title: 'No Files Uploaded',
             text: 'Upload atleast one file for ' + propname,
@@ -3423,10 +3553,10 @@ export class ClosedformComponent implements OnInit {
             confirmButtonText: 'ok',
           });
         } else {
-          $('#unitnum').removeAttr('style');
-          $('#dimension').removeAttr('style');
-          $('#ratepersquarfeet').removeAttr('style');
-          $('#remarks').removeAttr('style');
+          $('#unitnum').removeClass('border-color');
+          $('#dimension').removeClass('border-color');
+          $('#ratepersquarfeet').removeClass('border-color');
+          $('#remarks').removeClass('border-color');
 
           // var unitsselected = $(".selectedunits-" + i).val();
           var lastunit = this.unitselection.replace(/,\s*$/, '');
@@ -3671,7 +3801,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#unitnum')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Unit Number');
           }
           // Condition of selected unit less and not equal one & entered more unit numbers
@@ -3714,7 +3844,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#dimension')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Dimension');
           }
           // Condition of selected unit less & entered more dimensions
@@ -3757,7 +3887,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#ratepersquarfeet')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Rate Per Squarefeet');
           }
           // Condition of selected unit less & entered more ratepersqfeets
@@ -3952,12 +4082,13 @@ export class ClosedformComponent implements OnInit {
   }
 
   closingrequest2() {
+    alert('asdahl');
     // USV DONE with Lead Closing
     let propid = this.selectedLeadProperty.propid;
     let propname = this.selectedLeadProperty.name;
     let closeLeadStage: any;
     if (this.userid == '1') {
-      closeLeadStage = 'Lead Closed';
+      closeLeadStage = 'Admin Lead Closed';
     } else {
       closeLeadStage = 'Deal Closing Request';
     }
@@ -4006,25 +4137,46 @@ export class ClosedformComponent implements OnInit {
         } else if ($('#unitnum2').val() == '') {
           $('#unitnum2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Unit Number');
+        } else if (!/[0-9]/.test($('#unitnum2').val())) {
+          $('#unitnum2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr(
+              'placeholder',
+              'Must include at least one number (e.g. A101 or 101)'
+            );
         } else if ($('#dimension2').val() == '') {
-          $('#unitnum2').removeAttr('style');
+          $('#unitnum2').removeClass('border-color');
           $('#dimension2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Dimension');
+        } else if (!/[0-9]/.test($('#dimension2').val())) {
+          $('#dimension2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 10x20 or 200)');
         } else if ($('#ratepersquarfeet2').val() == '') {
-          $('#dimension2').removeAttr('style');
+          $('#dimension2').removeClass('border-color');
           $('#ratepersquarfeet2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Rate Per Squarefeet');
+        } else if (!/[0-9]/.test($('#ratepersquarfeet2').val())) {
+          $('#ratepersquarfeet2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 5000)');
         } else if ($('#remarks2').val() == '') {
-          $('#ratepersquarfeet2').removeAttr('style');
+          $('#ratepersquarfeet2').removeClass('border-color');
           $('#remarks2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type some comments/remarks');
         } else if ($('#customFile' + '0').val() == '') {
           Swal.fire({
@@ -4034,11 +4186,11 @@ export class ClosedformComponent implements OnInit {
             heightAuto: false,
             confirmButtonText: 'ok',
           });
-          $('#remarks2').removeAttr('style');
-          $('#unitnum2').removeAttr('style');
-          $('#dimension2').removeAttr('style');
-          $('#ratepersquarfeet2').removeAttr('style');
-          $('#remarks2').removeAttr('style');
+          $('#remarks2').removeClass('border-color');
+          $('#unitnum2').removeClass('border-color');
+          $('#dimension2').removeClass('border-color');
+          $('#ratepersquarfeet2').removeClass('border-color');
+          $('#remarks2').removeClass('border-color');
         } else if ($('#closeddate').val() == '') {
           // $('#closeddate1').focus().css("border-color", "red").attr('placeholder', 'Please Select closed Date');
           Swal.fire({
@@ -4058,11 +4210,11 @@ export class ClosedformComponent implements OnInit {
           });
           // $('#closedtime').focus().css("border-color", "red").attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#closeddate1').removeAttr('style');
-          $('#unitnum2').removeAttr('style');
-          $('#dimension2').removeAttr('style');
-          $('#ratepersquarfeet2').removeAttr('style');
-          $('#remarks2').removeAttr('style');
+          $('#closeddate1').removeClass('border-color');
+          $('#unitnum2').removeClass('border-color');
+          $('#dimension2').removeClass('border-color');
+          $('#ratepersquarfeet2').removeClass('border-color');
+          $('#remarks2').removeClass('border-color');
 
           // var unitsselected = $(".selectedunits-" + i).val();
           var lastunit = this.unitselection.replace(/,\s*$/, '');
@@ -4382,7 +4534,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#unitnum2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Unit Number');
           }
           // Condition of selected unit less and not equal one & entered more unit numbers
@@ -4425,7 +4577,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#dimension2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Dimension');
           }
           // Condition of selected unit less & entered more dimensions
@@ -4468,7 +4620,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#ratepersquarfeet2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Rate Per Squarefeet');
           }
           // Condition of selected unit less & entered more ratepersqfeets
@@ -4722,18 +4874,18 @@ export class ClosedformComponent implements OnInit {
         if ($('#closeddate').val() == '') {
           $('#closeddate')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Date');
         } else {
-          $('#closeddate').removeAttr('style');
+          $('#closeddate').removeClass('border-color');
         }
         if ($('#closedtime').val() == '') {
           $('#closedtime')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#closedtime').removeAttr('style');
+          $('#closedtime').removeClass('border-color');
         }
         if ($('.selectedunits2').val() == '') {
           Swal.fire({
@@ -4746,22 +4898,43 @@ export class ClosedformComponent implements OnInit {
         } else if ($('#unitnum2').val() == '') {
           $('#unitnum2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Unit Number');
+        } else if (!/[0-9]/.test($('#unitnum2').val())) {
+          $('#unitnum2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr(
+              'placeholder',
+              'Must include at least one number (e.g. A101 or 101)'
+            );
         } else if ($('#dimension2').val() == '') {
           $('#dimension2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Dimension');
+        } else if (!/[0-9]/.test($('#dimension2').val())) {
+          $('#dimension2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 10x20 or 200)');
         } else if ($('#ratepersquarfeet2').val() == '') {
           $('#ratepersquarfeet2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Rate Per Squarefeet');
+        } else if (!/[0-9]/.test($('#ratepersquarfeet2').val())) {
+          $('#ratepersquarfeet2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 5000)');
         } else if ($('#remarks2').val() == '') {
           $('#remarks2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type some comments/remarks');
         } else if ($('#customFile' + '0').val() == '') {
           Swal.fire({
@@ -4790,10 +4963,10 @@ export class ClosedformComponent implements OnInit {
           });
           // $('#closedtime').focus().css("border-color", "red").attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#unitnum2').removeAttr('style');
-          $('#dimension2').removeAttr('style');
-          $('#ratepersquarfeet2').removeAttr('style');
-          $('#remarks2').removeAttr('style');
+          $('#unitnum2').removeClass('border-color');
+          $('#dimension2').removeClass('border-color');
+          $('#ratepersquarfeet2').removeClass('border-color');
+          $('#remarks2').removeClass('border-color');
 
           // var unitsselected = $(".selectedunits-" + i).val();
           var lastunit = this.unitselection.replace(/,\s*$/, '');
@@ -5109,7 +5282,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#unitnum2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Unit Number');
           }
           // Condition of selected unit less and not equal one & entered more unit numbers
@@ -5152,7 +5325,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#dimension2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Dimension');
           }
           // Condition of selected unit less & entered more dimensions
@@ -5195,7 +5368,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#ratepersquarfeet2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Rate Per Squarefeet');
           }
           // Condition of selected unit less & entered more ratepersqfeets
@@ -5465,22 +5638,43 @@ export class ClosedformComponent implements OnInit {
         } else if ($('#unitnum2').val() == '') {
           $('#unitnum2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Unit Number');
+        } else if (!/[0-9]/.test($('#unitnum2').val())) {
+          $('#unitnum2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr(
+              'placeholder',
+              'Must include at least one number (e.g. A101 or 101)'
+            );
         } else if ($('#dimension2').val() == '') {
           $('#dimension2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Dimension');
+        } else if (!/[0-9]/.test($('#dimension2').val())) {
+          $('#dimension2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 10x20 or 200)');
         } else if ($('#ratepersquarfeet2').val() == '') {
           $('#ratepersquarfeet2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Rate Per Squarefeet');
+        } else if (!/[0-9]/.test($('#ratepersquarfeet2').val())) {
+          $('#ratepersquarfeet2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 5000)');
         } else if ($('#remarks2').val() == '') {
           $('#remarks2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type some comments/remarks');
         } else if ($('#customFile' + '0').val() == '') {
           Swal.fire({
@@ -5509,10 +5703,10 @@ export class ClosedformComponent implements OnInit {
           });
           // $('#closedtime').focus().css("border-color", "red").attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#unitnum2').removeAttr('style');
-          $('#dimension2').removeAttr('style');
-          $('#ratepersquarfeet2').removeAttr('style');
-          $('#remarks2').removeAttr('style');
+          $('#unitnum2').removeClass('border-color');
+          $('#dimension2').removeClass('border-color');
+          $('#ratepersquarfeet2').removeClass('border-color');
+          $('#remarks2').removeClass('border-color');
           // var unitsselected = $(".selectedunits-" + i).val();
           var lastunit = this.unitselection.replace(/,\s*$/, '');
           var totalunitscount = lastunit.split(',').length;
@@ -5827,7 +6021,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#unitnum2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Unit Number');
           }
           // Condition of selected unit less and not equal one & entered more unit numbers
@@ -5870,7 +6064,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#dimension2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Dimension');
           }
           // Condition of selected unit less & entered more dimensions
@@ -5913,7 +6107,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#ratepersquarfeet2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Rate Per Squarefeet');
           }
           // Condition of selected unit less & entered more ratepersqfeets
@@ -6163,18 +6357,18 @@ export class ClosedformComponent implements OnInit {
         if ($('#closeddate').val() == '') {
           $('#closeddate')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Date');
         } else {
-          $('#closeddate').removeAttr('style');
+          $('#closeddate').removeClass('border-color');
         }
         if ($('#closedtime').val() == '') {
           $('#closedtime')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#closedtime').removeAttr('style');
+          $('#closedtime').removeClass('border-color');
         }
 
         if ($('.selectedunits2').val() == '') {
@@ -6188,22 +6382,43 @@ export class ClosedformComponent implements OnInit {
         } else if ($('#unitnum2').val() == '') {
           $('#unitnum2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Unit Number');
+        } else if (!/[0-9]/.test($('#unitnum2').val())) {
+          $('#unitnum2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr(
+              'placeholder',
+              'Must include at least one number (e.g. A101 or 101)'
+            );
         } else if ($('#dimension2').val() == '') {
           $('#dimension2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Dimension');
+        } else if (!/[0-9]/.test($('#dimension2').val())) {
+          $('#dimension2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 10x20 or 200)');
         } else if ($('#ratepersquarfeet2').val() == '') {
           $('#ratepersquarfeet2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Rate Per Squarefeet');
+        } else if (!/[0-9]/.test($('#ratepersquarfeet2').val())) {
+          $('#ratepersquarfeet2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 5000)');
         } else if ($('#remarks2').val() == '') {
           $('#remarks2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type some comments/remarks');
         } else if ($('#customFile' + '0').val() == '') {
           Swal.fire({
@@ -6232,10 +6447,10 @@ export class ClosedformComponent implements OnInit {
           });
           // $('#closedtime').focus().css("border-color", "red").attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#unitnum2').removeAttr('style');
-          $('#dimension2').removeAttr('style');
-          $('#ratepersquarfeet2').removeAttr('style');
-          $('#remarks2').removeAttr('style');
+          $('#unitnum2').removeClass('border-color');
+          $('#dimension2').removeClass('border-color');
+          $('#ratepersquarfeet2').removeClass('border-color');
+          $('#remarks2').removeClass('border-color');
 
           // var unitsselected = $(".selectedunits-" + i).val();
           var lastunit = this.unitselection.replace(/,\s*$/, '');
@@ -6553,7 +6768,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#unitnum2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Unit Number');
           }
           // Condition of selected unit less and not equal one & entered more unit numbers
@@ -6596,7 +6811,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#dimension2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Dimension');
           }
           // Condition of selected unit less & entered more dimensions
@@ -6639,7 +6854,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#ratepersquarfeet2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Rate Per Squarefeet');
           }
           // Condition of selected unit less & entered more ratepersqfeets
@@ -6884,18 +7099,18 @@ export class ClosedformComponent implements OnInit {
         if ($('#closeddate').val() == '') {
           $('#closeddate')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Date');
         } else {
-          $('#closeddate').removeAttr('style');
+          $('#closeddate').removeClass('border-color');
         }
         if ($('#closedtime').val() == '') {
           $('#closedtime')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#closedtime').removeAttr('style');
+          $('#closedtime').removeClass('border-color');
         }
         if ($('.selectedunits2').val() == '') {
           Swal.fire({
@@ -6908,22 +7123,43 @@ export class ClosedformComponent implements OnInit {
         } else if ($('#unitnum2').val() == '') {
           $('#unitnum2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Unit Number');
+        } else if (!/[0-9]/.test($('#unitnum2').val())) {
+          $('#unitnum2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr(
+              'placeholder',
+              'Must include at least one number (e.g. A101 or 101)'
+            );
         } else if ($('#dimension2').val() == '') {
           $('#dimension2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Dimension');
+        } else if (!/[0-9]/.test($('#dimension2').val())) {
+          $('#dimension2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 10x20 or 200)');
         } else if ($('#ratepersquarfeet2').val() == '') {
           $('#ratepersquarfeet2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type the Rate Per Squarefeet');
+        } else if (!/[0-9]/.test($('#ratepersquarfeet2').val())) {
+          $('#ratepersquarfeet2')
+            .focus()
+            .addClass('border-color')
+            .val('')
+            .attr('placeholder', 'Must include number (e.g. 5000)');
         } else if ($('#remarks2').val() == '') {
           $('#remarks2')
             .focus()
-            .css('border-color', 'red')
+            .addClass('border-color')
             .attr('placeholder', 'Please type some comments/remarks');
         } else if ($('#customFile' + '0').val() == '') {
           Swal.fire({
@@ -6952,10 +7188,10 @@ export class ClosedformComponent implements OnInit {
           });
           // $('#closedtime').focus().css("border-color", "red").attr('placeholder', 'Please Select closed Time');
         } else {
-          $('#unitnum2').removeAttr('style');
-          $('#dimension2').removeAttr('style');
-          $('#ratepersquarfeet2').removeAttr('style');
-          $('#remarks2').removeAttr('style');
+          $('#unitnum2').removeClass('border-color');
+          $('#dimension2').removeClass('border-color');
+          $('#ratepersquarfeet2').removeClass('border-color');
+          $('#remarks2').removeClass('border-color');
           // var unitsselected = $(".selectedunits-" + i).val();
           var lastunit = this.unitselection.replace(/,\s*$/, '');
           var totalunitscount = lastunit.split(',').length;
@@ -7189,7 +7425,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#unitnum2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Unit Number');
           }
           // Condition of selected unit less and not equal one & entered more unit numbers
@@ -7232,7 +7468,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#dimension2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Dimension');
           }
           // Condition of selected unit less & entered more dimensions
@@ -7275,7 +7511,7 @@ export class ClosedformComponent implements OnInit {
             }
             $('#ratepersquarfeet2')
               .focus()
-              .css('border-color', 'red')
+              .addClass('border-color')
               .attr('placeholder', 'Please type the Rate Per Squarefeet');
           }
           // Condition of selected unit less & entered more ratepersqfeets
@@ -7487,6 +7723,8 @@ export class ClosedformComponent implements OnInit {
 
   ngOnDestroy() {
     this.closeAlert();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   closeAlert() {
@@ -7745,7 +7983,7 @@ export class ClosedformComponent implements OnInit {
         $('#closedtime').removeClass('border_colorRed');
         $('#remarks2')
           .focus()
-          .css('border-color', 'red')
+          .addClass('border-color')
           .attr('placeholder', 'Please type some comments/remarks');
       } else {
         $('#remarks2').removeClass('border_colorRed');
@@ -7967,7 +8205,7 @@ export class ClosedformComponent implements OnInit {
         $('#closedtime').removeClass('border_colorRed');
         $('#remarks2')
           .focus()
-          .css('border-color', 'red')
+          .addClass('border-color')
           .attr('placeholder', 'Please type some comments/remarks');
       } else {
         $('#remarks2').removeClass('border_colorRed');
@@ -8173,7 +8411,7 @@ export class ClosedformComponent implements OnInit {
         $('#closedtime').removeClass('border_colorRed');
         $('#remarks2')
           .focus()
-          .css('border-color', 'red')
+          .addClass('border-color')
           .attr('placeholder', 'Please type some comments/remarks');
       } else {
         this.showSpinner = true;

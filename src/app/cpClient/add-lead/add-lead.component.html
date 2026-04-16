@@ -2,8 +2,18 @@
   <app-cp-header></app-cp-header>
 </ion-header>
 
+<ion-row class="toggle-btn m-1 my-2 ">
+  <ion-col (click)="onUploadAddLeads('add')" [ngClass]="!isupload?'active':''">
+    <span>Add Lead</span>
+  </ion-col>
+  <ion-col (click)="onUploadAddLeads('upload')" [ngClass]="isupload?'active':''">
+    <span>Upload Leads</span>
+  </ion-col>
+</ion-row>
+
+
 <ion-content>
-  <form [formGroup]="addleadForm" (ngSubmit)="addLead()" class="addLeadForm">
+  <form [formGroup]="addleadForm" (ngSubmit)="addLead()" class="addLeadForm" *ngIf="!isupload">
     <ion-row>
       <ion-col>
         <div>Client Name</div>
@@ -70,7 +80,7 @@
         </div>
       </ion-col>
     </ion-row>
-    <ion-row>
+    <!-- <ion-row>
       <ion-col>
         <div>Priority</div>
         <ion-row class="gap-2">
@@ -92,7 +102,7 @@
         </ion-row>
         <span class="error-text">{{hasError('priority','required') ? 'Please Select Priority' : ''}}</span>
       </ion-col>
-    </ion-row>
+    </ion-row> -->
     <ion-row>
       <ion-col>
         <div>Type</div>
@@ -169,7 +179,7 @@
       </ion-col>
     </ion-row>
 
-    <ion-row *ngIf="addleadForm.value.type != '3'">
+    <ion-row *ngIf="addleadForm.value.type && addleadForm.value.type != '3'">
       <ion-col>
         <div>Select Size</div>
         <ion-row class="gap-2">
@@ -292,5 +302,31 @@
       </ion-col>
     </ion-row>
   </form>
+
+  <div *ngIf="isupload">
+    <!-- Drag Area -->
+    <div class="drop-zone" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onFileDrop($event)"
+      (click)="fileInput.click()">
+      <p style="font-size: 20px !important;">Drag & drop CSV file here</p>
+    </div>
+    <!-- Upload Button -->
+    <div style="text-align:center; margin-top:10px;">
+      <input type="file" (change)="onCsvSelected($event)" style="display:none" #fileInput>
+      <div class="csvAndDowloadSample">
+        <div>
+          <button style="font-size: 10px;" class="btn btn-secondary downloadSampleFile" type="button"
+            (click)="downloadSample()">
+            <i class="fa fa-download mr-1"></i> Sample CSV File
+          </button>
+        </div>
+        <div>
+          <button type="button" class="btn btn-primary addcsvBtn" (click)="fileInput.click()">
+            Add CSV File
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </ion-content>
 <app-cp-footer></app-cp-footer>

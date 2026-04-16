@@ -53,7 +53,7 @@ ion-content {
 }
 
 //card backgrounds
-.leads-card.selected,
+// .leads-card.selected,
 .booked-card.selected,
 .followups-card.selected {
   border-color: rgb(198, 137, 132);
@@ -71,7 +71,7 @@ ion-content {
   }
 }
 
-.leads-card,
+// .leads-card,
 .booked-card,
 .followups-card {
   background: linear-gradient(81.85deg, #ffffff 48.93%, #ffe4e1 106.84%);
@@ -97,7 +97,7 @@ ion-content {
   }
 }
 
-.leads-card,
+// .leads-card,
 .usv-card,
 .booked-card,
 .followups-card {
@@ -563,4 +563,13 @@ ion-modal.filter_modal {
   border-radius: 4px;
   /* 🔥 better chip look */
   height: 26px;
+}
+
+.latest_remark_col {
+  background: #546d7e;
+  border-radius: 0 4px 4px 4px;
+  span {
+    color: white;
+    font-size: 0.9rem;
+  }
 }

@@ -28,7 +28,7 @@
         </span>
       </ion-row>
     </div>
-    <div class="bg_border_color margin-top-16">
+    <div class="bg_border_color">
       <span [hidden]="!isFreshLead">
         <ion-row>
           <p class="font-size12-familyPoppins font-colorBlack font-weight500">
@@ -65,6 +65,28 @@
 
         <ngx-material-timepicker #default></ngx-material-timepicker>
         <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
+
+      </span>
+      <ion-row class="margin-top-16">
+        <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+          Priority
+        </p>
+      </ion-row>
+      <ion-row class="gap-2  priority">
+        <ion-col [class.active]="selectedPriority === '1'" (click)="setPriority('1')"
+          class="d-flex align-items-center justify-content-center p-1">
+          Hot
+        </ion-col>
+        <ion-col [class.active]="selectedPriority === '2'" (click)="setPriority('2')"
+          class="d-flex align-items-center justify-content-center p-1">
+          Warm
+        </ion-col>
+        <ion-col [class.active]="selectedPriority === '3'" (click)="setPriority('3')"
+          class="d-flex align-items-center justify-content-center p-1">
+          Cold
+        </ion-col>
+      </ion-row>
+      <span [hidden]="!isFreshLead">
 
         <ion-row class="margin-top-16">
           <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>

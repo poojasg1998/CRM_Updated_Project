@@ -89,6 +89,27 @@
         </ion-row>
         <ngx-material-timepicker #default></ngx-material-timepicker>
         <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
+
+
+        <ion-row class="margin-top-16">
+          <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+            Priority
+          </p>
+        </ion-row>
+        <ion-row class="gap-2  priority">
+          <ion-col [class.active]="selectedPriority === '1'" (click)="setPriority('1')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Hot
+          </ion-col>
+          <ion-col [class.active]="selectedPriority === '2'" (click)="setPriority('2')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Warm
+          </ion-col>
+          <ion-col [class.active]="selectedPriority === '3'" (click)="setPriority('3')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Cold
+          </ion-col>
+        </ion-row>
         <ion-row class="margin-top-16">
           <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
         </ion-row>
@@ -174,6 +195,26 @@
         <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.</div>
 
         <ion-row class="margin-top-16">
+          <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+            Priority
+          </p>
+        </ion-row>
+        <ion-row class="gap-2  priority">
+          <ion-col [class.active]="selectedPriority === '1'" (click)="setPriority('1')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Hot
+          </ion-col>
+          <ion-col [class.active]="selectedPriority === '2'" (click)="setPriority('2')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Warm
+          </ion-col>
+          <ion-col [class.active]="selectedPriority === '3'" (click)="setPriority('3')"
+            class="d-flex align-items-center justify-content-center p-1">
+            Cold
+          </ion-col>
+        </ion-row>
+
+        <ion-row class="margin-top-16">
           <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
         </ion-row>
         <ion-row class="custom-textArea">
@@ -228,7 +269,7 @@
           <div style="font-size: 14px;font-weight: 500;color: #0B7AB2;">
             <ion-icon name="calendar"></ion-icon>
             <span *ngIf="assignedRM && assignedRM.length > 0"
-              id="USVvisiteddate_dis">{{assignedRM[0].latest_action_date}}</span>
+              id="negovisiteddate_val">{{assignedRM[0].latest_action_date}}</span>
           </div>
         </div>
         <div class="col-6 p-2">
@@ -236,7 +277,7 @@
           <div style="font-size: 14px;font-weight: 500;color: #0B7AB2;">
             <ion-icon name="time"></ion-icon>
             <span *ngIf="assignedRM && assignedRM.length > 0"
-              id="USVvisitedtime_dis">{{assignedRM[0].latest_action_time}}</span>
+              id="negovisitedtime_val">{{assignedRM[0].latest_action_time}}</span>
           </div>
         </div>
         <span class="edit_pos" (click)="enableVisitdate(1)"><ion-icon name="create"
@@ -486,7 +527,7 @@
           </div>
 
           <form (ngSubmit)="negodonewithfixing()" ngNativeValidate #submitForm3="ngForm">
-            <div class="bg_border_color">
+            <div class="bg_border_color margin-top-16">
               <ion-row>
                 <p class="font-size12-familyPoppins font-colorBlack font-weight500">
                   Schedule Visit Date
@@ -522,8 +563,46 @@
               <div *ngIf="timeError" style="color: red; font-size: 12px;">Please select a time between 8 AM and 8 PM.
               </div>
 
-            </div>
 
+              <ion-row class="margin-top-16">
+                <p class="font-size12-familyPoppins font-colorBlack font-weight500">
+                  Priority
+                </p>
+              </ion-row>
+              <ion-row class="gap-2  priority">
+                <ion-col [class.active]="selectedPriority === '1'" (click)="setPriority('1')"
+                  class="d-flex align-items-center justify-content-center p-1">
+                  Hot
+                </ion-col>
+                <ion-col [class.active]="selectedPriority === '2'" (click)="setPriority('2')"
+                  class="d-flex align-items-center justify-content-center p-1">
+                  Warm
+                </ion-col>
+                <ion-col [class.active]="selectedPriority === '3'" (click)="setPriority('3')"
+                  class="d-flex align-items-center justify-content-center p-1">
+                  Cold
+                </ion-col>
+              </ion-row>
+              <div class="margin-top-16">
+                <ion-row>
+                  <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
+                </ion-row>
+                <ion-row class="custom-textArea">
+                  <ion-textarea placeholder="Write remarks" id="subnegotextarearemarks" name="subnegotextarearemarks"
+                    [(ngModel)]="fnRemark" (ngModelChange)="checkAlphanumericSpaces()" required></ion-textarea>
+                </ion-row>
+              </div>
+
+              <ion-row class="submitForm">
+                <ion-col class="paddingZero">
+                  <ion-button fill="clear" class="saveButton"
+                    [ngClass]="submitForm3.invalid || hasOnlySpaces?'saveButton':'activeSaveButton'" type="submit"
+                    [disabled]="submitForm3.invalid || hasOnlySpaces">Save</ion-button>
+                </ion-col>
+              </ion-row>
+
+            </div>
+            <!-- 
             <div class="bg_border_color margin-top-16">
               <ion-row>
                 <p class="heads">
@@ -541,25 +620,10 @@
                   style="font-size:medium;font-weight: 700;display: flex;justify-content: center;color: #a9a9a9;">No
                   Properties Visted With Us</div>
               </ion-row>
-            </div>
+            </div> -->
 
-            <div class="bg_border_color margin-top-16">
-              <ion-row>
-                <p class="font-size12-familyPoppins font-colorBlack font-weight500">Remarks</p>
-              </ion-row>
-              <ion-row class="custom-textArea">
-                <ion-textarea placeholder="Write remarks" id="subnegotextarearemarks" name="subnegotextarearemarks"
-                  [(ngModel)]="fnRemark" (ngModelChange)="checkAlphanumericSpaces()" required></ion-textarea>
-              </ion-row>
-            </div>
 
-            <ion-row class="submitForm">
-              <ion-col class="paddingZero">
-                <ion-button fill="clear" class="saveButton"
-                  [ngClass]="submitForm3.invalid || hasOnlySpaces?'saveButton':'activeSaveButton'" type="submit"
-                  [disabled]="submitForm3.invalid || hasOnlySpaces">Save</ion-button>
-              </ion-col>
-            </ion-row>
+
           </form>
         </div>
 

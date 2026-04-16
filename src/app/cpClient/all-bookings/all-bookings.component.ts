@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CpApiService } from '../cp-api.service';
 import { catchError, forkJoin, of } from 'rxjs';
@@ -11,9 +11,10 @@ import { IonContent } from '@ionic/angular';
   templateUrl: './all-bookings.component.html',
   styleUrls: ['./all-bookings.component.scss'],
 })
-export class AllBookingsComponent implements OnInit {
+export class AllBookingsComponent {
   @ViewChild('content', { static: false }) content: IonContent;
   @ViewChild('filter_modal') filter_modal;
+  @ViewChild('booking_details') booking_details;
   showSpinner = false;
   readonly DEFAULT_PARAMS = {
     stagestatus: '',
@@ -49,16 +50,25 @@ export class AllBookingsComponent implements OnInit {
   minDate: Date;
   canScroll: boolean;
   page: number;
+  subscription: import('rxjs').Subscription;
 
+  requestedunits: any;
+  userid;
+  roleid;
+  stage: any;
+  categoryid: any;
   constructor(
     private activeroute: ActivatedRoute,
     private router: Router,
     private api: CpApiService,
-    public sharedService: SharedService
+    public sharedService: SharedService,
+    private cd: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
-    this.activeroute.queryParams.subscribe(() => {
+  ionViewWillEnter() {
+    this.userid = localStorage.getItem('UserId');
+    this.roleid = localStorage.getItem('Role');
+    this.subscription = this.activeroute.queryParams.subscribe(() => {
       this.getQueryParams();
       if (this.sharedService.hasState) {
         this.showSpinner = false;
@@ -70,7 +80,7 @@ export class AllBookingsComponent implements OnInit {
 
         setTimeout(() => {
           this.sharedService.hasState = false;
-        }, 5000);
+        }, 1000);
       } else {
         this.content?.scrollToTop(300);
         this.getLeadsCount();
@@ -84,6 +94,7 @@ export class AllBookingsComponent implements OnInit {
    * @param value - The new value to set
    */
   applyFilter(filters: Record<string, any>): void {
+    this.sharedService.hasState = false;
     this.resetInfiniteScroll();
     Object.keys(filters).forEach((key) => {
       const value = filters[key];
@@ -199,14 +210,13 @@ export class AllBookingsComponent implements OnInit {
             resolve(true);
           } else {
             this.leads_detail = isLoadmore ? this.leads_detail : [];
-            this.closedProperty = isLoadmore
-              ? response['ClosedPropertyLists']
-              : [];
+            this.closedProperty = isLoadmore ? this.closedProperty : [];
             this.filteredclosedProperty = this.closedProperty;
             this.showSpinner = false;
             resolve(false);
           }
         });
+      this.cd.detectChanges();
     });
   }
 
@@ -408,4 +418,205 @@ export class AllBookingsComponent implements OnInit {
   //     }
   //   }
   // }
+
+  ionViewWillLeave() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+  viewBookingDetails(lead) {
+    this.showSpinner = true;
+    this.verifyrequest(
+      lead.LeadID,
+      lead.closedprop[0].propid,
+      lead.RMID,
+      lead.closedprop[0].name,
+      lead.Leadphase,
+      lead.category
+    );
+    this.booking_details.present();
+  }
+
+  verifyrequest(leadid, propid, execid, propname, stage, category) {
+    this.stage = stage;
+    this.categoryid = category;
+    var param = {
+      leadid: leadid,
+      propid: propid,
+      execid: execid,
+    };
+    this.api.fetchrequestedvalues(param).subscribe((requested) => {
+      this.requestedunits = requested['requestedvals'];
+      this.showSpinner = false;
+      console.log(this.requestedunits);
+    });
+  }
+  public getExstendsion(image) {
+    if (
+      image.endsWith('jpg') ||
+      image.endsWith('jpeg') ||
+      image.endsWith('png')
+    ) {
+      return 'jpg';
+    }
+    if (image.endsWith('pdf')) {
+      return 'pdf';
+    }
+    return false;
+  }
+
+  requestapproval(leadid, execid, propid) {
+    var param = {
+      leadid: leadid,
+      propid: propid,
+      execid: this.userid,
+      statusid: '1',
+      remarks: 'No Comments',
+      assignid: execid,
+      categoryid: this.categoryid,
+    };
+    this.api.closingrequestresponse(param).subscribe((requestresponse) => {
+      if (requestresponse['status'] == 'True-0') {
+        let autoremarks = ' Send the Deal Closing Request successfully.';
+        var leadhistparam = {
+          leadid: leadid,
+          closedate: this.requestedunits[0].closed_date,
+          closetime: this.requestedunits[0].closed_time,
+          textarearemarks: 'Deal closed Request Approved',
+          leadstage: 'Lead Closed',
+          stagestatus: '0',
+          userid: this.userid,
+          assignid: execid,
+          property: propid,
+          autoremarks: autoremarks,
+          categoryid: this.categoryid,
+        };
+
+        this.api.addleadhistoryretail(leadhistparam).subscribe(
+          (success) => {
+            if (success['status'] == 'True') {
+              this.showSpinner = false;
+              Swal.fire({
+                title: 'Deal Closing Requested Successfully',
+                icon: 'success',
+                timer: 2000,
+                heightAuto: false,
+                showConfirmButton: false,
+              }).then(() => {
+                location.reload();
+              });
+              if (this.userid == 1) {
+                var param = {
+                  leadid: leadid,
+                  propid: propid,
+                  execid: this.userid,
+                  assignid: execid,
+                  statusid: '1',
+                  remarks: 'No Comments',
+                  categoryid: this.categoryid,
+                };
+                this.api
+                  .closingrequestresponse(param)
+                  .subscribe((requestresponse) => {
+                    if (requestresponse['status'] == 'True-0') {
+                      Swal.fire({
+                        title: 'Request Approved Successfully',
+                        icon: 'success',
+                        timer: 2000,
+                        heightAuto: false,
+                        showConfirmButton: false,
+                      }).then(() => {
+                        location.reload();
+                      });
+                    } else {
+                      Swal.fire({
+                        title: 'Some Error Occured',
+                        icon: 'error',
+                        heightAuto: false,
+                        timer: 2000,
+                        showConfirmButton: false,
+                      }).then(() => {
+                        location.reload();
+                      });
+                    }
+                  });
+              }
+            } else if (success['status'] == 'Duplicate Request') {
+              Swal.fire({
+                title: 'Already got the request for this same Unit number',
+                icon: 'error',
+                heightAuto: false,
+                timer: 2000,
+                showConfirmButton: false,
+              });
+            }
+          },
+          (err) => {
+            console.log('Failed to Update');
+          }
+        );
+        Swal.fire({
+          title: 'Request Approved Successfully',
+          icon: 'success',
+          heightAuto: false,
+          timer: 2000,
+          showConfirmButton: false,
+        }).then(() => {
+          location.reload();
+        });
+      } else {
+        Swal.fire({
+          title: 'Some Error Occured',
+          icon: 'error',
+          timer: 2000,
+          heightAuto: false,
+          showConfirmButton: false,
+        }).then(() => {
+          location.reload();
+        });
+      }
+    });
+  }
+  requestrejection(leadid, execid, propid) {
+    var param = {
+      leadid: leadid,
+      propid: propid,
+      execid: execid,
+      statusid: '2',
+      remarks: 'No Comments',
+      categoryid: this.categoryid,
+    };
+    this.api.closingrequestresponse(param).subscribe((requestresponse) => {
+      if (requestresponse['status'] == 'True-1') {
+        Swal.fire({
+          title: 'Request Rejected',
+          icon: 'success',
+          heightAuto: false,
+          confirmButtonText: 'OK!',
+        }).then((result) => {
+          this.router
+            .navigate([], {
+              queryParams: {
+                editRejectedLead: null,
+              },
+              queryParamsHandling: 'merge',
+            })
+            .then(() => {
+              setTimeout(() => {
+                location.reload();
+              }, 100);
+            });
+        });
+      } else {
+        Swal.fire({
+          title: 'Some Error Occured',
+          icon: 'error',
+          heightAuto: false,
+          confirmButtonText: 'OK!',
+        }).then((result) => {
+          location.reload();
+        });
+      }
+    });
+  }
 }

@@ -94,40 +94,58 @@
               </ion-col>
               <ion-col size="6">
                 <div class="section">
-                  <p class="label">Priority </p>
-                  <p class="value">{{lead.number}}</p>
+                  <p class="label">Source </p>
+                  <p class="value">{{lead.source}}</p>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Closed </p>
+                  <p class="value">{{lead.propertyname}}</p>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="section">
+                  <p class="label">Stage </p>
+                  <p class="value">{{lead.Leadphase}}</p>
                 </div>
               </ion-col>
             </ion-row>
           </div>
         </ion-grid>
-        <div>
-          <ion-row>
-            <ion-accordion-group class="w-100">
-              <ion-accordion *ngIf="(lead.manualremarks || lead.visitremarks)" value="second"
-                style="border-top: 0.75px #ECECEC solid;" class="latestRemark">
-                <ion-item slot="header" color="light" class="custom-ion-item" style="--inner-padding-end:0;padding: 0;">
-                  <ion-label style="flex-grow: 1;margin: 5px">
-                    Latest Remark
-                  </ion-label>
-                </ion-item>
-                <div style="border-top: 0.75px #ECECEC solid;" class="p-2" slot="content">
-                  <p>{{lead.visitremarks}}</p>
-                  <p>{{lead.manualremarks}}</p>
-                  <p *ngIf="lead.manualremarks === null">{{lead.remarks}}</p>
-                </div>
-              </ion-accordion>
-            </ion-accordion-group>
-          </ion-row>
-        </div>
         <ion-row style="justify-content: end;">
-          <ion-col size="1" class="d-flex align-items-center  justify-content-center" (click)="onSwipe('call',lead)">
+          <ion-col size="5" [id]="'cpbooking-latest-remark-trigger-' + i"
+            class="d-flex align-item-center justify-content-center latest_remark_col">
+            <span>Remarks</span>
+            <ion-img class="pl-1" src="../../assets/CRMimages/chat-bubble.svg"></ion-img>
+          </ion-col>
+          <ion-col></ion-col>
+          <ion-col size="1.5" class="d-flex align-items-center justify-content-center view-icon"
+            (click)=" viewBookingDetails(lead) ">
+            <ion-icon name="eye"></ion-icon>
+          </ion-col>
+          <ion-col size="1.5" class="d-flex align-items-center justify-content-center" (click)="onSwipe('call',lead)">
             <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
           </ion-col>
-          <ion-col size="1" class="d-flex align-items-center  justify-content-center" (click)="onSwipe('chat',lead)">
+          <ion-col size="1.5" class="d-flex align-items-center justify-content-center" (click)="onSwipe('chat',lead)">
             <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
           </ion-col>
         </ion-row>
+        <ion-popover [trigger]="'cpbooking-latest-remark-trigger-' + i" triggerAction="click"
+          class="latest-remark-popover">
+          <ng-template>
+            <div style="padding: 4px;border: 1px solid #546D7E;border-radius: 4px; font-size: 0.8rem;">
+              <p
+                *ngIf="lead.visitremarks !== 'got this new lead Admin'&& lead.visitremarks != 'got this lead from Admin' ">
+                {{lead.visitremarks}}</p>
+              <p>
+                {{lead.manualremarks}}</p>
+              <p style="font-size: 12px;font-style: italic;font-weight: 600;text-align: center;"
+                *ngIf="(lead.manualremarks == null && (lead.visitremarks == null || lead.visitremarks == 'got this lead from Admin' || lead.visitremarks == 'got this new lead Admin'))">
+                No Remarks</p>
+            </div>
+          </ng-template>
+        </ion-popover>
       </ion-card>
     </ion-item>
     <ion-item-options side="end" style="background: white;">
@@ -258,3 +276,103 @@
   <ion-img src="../../../assets/cp/filter-icon.svg" (click)="onFilterModal()"></ion-img>
 </div>
 <app-cp-footer></app-cp-footer>
+
+<!-- BOOKING DETAILS MODAL -->
+<ion-modal #booking_details class="booking_details">
+  <ng-template>
+    <div class="content_center loader" *ngIf="showSpinner">
+      <ion-img style="width: 300px; height: 70px" src="../assets/CRMimages/animation/loader.gif"></ion-img>
+    </div>
+
+    <ion-header>
+      <ion-row>
+        <ion-col>Booking Details</ion-col>
+        <ion-col size="1.5" (click)="booking_details.dismiss()"
+          class="d-flex align-items-center justify-content-center">
+          <ion-icon name="close" style="font-size: 20px;"></ion-icon></ion-col>
+      </ion-row>
+    </ion-header>
+    <div style="overflow: scroll;">
+      <div *ngIf="requestedunits?.length > 0; else noData">
+        <div *ngFor="let lead of requestedunits">
+          <ion-row class="closed_lead_details m-2">
+            <ion-col size="6">
+              <div class="section">
+                <p class="label">Selected Unit</p>
+                <p class="value">{{lead.bhk}}</p>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <div class="section">
+                <p class="label">Unit Number</p>
+                <p class="value">{{lead.unit_number}}</p>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <div class="section">
+                <p class="label">Dimension</p>
+                <p class="value">{{lead.dimension}}</p>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <div class="section">
+                <p class="label">Rate Per Sqft</p>
+                <p class="value">{{lead.rate_per_sqft}}</p>
+              </div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>Uploaded Documents</ion-col>
+            <ion-col class="form-group col-12 p-0">
+              <ion-row>
+                <ng-container *ngFor="let attached of lead.images; let i = index">
+                  <ng-container *ngIf="(getExstendsion(attached.file_name) === 'jpg')">
+                    <ion-col size="6" style="height: 109px;">
+                      <span class="images" [photoGalleryGroup]>
+                        <span
+                          [photoGallery]="'https://superadmin-azure.right2shout.in/images/crm/closurefiles/'+attached.file_name">
+                          <img style="height:100%;width:100%;object-fit: fill;"
+                            [src]="'https://superadmin-azure.right2shout.in/images/crm/closurefiles/'+attached.file_name" />
+                        </span>
+                      </span>
+                    </ion-col>
+                  </ng-container>
+                  <ng-container *ngIf="(getExstendsion(attached.file_name) === 'pdf')">
+                    <ion-col size="6" style="height: 109px;">
+                      <a href="https://superadmin-azure.right2shout.in/images/crm/closurefiles/{{attached.file_name}}"
+                        target="_blank">
+                        <ion-img style="width:40%;height:40%;object-fit: fill;"
+                          src="../../assets/CRMimages/adobe-reader.svg"></ion-img>
+                        <div class="font-size10-familyPoppins font-colorBlack font-weight500 uploadedFile">
+                          {{attached.file_name}}</div>
+                      </a>
+                    </ion-col>
+                  </ng-container>
+                </ng-container>
+              </ion-row>
+            </ion-col>
+          </ion-row>
+
+          <ion-footer>
+            <ion-row style="border-top:1px solid #c8c2c2" *ngIf="stage == 'Deal Closed'">
+              <ion-col style="font-size: 12px;color:#559d00">
+                {{"Admin approved the lead on "+lead.closed_date +" , " +lead.closed_time}}
+              </ion-col>
+            </ion-row>
+
+            <div style="width: 100%;" class="modal-footer" *ngIf="stage == 'Closing Request Rejected' && roleid == 1">
+              <button type="button" class="btn btn-warning">Already Rejected</button>
+              <h4>(Waiting for the re-submission)</h4>
+            </div>
+            <!-- <ion-button class="approve" fill="clear"
+              (click)="requestapproval(lead.Lead_IDFK,lead.Exec_IDFK,lead.property)">Approve</ion-button>
+            <ion-button (click)="requestrejection(lead.Lead_IDFK,lead.Exec_IDFK,lead.property)" class="reject" fill="clear">Reject</ion-button> -->
+          </ion-footer>
+        </div>
+      </div>
+      <ng-template #noData>
+        <p class="ion-text-center">No Data Found</p>
+      </ng-template>
+    </div>
+  </ng-template>
+</ion-modal>

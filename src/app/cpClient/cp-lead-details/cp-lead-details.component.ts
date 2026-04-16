@@ -137,6 +137,8 @@ export class CpLeadDetailsComponent implements OnInit {
 
   budget_array = ['1.5Cr - 2Cr', '2Cr - 3Cr', '3Cr - 4Cr', '> 4Cr'];
   locality: any;
+  subscription: import('rxjs').Subscription;
+  closestObject: any;
 
   constructor(
     private activeroute: ActivatedRoute,
@@ -164,7 +166,8 @@ export class CpLeadDetailsComponent implements OnInit {
       name: ['', Validators.required],
       category: [[], Validators.required],
     });
-    this.activeroute.queryParams.subscribe((params) => {
+    this.subscription = this.activeroute.queryParams.subscribe((params) => {
+      this.showSpinner = true;
       this.selectedExecId = params['execid'];
       this.leadid = params['leadid'];
       this.categoryid = params['categoryid'];
@@ -209,6 +212,10 @@ export class CpLeadDetailsComponent implements OnInit {
         this.isCrmTypeSelection = false;
       } else {
         this.isCrmTypeSelection = true;
+      }
+
+      if (resp['Customerview']?.[0].latestaction) {
+        this.closestObject = resp['Customerview']?.[0].latestaction;
       }
 
       if (
@@ -1080,7 +1087,7 @@ export class CpLeadDetailsComponent implements OnInit {
       event.target.value = '';
       $('#enquiry_number')
         .focus()
-        .css('border-color', 'red')
+        .addClass('border-color')
         .attr('placeholder', 'Please enter different contact number')
         .val('');
     }
@@ -1233,9 +1240,16 @@ export class CpLeadDetailsComponent implements OnInit {
   }
 
   onCategory(id) {
+    this.junkform = false;
+    this.leadclosedform = false;
+    this.finalnegoform = false;
+    this.rsvform = false;
+    this.usvform = false;
+
     this.router.navigate([], {
       queryParams: {
         categoryid: id,
+        stageForm: this.stageForm ? this.stageForm : '',
       },
       queryParamsHandling: 'merge',
     });
@@ -1279,5 +1293,16 @@ export class CpLeadDetailsComponent implements OnInit {
         console.error('Phone number not available for the selected lead.');
       }
     }
+  }
+
+  ionViewWillLeave() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+
+  @ViewChild('closed_lead_details') closed_lead_details;
+  onClosedLeadDetailsModal() {
+    this.closed_lead_details.present();
   }
 }

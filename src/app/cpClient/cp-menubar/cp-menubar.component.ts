@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NativeBiometric } from 'capacitor-native-biometric';
+import { AuthServiceService } from 'src/app/realEstate/auth-service.service';
 import { BiometricService } from 'src/app/realEstate/biometric.service';
 import { SharedService } from 'src/app/realEstate/shared.service';
 import Swal from 'sweetalert2';
@@ -26,7 +27,8 @@ export class CpMenubarComponent implements OnInit {
     public sharedService: SharedService,
     public mainSharedService: SharedService,
     private biometricService: BiometricService,
-    public router: Router
+    public router: Router,
+    private authService: AuthServiceService
   ) {
     this.isFingureprintEnabled = localStorage.getItem('useBiometric') == 'true';
     this.iscpId = localStorage.getItem('cpId') === '1';
@@ -112,11 +114,13 @@ export class CpMenubarComponent implements OnInit {
   }
 
   async logout() {
+    localStorage.removeItem('isLoggedIn');
     Object.keys(localStorage).forEach((key) => {
       if (key !== 'Mail' && key !== 'Password' && key !== 'useBiometric') {
         localStorage.removeItem(key);
       }
     });
+    this.router.navigate(['/login']);
   }
   resetStoredData() {
     this.sharedService.enquiries = [];

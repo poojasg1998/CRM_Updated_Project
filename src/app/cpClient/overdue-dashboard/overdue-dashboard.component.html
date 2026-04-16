@@ -74,114 +74,20 @@
 </ion-row>
 
 <ion-content #content (ionScroll)="onScroll($event)" scrollEvents="true">
-  <!-- LEADS CARD -->
-  <!-- <ion-card class="leads-card" [class.selected]="filteredParams.activeCardKey == 'leads-card'">
-    <ion-row class="card-content">
-      <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
-      <ion-col
-        [ngClass]="filteredParams.selectedStage === 'Followups' && filteredParams.activeCardKey ==='leads-card'? 'selected-card border-right' : ''"
-        class="py-0 px-1"
-        (click)="applyFilter({selectedStage: 'Followups',activeCardKey:'leads-card',stage:'Fresh',stagestatus:''})">
-        <p>Followups</p>
-        <h1>{{leadsCount.followups}}</h1>
-      </ion-col>
-      <ion-col
-        [ngClass]="filteredParams.selectedStage === 'NC' && filteredParams.activeCardKey ==='leads-card' ? 'selected-card border-right-left' : ''"
-        class="py-0 px-1"
-        (click)="applyFilter({selectedStage: 'NC',activeCardKey:'leads-card',stage:'NC',stagestatus:''})">
-        <p>NC</p>
-        <h1>{{leadsCount.nc}}</h1>
-      </ion-col>
-      <ion-col
-        [ngClass]="filteredParams.selectedStage === 'USV Fix' && filteredParams.activeCardKey ==='leads-card' ? 'selected-card border-left' : ''"
-        class="py-0 px-1"
-        (click)="applyFilter({selectedStage: 'USV Fix',activeCardKey:'leads-card',stage:'USV',stagestatus:'1'})">
-        <p>USV Fix</p>
-        <h1>{{leadsCount.usvfix}}</h1>
-      </ion-col>
-    </ion-row>
-  </ion-card> -->
-
-  <!-- VISITS CARD -->
-  <!-- <ion-card class="usv-card" [class.selected]="filteredParams.activeCardKey == 'usv-card'">
-    <ion-row class="card-content ">
-      <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
-      <ion-col
-        [ngClass]="filteredParams.selectedStage === 'USV Done' && filteredParams.activeCardKey ==='usv-card'? 'selected-card border-right-bottom' : ''"
-        class="py-0 px-1"
-        (click)="applyFilter({selectedStage: 'USV Done',activeCardKey:'usv-card',stage:'USV',stagestatus:'3'})">
-        <p>USV Done</p>
-        <h1>{{leadsCount.usvdone}}</h1>
-      </ion-col>
-      <ion-col
-        [ngClass]="filteredParams.selectedStage === 'RSV Fix' && filteredParams.activeCardKey ==='usv-card' ? 'selected-card border-left-bottom-right' : ''"
-        class="py-0 px-1"
-        (click)="applyFilter({selectedStage:'RSV Fix',activeCardKey:'usv-card',stage:'RSV',stagestatus:'1'});">
-        <p>RSV Fix</p>
-        <h1>{{leadsCount.rsvfix}}</h1>
-      </ion-col>
-      <ion-col
-        [ngClass]="filteredParams.selectedStage === 'FN Fix' && filteredParams.activeCardKey ==='usv-card' ? 'selected-card border-left-bottom' : ''"
-        class="py-0 px-1"
-        (click)="applyFilter({selectedStage:'FN Fix',activeCardKey:'usv-card',stage:'Final Negotiation',stagestatus:'1'});">
-        <p>FN Fix</p>
-        <h1>{{leadsCount.fnfix}}</h1>
-      </ion-col>
-    </ion-row>
-    <ion-row class="card-content">
-      <ion-col> </ion-col>
-      <ion-col
-        [ngClass]="filteredParams.selectedStage === 'RSV Done' && filteredParams.activeCardKey ==='usv-card' ? 'selected-card border-left-top-right' : ''"
-        class="py-0 px-1"
-        (click)="applyFilter({selectedStage:'RSV Done',activeCardKey:'usv-card',stage:'RSV',stagestatus:'3'});">
-        <p>RSV Done</p>
-        <h1>{{leadsCount.rsvdone}}</h1>
-      </ion-col>
-      <ion-col
-        [ngClass]="filteredParams.selectedStage === 'FN Done' && filteredParams.activeCardKey ==='usv-card' ? 'selected-card border-left-top' : ''"
-        class="py-0 px-1"
-        (click)="applyFilter({selectedStage:'FN Done',activeCardKey:'usv-card',stage:'Final Negotiation',stagestatus:'3'});">
-        <p>FN Done</p>
-        <h1>{{leadsCount.fndone}}</h1>
-      </ion-col>
-    </ion-row>
-  </ion-card> -->
-
-  <!-- BOOKED CARD -->
-  <!-- <ion-card class="booked-card" [class.selected]="filteredParams.activeCardKey == 'booked-card'">
-    <ion-row class="card-content">
-      <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
-      <ion-col
-        [ngClass]="filteredParams.selectedStage === 'Deal Pending' && filteredParams.activeCardKey ==='booked-card'? 'selected-card border-right' : ''"
-        class="py-0 px-1" (click)="applyFilter({selectedStage:'Deal Pending',activeCardKey:'booked-card',
-        stage:'Deal Closing Pending',stagestatus:''});">
-        <p>Deal Pending</p>
-        <h1>{{leadsCount.pending}}</h1>
-      </ion-col>
-      <ion-col
-        [ngClass]="filteredParams.selectedStage === 'Deal Request' && filteredParams.activeCardKey ==='booked-card' ? 'selected-card border-left' : ''"
-        class="py-0 px-1" (click)="applyFilter({selectedStage:'Deal Request',activeCardKey:'booked-card',
-        stage:'Deal Closing Requested',stagestatus:''});">
-        <p>Deal Request</p>
-        <h1>{{leadsCount.request}}</h1>
-      </ion-col>
-    </ion-row>
-  </ion-card> -->
-
   <ion-card class="followups-card mb-0" [class.selected]="filteredParams.activeCardKey == 'followups-card'">
     <ion-row class="card-content">
       <ion-img src="../assets/CRMimages/touchedicon.svg"></ion-img>
       <ion-col
         [ngClass]="filteredParams.selectedStage === 'Followups' && filteredParams.activeCardKey ==='followups-card'? 'selected-card border-right' : ''"
         class="py-0 px-1"
-        (click)="applyFilter({selectedStage: 'Followups',activeCardKey:'followups-card',stage:'Fresh',stagestatus:''})">
+        (click)="applyFilter({selectedStage: 'Followups',activeCardKey:'followups-card',stage:'Fresh',stagestatus:'',visited_count:''});">
         <p>Followups</p>
         <h1>{{leadsCount.followups}}</h1>
       </ion-col>
       <ion-col
         [ngClass]="filteredParams.selectedStage === 'Scheduled Visits' && filteredParams.activeCardKey ==='followups-card' ? 'selected-card border-left' : ''"
         class="py-0 px-1"
-        (click)="applyFilter({selectedStage: 'Scheduled Visits',activeCardKey:'followups-card',stage:'USV',stagestatus:'1'})">
+        (click)="applyFilter({selectedStage: 'Scheduled Visits',activeCardKey:'followups-card',stage:'USV',stagestatus:'1',visited_count:''})">
         <p>Scheduled visits</p>
         <h1>{{leadsCount.usvfix}}</h1>
       </ion-col>
@@ -190,7 +96,7 @@
 
   <ion-row class="visits-row mx-1" *ngIf="visits?.length != 0">
     <ion-col *ngFor="let visit of visits" size="4"
-      (click)="applyFilter({selectedStage: ('Visits_'+visit.visit_order),activeCardKey:'visits-row', visited_count:visit.visit_order,stage:''})">
+      (click)="applyFilter({selectedStage: ('Visits '+visit.visit_order),activeCardKey:'visits-row', visited_count:visit.visit_order,stage:'',stagestatus:''})">
       <ion-card class="m-0" [ngClass]="filteredParams.visited_count == visit.visit_order?'selected':''">
         <ion-img src="../assets/cp/allVisits-card-icon.svg"></ion-img>
         <p>Visits {{visit.visit_order}}</p>
@@ -199,7 +105,7 @@
     </ion-col>
   </ion-row>
   <ion-row class="visits-row mx-1" *ngIf="visits?.length == 0">
-    <ion-col (click)="applyFilter({selectedStage: ('Visits'),activeCardKey:'visits-row',stage:''})">
+    <ion-col>
       <ion-card class="m-0" [ngClass]="filteredParams.selectedStage == 'Visits'?'selected':''">
         <ion-img src="../assets/cp/allVisits-card-icon.svg"></ion-img>
         <p>No Visits Found</p>
@@ -209,8 +115,8 @@
   </ion-row>
 
 
-  <div class="m-2">
-    <ion-row [class]="filteredParams.activeCardKey" class="rounded-0 selected-card-header">
+  <div class="m-2 mx-0">
+    <ion-row [class]="filteredParams.activeCardKey" class="sticky_header rounded-0 selected-card-header ">
       <ion-col class="d-flex align-items-center justify-content-center selected-card">
         <h1 class="text-capitalize">
           {{filteredParams.selectedStage}}
@@ -263,7 +169,7 @@
             </div>
           </ion-grid>
           <div>
-            <ion-row>
+            <!-- <ion-row>
               <ion-accordion-group class="w-100">
                 <ion-accordion *ngIf="(lead.manualremarks || lead.visitremarks)" value="second"
                   style="border-top: 0.75px #ECECEC solid;" class="latestRemark">
@@ -278,19 +184,39 @@
                     <p>{{lead.manualremarks}}</p>
                     <p *ngIf="lead.manualremarks === null">{{lead.remarks}}</p>
                   </div>
-
                 </ion-accordion>
               </ion-accordion-group>
+            </ion-row> -->
+            <ion-row style="justify-content: end;">
+              <ion-col size="5" [id]="'cpoverdue-latest-remark-trigger-' + i"
+                class="d-flex align-item-center justify-content-center latest_remark_col">
+                <span>Remarks</span>
+                <ion-img class="pl-1" src="../../assets/CRMimages/chat-bubble.svg"></ion-img>
+              </ion-col>
+              <ion-col></ion-col>
+              <ion-col size="1.5" class="d-flex align-items-center  justify-content-center"
+                (click)="onSwipe('call',lead)">
+                <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
+              </ion-col>
+              <ion-col size="1.5" class="d-flex align-items-center  justify-content-center"
+                (click)="onSwipe('chat',lead)">
+                <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
+              </ion-col>
             </ion-row>
           </div>
-          <ion-row style="justify-content: end;">
-            <ion-col size="1" class="d-flex align-items-center  justify-content-center" (click)="onSwipe('call',lead)">
-              <ion-img src="../../assets/CRMimages/call-icon.svg"></ion-img>
-            </ion-col>
-            <ion-col size="1" class="d-flex align-items-center  justify-content-center" (click)="onSwipe('chat',lead)">
-              <ion-img src="../../assets/CRMimages/what'sapp-icon.svg"></ion-img>
-            </ion-col>
-          </ion-row>
+          <ion-popover [trigger]="'cpoverdue-latest-remark-trigger-' + i" triggerAction="click"
+            class="latest-remark-popover">
+            <ng-template>
+              <div style="padding: 4px;border: 1px solid #546D7E;border-radius: 4px; font-size: 0.8rem;">
+                <p>{{lead.visitremarks}}</p>
+                <p>{{lead.manualremarks}}</p>
+                <p *ngIf="lead.manualremarks === null">{{lead.remarks}}</p>
+                <p style="font-size: 12px;font-style: italic;font-weight: 600;text-align: center;"
+                  *ngIf="(lead.manualremarks == null && (lead.visitremarks == null || lead.visitremarks == 'got this lead from Admin' || lead.visitremarks == 'got this new lead Admin'))">
+                  No Remarks</p>
+              </div>
+            </ng-template>
+          </ion-popover>
         </ion-card>
       </ion-item>
       <ion-item-options side="end" style="background: white;">
@@ -304,6 +230,8 @@
       </ion-item-options>
     </ion-item-sliding>
   </div>
+
+
   <ion-row *ngIf="(leads_detail?.length==0)" class="textStyle ion-justify-content-center ion-align-items-center">
     <ion-col class="ion-text-center"><span>No Leads Found...</span></ion-col>
   </ion-row>

@@ -10,7 +10,7 @@ import { SharedService } from 'src/app/realEstate/shared.service';
   templateUrl: './overdue-dashboard.component.html',
   styleUrls: ['./overdue-dashboard.component.scss'],
 })
-export class OverdueDashboardComponent implements OnInit {
+export class OverdueDashboardComponent {
   @ViewChild('content', { static: false }) content: IonContent;
   @ViewChild('filter_modal') filter_modal;
   @ViewChild('cp_dashboard_custDate_modal')
@@ -48,15 +48,7 @@ export class OverdueDashboardComponent implements OnInit {
 
   leadsCount = {
     followups: '',
-    nc: '',
     usvfix: '',
-    usvdone: '',
-    rsvfix: '',
-    rsvdone: '',
-    fnfix: '',
-    fndone: '',
-    pending: '',
-    request: '',
   };
   showInfiniteScroll: boolean = true;
   leads_detail: any;
@@ -70,6 +62,7 @@ export class OverdueDashboardComponent implements OnInit {
   tempFilteredValues: any;
   page: number;
   canScroll: boolean;
+  subscription: import('rxjs').Subscription;
 
   constructor(
     private activeroute: ActivatedRoute,
@@ -80,11 +73,12 @@ export class OverdueDashboardComponent implements OnInit {
     this.todayDate = new Date().toISOString();
   }
 
-  ngOnInit() {
-    this.activeroute.queryParams.subscribe(() => {
+  ionViewWillEnter() {
+    this.subscription = this.activeroute.queryParams.subscribe(() => {
       this.getQueryParams();
       // this.getLeadsCount();
-      if (this.sharedService.hasState) {
+      // alert(this.sharedService.hasState);
+      if (this.sharedService.hasState && this.sharedService.enquiries?.length) {
         this.showSpinner = false;
         this.leads_detail = this.sharedService.enquiries;
         this.page = this.sharedService.page;
@@ -132,12 +126,7 @@ export class OverdueDashboardComponent implements OnInit {
   getLeadsCount() {
     this.showSpinner = true;
     const requests = [];
-    const stage = [
-      'Fresh',
-      'NC',
-      'Deal Closing Pending',
-      'Deal Closing Requested',
-    ];
+    const stage = ['Fresh'];
     stage.forEach((stage) => {
       const params = {
         ...this.filteredParams,
@@ -155,31 +144,13 @@ export class OverdueDashboardComponent implements OnInit {
       );
     });
 
-    const stage1 = ['USV', 'RSV', 'Final Negotiation'];
+    const stage1 = ['USV'];
     stage1.forEach((stage) => {
       const params = {
         ...this.filteredParams,
         stage: stage,
         status: 'overdues',
         stagestatus: '1',
-      };
-      requests.push(
-        this.api.getAssignedLeadsCount(params).pipe(
-          catchError((error) => {
-            console.error(`Error fetching data for stage: ${stage}`, error);
-            return of(null);
-          })
-        )
-      );
-    });
-
-    const stage2 = ['USV', 'RSV', 'Final Negotiation'];
-    stage2.forEach((stage) => {
-      const params = {
-        ...this.filteredParams,
-        stage: stage,
-        status: 'overdues',
-        stagestatus: '3',
       };
       requests.push(
         this.api.getAssignedLeadsCount(params).pipe(
@@ -198,34 +169,30 @@ export class OverdueDashboardComponent implements OnInit {
             this.leadsCount.followups =
               assignleads['AssignedLeads'][0]['counts'];
             this.visits = assignleads['Visitscounts'] || [];
+
+            //highlight the visits card based on catergory select
+            if (this.filteredParams.activeCardKey === 'visits-row') {
+              const visits = assignleads['Visitscounts'] || [];
+              const matched = visits.find(
+                (item) => item.visit_order == this.filteredParams.visited_count
+              );
+
+              if (matched) {
+                this.filteredParams.visited_count = matched.visit_order;
+              } else if (visits.length > 0 && visits[0]?.visit_order) {
+                this.filteredParams.visited_count = visits[0].visit_order;
+              } else {
+                this.filteredParams.visited_count = '';
+                this.filteredParams.activeCardKey = 'followups-card';
+                this.filteredParams.selectedStage = 'Followups';
+                this.filteredParams.stage = 'Fresh';
+              }
+            }
+            console.log(this.filteredParams);
             break;
           case 1:
-            this.leadsCount.nc = assignleads['AssignedLeads'][0]['counts'];
-            break;
-          case 2:
-            this.leadsCount.pending = assignleads['AssignedLeads'][0]['counts'];
-            break;
-          case 3:
-            this.leadsCount.request = assignleads['AssignedLeads'][0]['counts'];
-            break;
-          case 4:
             this.leadsCount.usvfix = assignleads['AssignedLeads'][0]['counts'];
             this.visits = assignleads['Visitscounts'];
-            break;
-          case 5:
-            this.leadsCount.rsvfix = assignleads['AssignedLeads'][0]['counts'];
-            break;
-          case 6:
-            this.leadsCount.fnfix = assignleads['AssignedLeads'][0]['counts'];
-            break;
-          case 7:
-            this.leadsCount.usvdone = assignleads['AssignedLeads'][0]['counts'];
-            break;
-          case 8:
-            this.leadsCount.rsvdone = assignleads['AssignedLeads'][0]['counts'];
-            break;
-          case 9:
-            this.leadsCount.fndone = assignleads['AssignedLeads'][0]['counts'];
             break;
           default:
             break;
@@ -238,6 +205,8 @@ export class OverdueDashboardComponent implements OnInit {
   getLeadetails(isLoadmore) {
     this.count = isLoadmore ? (this.count += 5) : 0;
     this.filteredParams.limit = this.count;
+    console.log(this.filteredParams);
+
     return new Promise((resolve, reject) => {
       this.api
         .getAssignedLeadsDetail(this.filteredParams)
@@ -276,6 +245,8 @@ export class OverdueDashboardComponent implements OnInit {
    * @param value - The new value to set
    */
   applyFilter(filters: Record<string, any>): void {
+    this.sharedService.hasState = false;
+    this.sharedService.enquiries = [];
     this.resetInfiniteScroll();
     const today = new Date().toISOString().split('T')[0];
     Object.keys(filters).forEach((key) => {
@@ -313,6 +284,74 @@ export class OverdueDashboardComponent implements OnInit {
         this.filteredParams[key] = value;
       }
     });
+
+    // if (compleads['status'] == 'True') {
+    //   this.usvFixOverduesCount = parseInt(
+    //     compleads.AssignedLeads[0].Uniquee_counts
+    //   );
+    //   if (compleads.Visitscounts && compleads.Visitscounts.length > 0) {
+    //     this.visitsCounts = compleads.Visitscounts.map((item) => ({
+    //       visitNo: +item.visit_order,
+    //       visitedCount: +item.visited_count,
+    //       maxCount: +item.max_visited_count,
+    //     }));
+
+    //     let no =
+    //       this.selectedCategory && this.selectedCategory.startsWith('Visit')
+    //         ? this.selectedCategory.split(' ')[1]
+    //         : '';
+    //     let order = this.visitsCounts.filter((data) => data.visitNo == no);
+    //     if (order && order.length > 0) {
+    //       this.router.navigate([], {
+    //         queryParams: {
+    //           crmtype: this.selectedcrmType,
+    //         },
+    //         queryParamsHandling: 'merge',
+    //       });
+    //     } else {
+    //       this.router.navigate([], {
+    //         queryParams: {
+    //           crmtype: this.selectedcrmType,
+    //           category: 'Visit' + ' ' + this.visitsCounts[0].visitNo,
+    //         },
+    //         queryParamsHandling: 'merge',
+    //       });
+    //     }
+    //   } else {
+    //     this.visitsCounts = [];
+    //     this.router.navigate([], {
+    //       queryParams: {
+    //         crmtype: this.selectedcrmType,
+    //         category: '',
+    //       },
+    //       queryParamsHandling: 'merge',
+    //     });
+    //   }
+    // } else {
+    //   this.usvFixOverduesCount = 0;
+    //   this.visitsCounts = [];
+    //   this.router.navigate([], {
+    //     queryParams: {
+    //       crmtype: this.selectedcrmType,
+    //       category: '',
+    //     },
+    //     queryParamsHandling: 'merge',
+    //   });
+    // }
+
+    console.log(this.filteredParams);
+
+    // const params = {
+    //   status: 'overdues',
+    //   stage: 'Fresh',
+    //   loginid: localStorage.getItem('UserId'),
+    //   category: this.filteredParams.category,
+    // };
+
+    // console.log(params);
+    // this.api.getAssignedLeadsCount(params).subscribe((res) => {
+    //   console.log(res);
+    // });
 
     // Navigate ONLY ONCE
     this.router.navigate([], {
@@ -544,6 +583,11 @@ export class OverdueDashboardComponent implements OnInit {
       } else {
         console.error('Phone number not available for the selected lead.');
       }
+    }
+  }
+  ionViewWillLeave() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 }

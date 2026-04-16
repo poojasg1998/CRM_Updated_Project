@@ -4,6 +4,7 @@ import { CpApiService } from '../cp-api.service';
 import { SharedService } from 'src/app/realEstate/shared.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { IonContent } from '@ionic/angular';
 
 @Component({
   selector: 'app-add-property',
@@ -14,6 +15,7 @@ export class AddPropertyComponent implements OnInit {
   @ViewChild('addProperty') addProperty;
   @ViewChild('addSource') addSource;
   @ViewChild('addLocality') addLocality;
+  @ViewChild('scrollContent', { static: false }) scrollContent!: IonContent;
 
   catergoryid = '';
   showSpinner = false;
@@ -27,6 +29,7 @@ export class AddPropertyComponent implements OnInit {
   category = '';
   filterPropertyList: any;
   selectedCategories: any;
+  canScroll: boolean;
   constructor(
     private activeroute: ActivatedRoute,
     private router: Router,
@@ -194,21 +197,6 @@ export class AddPropertyComponent implements OnInit {
       }
     });
   }
-  // onCategory(value) {
-  //   this.router.navigate([], {
-  //     queryParams: {
-  //       catergoryid: value,
-  //     },
-  //   });
-  //   // this.category = this.category === value ? null : value;
-  //   // if (this.category != null) {
-  //   //   this.filterPropertyList = this.propertyList.filter((item) => {
-  //   //     return item.listing_category === value;
-  //   //   });
-  //   // } else {
-  //   //   this.filterPropertyList = this.propertyList;
-  //   // }
-  // }
 
   onCategory(id: string) {
     if (!this.selectedCategories) {
@@ -216,7 +204,6 @@ export class AddPropertyComponent implements OnInit {
     }
 
     const index = this.selectedCategories.indexOf(id);
-
     if (index > -1) {
       this.selectedCategories.splice(index, 1);
     } else {
@@ -232,6 +219,25 @@ export class AddPropertyComponent implements OnInit {
         categoryid: value,
       },
       queryParamsHandling: 'merge',
+    });
+  }
+
+  onScroll(event: CustomEvent) {
+    this.sharedService.scrollTop = event.detail.scrollTop;
+    const scrollTop = event.detail.scrollTop;
+    this.scrollContent.getScrollElement().then((scrollEl) => {
+      const scrollTop = scrollEl.scrollTop;
+      const scrollHeight = scrollEl.scrollHeight;
+      const clientHeight = scrollEl.offsetHeight;
+
+      this.canScroll = scrollHeight > clientHeight + 10;
+
+      if (!this.canScroll) {
+        this.sharedService.isBottom = false;
+      } else {
+        this.sharedService.isBottom =
+          scrollTop + clientHeight >= scrollHeight - 100;
+      }
     });
   }
 }

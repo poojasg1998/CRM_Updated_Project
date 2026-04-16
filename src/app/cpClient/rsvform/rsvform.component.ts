@@ -11,7 +11,14 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonModal, ModalController } from '@ionic/angular';
-import { of, switchMap } from 'rxjs';
+import {
+  distinctUntilChanged,
+  filter,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
 import Swal from 'sweetalert2';
 import { CpApiService } from '../cp-api.service';
 declare var $: any;
@@ -35,6 +42,7 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
   @Input() refreshTrigger: any;
   @Input() selectedBtn: any;
   date: String = new Date().toISOString();
+  subscription: import('rxjs').Subscription;
   assignedRM: any;
   isEdit: boolean = true;
 
@@ -86,7 +94,8 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
   lockedsession = false;
   proploopArray: visitedproperties[];
   categoryid: string;
-
+  suggestedpropertylists: any;
+  private destroy$ = new Subject<void>();
   constructor(
     private activeroute: ActivatedRoute,
     private _retailservice: CpApiService,
@@ -96,135 +105,144 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
   ) {}
   feedbackID = '0';
   ngOnInit() {
-    this.activeroute.queryParamMap.subscribe((params) => {
-      this.categoryid = params.get('categoryid');
-      const paramMap = params.get('leadid');
-      this.leadId = params.get('leadid');
-      this.feedbackID = params.get('feedback') ? params.get('feedback') : '';
-      const isEmpty = !paramMap;
-      this.userid = localStorage.getItem('UserId');
-      this.username = localStorage.getItem('Name');
+    this.loadApi();
+  }
+  loadApi() {
+    this.subscription = this.activeroute.queryParamMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        this.categoryid = params.get('categoryid');
+        const paramMap = params.get('leadid');
+        this.selectedExecId = params.get('execid');
+        this.leadId = params.get('leadid');
+        this.feedbackID = params.get('feedback') ? params.get('feedback') : '';
+        const isEmpty = !paramMap;
+        this.userid = localStorage.getItem('UserId');
+        this.username = localStorage.getItem('Name');
 
-      if ('propertyloops' in localStorage) {
-        const firstArray = JSON.parse(localStorage.getItem('propertyloops'));
-        const secondArray = JSON.parse(localStorage.getItem('visitedprop'));
+        if ('propertyloops' in localStorage) {
+          const firstArray = JSON.parse(localStorage.getItem('propertyloops'));
+          const secondArray = JSON.parse(localStorage.getItem('visitedprop'));
 
-        if (firstArray.length === 0) {
-          this.rsvpropslocally = secondArray;
+          if (firstArray.length === 0) {
+            this.rsvpropslocally = secondArray;
+          } else {
+            this.rsvpropslocally = secondArray.filter((obj) =>
+              firstArray.includes(obj.propid)
+            );
+          }
+          this.excludedIds = JSON.parse(localStorage.getItem('propertyloops'));
+          this.rsvlocalselection = true;
         } else {
-          this.rsvpropslocally = secondArray.filter((obj) =>
-            firstArray.includes(obj.propid)
-          );
+          this.rsvpropslocally = [0];
+          this.excludedIds = [0];
+          this.rsvlocalselection = false;
         }
-        this.excludedIds = JSON.parse(localStorage.getItem('propertyloops'));
-        this.rsvlocalselection = true;
-      } else {
-        this.rsvpropslocally = [0];
-        this.excludedIds = [0];
-        this.rsvlocalselection = false;
-      }
 
-      if (!isEmpty) {
-        let rmid;
-        if (this.feedbackID == '1') {
-          rmid = this.selectedExecId;
+        if (!isEmpty) {
+          let rmid;
+          if (this.feedbackID == '1') {
+            rmid = this.selectedExecId;
+          } else {
+            rmid = this.userid;
+          }
+          this._retailservice
+            .getassignedrmretail(
+              this.leadId,
+              rmid,
+              this.feedbackID,
+              this.categoryid
+            )
+            .pipe(
+              switchMap((cust) => {
+                this.executeid = cust['RMname'][0].executiveid;
+                if (this.userid == '1') {
+                  this.rsvexecutiveId = this.selectedExecId;
+                } else {
+                  this.rsvexecutiveId = this.selectedExecId;
+                }
+                this.assignedRM = cust['RMname'].filter((lead) => {
+                  return lead.RMID == this.selectedExecId;
+                });
+                this.selectedPriority = this.assignedRM[0].priority;
+                setTimeout(() => {
+                  this.handleApiFlow();
+                }, 1000);
+
+                //First, get the visit property others
+                return this.rsvexecutiveId
+                  ? this._retailservice.getactiveleadsstatus(
+                      this.leadId,
+                      this.userid,
+                      this.rsvexecutiveId,
+                      this.feedbackID,
+                      this.categoryid
+                    )
+                  : of(null);
+              }),
+              takeUntil(this.destroy$)
+            )
+            .subscribe((stagestatus) => {
+              if (stagestatus) {
+                this.activestagestatus = stagestatus['activeleadsstatus'];
+                if (
+                  this.activestagestatus[0].stage == 'RSV' &&
+                  this.activestagestatus[0].stagestatus == '1'
+                ) {
+                  this.hideafterfixed = false;
+                  this.rsvFixed = false;
+                  this.hidebeforefixed = true;
+                  if (this.selectedBtn == 'rescheduled') {
+                    this.rsvreFix = true;
+                    this.rsvDone = false;
+                  } else if (this.selectedBtn == 'updatevisit') {
+                    this.rsvreFix = false;
+                    this.rsvDone = true;
+                  }
+                  // this.rsvreFix = false;
+                  // this.rsvDone = true;
+                  $('#sectionselector').val('RSV');
+                } else if (
+                  this.activestagestatus[0].stage == 'RSV' &&
+                  this.activestagestatus[0].stagestatus == '2'
+                ) {
+                  this.hideafterfixed = false;
+                  this.rsvFixed = false;
+                  this.hidebeforefixed = true;
+                  if (this.selectedBtn == 'rescheduled') {
+                    this.rsvreFix = true;
+                    this.rsvDone = false;
+                  } else if (this.selectedBtn == 'updatevisit') {
+                    this.rsvreFix = false;
+                    this.rsvDone = true;
+                  }
+                  $('#sectionselector').val('RSV');
+                } else if (
+                  this.activestagestatus[0].stage == 'RSV' &&
+                  this.activestagestatus[0].stagestatus == '3'
+                ) {
+                  this.hideafterfixed = true;
+                  this.hidebeforefixed = false;
+                  this.rsvDone = false;
+                  this.rsvFixed = true;
+                } else {
+                  this.hideafterfixed = true;
+                }
+              }
+            });
+        }
+        this.suggestchecked = '';
+        this.visitupdate = '';
+        if (
+          $('#sectionselector').val() == 'SV' ||
+          $('#sectionselector').val() == 'USV' ||
+          $('#sectionselector').val() == 'Final Negotiation'
+        ) {
+          this.buttonhiders = false;
         } else {
-          rmid = this.userid;
+          this.buttonhiders = true;
         }
-        this._retailservice
-          .getassignedrmretail(
-            this.leadId,
-            rmid,
-            this.feedbackID,
-            this.categoryid
-          )
-          .pipe(
-            switchMap((cust) => {
-              this.executeid = cust['RMname'][0].executiveid;
-              if (this.userid == '1') {
-                this.rsvexecutiveId = this.selectedExecId;
-              } else {
-                this.rsvexecutiveId = this.selectedExecId;
-              }
-              this.assignedRM = cust['RMname'].filter((lead) => {
-                return lead.RMID == this.selectedExecId;
-              });
-              this.loadimportantapi();
-
-              //First, get the visit property others
-              return this.rsvexecutiveId
-                ? this._retailservice.getactiveleadsstatus(
-                    this.leadId,
-                    this.userid,
-                    this.rsvexecutiveId,
-                    this.feedbackID,
-                    this.categoryid
-                  )
-                : of(null);
-            })
-          )
-          .subscribe((stagestatus) => {
-            if (stagestatus) {
-              this.activestagestatus = stagestatus['activeleadsstatus'];
-              if (
-                this.activestagestatus[0].stage == 'RSV' &&
-                this.activestagestatus[0].stagestatus == '1'
-              ) {
-                this.hideafterfixed = false;
-                this.rsvFixed = false;
-                this.hidebeforefixed = true;
-                if (this.selectedBtn == 'rescheduled') {
-                  this.rsvreFix = true;
-                  this.rsvDone = false;
-                } else if (this.selectedBtn == 'updatevisit') {
-                  this.rsvreFix = false;
-                  this.rsvDone = true;
-                }
-                // this.rsvreFix = false;
-                // this.rsvDone = true;
-                $('#sectionselector').val('RSV');
-              } else if (
-                this.activestagestatus[0].stage == 'RSV' &&
-                this.activestagestatus[0].stagestatus == '2'
-              ) {
-                this.hideafterfixed = false;
-                this.rsvFixed = false;
-                this.hidebeforefixed = true;
-                if (this.selectedBtn == 'rescheduled') {
-                  this.rsvreFix = true;
-                  this.rsvDone = false;
-                } else if (this.selectedBtn == 'updatevisit') {
-                  this.rsvreFix = false;
-                  this.rsvDone = true;
-                }
-                $('#sectionselector').val('RSV');
-              } else if (
-                this.activestagestatus[0].stage == 'RSV' &&
-                this.activestagestatus[0].stagestatus == '3'
-              ) {
-                this.hideafterfixed = true;
-                this.hidebeforefixed = false;
-                this.rsvDone = false;
-                this.rsvFixed = true;
-              } else {
-                this.hideafterfixed = true;
-              }
-            }
-            this.showSpinner = false;
-          });
-      }
-      this.suggestchecked = '';
-      this.visitupdate = '';
-      if (
-        $('#sectionselector').val() == 'SV' ||
-        $('#sectionselector').val() == 'USV' ||
-        $('#sectionselector').val() == 'Final Negotiation'
-      ) {
-        this.buttonhiders = false;
-      } else {
-        this.buttonhiders = true;
-      }
-    });
+      });
   }
 
   loadimportantapi() {
@@ -236,6 +254,25 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
       feedback: this.feedbackID,
       categoryid: this.categoryid,
     };
+    console.log(param);
+
+    // .set('LeadID', param.leadid)
+    //   .set('Stage', param.stage)
+    //   .set('Execid', param.execid)
+    //   .set('assignID', param.assignid)
+    //   .set('feedback', param.feedback)
+    //   .set('Catogid', param.categoryid);
+
+    this._retailservice.getsuggestedproperties(param).subscribe((suggested) => {
+      this.suggestedpropertylists = suggested['suggestedlists'];
+      console.log(this.suggestedpropertylists);
+      // this.properties = this.properties.filter(
+      //   (prop) =>
+      //     !suggested['suggestedlists'].some((sugprop) => {
+      //       return prop.id == sugprop.propid;
+      //     })
+      // );
+    });
 
     this._retailservice
       .rsvselectproperties(param)
@@ -733,27 +770,37 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                                         $('#nextactiontime').val('');
                                         $('#customer_phase4').val('');
                                         $('#rsvtextarearemarks').val('');
-                                        Swal.fire({
-                                          title: 'RSV Fixed Successfully',
-                                          icon: 'success',
-                                          allowOutsideClick: false,
-                                          heightAuto: false,
-                                          confirmButtonText: 'OK!',
-                                        }).then((result) => {
-                                          if (result.value) {
-                                            this.modalController.dismiss();
-                                            //      const currentParams = this.activeroute.snapshot.queryParams;
-                                            // this.router.navigate([], {
-                                            // relativeTo: this.activeroute,
-                                            // queryParams: {
-                                            //   ...currentParams,
-                                            //   stageForm: 'onleadStatus'
-                                            // },
-                                            // queryParamsHandling: 'merge'
-                                            // });
-                                            location.reload();
-                                          }
-                                        });
+
+                                        this._retailservice
+                                          .updatehotwarmcold(
+                                            this.selectedPriority,
+                                            this.leadId
+                                          )
+                                          .subscribe((resp) => {
+                                            if (resp['status'] == 'True') {
+                                              Swal.fire({
+                                                title: 'RSV Fixed Successfully',
+                                                icon: 'success',
+                                                allowOutsideClick: false,
+                                                heightAuto: false,
+                                                confirmButtonText: 'OK!',
+                                              }).then((result) => {
+                                                if (result.value) {
+                                                  this.modalController.dismiss();
+                                                  //      const currentParams = this.activeroute.snapshot.queryParams;
+                                                  // this.router.navigate([], {
+                                                  // relativeTo: this.activeroute,
+                                                  // queryParams: {
+                                                  //   ...currentParams,
+                                                  //   stageForm: 'onleadStatus'
+                                                  // },
+                                                  // queryParamsHandling: 'merge'
+                                                  // });
+                                                  location.reload();
+                                                }
+                                              });
+                                            }
+                                          });
                                       } else {
                                         this.showSpinner = false;
                                       }
@@ -1080,28 +1127,38 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                               $('#nextactiontime').val('');
                               $('#customer_phase4').val('');
                               $('#rsvtextarearemarks').val('');
-                              Swal.fire({
-                                title: 'RSV Fixed Successfully',
-                                icon: 'success',
-                                heightAuto: false,
-                                allowOutsideClick: false,
-                                confirmButtonText: 'OK!',
-                              }).then((result) => {
-                                if (result.value) {
-                                  this.modalController.dismiss();
-                                  // const currentParams = this.activeroute.snapshot.queryParams;
-                                  // this.router.navigate([], {
-                                  // relativeTo: this.activeroute,
-                                  // queryParams: {
-                                  //   ...currentParams,
-                                  //   stageForm: 'onleadStatus'
-                                  // },
-                                  // queryParamsHandling: 'merge'
-                                  // });
 
-                                  location.reload();
-                                }
-                              });
+                              this._retailservice
+                                .updatehotwarmcold(
+                                  this.selectedPriority,
+                                  this.leadId
+                                )
+                                .subscribe((resp) => {
+                                  if (resp['status'] == 'True') {
+                                    Swal.fire({
+                                      title: 'RSV Fixed Successfully',
+                                      icon: 'success',
+                                      heightAuto: false,
+                                      allowOutsideClick: false,
+                                      confirmButtonText: 'OK!',
+                                    }).then((result) => {
+                                      if (result.value) {
+                                        this.modalController.dismiss();
+                                        // const currentParams = this.activeroute.snapshot.queryParams;
+                                        // this.router.navigate([], {
+                                        // relativeTo: this.activeroute,
+                                        // queryParams: {
+                                        //   ...currentParams,
+                                        //   stageForm: 'onleadStatus'
+                                        // },
+                                        // queryParamsHandling: 'merge'
+                                        // });
+
+                                        location.reload();
+                                      }
+                                    });
+                                  }
+                                });
                             } else {
                               this.showSpinner = false;
                             }
@@ -1289,27 +1346,37 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                                       $('#nextactiontime').val('');
                                       $('#customer_phase4').val('');
                                       $('#rsvtextarearemarks').val('');
-                                      Swal.fire({
-                                        title: 'RSV Fixed Successfully',
-                                        icon: 'success',
-                                        heightAuto: false,
-                                        allowOutsideClick: false,
-                                        confirmButtonText: 'OK!',
-                                      }).then((result) => {
-                                        if (result.value) {
-                                          this.modalController.dismiss();
-                                          //    const currentParams = this.activeroute.snapshot.queryParams;
-                                          // this.router.navigate([], {
-                                          // relativeTo: this.activeroute,
-                                          // queryParams: {
-                                          //   ...currentParams,
-                                          //   stageForm: 'onleadStatus'
-                                          // },
-                                          // queryParamsHandling: 'merge'
-                                          // });
-                                          location.reload();
-                                        }
-                                      });
+
+                                      this._retailservice
+                                        .updatehotwarmcold(
+                                          this.selectedPriority,
+                                          this.leadId
+                                        )
+                                        .subscribe((resp) => {
+                                          if (resp['status'] == 'True') {
+                                            Swal.fire({
+                                              title: 'RSV Fixed Successfully',
+                                              icon: 'success',
+                                              heightAuto: false,
+                                              allowOutsideClick: false,
+                                              confirmButtonText: 'OK!',
+                                            }).then((result) => {
+                                              if (result.value) {
+                                                this.modalController.dismiss();
+                                                //    const currentParams = this.activeroute.snapshot.queryParams;
+                                                // this.router.navigate([], {
+                                                // relativeTo: this.activeroute,
+                                                // queryParams: {
+                                                //   ...currentParams,
+                                                //   stageForm: 'onleadStatus'
+                                                // },
+                                                // queryParamsHandling: 'merge'
+                                                // });
+                                                location.reload();
+                                              }
+                                            });
+                                          }
+                                        });
                                     } else {
                                       this.showSpinner = false;
                                     }
@@ -1437,29 +1504,39 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                         (success) => {
                           if (success['status'] == 'True') {
                             this.showSpinner = false;
-                            Swal.fire({
-                              title: 'RSV Refixed Successfully',
-                              icon: 'success',
-                              heightAuto: false,
-                              allowOutsideClick: false,
-                              confirmButtonText: 'OK!',
-                            }).then((result) => {
-                              if (result.value) {
-                                this.cdr.detectChanges();
-                                this.modalController.dismiss();
-                                // const currentParams = this.activeroute.snapshot.queryParams;
-                                // this.router.navigate([], {
-                                // relativeTo: this.activeroute,
-                                // queryParams: {
-                                //   ...currentParams,
-                                //   stageForm: 'onleadStatus'
-                                // },
-                                // queryParamsHandling: 'merge'
-                                // });
 
-                                location.reload();
-                              }
-                            });
+                            this._retailservice
+                              .updatehotwarmcold(
+                                this.selectedPriority,
+                                this.leadId
+                              )
+                              .subscribe((resp) => {
+                                if (resp['status'] == 'True') {
+                                  Swal.fire({
+                                    title: 'RSV Refixed Successfully',
+                                    icon: 'success',
+                                    heightAuto: false,
+                                    allowOutsideClick: false,
+                                    confirmButtonText: 'OK!',
+                                  }).then((result) => {
+                                    if (result.value) {
+                                      this.cdr.detectChanges();
+                                      this.modalController.dismiss();
+                                      // const currentParams = this.activeroute.snapshot.queryParams;
+                                      // this.router.navigate([], {
+                                      // relativeTo: this.activeroute,
+                                      // queryParams: {
+                                      //   ...currentParams,
+                                      //   stageForm: 'onleadStatus'
+                                      // },
+                                      // queryParamsHandling: 'merge'
+                                      // });
+
+                                      location.reload();
+                                    }
+                                  });
+                                }
+                              });
                           } else {
                             this.showSpinner = false;
                           }
@@ -1698,6 +1775,8 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
       apitime = $('#RSVvisitedtime_val').text();
       $('#RSVvisiteddate').val(this.assignedRM[0].latest_action_date);
       $('#RSVvisitedtime').val(this.assignedRM[0].latest_action_time);
+      $('#RSVvisiteddate').val(apidate);
+      $('#RSVvisitedtime').val(apitime);
 
       // console.log(visiteddate, visitedtime);
 
@@ -2388,9 +2467,9 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
   }
 
   followupdownbtn() {
-    this.rsvDate = '';
-    this.rsvTime = '';
-    this.rsvRemark = '';
+    // this.rsvDate = '';
+    // this.rsvTime = '';
+    // this.rsvRemark = '';
     this.followdownform = true;
     this.followupdown = true;
     this.svform = false;
@@ -2673,26 +2752,36 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
                                     $('#subrsvnextactiontime').val('');
                                     $('#customer_phase4').val('');
                                     $('#subrsvtextarearemarks').val('');
-                                    Swal.fire({
-                                      title: 'RSV Fixed Successfully',
-                                      icon: 'success',
-                                      heightAuto: false,
-                                      allowOutsideClick: false,
-                                      confirmButtonText: 'OK!',
-                                    }).then((result) => {
-                                      this.rsvDoneModel.dismiss();
-                                      this.modalController.dismiss();
-                                      //  const currentParams = this.activeroute.snapshot.queryParams;
-                                      //   this.router.navigate([], {
-                                      //   relativeTo: this.activeroute,
-                                      //   queryParams: {
-                                      //     ...currentParams,
-                                      //     stageForm: 'onleadStatus'
-                                      //   },
-                                      //   queryParamsHandling: 'merge'
-                                      //   });
-                                      location.reload();
-                                    });
+
+                                    this._retailservice
+                                      .updatehotwarmcold(
+                                        this.selectedPriority,
+                                        this.leadId
+                                      )
+                                      .subscribe((resp) => {
+                                        if (resp['status'] == 'True') {
+                                          Swal.fire({
+                                            title: 'RSV Fixed Successfully',
+                                            icon: 'success',
+                                            heightAuto: false,
+                                            allowOutsideClick: false,
+                                            confirmButtonText: 'OK!',
+                                          }).then((result) => {
+                                            this.rsvDoneModel.dismiss();
+                                            this.modalController.dismiss();
+                                            //  const currentParams = this.activeroute.snapshot.queryParams;
+                                            //   this.router.navigate([], {
+                                            //   relativeTo: this.activeroute,
+                                            //   queryParams: {
+                                            //     ...currentParams,
+                                            //     stageForm: 'onleadStatus'
+                                            //   },
+                                            //   queryParamsHandling: 'merge'
+                                            //   });
+                                            location.reload();
+                                          });
+                                        }
+                                      });
                                   } else {
                                     this.showSpinner = false;
                                   }
@@ -2923,6 +3012,12 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
 
   ngOnDestroy() {
     this.closeAlert();
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   closeAlert() {
@@ -3155,8 +3250,51 @@ export class RsvformComponent implements OnInit, AfterViewChecked {
     return now;
   }
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['refreshTrigger']) {
-      this.loadimportantapi();
+    this.showSpinner = true;
+    if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
+      this.loadApi();
     }
+  }
+
+  selectsuggesteddirect3(i, id, propname) {
+    var rsvvisiteddate = $('#rsvnextactiondate').val();
+    var rsvvisitedtime = $('#rsvnextactiontime').val();
+    console.log($('#rsvcheckboxdirect3' + i).is(':checked'));
+    if ($('#rsvcheckboxdirect3' + i).is(':checked')) {
+      var checkid = $("input[name='programmingrsvdirect3']:checked")
+        .map(function () {
+          return this.value;
+        })
+        .get()
+        .join(',');
+      this.suggestchecked = checkid;
+      this.autoremarks =
+        ' added the ' + propname + ' while fixing the meeting.';
+    } else {
+      this.suggestchecked = this.removeValue(this.suggestchecked, id);
+      this.autoremarks = ' removed the ' + propname + ' from scheduled lists.';
+    }
+  }
+  ionViewWillLeave() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+
+  async handleApiFlow() {
+    this.showSpinner = true;
+
+    // Wait for the 1-second delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Wait for the API method to complete
+    await this.loadimportantapi();
+
+    this.showSpinner = false;
+  }
+  selectedPriority: string = '';
+
+  setPriority(value: string) {
+    this.selectedPriority = this.selectedPriority === value ? '' : value;
   }
 }

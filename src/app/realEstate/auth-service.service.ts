@@ -87,11 +87,11 @@ export class AuthServiceService {
     });
     sessionStorage.clear();
 
-    await Filesystem.rmdir({
-      path: '',
-      directory: Directory.Cache,
-      recursive: true,
-    });
+    // await Filesystem.rmdir({
+    //   path: '',
+    //   directory: Directory.Cache,
+    //   recursive: true,
+    // });
     location.reload();
     this.router.navigate(['/login']);
   }

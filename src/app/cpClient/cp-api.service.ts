@@ -336,7 +336,7 @@ export class CpApiService {
       .set('Actiontime', param.closetime)
       .set('accompaniedid', param.accompany)
       .set('assignID', param.assignid ?? '')
-      .set('feedback', param.feedback)
+      .set('feedback', param.feedback ?? '')
       .set('Catogid', param.categoryid);
 
     let headers = new HttpHeaders().set(
@@ -409,7 +409,8 @@ export class CpApiService {
       .set('assignID', followups.assignid)
       .set('autoremarks', followups.autoremarks)
       .set('property', followups.property)
-      .set('feedback', followups.feedback);
+      .set('feedback', followups.feedback)
+      .set('Catogid', followups.categoryid ?? '');
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -826,7 +827,8 @@ export class CpApiService {
       .set('ExecID', param.execid)
       .set('statusid', param.statusid)
       .set('remarks', param.remarks)
-      .set('assignID', param.assignid ?? '');
+      .set('assignID', param.assignid ?? '')
+      .set('Catogid', param.categoryid ?? '');
     let headers = new HttpHeaders().set(
       'Content-Type',
       'application/x-www-form-urlencoded'
@@ -1672,5 +1674,13 @@ export class CpApiService {
         headers: headers,
       })
       .pipe(map((response) => response));
+  }
+
+  uploadBulkLeadsService(param) {
+    // return this.http
+    //   .post(this.retailcrm + '/uploadbulkfile', param)
+    //   .pipe(map((response) => response.json()));
+
+    return this.http.post(this.retailcrm + '/uploadbulkfile', param);
   }
 }

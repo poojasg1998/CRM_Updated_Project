@@ -322,3 +322,68 @@ ion-modal.filter_modal {
   width: 100%;
   padding-left: 10px;
 }
+
+.latest_remark_col {
+  background: #546d7e;
+  border-radius: 0 4px 4px 4px;
+  span {
+    color: white;
+    font-size: 0.9rem;
+  }
+}
+
+.view-icon {
+  ion-icon {
+    border: 1px solid;
+    border-radius: 6px;
+    padding: 3px;
+    color: white;
+    background-color: #0b7ab2;
+  }
+}
+
+ion-modal.booking_details::part(content) {
+  border-radius: 6px 6px 0 0 !important;
+  // overflow: hidden;
+}
+ion-modal.booking_details {
+  ion-header {
+    background: linear-gradient(180deg, #ffffff 0%, #efefef 100%);
+  }
+
+  .label {
+    margin-bottom: 0;
+    color: #8a8a8a !important;
+    font-size: 0.714rem;
+  }
+
+  .value {
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 0.7rem;
+  }
+  .closed_lead_details {
+    background: #f3f3f3;
+    border: 1px solid #e8e7e7;
+  }
+  .approve {
+    background: #559d00;
+    color: white;
+    border-radius: 4px;
+    text-transform: none;
+  }
+  .reject {
+    background: #be245a;
+    color: white;
+    border-radius: 4px;
+    text-transform: none;
+  }
+}
+
+.booking_details::part(content) {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: auto;
+  max-height: 90vh;
+  border-radius: 16px 16px 0 0;
+}

@@ -155,8 +155,8 @@ export class SharedService {
     // if(login == 'ranav_group'){
     //   this.loginUrl = 'https://superadmin-azure.right2shout.in/ranav_group/admincrm_test_test/login'
     // }else{
-    if (login == 'crm_cpclient_login') {
-      this.loginMethodname = 'crm_cpclient_login';
+    if (login == 'crm_cpclient_login_mbapp') {
+      this.loginMethodname = 'crm_cpclient_login_mbapp';
     } else {
       this.loginMethodname = 'login_mbapp';
     }

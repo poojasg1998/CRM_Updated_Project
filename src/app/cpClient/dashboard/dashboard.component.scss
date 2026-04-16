@@ -116,11 +116,20 @@ ion-content {
   border: none !important;
   margin: 4px;
 
+  div {
+    border: none !important;
+  }
   ion-col {
     background-color: white;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 500;
+  }
+  .active_btn {
+    div {
+      border: none !important;
+      color: white !important;
+    }
   }
 }
 
@@ -132,7 +141,7 @@ ion-content {
 
 .selected-card-head {
   .allvisits-card {
-    border-color: #180d6e;
+    border-color: #180d6e !important;
   }
 }
 
@@ -988,4 +997,24 @@ ion-modal.filter_modal {
 
 .filter_opt {
   z-index: 9 !important;
+}
+.total-received-card-style {
+  margin: 7px 0;
+  border: 1px solid #02abff;
+  border-left: none;
+  padding: 5px 1px !important;
+  background-color: #02abff;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+  p {
+    color: white !important;
+  }
+}
+.latest_remark_col {
+  background: #546d7e;
+  border-radius: 0 4px 4px 4px;
+  span {
+    color: white;
+    font-size: 0.9rem;
+  }
 }

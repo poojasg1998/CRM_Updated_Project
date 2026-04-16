@@ -19,6 +19,7 @@ import { SharedService } from '../realEstate/shared.service';
 import { BiometricService } from '../realEstate/biometric.service';
 import { ShreeindustriesApiService } from '../construction/shreeindustries-api.service';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
+import { LocalNotifications } from '@capacitor/local-notifications';
 declare var window: any;
 
 @Component({
@@ -487,6 +488,7 @@ export class LoginComponent implements OnInit {
                     }
                   });
                   this.authService.logout();
+                  this.sharedService.isMenuOpen = false;
                 });
               } else if (
                 this.isNewVersionAvailable(
@@ -542,7 +544,7 @@ export class LoginComponent implements OnInit {
             }
           });
         } else {
-          this.sharedService.setloginState('crm_cpclient_login');
+          this.sharedService.setloginState('crm_cpclient_login_mbapp');
           setTimeout(() => {
             this.sharedService
               .getlogin(data1, data2, '', '')
@@ -603,6 +605,10 @@ export class LoginComponent implements OnInit {
                     'chat_enroll_status',
                     success['details'][0].chat_enroll_status
                   );
+                  localStorage.setItem(
+                    'client_id',
+                    success['details'][0].client_idfk
+                  );
 
                   this.sharedService.setChatFeature(
                     success['details'][0].chat_enroll_status
@@ -658,6 +664,7 @@ export class LoginComponent implements OnInit {
                         setTimeout(() => {
                           if (!localStorage.getItem('useBiometric')) {
                             this.showSpinner = false;
+                            alert(this.enableFingerPrintModal);
                             this.enableFingerPrintModal = true;
                           } else if (
                             localStorage.getItem('useBiometric') == 'true'
@@ -667,6 +674,13 @@ export class LoginComponent implements OnInit {
                         }, 1000);
                       }
                     });
+
+                  this.platform.ready().then(() => {
+                    if (this.platform.is('hybrid')) {
+                      this.initializeFCM();
+                    } else {
+                    }
+                  });
                   // },1000)
                 } else {
                   // this.shreeindustriesService
@@ -889,37 +903,62 @@ export class LoginComponent implements OnInit {
 
   async initializeFCM() {
     try {
-      const permission = await FirebaseMessaging.requestPermissions();
+      alert('INSIDE TRY');
+      // const permission = await FirebaseMessaging.requestPermissions();
+      // alert('Current Status: ' + permission.receive);
+      // if (permission.receive !== 'granted') {
+      //   alert('❌ Permission not granted');
+      //   return;
+      // }
 
-      if (permission.receive !== 'granted') {
-        console.log('❌ Permission not granted');
+      // 1. Check if notifications are ACTUALLY enabled in system settings
+      const checkStatus = await LocalNotifications.requestPermissions();
+
+      if (checkStatus.display !== 'granted') {
+        // 2. If they are OFF, requestPermissions() will NOT show a popup.
+        // You must tell the user to go to settings.
+
+        alert(
+          'Notifications are disabled in your phone settings. Please enable them to receive updates.'
+        );
         return;
       }
+      alert(checkStatus.display);
 
-      const tokenResult = await FirebaseMessaging.getToken();
-      const newToken = tokenResult.token;
+      // 3. If they are ON but you haven't requested the FCM permission yet:
+      const permission = await FirebaseMessaging.requestPermissions();
+      let newToken;
+      if (permission.receive === 'granted') {
+        const tokenResult = await FirebaseMessaging.getToken();
+        newToken = tokenResult.token;
+        console.log('FCM Token:', tokenResult.token);
+      }
 
+      // const tokenResult = await FirebaseMessaging.getToken();
+      alert(newToken);
       const storedToken = localStorage.getItem('fcmToken');
 
       //SAME token → skip API call
       if (storedToken === newToken) {
-        console.log('✅ FCM token already stored, skipping API');
+        alert('✅ FCM token already stored, skipping API');
         return;
       }
 
       // Token changed or first time
       localStorage.setItem('fcmToken', newToken);
 
+      alert(newToken);
       const param = {
         user_id: localStorage.getItem('UserId'),
-        fcw_token: newToken,
+        fcm_token_app: newToken,
       };
 
       this.sharedService.ads_fcmToken(param).subscribe({
-        next: (res) => console.log('✅ Token saved:', res),
+        next: (res) => alert('✅ Token saved:' + res),
         error: (err) => console.error('❌ Error saving token:', err),
       });
     } catch (error) {
+      alert('INSIDE catch');
       console.error('❌ FCM error:', error);
     }
   }
